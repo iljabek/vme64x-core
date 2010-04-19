@@ -1,0 +1,22 @@
+elbread.dll ver. 1.0.5.375 Mon Mar 15 16:05:37 2010
+
+
+------------------------------------------------------------------
+Entity                                 | Architecture | Library 
+------------------------------------------------------------------
+vme_bus                                | rtl          | vme64xcore
+siginputsampleandfallingedgedetection  | rtl          | vme64xcore
+siginputsampleandrisingedgedetection   | rtl          | vme64xcore
+reginputsample                         | rtl          | vme64xcore
+siginputsample                         | rtl          | vme64xcore
+------------------------------------------------------------------
+
+-----------------------------
+Package             | Library
+-----------------------------
+standard            | std
+textio              | std
+std_logic_1164      | ieee
+std_logic_arith     | ieee
+std_logic_unsigned  | ieee
+-----------------------------

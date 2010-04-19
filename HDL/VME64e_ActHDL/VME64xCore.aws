@@ -1,0 +1,12 @@
+[Version]
+Version=8.1
+[Designs]
+vme64xcore=.\VME64xCore\VME64xCore.adf
+[Expand]
+vme64xcore=1
+[Browser]
+sort=order
+mode=none
+[Order]
+order=1
+macro=

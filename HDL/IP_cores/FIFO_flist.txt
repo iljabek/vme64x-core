@@ -1,0 +1,10 @@
+# Output products list for <FIFO>
+FIFO.gise
+FIFO.ise
+FIFO.ngc
+FIFO.vhd
+FIFO.vho
+FIFO.xco
+FIFO.xise
+FIFO_flist.txt
+FIFO_xmdf.tcl
