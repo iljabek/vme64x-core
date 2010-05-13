@@ -23,7 +23,8 @@
 --{entity {IRQ_controller} architecture {RTL}}
 
 library IEEE;
-use IEEE.STD_LOGIC_1164.all;
+use IEEE.STD_LOGIC_1164.all; 
+use IEEE.STD_LOGIC_unsigned.all;
 
 entity IRQ_controller is
      port(
@@ -36,15 +37,16 @@ entity IRQ_controller is
         VME_DS_n_i :        in STD_LOGIC_VECTOR(1 downto 0);
         irqDTACK_o :        out std_logic;
         IACKinProgress_o:   out std_logic;
-        IRQ_i:              in std_logic_vector(6 downto 0);
+        IRQ_i:              in std_logic;
         locAddr_i:          in std_logic_vector(3 downto 1);
-        IDtoData_o:         out std_logic
+        IDtoData_o:         out std_logic;
+		IRQlevelReg_i:		in std_logic_vector(7 downto 0)
         );
 end IRQ_controller;
 
 architecture RTL of IRQ_controller is
 
-component StretchedRisEdgeDetection is
+component RisEdgeDetection is
     port (
         sig_i, clk_i: in std_logic;
         RisEdge_o: out std_logic );
@@ -72,13 +74,13 @@ signal VME_DS_n_oversampled : STD_LOGIC_VECTOR(1 downto 0);
 
 signal s_reset: std_logic;
 
-signal s_IRQreg: std_logic_vector(6 downto 0);	        -- stores information on pending interrupt requests
-signal s_irqDTACK: std_logic;					        -- acknowledge of IACK cycle
-signal s_applyIRQmask: std_logic;				        -- used for clearing acknowledged interrupt requests
+signal s_irqDTACK: std_logic;					        -- acknowledge of IACK cycle 
+signal s_applyIRQmask: std_logic;						-- clears acknowlegded interrupt
 signal s_IDtoData: std_logic;					        -- puts IRQ Status/ID register on data bus
 signal s_IACKmatch: std_logic;					        -- signals that an active interrupt is being acknowledged
-signal s_IRQclearMask: std_logic_vector(6 downto 0);	-- mask for clearing acknowledged interrupts
-signal s_wbIRQrisingEdge: std_logic_vector(6 downto 0);	-- rising edge detection on interrupt lines
+signal s_wbIRQrisingEdge: std_logic;					-- rising edge detection on interrupt line 
+signal s_IRQenabled: std_logic;							-- indicates that interrupts are enabled (IRQlevelReg has a valid level value)	
+signal s_IRQreg: std_logic;								-- registers pending interrupt
 
 type t_IRQstates is (IDLE, WAIT_FOR_DS, CHECK_MATCH, APPLY_MASK_AND_DATA, PROPAGATE_IACK, APPLY_DTACK);
 signal s_IRQstate: t_IRQstates;
@@ -182,17 +184,10 @@ begin
         end if;
     end if;
 end process;
-                
-s_IRQclearMask <=   "0000001" when locAddr_i="001" else
-                    "0000010" when locAddr_i="010" else
-                    "0000100" when locAddr_i="011" else
-                    "0001000" when locAddr_i="100" else
-                    "0010000" when locAddr_i="101" else
-                    "0100000" when locAddr_i="110" else
-                    "1000000" when locAddr_i="111" else
-                    "0000000";
                     
-s_IACKmatch <= '1' when (s_IRQclearMask and s_IRQreg)/="0000000" else '0';
+s_IACKmatch <= '1' when "00000"&locAddr_i = IRQlevelReg_i else '0';
+	
+s_IRQenabled <= '1' when IRQlevelReg_i < 8 and IRQlevelReg_i /= 0 else '0';
     
 IDtoData_o <= s_IDtoData;
 
@@ -200,36 +195,27 @@ p_IRQregHandling: process(clk_i)
 begin
     if rising_edge(clk_i) then
         if s_reset='1' then
-            s_IRQreg <= (others => '0');
+            s_IRQreg <= '0';
         elsif s_applyIRQmask='1' then
-            for i in 0 to 6 loop
-                if s_IRQclearMask(i)='1' then
-                    s_IRQreg(i) <= '0';
-                end if;
-            end loop;
+            s_IRQreg <= '0';
         else
-            for i in 0 to 6 loop
-                if s_wbIRQrisingEdge(i)='1' then         -- s_wbIRQrisingEdge is 2 clock cycles long so an interrupt wouldn't be missed because of s_applyIRQmask priority
-                    s_IRQreg(i) <= '1';
-                end if;
-            end loop;
+            if s_wbIRQrisingEdge='1' and s_IRQenabled='1' then
+                s_IRQreg <= '1';
+            end if;												 
         end if;
     end if;
 end process;  
-        
 
-gen2: for i in 0 to 6 generate
-    VME_IRQ_n_o(i) <= '0' when s_IRQreg(i)='1' else 'Z';
-end generate;  
-
-gen1: for i in 0 to 6 generate
-IRQrisingEdge: StretchedRisEdgeDetection
-port map (
-        sig_i => IRQ_i(i), 
-        clk_i => clk_i,
-        RisEdge_o => s_wbIRQrisingEdge(i)
-        );
+gen_IRQoutput: for i in 0 to 6 generate        
+	VME_IRQ_n_o(i) <= '0' when s_IRQreg='1' and IRQlevelReg_i=(i+1) else 'Z';
 end generate;
+
+IRQrisingEdge: RisEdgeDetection
+port map (
+        sig_i => IRQ_i, 
+        clk_i => clk_i,
+        RisEdge_o => s_wbIRQrisingEdge
+        );
 
 IACKINinputSample: SigInputSample
     port map(

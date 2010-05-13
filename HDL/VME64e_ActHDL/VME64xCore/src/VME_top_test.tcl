@@ -48,7 +48,7 @@ wave VME_bus_1/s_FUNC_AM(0)
 
 wave s_memReq
 wave s_memAckWB
-wave VME_bus_1/s_memAckCSR
+wave VME_bus_1/s_memAckCSR(2)
 wave VME_bus_1/s_CSRaddressed
 wave VME_bus_1/s_CRAMaddressed
 wave VME_bus_1/s_CRaddressed 
@@ -96,7 +96,7 @@ wave ADR_o
 
 force clk_i 0 0, 1 0.5 ns -r 1 ns
 
-force VME_RST_n_i 1 0
+force VME_RST_n_i 0 0, 1 2 ns
 
 force VME_AS_n_i 1 0, 0 110 ns, 1 165 ns, 0 180 ns, 1 198 ns, 0 200 ns, 1 211 ns, 0 225 ns, 1 275 ns, 0 285 ns, 1 310 ns, 0 320 ns, 1 345 ns, 0 365 ns, 1 380 ns, 0 425 ns, 1 435 ns, 0 445 ns, 1 455 ns, 0 470 ns, 1 520 ns, 0 530 ns
 force VME_DS_n_i "11" 0, "10" 120 ns, "11" 135 ns, "10" 145 ns, "11" 160 ns, "10" 181 ns, "11" 192 ns, "10" 201 ns, "11" 210 ns, "00" 226 ns, "11" 270 ns, "10" 290 ns, "11" 305 ns, "10" 325 ns, "11" 454 ns, "10" 472 ns, "11" 481 ns, "10" 488 ns, "00" 496 ns, "10" 504 ns, "00" 512 ns, "11" 518 ns, "10" 532 ns, "11" 541 ns, "10" 548 ns, "00" 556 ns
@@ -108,9 +108,9 @@ force VME_WRITE_n_i 1 0, 0 144 ns, 1 220 ns, 0 280 ns, 1 315 ns, 0 496 ns, 1 529
 
 force VME_BBSY_n_i 1 1, 0 420 ns, 1 460 ns
 
-force VME_DATA_b "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" 0, "16#10" 144 ns, "16#FF" 169 ns, "16#05" 200 ns, "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" 220 ns, "16#AB" 280 ns, "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" 315 ns, "16#00000000" 469 ns, "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" 553 ns
+force VME_DATA_b "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" 0, "16#10" 144 ns, "16#FF" 169 ns, "16#49" 200 ns, "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" 220 ns, "16#AB" 280 ns, "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" 315 ns, "16#00000000" 469 ns, "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" 553 ns
 																					  #"16#34"
-																					  #"16#49"
+																					  #"16#05"
 force VME_GA_i "011111"	0															  
 
 #force s_WBdataOut "16#FFFFFFFF" 0

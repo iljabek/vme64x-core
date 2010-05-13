@@ -24,8 +24,9 @@ use IEEE.STD_LOGIC_1164.all;
 
 entity VME64xCore_Top is
     port(
-        clk_i :             in STD_LOGIC;
-                            
+	    clk_i :             in STD_LOGIC;
+
+        -- VME                            
         VME_AS_n_i :        in STD_LOGIC;
         VME_RST_n_i :       in STD_LOGIC;
         VME_WRITE_n_i :     in STD_LOGIC;
@@ -42,14 +43,16 @@ entity VME64xCore_Top is
         VME_IRQ_n_o :       out std_logic_vector(6 downto 0);
         VME_IACKIN_n_i :    in std_logic;
         VME_IACKOUT_n_o :   out std_logic;
-        
+		
+        -- VME buffers
         VME_DTACK_OE_o:     out std_logic;
         VME_DATA_DIR_o:     out std_logic;
         VME_DATA_OE_o:      out std_logic;
         VME_ADDR_DIR_o:     out std_logic;
         VME_ADDR_OE_o:      out std_logic;
-       
-           RST_i:           in std_logic;
+		
+       	-- WishBone
+        RST_i:              in std_logic;
         DAT_i:              in std_logic_vector(63 downto 0);
         DAT_o:              out std_logic_vector(63 downto 0);
         ADR_o:              out std_logic_vector(63 downto 0);
@@ -61,7 +64,20 @@ entity VME64xCore_Top is
         STB_o:              out std_logic;
         ACK_i:              in std_logic;
         WE_o:               out std_logic;
-        IRQ_i:              in std_logic_vector(6 downto 0)
+        STALL_i:            in std_logic;
+		
+		-- IRQ
+        IRQ_i:              in std_logic;
+		
+		-- CROM
+        CRaddr_o:             out std_logic_vector(18 downto 0);
+        CRdata_i:             in std_logic_vector(7 downto 0);
+        
+        -- CRAM
+        CRAMaddr_o:           out std_logic_vector(18 downto 0);
+        CRAMdata_o:           out std_logic_vector(7 downto 0);
+        CRAMdata_i:           in std_logic_vector(7 downto 0);
+        CRAMwea_o:            out std_logic
   );
 end VME64xCore_Top;
 
@@ -118,18 +134,22 @@ component VME_bus
         err_i:                in std_logic;
         rty_i:                in std_logic;
         mainFSMreset_o:       out std_logic;
+        beatCount_o:          out std_logic_vector(7 downto 0);
         
         -- IRQ controller signals
         irqDTACK_i:          in std_logic;
         IACKinProgress_i:    in std_logic;
         IDtoData_i:          in std_logic;
+		IRQlevelReg_o:		 out std_logic_vector(7 downto 0);
         
-        -- 2eSST related signals
+        -- 2e related signals
         FIFOwren_o:         out std_logic;
         FIFOdata_o:         out std_logic_vector(63 downto 0);
-        SSTinProgress_o:    out std_logic;
-        WBbusy_i:           in std_logic
-		
+        FIFOrden_o:         out std_logic;
+        FIFOdata_i:         in std_logic_vector(63 downto 0);
+        TWOeInProgress_o:   out std_logic;
+        WBbusy_i:           in std_logic;
+        readFIFOempty_i:    in std_logic
          );
 end component; 
 
@@ -150,7 +170,7 @@ component WB_bus is
         STB_o:           out std_logic;
         ACK_i:           in std_logic;
         WE_o:            out std_logic;
-        IRQ_i:           in std_logic_vector(6 downto 0);
+        IRQ_i:           in std_logic;
         
         memReq_i:        in std_logic;                 
         memAck_o:        out std_logic;                  
@@ -160,17 +180,20 @@ component WB_bus is
         sel_i:           in std_logic_vector(7 downto 0);
         RW_i:            in std_logic;                 
         lock_i:          in std_logic;                 
-        IRQ_o:           out std_logic_vector(6 downto 0);
+        IRQ_o:           out std_logic;
         err_o:           out std_logic;
         rty_o:           out std_logic;
         cyc_i:           in std_logic;
         
         mainFSMreset_i:  in std_logic;
+        beatCount_i:     in std_logic_vector(7 downto 0);
         
         FIFOrden_o:      out std_logic;
+		FIFOwren_o:      out std_logic;
         FIFOdata_i:      in std_logic_vector(63 downto 0);
-        FIFOempty_i:     in std_logic;
-        SSTinProgress_i: in std_logic;
+        FIFOdata_o:      out std_logic_vector(63 downto 0);		
+        writeFIFOempty_i: in std_logic;
+        TWOeInProgress_i: in std_logic;
         WBbusy_o:        out std_logic
         
         );    
@@ -187,9 +210,10 @@ component IRQ_controller is
         VME_DS_n_i :        in STD_LOGIC_VECTOR(1 downto 0);
         irqDTACK_o :        out std_logic;
         IACKinProgress_o:   out std_logic;
-        IRQ_i:              in std_logic_vector(6 downto 0);
+        IRQ_i:              in std_logic;
         locAddr_i:          in std_logic_vector(3 downto 1);
-        IDtoData_o:         out std_logic
+        IDtoData_o:         out std_logic;
+		IRQlevelReg_i:		in std_logic_vector(7 downto 0)
         );
 end component;
 
@@ -236,29 +260,43 @@ signal s_WBdataOut: std_logic_vector(63 downto 0);
 signal s_WBsel: std_logic_vector(7 downto 0);     
 signal s_memAckWB: std_logic;  
 signal s_memReq: std_logic;
-signal s_IRQ: std_logic_vector(6 downto 0);
+signal s_IRQ: std_logic;
 signal s_cyc: std_logic;
 signal s_reset: std_logic; 
 signal s_err: std_logic;
 signal s_rty: std_logic;
 
 signal s_irqDTACK: std_logic;      
-signal s_IACKinProgress: std_logic;
+signal s_IACKinProgress: std_logic;	
+signal s_IRQlevelReg: std_logic_vector(7 downto 0);
+signal s_IDtoData: std_logic;
 
 signal s_mainFSMreset: std_logic;
 
-signal s_FIFOwren: std_logic;
-signal s_FIFOdin: std_logic_vector(63 downto 0); 
-signal s_FIFOdout: std_logic_vector(63 downto 0);
-signal s_FIFOempty: std_logic;
+signal s_FIFOreadWren: std_logic;
+signal s_FIFOwriteWren: std_logic;
+signal s_FIFOwriteDin: std_logic_vector(63 downto 0); 
+signal s_FIFOreadDout: std_logic_vector(63 downto 0);
+signal s_FIFOwriteDout: std_logic_vector(63 downto 0); 
+signal s_FIFOreadDin: std_logic_vector(63 downto 0);
+signal s_FIFOreadEmpty: std_logic;
+signal s_FIFOwriteEmpty: std_logic;
 signal s_FIFOfull: std_logic;
-signal s_FIFOrden: std_logic;
-signal s_SSTinProgress: std_logic;
+signal s_FIFOwriteRden: std_logic;
+signal s_FIFOreadRden: std_logic;
+signal s_TWOeInProgress: std_logic;
 signal s_WBbusy: std_logic;
+signal s_beatCount:	std_logic_vector(7 downto 0);
 
-signal s_IDtoData: std_logic;
 
-begin
+begin 
+	
+s_CRAMdataOut <= CRAMdata_i;
+CRAMaddr_o <= s_CRAMaddr;
+CRAMdata_o <= s_CRAMdataIn;
+CRAMwea_o <= s_CRAMwea;
+CRaddr_o <= s_CRaddr;
+s_CRdata <= CRdata_i;
 
 VME_bus_1 : VME_bus
   port map(
@@ -274,7 +312,7 @@ VME_bus_1 : VME_bus
        VME_ADDR_b =>         VME_ADDR_b,
        VME_DATA_b =>         VME_DATA_b,
        VME_LWORD_n_b =>      VME_LWORD_n_b,
-       VME_BBSY_n_i =>        VME_BBSY_n_i,
+       VME_BBSY_n_i =>       VME_BBSY_n_i,
        VME_IACKIN_n_i =>     VME_IACKIN_n_i,
        
        VME_DTACK_OE_o =>     VME_DTACK_OE_o,
@@ -305,15 +343,21 @@ VME_bus_1 : VME_bus
        err_i =>              s_err,
        rty_i =>              s_rty,
        mainFSMreset_o =>     s_mainFSMreset,
+       beatCount_o =>        s_beatCount,   
                             
        irqDTACK_i =>         s_irqDTACK,
        IACKinProgress_i =>   s_IACKinProgress,
        IDtoData_i =>         s_IDtoData,
+       IRQlevelReg_o =>		 s_IRQlevelReg,
        
-       FIFOwren_o =>         s_FIFOwren,   
-       FIFOdata_o =>         s_FIFOdin,
-       SSTinProgress_o =>    s_SSTinProgress,
-       WBbusy_i    =>        s_WBbusy
+       FIFOwren_o =>         s_FIFOwriteWren,   
+       FIFOdata_o =>         s_FIFOwriteDin, 
+       FIFOrden_o =>         s_FIFOreadRden,
+       FIFOdata_i =>         s_FIFOreadDout, 
+	   TWOeInProgress_o	=>	 s_TWOeInProgress,
+	   WBbusy_i =>       	 s_WBbusy,
+	   readFIFOempty_i =>	 s_FIFOreadEmpty 
+	   
   );
   
 WB_bus_1: WB_bus  
@@ -333,6 +377,7 @@ WB_bus_1: WB_bus
         STB_o =>     STB_o,
         ACK_i =>     ACK_i,
         WE_o =>      WE_o,
+        STALL_i =>   STALL_i,
         IRQ_i =>     IRQ_i,
         
         memReq_i =>         s_memReq,       
@@ -348,12 +393,15 @@ WB_bus_1: WB_bus
         rty_o =>            s_rty,
         cyc_i =>            s_cyc,
         mainFSMreset_i =>   s_mainFSMreset,
+		beatCount_i =>      s_beatCount,
         
-        FIFOrden_o =>       s_FIFOrden,
-        FIFOdata_i =>       s_FIFOdout,
-        FIFOempty_i =>       s_FIFOempty,
-        SSTinProgress_i =>   s_SSTinProgress,
-        WBbusy_o =>           s_WBbusy
+        FIFOrden_o =>       s_FIFOwriteRden,
+        FIFOwren_o =>       s_FIFOreadWren,
+        FIFOdata_i =>       s_FIFOwriteDout,
+        FIFOdata_o =>       s_FIFOreadDin,
+        writeFIFOempty_i => s_FIFOwriteEmpty,
+        TWOeInProgress_i => s_TWOeInProgress,
+        WBbusy_o =>         s_WBbusy
         );
         
 IRQ_controller_1: IRQ_controller
@@ -369,7 +417,8 @@ IRQ_controller_1: IRQ_controller
         IACKinProgress_o =>  s_IACKinProgress,
         IRQ_i =>             IRQ_i,
         locAddr_i =>         s_locAddr(3 downto 1),
-        IDtoData_o =>        s_IDtoData
+        IDtoData_o =>        s_IDtoData,
+		IRQlevelReg_i =>     s_IRQlevelReg
         );
 
 CR_1 : CR
@@ -388,16 +437,28 @@ CRAM_1: CRAM
         douta =>    s_CRAMdataOut
         );
         
-FIFO_1: FIFO
+FIFO_write: FIFO
     port map(
         clk =>   clk_i,
-        din =>   s_FIFOdin,
-        rd_en => s_FIFOrden,
+        din =>   s_FIFOwriteDin,
+        rd_en => s_FIFOwriteRden,
         rst =>   s_reset,
-        wr_en => s_FIFOwren,
-        dout =>  s_FIFOdout,
-        empty => s_FIFOempty,
+        wr_en => s_FIFOwriteWren,
+        dout =>  s_FIFOwriteDout,
+        empty => s_FIFOwriteEmpty,
         full =>  s_FIFOfull
+    );
+	
+FIFO_read: FIFO
+    port map(
+        clk =>   clk_i,
+        din =>   s_FIFOreadDin,
+        rd_en => s_FIFOreadRden,
+        rst =>   s_reset,
+        wr_en => s_FIFOreadWren,
+        dout =>  s_FIFOreadDout,
+        empty => s_FIFOreadEmpty,
+        full =>  open
     );
 
 end RTL;

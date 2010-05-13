@@ -1,2 +1,7 @@
+.\..\..\VME64e_ActHDL_src\VME_pack.vhd
 .\..\..\VME64e_ActHDL_src\SharedComps.vhd
 .\..\..\VME64e_ActHDL_src\VME_bus.vhd
+.\..\..\VME64e_ActHDL_src\WB_bus.vhd
+.\..\..\VME64e_ActHDL_src\IRQ_controller.vhd
+.\..\..\VME64e_ActHDL_src\VME64xCore_Top.vhd
+.\synthesis\vme64xcore_top.vhd

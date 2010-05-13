@@ -36,7 +36,7 @@ Celoxica=0
 UseCeloxica=0
 PHYSSYNTH_STATUS=none
 RUN_MODE_SYNTH=0
-SYNTH_STATUS=errors
+SYNTH_STATUS=warnings
 IMPL_STATUS=none
 PCBINTERFACE_STATUS=NONE
 C_SERVER_SIM=
@@ -44,6 +44,7 @@ C_SERVER_SYNTH=
 C_SERVER_IMPL=
 VerilogDirsChanged=0
 FUNC_LIB=vme64xcore
+TIM_LIB=vme64xcore_timing
 POST_LIB=vme64xcore_post_synthesis
 
 [IMPLEMENTATION]
@@ -53,14 +54,14 @@ FLOW_STEPS_RESET=0
 FAMILY=Xilinx10x VIRTEX5
 DEVICE=5vlx20tff323
 SPEED=-2
-NETLIST=D:\CSL\SVN\FAIR-VME64ext\trunk\HDL\VME64e_ActHDL\VME64xCore\synthesis\vme_bus.ngc
+NETLIST=d:\CSL\SVN\FAIR-VME64ext\trunk\HDL\VME64e_ActHDL\VME64xCore\synthesis\vme64xcore_top.ngc
 
 [PHYS_SYNTHESIS]
 FAMILY=Xilinx10x VIRTEX5
 DEVICE=5vlx20tff323
 SPEED=-2
 SCRIPTS_COPIED=0
-IN_DESIGN=D:\CSL\SVN\FAIR-VME64ext\trunk\HDL\VME64e_ActHDL\VME64xCore\synthesis\vme_bus.ngc
+IN_DESIGN=d:\CSL\SVN\FAIR-VME64ext\trunk\HDL\VME64e_ActHDL\VME64xCore\synthesis\vme64xcore_top.ngc
 OUT_DESIGN=
 IN_CONSTRAINT=
 OUT_CONSTRAINT=
@@ -73,7 +74,8 @@ impl_opt(dont_run_place)=0
 impl_opt(dont_run_trace)=0
 impl_opt(dont_run_simulation)=0
 impl_opt(dont_run_fit)=0
-impl_opt(dont_run_bitgen)=1
+impl_opt(dont_run_bitgen)=0
+impl_opt(Macro_Search_Path)=D:/CSL/SVN/FAIR-VME64ext/trunk/HDL/IP_cores
 
 [PCB_INTERFACE]
 FAMILY=
@@ -83,7 +85,7 @@ FAMILY=Xilinx10x VIRTEX5
 DEVICE=5vlx20tff323
 SPEED=-2
 OBSOLETE_ALIASES=1
-TOPLEVEL=vme_bus
+TOPLEVEL=vme64xcore_top
 FILTER_MESSAGES=
 FSM_ENCODE=
 PACK_IO_REGISTERS=Auto
@@ -166,33 +168,65 @@ MOVE_LAST_FF_STAGE=1
 JOB_DESCRIPTION=JobDesc1
 SERVERFARM_INCLUDE_INPUT_FILES=*.*
 SERVERFARM_EXCLUDE_INPUT_FILES=log*.*:implement*.*
-LAST_RUN=1268325404
-OUTPUT_NETLIST=D:\CSL\SVN\FAIR-VME64ext\trunk\HDL\VME64e_ActHDL\VME64xCore\synthesis\vme_bus.ngc
-OUTPUT_SIMUL_NETLIST=D:\CSL\SVN\FAIR-VME64ext\trunk\HDL\VME64e_ActHDL\VME64xCore\synthesis\vme_bus.vhd
+LAST_RUN=1273740002
+OUTPUT_NETLIST=d:\CSL\SVN\FAIR-VME64ext\trunk\HDL\VME64e_ActHDL\VME64xCore\synthesis\vme64xcore_top.ngc
+OUTPUT_SIMUL_NETLIST=synthesis\vme64xcore_top.vhd
+Show_SliceUtilizationRatioDelta=100
+Show_MultiplierStyle=Auto
+Show_MaxNoBufgs24=24
+Show_MaxNoBufgs16=16
+Show_ConvertTristatesToLogic=Yes
+Show_MaxNoBufgs4=4
+Show_MultiplierStyle2=LUT
+Show_UseDSP48=Auto
+Show_NumberOfRegionalClockBuffers=16
 
 [HierarchyViewer]
 SortInfo=u
-HierarchyInformation=vme_bus|rtl|0 
+HierarchyInformation=
 ShowHide=ShowTopLevel
 Selected=
+
+[file_out:/VME64xCore_Top.bde]
+/..\compile\VME64xCore_Top.vhd=-1
+
+[file_out:/..\..\..\VME64e_ActHDL_src\VME64xCore_Top.bde]
+/..\compile\VME64xCore_Top.vhd=-1
 
 [Groups]
 post-synthesis=1
 
 [Files]
-/compile.do=-1
+/..\..\..\VME64e_ActHDL_src\VME_pack.vhd=-1
 /..\..\..\VME64e_ActHDL_src\SharedComps.vhd=-1
 /..\..\..\VME64e_ActHDL_src\VME_bus.vhd=-1
+/..\..\..\VME64e_ActHDL_src\WB_bus.vhd=-1
+/..\..\..\VME64e_ActHDL_src\IRQ_controller.vhd=-1
+/..\..\..\VME64e_ActHDL_src\VME64xCore_Top.vhd=-1
+/compile.do=-1
 /VME_D08_test.tcl=-1
 /VME_D16_test.tcl=-1
 /VME_D64_test.tcl=-1
 /VME_unaligned_test.tcl=-1
+/VME_CRCSR_test.tcl=-1
+/VME_init_test.tcl=-1
+/VME_top_test.tcl=-1
+post-synthesis/..\..\synthesis\vme64xcore_top.vhd=-1
 
 [Files.Data]
-.\src\compile.do=Macro
+.\..\..\VME64e_ActHDL_src\VME_pack.vhd=VHDL Source Code
 .\..\..\VME64e_ActHDL_src\SharedComps.vhd=VHDL Source Code
 .\..\..\VME64e_ActHDL_src\VME_bus.vhd=VHDL Source Code
+.\..\..\VME64e_ActHDL_src\WB_bus.vhd=VHDL Source Code
+.\..\..\VME64e_ActHDL_src\IRQ_controller.vhd=VHDL Source Code
+.\..\..\VME64e_ActHDL_src\VME64xCore_Top.vhd=VHDL Source Code
+.\src\compile.do=Macro
 .\src\VME_D08_test.tcl=Tcl Script
 .\src\VME_D16_test.tcl=Tcl Script
 .\src\VME_D64_test.tcl=Tcl Script
 .\src\VME_unaligned_test.tcl=Tcl Script
+.\src\VME_CRCSR_test.tcl=Tcl Script
+.\src\VME_init_test.tcl=Tcl Script
+.\src\VME_top_test.tcl=Tcl Script
+.\synthesis\vme64xcore_top.vhd=VHDL Source Code
+

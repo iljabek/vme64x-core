@@ -1,22 +1,38 @@
-elbread.dll ver. 1.0.5.375 Mon Mar 15 16:05:37 2010
+elbread.dll ver. 1.0.5.375 Tue May 11 10:47:00 2010
 
 
-------------------------------------------------------------------
-Entity                                 | Architecture | Library 
-------------------------------------------------------------------
+---------------------------------------------------------------------
+Entity                                 | Architecture | Library    
+---------------------------------------------------------------------
+vme64xcore_top                         | rtl          | vme64xcore
 vme_bus                                | rtl          | vme64xcore
+wb_bus                                 | rtl          | vme64xcore
+irq_controller                         | rtl          | vme64xcore
+cr                                     | cr_a         | vme64xcore
+cram                                   | cram_a       | vme64xcore
+fifo                                   | fifo_a       | vme64xcore
+risedgedetection                       | rtl          | vme64xcore
 siginputsampleandfallingedgedetection  | rtl          | vme64xcore
 siginputsampleandrisingedgedetection   | rtl          | vme64xcore
+siginputsampleandedgedetection         | rtl          | vme64xcore
 reginputsample                         | rtl          | vme64xcore
 siginputsample                         | rtl          | vme64xcore
-------------------------------------------------------------------
+blk_mem_gen_v3_1                       | behavioral   | xilinxcorelib
+blk_mem_gen_v3_1_output_stage          | behavioral   | xilinxcorelib
+fifo_generator_v5_1                    | behavioral   | xilinxcorelib
+fifo_generator_v5_1_bhv_ss             | behavioral   | xilinxcorelib
+fifo_generator_v5_1_bhv_as             | behavioral   | xilinxcorelib
+fifo_generator_v5_1_bhv_preload0       | behavioral   | xilinxcorelib
+---------------------------------------------------------------------
 
------------------------------
-Package             | Library
------------------------------
+--------------------------------
+Package             | Library 
+--------------------------------
 standard            | std
 textio              | std
 std_logic_1164      | ieee
 std_logic_arith     | ieee
+vme_pack            | vme64xcore
 std_logic_unsigned  | ieee
------------------------------
+std_logic_textio    | ieee
+--------------------------------

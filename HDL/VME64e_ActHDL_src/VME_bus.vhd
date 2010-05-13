@@ -75,18 +75,22 @@ entity VME_bus is
         err_i:                in std_logic;
         rty_i:                in std_logic;
         mainFSMreset_o:       out std_logic;
+        beatCount_o:          out std_logic_vector(7 downto 0);
         
         -- IRQ controller signals
         irqDTACK_i:          in std_logic;
         IACKinProgress_i:    in std_logic;
         IDtoData_i:          in std_logic;
+        IRQlevelReg_o:       out std_logic_vector(7 downto 0);
         
-        -- 2eSST related signals
+        -- 2e related signals
         FIFOwren_o:         out std_logic;
         FIFOdata_o:         out std_logic_vector(63 downto 0);
-        SSTinProgress_o:    out std_logic;
-        WBbusy_i:           in std_logic
-         
+        FIFOrden_o:         out std_logic;
+        FIFOdata_i:         in std_logic_vector(63 downto 0);
+        TWOeInProgress_o:   out std_logic;
+        WBbusy_i:           in std_logic;
+        readFIFOempty_i:    in std_logic 
          );
 end VME_bus;
 
@@ -143,7 +147,6 @@ signal s_reset: std_logic;
 signal s_moduleEnable: std_logic;
 
 -- Oversampled input signals 
-
 signal VME_RST_n_oversampled : STD_LOGIC;
 signal VME_AS_n_oversampled : STD_LOGIC;
 signal VME_LWORD_n_oversampled : STD_LOGIC;
@@ -224,7 +227,13 @@ type t_addressingType is (   A24,
                              );
 signal s_addressingType: t_addressingType;
 signal s_addressingTypeSelect: std_logic_vector(5 downto 0);
-type t_transferType is (SINGLE, BLT, MBLT, LCK, ERROR);
+
+type t_transferType is (SINGLE, 
+                        BLT, 
+                        MBLT, 
+                        LCK, 
+                        ERROR
+                        );
 signal s_transferType: t_transferType; 
 
 type t_XAMtype is ( A32_2eVME, 
@@ -236,6 +245,11 @@ type t_XAMtype is ( A32_2eVME,
                     XAM_error
                     );
 signal s_XAMtype: t_XAMtype;
+
+type t_2eType is ( TWOe_VME,
+                   TWOe_SST
+                 );
+signal s_2eType: t_2eType;
 
 -- Main FSM signals 
 type t_mainFSMstates is (IDLE, 
@@ -258,17 +272,15 @@ type t_mainFSMstates is (IDLE,
                         DTACK_PHASE_1, 
                         DTACK_PHASE_2, 
                         DTACK_PHASE_3, 
-                        DATA_PHASE_ODD_1, 
-                        DATA_PHASE_ODD_2, 
-                        DATA_PHASE_EVEN_1, 
-                        DATA_PHASE_EVEN_2, 
-                        SST_FIFO_ENABLE, 
-                        SST_RELEASE_DTACK, 
-                        SST_CHECK_BEAT, 
-                        SST_MEM_REQ, 
-                        SST_DTACK_TOGGLE, 
-                        SST_END_1, 
-                        SST_END_2
+                        TWOe_FIFO_WRITE,
+                        TWOe_TOGGLE_DTACK,
+                        TWOe_WAIT_FOR_DS1,
+                        TWOe_FIFO_WAIT_READ,
+                        TWOe_FIFO_READ,
+                        TWOe_CHECK_BEAT,
+                        TWOe_RELEASE_DTACK,
+                        TWOe_END_1,
+                        TWOe_END_2
                         );
 signal s_mainFSMstate: t_mainFSMstates;
 
@@ -278,7 +290,8 @@ signal s_dataToOutput: std_logic;                         -- Puts data to VME da
 signal s_mainDTACK: std_logic;                            -- DTACK driving
 
 signal s_2eLatchAddr: std_logic_vector(1 downto 0);      -- Stores address in different address phases (for 2e transfers)
-signal s_FIFOena: std_logic;                             -- Enables FIFO for 2eSST write
+--signal s_FIFOena: std_logic;                           -- Enables FIFO for 2eSST write
+signal s_readFIFO: std_logic;                            -- FIFO memory request
 
 signal s_dataWidth: std_logic_vector(1 downto 0);        -- Tells WB the width of valid data
 signal s_addrWidth: std_logic_vector(1 downto 0);        -- Width of valid address 
@@ -297,13 +310,13 @@ signal s_mainFSMreset: std_logic;                        -- Resets main FSM on r
 signal s_dataPhase: std_logic;                           -- Indicates that multiplexed transfer is in data phase
 signal s_transferActive: std_logic;                      -- Indicates an active VME transfer
 signal s_setLock: std_logic;                             -- Sets LOCK towards WB slave
-signal s_SSTinProgress: std_logic;                       -- Indicates that 2eSST is in progress
+signal s_TWOeInProgress: std_logic;                       -- Indicates that 2eSST is in progress
 signal s_retry: std_logic;                               -- RETRY signal
 signal s_berr: std_logic;                                -- BERR signal
 signal s_berr_1: std_logic;                              -- Berr condition must be active for at least two cycles
-signal s_berr_2: std_logic;                              --	
+signal s_berr_2: std_logic;                              --    
 
-signal s_startDataPhaseCond1: std_logic;				 -- Misc. condition signals
+signal s_startDataPhaseCond1: std_logic;                 -- Misc. condition signals
 signal s_startDataPhaseCond2: std_logic;
 signal s_startDataPhaseCond3: std_logic;
 signal s_startDataPhaseCond4: std_logic;
@@ -327,10 +340,11 @@ signal s_RW: std_logic;                                     -- RW WB signal
 signal s_lock: std_logic;                                   -- LOCK WB signal
 signal s_cyc: std_logic;                                    -- CYC WB signal                         
 
--- 2eSST related signals
-signal s_beatCount: std_logic_vector(8 downto 0);           -- Counts number of data cycles
+-- 2e related signals
+signal s_beatCount: std_logic_vector(8 downto 0);           -- cycleCount*2 for 2eVME, cycleCount for 2eSST
+signal s_runningBeatCount: std_logic_vector(8 downto 0);    -- Beat counter
 signal s_beatCountEnd: std_logic;                           -- Indicates that data transfer is over
-signal s_cycleCount: std_logic_vector(7 downto 0);          -- Stores received cycle count
+signal s_cycleCount: std_logic_vector(7 downto 0);          -- Stores received cycle count 
 signal s_DS1pulse: std_logic;                               -- Pulse on rising and falling edge of DS1
 
 -- CR/CSR related signals
@@ -342,7 +356,7 @@ signal s_CRdataIn: std_logic_vector(7 downto 0);            -- CR data bus
 signal s_CRAMdataIn: std_logic_vector(7 downto 0);          -- CRAM data bus
 
 -- Control Status Registers
-signal s_CSRarray: t_reg36x8bit;                            -- Array of CSR registers
+signal s_CSRarray: t_reg38x8bit;                            -- Array of CSR registers
 signal s_BitSetReg: std_logic_vector(7 downto 0);           -- Bit set register
 signal s_BitClrReg: std_logic_vector(7 downto 0);           -- Bit clear register
 signal s_UsrBitSetReg: std_logic_vector(7 downto 0);        -- User bit set register  
@@ -366,7 +380,7 @@ signal s_CRinitAddr: t_reg52x12bit;
 
 -- Misc. signals
 signal s_BERRcondition: std_logic;                            -- Condition for asserting BERR 
-signal s_irqIDdata: std_logic_vector(7 downto 0);			  -- IRQ Status/ID data
+signal s_irqIDdata: std_logic_vector(7 downto 0);              -- IRQ Status/ID data
 
 -- Initialization signals
 
@@ -453,6 +467,9 @@ with s_XAM select
                     A32_2eSST    when x"11",
                     A64_2eSST    when x"12",
                     XAM_error    when others;
+                    
+s_2eType <= TWOe_VME when s_XAMtype=A32_2eVME or s_XAMtype=A64_2eVME else
+            TWOe_SST;
 
 --Main FSM
 
@@ -477,15 +494,20 @@ begin
             s_setLock                <= '0';
             s_cyc                    <= '0';
             s_2eLatchAddr            <= "00";
-            s_SSTinProgress          <= '0';
+            s_TWOeInProgress         <= '0';
+            s_readFIFO               <= '0';
             s_retry                  <= '0';
             s_berr                   <= '0';
             s_mainFSMstate           <= IDLE;
         else
             case s_mainFSMstate is
                 
-                when IDLE => 
-                s_dtackOE            <= '0';
+                when IDLE =>
+                if IACKinProgress_i='1' then
+                    s_dtackOE        <= '1';
+                else
+                    s_dtackOE        <= '0';
+                end if;
                 s_dataDir            <= '0';
                 s_dataOE             <= '0';
                 s_addrDir            <= '0';
@@ -502,7 +524,8 @@ begin
                 s_setLock            <= '0';    
                 s_cyc                <= '0';
                 s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= '0';
                 if s_VMEaddrLatch='1' then                   -- If address strobe goes low, check if this slave is addressed
@@ -529,12 +552,13 @@ begin
                 s_setLock            <= '0';
                 s_cyc                <= '0';
                 s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= '0';
-                if s_cardSel='1' and s_transferType=LCK then    -- LOCK request
+                if s_cardSel='1' and s_transferType=LCK then                       -- LOCK request
                     s_mainFSMstate   <= ACKNOWLEDGE_LOCK;
-                elsif s_addressingType=TWOedge then                  -- start 2e transfer
+                elsif s_addressingType=TWOedge then                                -- start 2e transfer
                     s_mainFSMstate   <= WAIT_FOR_DS_2e;
                 elsif s_confAccess='1' or (s_cardSel='1' and WBbusy_i='0') then    -- If this slave is addressed, start transfer
                     s_mainFSMstate   <= WAIT_FOR_DS;
@@ -558,7 +582,8 @@ begin
                 s_setLock            <= '0';
                 s_cyc                <= '1';
                 s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= '0';
                 if VME_DS_n_oversampled /= "11" then
@@ -585,7 +610,8 @@ begin
                 s_setLock            <= '0';
                 s_cyc                <= '1';
                 s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= '0';
                 s_mainFSMstate       <= CHECK_TRANSFER_TYPE;
@@ -608,7 +634,8 @@ begin
                 s_setLock            <= '0';
                 s_cyc                <= '1';    
                 s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= '0';
                 if s_transferType=SINGLE or s_transferType=BLT then
@@ -637,7 +664,8 @@ begin
                 s_setLock            <= '0';
                 s_cyc                <= '1';
                 s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= '0';
                 if s_memAck='1' and s_RW='0' then
@@ -663,7 +691,8 @@ begin
                 s_setLock            <= '0';
                 s_cyc                <= '1';
                 s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '0';
                 if s_transferType=MBLT then
                     s_dataToOutput   <= '0'; 
@@ -694,7 +723,8 @@ begin
                 s_setLock            <= '0';
                 s_cyc                <= '1';
                 s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= '0';
                 if VME_DS_n_oversampled = "11" then
@@ -721,7 +751,8 @@ begin
                 s_setLock            <= '0';
                 s_cyc                <= '1';
                 s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= '0';
                 if s_transferType=SINGLE then
@@ -752,7 +783,8 @@ begin
                 s_setLock            <= '0';    
                 s_cyc                <= '1';
                 s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= '0';
                 s_mainFSMstate       <= WAIT_FOR_DS;
@@ -775,7 +807,8 @@ begin
                 s_setLock            <= '0';    
                 s_cyc                <= '1';
                 s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= '0';
                 s_mainFSMstate       <= WAIT_FOR_DS;
@@ -802,7 +835,8 @@ begin
                 s_setLock            <= '1';
                 s_cyc                <= '0';
                 s_2eLatchAddr        <= "00"; 
-                s_SSTinProgress      <= '0';
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= '0';
                 s_mainFSMstate       <= ACKNOWLEDGE_LOCK;          -- wait here until AS goes high, which resets the FSM      
@@ -825,7 +859,8 @@ begin
                 s_setLock            <= '0';
                 s_cyc                <= '0';    
                 s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= '0';
                 if VME_DS_n_oversampled(0)='0' then
@@ -850,7 +885,8 @@ begin
                 s_setLock            <= '0';
                 s_cyc                <= '0';
                 s_2eLatchAddr        <= "01";
-                s_SSTinProgress      <= '0';
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= '0';
                 s_mainFSMstate       <= DECODE_ACCESS_2e;
@@ -873,7 +909,8 @@ begin
                 s_setLock            <= '0';
                 s_cyc                <= '0';
                 s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '0';
                 if s_XAMtype=XAM_error then
                     s_berr           <= '1';
@@ -902,13 +939,14 @@ begin
                 s_setLock            <= '0';
                 s_cyc                <= '0';
                 s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= s_berr;
                 if VME_DS_n_oversampled(0)='1' and s_berr='0' then
                     s_mainFSMstate   <= ADDR_PHASE_2;
                 elsif VME_DS_n_oversampled(0)='1' and s_berr='1' then
-                    s_mainFSMstate   <= SST_RELEASE_DTACK;
+                    s_mainFSMstate   <= TWOe_RELEASE_DTACK;
                 end if;
                 
                 when ADDR_PHASE_2 =>
@@ -929,7 +967,8 @@ begin
                 s_setLock            <= '0';
                 s_cyc                <= '0';
                 s_2eLatchAddr        <= "10";
-                s_SSTinProgress      <= '0';
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= '0';
                 s_mainFSMstate       <= DTACK_PHASE_2;
@@ -952,7 +991,8 @@ begin
                 s_setLock            <= '0';
                 s_cyc                <= '0';
                 s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= '0';
                 if VME_DS_n_oversampled(0)='0' then
@@ -977,7 +1017,8 @@ begin
                 s_setLock            <= '0';
                 s_cyc                <= '0';
                 s_2eLatchAddr        <= "11";
-                s_SSTinProgress      <= '0';
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 if WBbusy_i='1' then
                     s_retry          <='1';
                 else
@@ -1006,134 +1047,168 @@ begin
                 s_setLock            <= '0';
                 s_cyc                <= '1';
                 s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= s_retry;
                 s_berr               <= '0';
-                if s_startDataPhaseCond1='1' then
-                    s_mainFSMstate   <= SST_FIFO_ENABLE;
-                elsif s_startDataPhaseCond2='1' then
-                    s_mainFSMstate   <= SST_CHECK_BEAT;
-                elsif s_startDataPhaseCond3='1' then
-                    s_mainFSMstate   <= DATA_PHASE_ODD_1;
-                elsif s_startDataPhaseCond4='1' then
-                    s_mainFSMstate   <= SST_RELEASE_DTACK;
+                if s_RW='0' and s_retry='0' then
+                    s_mainFSMstate   <= TWOe_FIFO_WRITE;
+                elsif s_RW='1' and s_retry='0' then
+                    s_mainFSMstate   <= TWOe_FIFO_WAIT_READ;
+--                elsif s_startDataPhaseCond2='1' then
+--                    s_mainFSMstate   <= SST_CHECK_BEAT;
+--                elsif s_startDataPhaseCond3='1' then
+--                    s_mainFSMstate   <= DATA_PHASE_ODD_1;
+                elsif VME_DS_n_oversampled(0)='1' and s_retry='1' then
+                    s_mainFSMstate   <= TWOe_RELEASE_DTACK;
                 end if;
                 
-                when DATA_PHASE_ODD_1 =>
-                s_dtackOE            <= '1';
-                s_dataDir            <= VME_WRITE_n_oversampled;
-                s_dataOE             <= '1';
-                s_addrDir            <= VME_WRITE_n_oversampled;
-                s_addrOE             <= '1';
-                s_mainDTACK          <= '0';
-                s_memReq             <= '1';
-                s_DSlatch            <= '0';
-                s_incrementAddr      <= '0'; 
-                s_resetAddrOffset    <= '0';
-                s_dataPhase          <= '0';
-                s_dataToOutput       <= '0';
-                s_dataToAddrBus      <= '0';
-                s_transferActive     <= '0';
-                s_setLock            <= '0';
-                s_cyc                <= '1';
-                s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';
-                s_retry              <= '0';
-                s_berr               <= '0';
-                if s_memAck='1' then
-                    s_mainFSMstate   <= DATA_PHASE_ODD_2;
-                end if;                
+                --when DTACK_PHASE_3 =>
+--                s_dtackOE            <= '1';
+--                s_dataDir            <= '0';
+--                s_dataOE             <= '1';
+--                s_addrDir            <= '0';
+--                s_addrOE             <= '1';
+--                s_mainDTACK          <= '0';
+--                s_memReq             <= '0';
+--                s_DSlatch            <= '0';
+--                s_incrementAddr      <= '0'; 
+--                s_resetAddrOffset    <= '0';
+--                s_dataPhase          <= '0';
+--                s_dataToOutput       <= '0';
+--                s_dataToAddrBus      <= '0';
+--                s_transferActive     <= '0';
+--                s_setLock            <= '0';
+--                s_cyc                <= '1';
+--                s_2eLatchAddr        <= "00";
+--                s_TWOeInProgress      <= '0';
+--                s_retry              <= s_retry;
+--                s_berr               <= '0';
+--                if s_startDataPhaseCond1='1' then
+--                    s_mainFSMstate   <= SST_FIFO_ENABLE;
+--                elsif s_startDataPhaseCond2='1' then
+--                    s_mainFSMstate   <= SST_CHECK_BEAT;
+--                elsif s_startDataPhaseCond3='1' then
+--                    s_mainFSMstate   <= DATA_PHASE_ODD_1;
+--                elsif s_startDataPhaseCond4='1' then
+--                    s_mainFSMstate   <= SST_RELEASE_DTACK;
+--                end if;
+--                
+--                when DATA_PHASE_ODD_1 =>
+--                s_dtackOE            <= '1';
+--                s_dataDir            <= VME_WRITE_n_oversampled;
+--                s_dataOE             <= '1';
+--                s_addrDir            <= VME_WRITE_n_oversampled;
+--                s_addrOE             <= '1';
+--                s_mainDTACK          <= '0';
+--                s_memReq             <= '1';
+--                s_DSlatch            <= '0';
+--                s_incrementAddr      <= '0'; 
+--                s_resetAddrOffset    <= '0';
+--                s_dataPhase          <= '0';
+--                s_dataToOutput       <= '0';
+--                s_dataToAddrBus      <= '0';
+--                s_transferActive     <= '0';
+--                s_setLock            <= '0';
+--                s_cyc                <= '1';
+--                s_2eLatchAddr        <= "00";
+--                s_TWOeInProgress      <= '0';
+--                s_retry              <= '0';
+--                s_berr               <= '0';
+--                if s_memAck='1' then
+--                    s_mainFSMstate   <= DATA_PHASE_ODD_2;
+--                end if;                
+--                
+--                when DATA_PHASE_ODD_2 =>
+--                s_dtackOE            <= '1';
+--                s_dataDir            <= VME_WRITE_n_oversampled;
+--                s_dataOE             <= '1';
+--                s_addrDir            <= VME_WRITE_n_oversampled;
+--                s_addrOE             <= '1';
+--                s_mainDTACK          <= 'Z';
+--                s_memReq             <= '0';
+--                s_DSlatch            <= '0';
+--                s_incrementAddr      <= '1'; 
+--                s_resetAddrOffset    <= '0';
+--                s_dataPhase          <= '0';
+--                s_dataToOutput       <= '0';
+--                if s_RW='1' then
+--                    s_dataToAddrBus  <= '1';
+--                else
+--                    s_dataToAddrBus  <= '0';
+--                end if;
+--                s_transferActive     <= '0';
+--                s_setLock            <= '0';
+--                s_cyc                <= '1';
+--                s_2eLatchAddr        <= "00";
+--                s_TWOeInProgress      <= '0';
+--                s_retry              <= '0';
+--                s_berr               <= '0';
+--                if VME_DS_n_oversampled(1)='1' then
+--                    s_mainFSMstate   <= DATA_PHASE_EVEN_1;
+--                end if;
+--                
+--                when DATA_PHASE_EVEN_1 =>
+--                s_dtackOE            <= '1';
+--                s_dataDir            <= VME_WRITE_n_oversampled;
+--                s_dataOE             <= '1';
+--                s_addrDir            <= VME_WRITE_n_oversampled;
+--                s_addrOE             <= '1';
+--                s_mainDTACK          <= 'Z';
+--                s_memReq             <= '1';
+--                s_DSlatch            <= '0';
+--                s_incrementAddr      <= '0'; 
+--                s_resetAddrOffset    <= '0';
+--                s_dataPhase          <= '0';
+--                s_dataToOutput       <= '0';
+--                s_dataToAddrBus      <= '0';
+--                s_transferActive     <= '0';
+--                s_setLock            <= '0';
+--                s_cyc                <= '1';
+--                s_2eLatchAddr        <= "00";
+--                s_TWOeInProgress      <= '0';
+--                s_retry              <= '0';
+--                s_berr               <= '0';
+--                if s_memAck='1' then
+--                    s_mainFSMstate   <= DATA_PHASE_EVEN_2;
+--                end if;                
+--                
+--                when DATA_PHASE_EVEN_2 =>
+--                s_dtackOE            <= '1';
+--                s_dataDir            <= VME_WRITE_n_oversampled;
+--                s_dataOE             <= '1';
+--                s_addrDir            <= VME_WRITE_n_oversampled;
+--                s_addrOE             <= '1';
+--                s_mainDTACK          <= '0';
+--                s_memReq             <= '0';
+--                s_DSlatch            <= '0';
+--                s_incrementAddr      <= '1'; 
+--                s_resetAddrOffset    <= '0';
+--                s_dataPhase          <= '0';
+--                s_dataToOutput       <= '0';
+--                if s_RW='1' then
+--                    s_dataToAddrBus  <= '1';
+--                else
+--                    s_dataToAddrBus  <= '0';
+--                end if;
+--                s_transferActive     <= '0';
+--                s_setLock            <= '0';
+--                s_cyc                <= '1';
+--                s_2eLatchAddr        <= "00";
+--                s_TWOeInProgress      <= '0';    
+--                s_retry              <= '0';
+--                s_berr               <= '0';
+--                if VME_DS_n_oversampled(1)='0' then
+--                    s_mainFSMstate   <= DATA_PHASE_ODD_1;
+--                end if;    
                 
-                when DATA_PHASE_ODD_2 =>
-                s_dtackOE            <= '1';
-                s_dataDir            <= VME_WRITE_n_oversampled;
-                s_dataOE             <= '1';
-                s_addrDir            <= VME_WRITE_n_oversampled;
-                s_addrOE             <= '1';
-                s_mainDTACK          <= 'Z';
-                s_memReq             <= '0';
-                s_DSlatch            <= '0';
-                s_incrementAddr      <= '1'; 
-                s_resetAddrOffset    <= '0';
-                s_dataPhase          <= '0';
-                s_dataToOutput       <= '0';
-                if s_RW='1' then
-                    s_dataToAddrBus  <= '1';
-                else
-                    s_dataToAddrBus  <= '0';
-                end if;
-                s_transferActive     <= '0';
-                s_setLock            <= '0';
-                s_cyc                <= '1';
-                s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';
-                s_retry              <= '0';
-                s_berr               <= '0';
-                if VME_DS_n_oversampled(1)='1' then
-                    s_mainFSMstate   <= DATA_PHASE_EVEN_1;
-                end if;
-                
-                when DATA_PHASE_EVEN_1 =>
-                s_dtackOE            <= '1';
-                s_dataDir            <= VME_WRITE_n_oversampled;
-                s_dataOE             <= '1';
-                s_addrDir            <= VME_WRITE_n_oversampled;
-                s_addrOE             <= '1';
-                s_mainDTACK          <= 'Z';
-                s_memReq             <= '1';
-                s_DSlatch            <= '0';
-                s_incrementAddr      <= '0'; 
-                s_resetAddrOffset    <= '0';
-                s_dataPhase          <= '0';
-                s_dataToOutput       <= '0';
-                s_dataToAddrBus      <= '0';
-                s_transferActive     <= '0';
-                s_setLock            <= '0';
-                s_cyc                <= '1';
-                s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';
-                s_retry              <= '0';
-                s_berr               <= '0';
-                if s_memAck='1' then
-                    s_mainFSMstate   <= DATA_PHASE_EVEN_2;
-                end if;                
-                
-                when DATA_PHASE_EVEN_2 =>
-                s_dtackOE            <= '1';
-                s_dataDir            <= VME_WRITE_n_oversampled;
-                s_dataOE             <= '1';
-                s_addrDir            <= VME_WRITE_n_oversampled;
-                s_addrOE             <= '1';
-                s_mainDTACK          <= '0';
-                s_memReq             <= '0';
-                s_DSlatch            <= '0';
-                s_incrementAddr      <= '1'; 
-                s_resetAddrOffset    <= '0';
-                s_dataPhase          <= '0';
-                s_dataToOutput       <= '0';
-                if s_RW='1' then
-                    s_dataToAddrBus  <= '1';
-                else
-                    s_dataToAddrBus  <= '0';
-                end if;
-                s_transferActive     <= '0';
-                s_setLock            <= '0';
-                s_cyc                <= '1';
-                s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';    
-                s_retry              <= '0';
-                s_berr               <= '0';
-                if VME_DS_n_oversampled(1)='0' then
-                    s_mainFSMstate   <= DATA_PHASE_ODD_1;
-                end if;    
-                
-                when SST_FIFO_ENABLE =>    
+                when TWOe_FIFO_WRITE =>    
                 s_dtackOE            <= '1';
                 s_dataDir            <= '0';
                 s_dataOE             <= '1';
                 s_addrDir            <= '0';
                 s_addrOE             <= '1';
-                s_mainDTACK          <= '0';
+                s_mainDTACK          <= s_mainDTACK;
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -1145,14 +1220,153 @@ begin
                 s_setLock            <= '0';
                 s_cyc                <= '1';
                 s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '1';
+                s_TWOeInProgress     <= '1';
+                s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= '0';
-                if VME_DS_n_oversampled(0)='1' then
-                    s_mainFSMstate   <= SST_RELEASE_DTACK;
+                if s_DS1pulse='1' and s_2eType=TWOe_VME then
+                    s_mainFSMstate   <= TWOe_TOGGLE_DTACK;
+                elsif VME_DS_n_oversampled(0)='1' then
+                    s_mainFSMstate   <= TWOe_RELEASE_DTACK;
                 end if;
                 
-                when SST_RELEASE_DTACK =>
+                when TWOe_TOGGLE_DTACK =>    
+                s_dtackOE            <= '1';
+                s_dataDir            <= '0';
+                s_dataOE             <= '1';
+                s_addrDir            <= '0';
+                s_addrOE             <= '1';
+                s_mainDTACK          <= not s_mainDTACK;
+                s_memReq             <= '0';
+                s_DSlatch            <= '0';
+                s_incrementAddr      <= '0'; 
+                s_resetAddrOffset    <= '0';
+                s_dataPhase          <= '0';
+                s_dataToOutput       <= '0';
+                s_dataToAddrBus      <= s_dataToAddrBus;
+                s_transferActive     <= '0';
+                s_setLock            <= '0';
+                s_cyc                <= '1';
+                s_2eLatchAddr        <= "00";
+                s_TWOeInProgress     <= '1';
+                s_readFIFO           <= '0';
+                s_retry              <= '0';
+                s_berr               <= '0'; 
+                if s_RW='0' then
+                    s_mainFSMstate   <= TWOe_FIFO_WRITE;
+                else
+                    s_mainFSMstate   <= TWOe_WAIT_FOR_DS1;
+                end if;
+                
+                when TWOe_WAIT_FOR_DS1 =>    
+                s_dtackOE            <= '1';
+                s_dataDir            <= '1';
+                s_dataOE             <= '1';
+                s_addrDir            <= '1';
+                s_addrOE             <= '1';
+                s_mainDTACK          <= s_mainDTACK;
+                s_memReq             <= '0';
+                s_DSlatch            <= '0';
+                s_incrementAddr      <= '0'; 
+                s_resetAddrOffset    <= '0';
+                s_dataPhase          <= '0';
+                s_dataToOutput       <= '0';
+                s_dataToAddrBus      <= '1';
+                s_transferActive     <= '0';
+                s_setLock            <= '0';
+                s_cyc                <= '1';
+                s_2eLatchAddr        <= "00";
+                s_TWOeInProgress     <= '1';
+                s_readFIFO           <= '0';
+                s_retry              <= '0';
+                s_berr               <= '0';
+                if (s_DS1pulse='1' and s_2eType=TWOe_VME) or s_2eType=TWOe_SST then
+                    s_mainFSMstate   <= TWOe_FIFO_WAIT_READ;
+                end if;
+                
+                when TWOe_FIFO_WAIT_READ =>    
+                s_dtackOE            <= '1';
+                s_dataDir            <= '1';
+                s_dataOE             <= '1';
+                s_addrDir            <= '1';
+                s_addrOE             <= '1';
+                s_mainDTACK          <= s_mainDTACK;
+                s_memReq             <= '0';
+                s_DSlatch            <= '0';
+                s_incrementAddr      <= '0'; 
+                s_resetAddrOffset    <= '0';
+                s_dataPhase          <= '0';
+                s_dataToOutput       <= '0';
+                s_dataToAddrBus      <= '1';
+                s_transferActive     <= '0';
+                s_setLock            <= '0';
+                s_cyc                <= '1';
+                s_2eLatchAddr        <= "00";
+                s_TWOeInProgress     <= '1';
+                s_readFIFO           <= '0';
+                s_retry              <= '0';
+                s_berr               <= '0';
+                if readFIFOempty_i='0' and s_2eType=TWOe_SST then
+                    s_mainFSMstate   <= TWOe_FIFO_READ;
+                end if;
+                
+                when TWOe_FIFO_READ =>    
+                s_dtackOE            <= '1';
+                s_dataDir            <= '1';
+                s_dataOE             <= '1';
+                s_addrDir            <= '1';
+                s_addrOE             <= '1';
+                s_mainDTACK          <= s_mainDTACK;
+                s_memReq             <= '0';
+                s_DSlatch            <= '0';
+                s_incrementAddr      <= '0'; 
+                s_resetAddrOffset    <= '0';
+                s_dataPhase          <= '0';
+                s_dataToOutput       <= '0';
+                s_dataToAddrBus      <= '1';
+                s_transferActive     <= '0';
+                s_setLock            <= '0';
+                s_cyc                <= '1';
+                s_2eLatchAddr        <= "00";
+                s_TWOeInProgress     <= '1';
+                s_readFIFO           <= '1';
+                s_retry              <= '0';
+                s_berr               <= '0';
+                if s_2eType=TWOe_SST then
+                    s_mainFSMstate   <= TWOe_CHECK_BEAT;
+                else
+                    s_mainFSMstate   <= TWOe_TOGGLE_DTACK;
+                end if;    
+                
+                when TWOe_CHECK_BEAT =>
+                s_dtackOE            <= '1';
+                s_dataDir            <= '1';
+                s_dataOE             <= '1';
+                s_addrDir            <= '1';
+                s_addrOE             <= '1';
+                s_mainDTACK          <= s_mainDTACK;
+                s_memReq             <= '0';
+                s_DSlatch            <= '0';
+                s_incrementAddr      <= '0'; 
+                s_resetAddrOffset    <= '0';
+                s_dataPhase          <= '0';
+                s_dataToOutput       <= '0';
+                s_dataToAddrBus      <= '1';
+                s_transferActive     <= '0';
+                s_setLock            <= '0';
+                s_cyc                <= '1';
+                s_2eLatchAddr        <= "00";
+                s_TWOeInProgress     <= '1';
+                s_readFIFO           <= '0';
+                s_retry              <= '0';
+                s_berr               <= '0';
+                if s_beatCountEnd='0' then
+                    s_mainFSMstate   <= TWOe_FIFO_WAIT_READ;
+                else
+                    s_mainFSMstate   <= TWOe_END_1;
+                end if;
+                
+                when TWOe_RELEASE_DTACK =>
                 s_dtackOE            <= '0';
                 s_dataDir            <= '0';
                 s_dataOE             <= '0';
@@ -1170,87 +1384,63 @@ begin
                 s_setLock            <= '0';
                 s_cyc                <= '0';
                 s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';    
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= '0';
-                s_mainFSMstate       <= SST_RELEASE_DTACK; 
+                s_mainFSMstate       <= TWOe_RELEASE_DTACK; 
+             
+
+--                
+--                when SST_MEM_REQ =>
+--                s_dtackOE            <= '1';
+--                s_dataDir            <= '1';
+--                s_dataOE             <= '1';
+--                s_addrDir            <= '1';
+--                s_addrOE             <= '1';
+--                s_mainDTACK          <= s_mainDTACK;
+--                s_memReq             <= '1';
+--                s_DSlatch            <= '0';
+--                s_incrementAddr      <= '0'; 
+--                s_resetAddrOffset    <= '0';
+--                s_dataPhase          <= '0';
+--                s_dataToOutput       <= '0';
+--                s_dataToAddrBus      <= '1';
+--                s_transferActive     <= '0';
+--                s_setLock            <= '0';
+--                s_cyc                <= '1';
+--                s_2eLatchAddr        <= "00";
+--                s_TWOeInProgress      <= '0';    
+--                s_retry              <= '0';
+--                s_berr               <= '0';
+--                if s_memAck='1' then
+--                    s_mainFSMstate   <= SST_DTACK_TOGGLE;
+--                end if;
+--                
+--                when SST_DTACK_TOGGLE =>
+--                s_dtackOE            <= '1';
+--                s_dataDir            <= '1';
+--                s_dataOE             <= '1';
+--                s_addrDir            <= '1';
+--                s_addrOE             <= '1';
+--                s_mainDTACK          <= not s_mainDTACK;
+--                s_memReq             <= '0';
+--                s_DSlatch            <= '0';
+--                s_incrementAddr      <= '1'; 
+--                s_resetAddrOffset    <= '0';
+--                s_dataPhase          <= '0';
+--                s_dataToOutput       <= '0';
+--                s_dataToAddrBus      <= '1';
+--                s_transferActive     <= '0';
+--                s_setLock            <= '0';
+--                s_cyc                <= '1';
+--                s_2eLatchAddr        <= "00";
+--                s_TWOeInProgress      <= '0';    
+--                s_retry              <= '0';
+--                s_berr               <= '0';
+--                s_mainFSMstate       <= SST_CHECK_BEAT;
                 
-                when SST_CHECK_BEAT =>
-                s_dtackOE            <= '1';
-                s_dataDir            <= '1';
-                s_dataOE             <= '1';
-                s_addrDir            <= '1';
-                s_addrOE             <= '1';
-                s_mainDTACK          <= s_mainDTACK;
-                s_memReq             <= '0';
-                s_DSlatch            <= '0';
-                s_incrementAddr      <= '0'; 
-                s_resetAddrOffset    <= '0';
-                s_dataPhase          <= '0';
-                s_dataToOutput       <= '0';
-                s_dataToAddrBus      <= '1';
-                s_transferActive     <= '0';
-                s_setLock            <= '0';
-                s_cyc                <= '1';
-                s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';    
-                s_retry              <= '0';
-                s_berr               <= '0';
-                if s_beatCountEnd='0' then
-                    s_mainFSMstate   <= SST_MEM_REQ;
-                else
-                    s_mainFSMstate   <= SST_END_1;
-                end if;
-                
-                when SST_MEM_REQ =>
-                s_dtackOE            <= '1';
-                s_dataDir            <= '1';
-                s_dataOE             <= '1';
-                s_addrDir            <= '1';
-                s_addrOE             <= '1';
-                s_mainDTACK          <= s_mainDTACK;
-                s_memReq             <= '1';
-                s_DSlatch            <= '0';
-                s_incrementAddr      <= '0'; 
-                s_resetAddrOffset    <= '0';
-                s_dataPhase          <= '0';
-                s_dataToOutput       <= '0';
-                s_dataToAddrBus      <= '1';
-                s_transferActive     <= '0';
-                s_setLock            <= '0';
-                s_cyc                <= '1';
-                s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';    
-                s_retry              <= '0';
-                s_berr               <= '0';
-                if s_memAck='1' then
-                    s_mainFSMstate   <= SST_DTACK_TOGGLE;
-                end if;
-                
-                when SST_DTACK_TOGGLE =>
-                s_dtackOE            <= '1';
-                s_dataDir            <= '1';
-                s_dataOE             <= '1';
-                s_addrDir            <= '1';
-                s_addrOE             <= '1';
-                s_mainDTACK          <= not s_mainDTACK;
-                s_memReq             <= '0';
-                s_DSlatch            <= '0';
-                s_incrementAddr      <= '1'; 
-                s_resetAddrOffset    <= '0';
-                s_dataPhase          <= '0';
-                s_dataToOutput       <= '0';
-                s_dataToAddrBus      <= '1';
-                s_transferActive     <= '0';
-                s_setLock            <= '0';
-                s_cyc                <= '1';
-                s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';    
-                s_retry              <= '0';
-                s_berr               <= '0';
-                s_mainFSMstate       <= SST_CHECK_BEAT;
-                
-                when SST_END_1 => 
+                when TWOe_END_1 => 
                 s_dtackOE            <= '1';
                 s_dataDir            <= '0';
                 s_dataOE             <= '0';
@@ -1268,12 +1458,13 @@ begin
                 s_setLock            <= '0';
                 s_cyc                <= '0';
                 s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';    
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '1';
                 s_berr               <= '0';
-                s_mainFSMstate       <= SST_END_2;
+                s_mainFSMstate       <= TWOe_END_2;
                 
-                when SST_END_2 =>
+                when TWOe_END_2 =>
                 s_dtackOE            <= '1';
                 s_dataDir            <= '0';
                 s_dataOE             <= '0';
@@ -1291,11 +1482,12 @@ begin
                 s_setLock            <= '0';
                 s_cyc                <= '0';
                 s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';    
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '1';
                 s_berr               <= '1';
                 if VME_DS_n_oversampled="11" then
-                    s_mainFSMstate   <= SST_RELEASE_DTACK;
+                    s_mainFSMstate   <= TWOe_RELEASE_DTACK;
                 end if;
                 
                 when OTHERS =>
@@ -1316,7 +1508,8 @@ begin
                 s_setLock            <= '0';
                 s_cyc                <= '0';
                 s_2eLatchAddr        <= "00";
-                s_SSTinProgress      <= '0';
+                s_TWOeInProgress     <= '0';
+                s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= '0';
                 s_mainFSMstate       <= IDLE;
@@ -1328,16 +1521,17 @@ end process;
 
 cyc_o <= s_cyc and s_cardSel and not (s_transferActive and s_BERRcondition);
 
-FIFOwren_o <= s_DS1pulse and s_SSTinProgress;
-SSTinProgress_o <= s_SSTinProgress;
+FIFOwren_o <= s_DS1pulse and s_TWOeInProgress and not s_RW;
+FIFOrden_o <= s_readFIFO;
+TWOeInProgress_o <= s_TWOeInProgress;
 
 
 -- Main FSM conditions
-
-s_startDataPhaseCond1 <= '1' when (s_XAMtype=A32_2eSST or s_XAMtype=A64_2eSST) and s_RW='0' and s_retry='0' else '0';
-s_startDataPhaseCond2 <= '1' when (s_XAMtype=A32_2eSST or s_XAMtype=A64_2eSST) and s_RW='1' and s_retry='0' and VME_DS_n_oversampled(1)='0' else '0';
-s_startDataPhaseCond3 <= '1' when VME_DS_n_oversampled(1)='0' and (s_XAMtype=A32_2eVME or s_XAMtype=A64_2eVME) and s_retry='0' else '0';
-s_startDataPhaseCond4 <= '1' when VME_DS_n_oversampled(0)='1' and s_retry='1' else '0';
+--
+--s_startDataPhaseCond1 <= '1' when (s_XAMtype=A32_2eSST or s_XAMtype=A64_2eSST) and s_RW='0' and s_retry='0' else '0';
+--s_startDataPhaseCond2 <= '1' when (s_XAMtype=A32_2eSST or s_XAMtype=A64_2eSST) and s_RW='1' and s_retry='0' and VME_DS_n_oversampled(1)='0' else '0';
+--s_startDataPhaseCond3 <= '1' when VME_DS_n_oversampled(1)='0' and (s_XAMtype=A32_2eVME or s_XAMtype=A64_2eVME) and s_retry='0' else '0';
+--s_startDataPhaseCond4 <= '1' when VME_DS_n_oversampled(0)='1' and s_retry='1' else '0';
 
 
 -- RETRY driver
@@ -1350,8 +1544,8 @@ VME_RETRY_n_o <= '0' when rty_i='1' or s_retry='1' else 'Z';
 p_BERRdriver: process(clk_i)
 begin
     if rising_edge(clk_i) then
-        s_berr_1 <= s_berr;	
-		s_berr_2 <= s_berr and s_berr_1;
+        s_berr_1 <= s_berr;    
+        s_berr_2 <= s_berr and s_berr_1;
         if (s_transferActive='1' and s_BERRcondition='1') or s_berr_2='1' then
             VME_BERR_n_o <= '0';
         else
@@ -1395,21 +1589,20 @@ s_VMEaddrInput <= VME_ADDR_oversampled;
 s_LWORDinput <= VME_LWORD_n_oversampled;
 s_VMEdataInput <= VME_DATA_oversampled;
 
-VME_ADDR_b <= s_locData(63 downto 33) when s_dataToAddrBus='1' else (others => 'Z');
-VME_LWORD_n_b <= s_locData(32) when s_dataToAddrBus='1' else 'Z';
+VME_ADDR_b <= FIFOdata_i(63 downto 33) when (s_dataToAddrBus='1' and s_TWOeInProgress='1') else
+              s_locData(63 downto 33) when s_dataToAddrBus='1' else 
+              (others => 'Z');
+    
+VME_LWORD_n_b <= FIFOdata_i(32) when (s_dataToAddrBus='1' and s_TWOeInProgress='1') else
+                 s_locData(32) when s_dataToAddrBus='1' else 
+                 'Z';
 
-VME_DATA_b <=   s_locData(31 downto 0) when (s_dataToAddrBus='1' or s_dataToOutput='1') else
+VME_DATA_b <=   FIFOdata_i(31 downto 0) when (s_dataToAddrBus='1' and s_TWOeInProgress='1') else
+                s_locData(31 downto 0) when (s_dataToAddrBus='1' or s_dataToOutput='1') else
                 "ZZZZZZZZZZZZZZZZZZZZZZZZ" & s_irqIDdata when IDtoData_i='1' else
                 (others => 'Z'); 
-				
-s_irqIDdata <= s_CSRarray(IRQ_ID_1) when s_locAddr(3 downto 1)=x"1" else
-			   s_CSRarray(IRQ_ID_2) when s_locAddr(3 downto 1)=x"2" else
-			   s_CSRarray(IRQ_ID_3) when s_locAddr(3 downto 1)=x"3" else
-			   s_CSRarray(IRQ_ID_4) when s_locAddr(3 downto 1)=x"4" else
-			   s_CSRarray(IRQ_ID_5) when s_locAddr(3 downto 1)=x"5" else
-			   s_CSRarray(IRQ_ID_6) when s_locAddr(3 downto 1)=x"6" else
-			   s_CSRarray(IRQ_ID_7) when s_locAddr(3 downto 1)=x"7" else
-               (others => 'Z');
+                
+s_irqIDdata <= s_CSRarray(IRQ_ID);
     
 
 -- Local address & AM latching 
@@ -1421,7 +1614,7 @@ begin
             s_VMEaddrLatched <= (others => '0');
             s_LWORDlatched <= '0';
             s_AMlatched <= (others => '0');
-		else
+        else
             if s_VMEaddrLatch='1' then                                               -- Latching on falling edge of VME_AS_n_i
                 s_VMEaddrLatched <= s_VMEdataInput & s_VMEaddrInput;
                 s_LWORDlatched <= s_LWORDinput;
@@ -1444,7 +1637,7 @@ begin
         if s_DSlatch='1' then
             s_DSlatched <= VME_DS_n_oversampled;
         else
-		    s_DSlatched <= s_DSlatched;
+            s_DSlatched <= s_DSlatched;
         end if;
     end if;
 end process;
@@ -1479,7 +1672,12 @@ begin
 end process;
 
 s_XAM            <= s_phase1addr(7 downto 0);
-s_cycleCount     <= s_phase2addr(15 downto 8);
+s_cycleCount     <= s_phase2addr(15 downto 8);       
+
+s_beatCount      <= s_cycleCount&'0' when s_XAMtype=A32_2eVME or s_XAMtype=A64_2eVME else
+                    '0'&s_cycleCount;
+    
+beatCount_o      <= s_beatCount(7 downto 0);
 
 
 -- Beat counter
@@ -1488,16 +1686,16 @@ p_FIFObeatCounter: process(clk_i)
 begin
     if rising_edge(clk_i) then
         if s_reset='1' or s_resetAddrOffset='1' then
-            s_beatCount <= (others => '0');
-        elsif s_incrementAddr='1' then
-            s_beatCount <= s_beatCount + 1;
+            s_runningBeatCount <= (others => '0');
+        elsif s_readFIFO='1' then
+            s_runningBeatCount <= s_runningBeatCount + 1;
         else
-            s_beatCount <= s_beatCount;
+            s_runningBeatCount <= s_runningBeatCount;
         end if;
     end if;
 end process;
 
-s_beatCountEnd <= '0' when s_beatCount(8 downto 1) < s_cycleCount else '1';
+s_beatCountEnd <= '0' when s_runningBeatCount < s_beatCount else '1';      
 
                                              
 -- Local address mapping
@@ -1796,15 +1994,15 @@ s_CRAMaddressed <= '1' when (s_CrCsrOffsetAddr>=s_BEG_CRAM(18 downto 0) and s_Cr
 p_memAckCSR: process(clk_i)
 begin
     if rising_edge(clk_i) then
-		if s_reset = '1' then 
-			s_memAckCSR <= (others=>'0');
-		else	
-			if s_memReq='1' and s_confAccess='1' then
-				s_memAckCSR <= s_memAckCSR (1 downto 0) & '1';
-			else
-				s_memAckCSR <= (others=>'0');
-			end if;
-		end if;
+        if s_reset = '1' then 
+            s_memAckCSR <= (others=>'0');
+        else    
+            if s_memReq='1' and s_confAccess='1' then
+                s_memAckCSR <= s_memAckCSR (1 downto 0) & '1';
+            else
+                s_memAckCSR <= (others=>'0');
+            end if;
+        end if;
     end if;
 end process; 
 
@@ -1837,7 +2035,7 @@ begin
                 s_CSRarray(BAR)     <= (others => '0');
             end if;
             s_CSRarray(1)           <= (others => '0');
-            for i in 3 to 42 loop
+            for i in 3 to 37 loop
                 s_CSRarray(i)       <= (others => '0');
             end loop;
             
@@ -2066,39 +2264,14 @@ begin
                     s_CSRarray(FUNC0_ADER_3) <= s_locDataIn(7 downto 0);
                 end if;
                 
-                when IRQ_ID_7_addr =>
+                when IRQ_ID_addr =>
                 if s_RW='0' then
-                    s_CSRarray(IRQ_ID_7) <= s_locDataIn(7 downto 0);
+                    s_CSRarray(IRQ_ID) <= s_locDataIn(7 downto 0);
                 end if;
                 
-                when IRQ_ID_6_addr =>
+                when IRQ_level_addr =>
                 if s_RW='0' then
-                    s_CSRarray(IRQ_ID_6) <= s_locDataIn(7 downto 0);
-                end if;
-                
-                when IRQ_ID_5_addr =>
-                if s_RW='0' then
-                    s_CSRarray(IRQ_ID_5) <= s_locDataIn(7 downto 0);
-                end if;
-                
-                when IRQ_ID_4_addr =>
-                if s_RW='0' then
-                    s_CSRarray(IRQ_ID_4) <= s_locDataIn(7 downto 0);
-                end if;
-                
-                when IRQ_ID_3_addr =>
-                if s_RW='0' then
-                    s_CSRarray(IRQ_ID_3) <= s_locDataIn(7 downto 0);
-                end if;
-                
-                when IRQ_ID_2_addr =>
-                if s_RW='0' then
-                    s_CSRarray(IRQ_ID_2) <= s_locDataIn(7 downto 0);
-                end if;
-                
-                when IRQ_ID_1_addr =>
-                if s_RW='0' then
-                    s_CSRarray(IRQ_ID_1) <= s_locDataIn(7 downto 0);
+                    s_CSRarray(IRQ_level) <= s_locDataIn(7 downto 0);
                 end if;
                 
                 when others =>
@@ -2121,7 +2294,7 @@ begin
 end process;
 
 -- CSR read
-s_CSRdata <=     s_CSRarray(BAR)                 when s_CrCsrOffsetAddr=BAR_addr else
+s_CSRdata <=    s_CSRarray(BAR)                 when s_CrCsrOffsetAddr=BAR_addr else
                 s_CSRarray(BIT_SET_CLR_REG)      when s_CrCsrOffsetAddr=BIT_SET_REG_addr else
                 s_CSRarray(BIT_SET_CLR_REG)      when s_CrCsrOffsetAddr=BIT_CLR_REG_addr else
                 s_CSRarray(CRAM_OWNER)           when s_CrCsrOffsetAddr=CRAM_OWNER_addr else
@@ -2159,13 +2332,9 @@ s_CSRdata <=     s_CSRarray(BAR)                 when s_CrCsrOffsetAddr=BAR_addr
                 s_CSRarray(FUNC0_ADER_1)         when s_CrCsrOffsetAddr=FUNC0_ADER_1_addr else
                 s_CSRarray(FUNC0_ADER_2)         when s_CrCsrOffsetAddr=FUNC0_ADER_2_addr else
                 s_CSRarray(FUNC0_ADER_3)         when s_CrCsrOffsetAddr=FUNC0_ADER_3_addr else
-                s_CSRarray(IRQ_ID_7)             when s_CrCsrOffsetAddr=IRQ_ID_7_addr else 
-                s_CSRarray(IRQ_ID_6)             when s_CrCsrOffsetAddr=IRQ_ID_6_addr else
-                s_CSRarray(IRQ_ID_5)             when s_CrCsrOffsetAddr=IRQ_ID_5_addr else
-                s_CSRarray(IRQ_ID_4)             when s_CrCsrOffsetAddr=IRQ_ID_4_addr else
-                s_CSRarray(IRQ_ID_3)             when s_CrCsrOffsetAddr=IRQ_ID_3_addr else
-                s_CSRarray(IRQ_ID_2)             when s_CrCsrOffsetAddr=IRQ_ID_2_addr else
-                s_CSRarray(IRQ_ID_1)             when s_CrCsrOffsetAddr=IRQ_ID_1_addr;
+                s_CSRarray(IRQ_ID)               when s_CrCsrOffsetAddr=IRQ_ID_addr else 
+                s_CSRarray(IRQ_level)            when s_CrCsrOffsetAddr=IRQ_level_addr;
+
     
 -- Initialization procedure                
 

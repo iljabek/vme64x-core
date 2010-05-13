@@ -39,13 +39,8 @@ package VME_pack is
     constant FUNC0_ADER_1 : integer := 33;
     constant FUNC0_ADER_2 : integer := 34;
     constant FUNC0_ADER_3 : integer := 35;
-    constant IRQ_ID_7 :     integer := 36;
-    constant IRQ_ID_6 :     integer := 37;
-    constant IRQ_ID_5 :     integer := 38;
-    constant IRQ_ID_4 :     integer := 39;
-    constant IRQ_ID_3 :     integer := 40;
-    constant IRQ_ID_2 :     integer := 41;
-    constant IRQ_ID_1 :     integer := 42;
+    constant IRQ_ID : integer := 36;
+	constant IRQ_level : integer := 37;
     
     constant BAR_addr : std_logic_vector(18 downto 0) :=                  "1111111111111111111";        
     constant BIT_SET_REG_addr : std_logic_vector(18 downto 0) :=          "1111111111111111011";
@@ -85,13 +80,8 @@ package VME_pack is
     constant FUNC0_ADER_1_addr : std_logic_vector(18 downto 0) :=         "1111111111101101011";   
     constant FUNC0_ADER_2_addr : std_logic_vector(18 downto 0) :=         "1111111111101100111";   
     constant FUNC0_ADER_3_addr : std_logic_vector(18 downto 0) :=         "1111111111101100011";
-    constant IRQ_ID_7_addr : std_logic_vector(18 downto 0) :=             "1111111101111111111";
-    constant IRQ_ID_6_addr : std_logic_vector(18 downto 0) :=             "1111111101111111011";
-    constant IRQ_ID_5_addr : std_logic_vector(18 downto 0) :=             "1111111101111110111";
-    constant IRQ_ID_4_addr : std_logic_vector(18 downto 0) :=             "1111111101111110011";
-    constant IRQ_ID_3_addr : std_logic_vector(18 downto 0) :=             "1111111101111101111";
-    constant IRQ_ID_2_addr : std_logic_vector(18 downto 0) :=             "1111111101111101011";
-    constant IRQ_ID_1_addr : std_logic_vector(18 downto 0) :=             "1111111101111100111";
+    constant IRQ_ID_addr : std_logic_vector(18 downto 0) :=               "1111111101111111111";
+    constant IRQ_level_addr : std_logic_vector(18 downto 0) :=            "1111111101111111011";
     
     
     constant BEG_USER_CR_0: integer :=        1;
@@ -145,7 +135,7 @@ package VME_pack is
     constant FUNC7_ADEM_2 : integer :=        49;
     constant FUNC7_ADEM_3 : integer :=        50;    
     
-    type t_reg36x8bit is array(42 downto 0) of std_logic_vector(7 downto 0);
+    type t_reg38x8bit is array(37 downto 0) of std_logic_vector(7 downto 0);
     type t_reg52x8bit is array(51 downto 0) of std_logic_vector(7 downto 0);
     type t_reg52x12bit is array(51 downto 0) of std_logic_vector(11 downto 0);
                                                                             

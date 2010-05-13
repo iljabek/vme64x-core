@@ -43,7 +43,8 @@ entity WB_bus is
         STB_o:           out std_logic;
         ACK_i:           in std_logic;
         WE_o:            out std_logic;
-        IRQ_i:           in std_logic_vector(6 downto 0);
+        STALL_i:         in std_logic;
+        IRQ_i:           in std_logic;
         
         memReq_i:        in std_logic;                 
         memAck_o:        out std_logic;                  
@@ -53,17 +54,20 @@ entity WB_bus is
         sel_i:           in std_logic_vector(7 downto 0);
         RW_i:            in std_logic;                 
         lock_i:          in std_logic;                 
-        IRQ_o:           out std_logic_vector(6 downto 0);
+        IRQ_o:           out std_logic;
         err_o:           out std_logic;
         rty_o:           out std_logic;
         cyc_i:           in std_logic;
         
         mainFSMreset_i:  in std_logic;
+        beatCount_i:     in std_logic_vector(7 downto 0);
         
         FIFOrden_o:      out std_logic;
+		FIFOwren_o:      out std_logic;
         FIFOdata_i:      in std_logic_vector(63 downto 0);
-        FIFOempty_i:     in std_logic;
-        SSTinProgress_i: in std_logic;
+        FIFOdata_o:      out std_logic_vector(63 downto 0);		
+        writeFIFOempty_i: in std_logic;
+        TWOeInProgress_i: in std_logic;
         WBbusy_o:        out std_logic
         
         );    
@@ -79,11 +83,16 @@ SIgnal s_locAddr: std_logic_vector(63 downto 0);	   -- local address
 signal s_FSMactive: std_logic;        -- signals when SST FIFO is being emptied
 signal s_cyc: std_logic;            
 signal s_stb: std_logic;                    
-signal s_addrIncrement: std_logic;    -- increment address for block transfers
-signal s_addrLatch: std_logic;    	  -- store initial address locally
+signal s_addrLatch: std_logic;    	  -- store initial address locally 
 
-type t_sstFSMstates is (IDLE, ADDR_LATCH, FIFO_CHECK, RDEN_SET, STB_SET, ADDR_INCREMENT, RETRY, CYC_ON);
-signal s_sstFSMstate: t_sstFSMstates;      
+signal s_pipeCommActive: std_logic;
+
+signal s_WE: std_logic;
+
+signal s_runningBeatCount: std_logic_vector(8 downto 0);
+
+type t_2eFSMstates is (IDLE, ADDR_LATCH, FIFO_CHECK, RDEN_SET, STB_SET, ADDR_INCREMENT, RETRY, CYC_ON);
+signal s_2eFSMstate: t_2eFSMstates;      
 
 begin 
     
@@ -114,7 +123,7 @@ DAT_o         <= locData_i   when s_FSMactive='0' else FIFOdata_i;
 
 ADR_o <= locAddr_i           when s_FSMactive='0' else s_locAddr;
 
-WE_o     <= not RW_i         when s_FSMactive='0' else '1';
+WE_o     <= not RW_i         when s_FSMactive='0' else s_WE;
 IRQ_o    <= IRQ_i;
 LOCK_o   <= lock_i;
 err_o    <= ERR_i            when s_FSMactive='0' else '0';
@@ -133,104 +142,54 @@ begin
         if s_reset='1' then
             s_FSMactive              <='0';
             s_cyc                    <='0';
-            s_stb                    <='0';
-            FIFOrden_o               <='0';
-            s_addrIncrement          <='0';
+            s_pipeCommActive         <='0';
+            s_WE                     <='0';
             s_addrLatch              <='0';
-            s_sstFSMstate            <= IDLE;
+            s_2eFSMstate            <= IDLE;
         else
-            case s_sstFSMstate is
+            case s_2eFSMstate is
                 
                 when IDLE =>
                 s_FSMactive          <='0';
                 s_cyc                <='0';
-                s_stb                <='0';
-                FIFOrden_o           <='0';
-                s_addrIncrement      <='0';
+                s_WE                 <= not RW_i;
                 s_addrLatch          <='0';
-                if SSTinProgress_i='1' then    
-                    s_sstFSMstate    <= ADDR_LATCH;
+                s_pipeCommActive     <='0';
+                if TWOeInProgress_i='1' then    
+                    s_2eFSMstate    <= ADDR_LATCH;
                 end if;
                 
                 when ADDR_LATCH =>
                 s_FSMactive          <='1';
                 s_cyc                <='0';
-                s_stb                <='0';
-                FIFOrden_o           <='0';
-                s_addrIncrement      <='0';
+                s_WE                 <= s_WE;
                 s_addrLatch          <='1';
-                s_sstFSMstate        <= FIFO_CHECK;
-                    
-                when FIFO_CHECK => 
+                s_pipeCommActive     <='0';
+                s_2eFSMstate        <= SET_CONTROL_SIGNALS;
+				
+                when SET_CONTROL_SIGNALS =>
                 s_FSMactive          <='1';
                 s_cyc                <='1';
-                s_stb                <='0';
-                FIFOrden_o           <='0';
-                s_addrIncrement      <='0';
-                s_addrLatch          <='0';
-                if FIFOempty_i='0' then
-                    s_sstFSMstate    <= RDEN_SET;
-                elsif SSTinProgress_i='0' then
-                    s_sstFSMstate    <= IDLE;
-                end if;
-                
-                when RDEN_SET =>
+                s_WE                 <= s_WE;
+                s_addrLatch          <='0';	
+                s_pipeCommActive     <='0';
+                s_2eFSMstate        <= DO_PIPELINED_COMM;
+				
+				when DO_PIPELINED_COMM =>
                 s_FSMactive          <='1';
                 s_cyc                <='1';
-                s_stb                <='0';
-                FIFOrden_o           <='1';
-                s_addrIncrement      <='0';
+                s_WE                 <= s_WE;
                 s_addrLatch          <='0';
-                s_sstFSMstate        <= STB_SET;
-                
-                when STB_SET =>
-                s_FSMactive          <='1';
-                s_cyc                <='1';
-                s_stb                <='1';
-                FIFOrden_o           <='0';
-                s_addrIncrement      <='0';
-                s_addrLatch          <='0';
-                if ACK_i='1' then
-                    s_sstFSMstate    <= ADDR_INCREMENT;
-                elsif RTY_i='1' or ERR_i='1' then
-                    s_sstFSMstate    <= RETRY;
-                end if;
-                
-                when ADDR_INCREMENT =>
-                s_FSMactive          <='1';
-                s_cyc                <='1';
-                s_stb                <='0';
-                FIFOrden_o           <='0';
-                s_addrIncrement      <='1';
-                s_addrLatch          <='0';
-                s_sstFSMstate        <= FIFO_CHECK;
-                
-                when RETRY =>
-                s_FSMactive          <='1';
-                s_cyc                <='0';
-                s_stb                <='0';
-                FIFOrden_o           <='0';
-                s_addrIncrement      <='0';
-                s_addrLatch          <='0';
-                s_sstFSMstate        <= CYC_ON;
-                
-                when CYC_ON =>
-                s_FSMactive          <='1';
-                s_cyc                <='1';
-                s_stb                <='0';
-                FIFOrden_o           <='0';
-                s_addrIncrement      <='0';
-                s_addrLatch          <='0';
-                s_sstFSMstate        <= STB_SET;
+                s_pipeCommActive     <='1';
+                s_2eFSMstate        <= DO_PIPELINED_COMM;
                 
                 when OTHERS =>
                 s_FSMactive          <='0';
                 s_cyc                <='0';
-                s_stb                <='0';
-                FIFOrden_o           <='0';
-                s_addrIncrement      <='0';
+                s_WE                 <= s_WE;
                 s_addrLatch          <='0';
-                s_sstFSMstate        <= IDLE;
+                s_pipeCommActive     <='0';
+                s_2eFSMstate        <= IDLE;
             
             end case;
         end if;
@@ -247,13 +206,37 @@ begin
             s_locAddr <= (others => '0');
         elsif s_addrLatch='1' then
             s_locAddr <= locAddr_i;
-        elsif s_addrIncrement='1' then
+        elsif s_pipeCommActive='1' then																	     
             s_locAddr <= s_locAddr + 8;
         else
             s_locAddr <= s_locAddr;
         end if;
     end if;
 end process;
-                
+
+
+-- Beat counter
+
+p_FIFObeatCounter: process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        if s_reset='1' then
+            s_runningBeatCount <= (others => '0');
+        elsif s_pipeCommActive='1' then
+            s_runningBeatCount <= s_runningBeatCount + 1;
+        else
+            s_runningBeatCount <= s_runningBeatCount;
+        end if;
+    end if;
+end process;
+
+s_beatCountEnd <= '0' when s_runningBeatCount < beatCount_i else '1';
+ 
+
+-- 2e write	
+
+FIFOrden  <= '1' when s_pipeCommActive='1' and s_WE='1' and STALL_i='0' and writeFIFOempty_i='0' else '0';
+s_STB     <= '1' when s_pipeCommActive='1' and s_WE='1' and STALL_i='0' and writeFIFOempty_i='0' else '0';
+
         
 end RTL;
