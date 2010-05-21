@@ -59,13 +59,12 @@ entity WB_bus is
         rty_o:           out std_logic;
         cyc_i:           in std_logic;
         
-        mainFSMreset_i:  in std_logic;
         beatCount_i:     in std_logic_vector(7 downto 0);
         
         FIFOrden_o:      out std_logic;
-		FIFOwren_o:      out std_logic;
+        FIFOwren_o:      out std_logic;
         FIFOdata_i:      in std_logic_vector(63 downto 0);
-        FIFOdata_o:      out std_logic_vector(63 downto 0);		
+        FIFOdata_o:      out std_logic_vector(63 downto 0);        
         writeFIFOempty_i: in std_logic;
         TWOeInProgress_i: in std_logic;
         WBbusy_o:        out std_logic
@@ -77,21 +76,29 @@ architecture RTL of WB_bus is
 
 signal s_reset: std_logic;
 
-signal s_locDataOut: std_logic_vector(63 downto 0);	   -- local data
-SIgnal s_locAddr: std_logic_vector(63 downto 0);	   -- local address
+signal s_locDataOut: std_logic_vector(63 downto 0);       -- local data
+SIgnal s_locAddr: std_logic_vector(63 downto 0);          -- local address
 
-signal s_FSMactive: std_logic;        -- signals when SST FIFO is being emptied
-signal s_cyc: std_logic;            
-signal s_stb: std_logic;                    
-signal s_addrLatch: std_logic;    	  -- store initial address locally 
+signal s_FSMactive: std_logic;          -- signals when SST FIFO is being emptied
+signal s_cyc: std_logic;                -- CYC signal (for control in 2eFSM)
+signal s_stb: std_logic;                -- STB signal (for control in p_pipSTB)      
+signal s_addrLatch: std_logic;          -- store initial address locally 
 
-signal s_pipeCommActive: std_logic;
+signal s_pipeCommActive: std_logic;      -- indicates tha 2eFSM is active (transfer is in progress)
 
-signal s_WE: std_logic;
+signal s_WE: std_logic;                  -- WE signal (for control in 2eFSM)
 
-signal s_runningBeatCount: std_logic_vector(8 downto 0);
+signal s_runningBeatCount: std_logic_vector(8 downto 0);      -- internal beat counter
+signal s_beatCount: std_logic_vector(7 downto 0);             -- registered beat count (received from VME core)
+signal s_beatCountEnd: std_logic;                             -- marks that beat counter has reached the final value
+signal s_cycleDelay: std_logic;                               -- used for delaying s_pipeCommActive signal for one clock cycle
 
-type t_2eFSMstates is (IDLE, ADDR_LATCH, FIFO_CHECK, RDEN_SET, STB_SET, ADDR_INCREMENT, RETRY, CYC_ON);
+signal s_ackCount: std_logic_vector(7 downto 0);              -- ACK tick counter
+signal s_ackCountEnd: std_logic;                              -- marks that all expected ACK ticks have been received
+
+signal s_FIFOrden: std_logic;                                 -- FIFO read enable
+
+type t_2eFSMstates is (IDLE, ADDR_LATCH, SET_CONTROL_SIGNALS, DO_PIPELINED_COMM, WAIT_FOR_END);
 signal s_2eFSMstate: t_2eFSMstates;      
 
 begin 
@@ -119,6 +126,7 @@ begin
 end process;
 
 locData_o     <= s_locDataOut;
+FIFOdata_o    <= DAT_i;
 DAT_o         <= locData_i   when s_FSMactive='0' else FIFOdata_i;
 
 ADR_o <= locAddr_i           when s_FSMactive='0' else s_locAddr;
@@ -131,12 +139,12 @@ rty_o    <= RTY_i            when s_FSMactive='0' else '0';
 SEL_o    <= sel_i            when s_FSMactive='0' else (others => '1');
 CYC_o    <= cyc_i            when s_FSMactive='0' else s_cyc;
 
- 
-WBbusy_o <= s_FSMactive;    
-    
--- SST write
+WBbusy_o <= s_FSMactive;
 
-p_SSTwriteFSM: process(clk_i)
+    
+-- 2e FSM
+
+p_2eFSM: process(clk_i)
 begin 
     if rising_edge(clk_i) then
         if s_reset='1' then
@@ -161,27 +169,41 @@ begin
                 
                 when ADDR_LATCH =>
                 s_FSMactive          <='1';
-                s_cyc                <='0';
+                s_cyc                <='1';
                 s_WE                 <= s_WE;
                 s_addrLatch          <='1';
                 s_pipeCommActive     <='0';
                 s_2eFSMstate        <= SET_CONTROL_SIGNALS;
-				
+                
                 when SET_CONTROL_SIGNALS =>
                 s_FSMactive          <='1';
                 s_cyc                <='1';
                 s_WE                 <= s_WE;
-                s_addrLatch          <='0';	
+                s_addrLatch          <='0';    
                 s_pipeCommActive     <='0';
                 s_2eFSMstate        <= DO_PIPELINED_COMM;
-				
-				when DO_PIPELINED_COMM =>
+                
+                when DO_PIPELINED_COMM =>
                 s_FSMactive          <='1';
                 s_cyc                <='1';
                 s_WE                 <= s_WE;
                 s_addrLatch          <='0';
                 s_pipeCommActive     <='1';
-                s_2eFSMstate        <= DO_PIPELINED_COMM;
+                if s_ackCountEnd='1' then
+                    s_2eFSMstate   <= WAIT_FOR_END;
+                else
+                    s_2eFSMstate   <= DO_PIPELINED_COMM;
+                end if;
+                
+                when WAIT_FOR_END =>
+                s_FSMactive          <='0';
+                s_cyc                <='0';
+                s_WE                 <= s_WE;
+                s_addrLatch          <='0';
+                s_pipeCommActive     <='0';
+                if TWOeInProgress_i='0' then
+                    s_2eFSMstate   <= IDLE;
+                end if;
                 
                 when OTHERS =>
                 s_FSMactive          <='0';
@@ -206,7 +228,7 @@ begin
             s_locAddr <= (others => '0');
         elsif s_addrLatch='1' then
             s_locAddr <= locAddr_i;
-        elsif s_pipeCommActive='1' then																	     
+        elsif s_pipeCommActive='1' and STALL_i='0' and s_cycleDelay='1' and ((writeFIFOempty_i='0' and s_WE='1') or (s_WE='0')) then                                                                         
             s_locAddr <= s_locAddr + 8;
         else
             s_locAddr <= s_locAddr;
@@ -220,9 +242,9 @@ end process;
 p_FIFObeatCounter: process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if s_reset='1' then
+        if s_reset='1' or s_pipeCommActive='0' then
             s_runningBeatCount <= (others => '0');
-        elsif s_pipeCommActive='1' then
+        elsif s_pipeCommActive='1' and STALL_i='0' and ((writeFIFOempty_i='0' and s_WE='1') or (s_WE='0')) then
             s_runningBeatCount <= s_runningBeatCount + 1;
         else
             s_runningBeatCount <= s_runningBeatCount;
@@ -230,13 +252,69 @@ begin
     end if;
 end process;
 
-s_beatCountEnd <= '0' when s_runningBeatCount < beatCount_i else '1';
+s_beatCountEnd <= '0' when s_runningBeatCount < beatCount_i else '1';    
+    
+    
+-- One clock cycle delay
+
+p_cycleDelay: process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        s_cycleDelay <= s_pipeCommActive;
+    end if;
+end process;  
+
+
+-- ACK pulse counter
+
+p_ackCounter: process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        if s_reset='1' or s_addrLatch='1' then
+            s_ackCount <= (others => '0');
+        elsif ACK_i='1' then
+            s_ackCount <= s_ackCount + 1;
+        else
+            s_ackCount <= s_ackCount;
+        end if;
+    end if;
+end process;
+
+s_ackCountEnd <= '1' when s_ackCount=s_beatCount else '0';
  
+    
+-- Beat count register
 
--- 2e write	
+p_beatCountRegister: process(clk_i)
+begin
+    if rising_edge(clk_i) then 
+        if s_addrLatch='1' then
+            s_beatCount <= beatCount_i;
+        else
+            s_beatCount <= s_beatCount;
+        end if;
+    end if;
+end process; 
 
-FIFOrden  <= '1' when s_pipeCommActive='1' and s_WE='1' and STALL_i='0' and writeFIFOempty_i='0' else '0';
-s_STB     <= '1' when s_pipeCommActive='1' and s_WE='1' and STALL_i='0' and writeFIFOempty_i='0' else '0';
+
+-- Pipelined transfer STB signal control    
+
+p_pipSTB: process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        if s_pipeCommActive='1' and STALL_i='0' and ((writeFIFOempty_i='0' and s_WE='1') or (s_WE='0')) and s_beatCountEnd='0' then
+            s_stb <= '1';
+        else
+            s_stb <= '0';
+        end if;
+    end if;
+end process; 
+
+s_FIFOrden <= '1' when s_pipeCommActive='1' and s_WE='1' and STALL_i='0' and writeFIFOempty_i='0' and s_beatCountEnd='0' else '0';
+FIFOrden_o <= s_FIFOrden;  
+
+FIFOwren_o <= ACK_i when s_pipeCommActive='1' and s_WE='0' else '0';
+
 
         
 end RTL;

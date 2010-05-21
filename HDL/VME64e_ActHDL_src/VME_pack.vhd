@@ -40,7 +40,7 @@ package VME_pack is
     constant FUNC0_ADER_2 : integer := 34;
     constant FUNC0_ADER_3 : integer := 35;
     constant IRQ_ID : integer := 36;
-	constant IRQ_level : integer := 37;
+    constant IRQ_level : integer := 37;
     
     constant BAR_addr : std_logic_vector(18 downto 0) :=                  "1111111111111111111";        
     constant BIT_SET_REG_addr : std_logic_vector(18 downto 0) :=          "1111111111111111011";

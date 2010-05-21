@@ -40,7 +40,7 @@ entity IRQ_controller is
         IRQ_i:              in std_logic;
         locAddr_i:          in std_logic_vector(3 downto 1);
         IDtoData_o:         out std_logic;
-		IRQlevelReg_i:		in std_logic_vector(7 downto 0)
+        IRQlevelReg_i:      in std_logic_vector(7 downto 0)
         );
 end IRQ_controller;
 
@@ -74,13 +74,13 @@ signal VME_DS_n_oversampled : STD_LOGIC_VECTOR(1 downto 0);
 
 signal s_reset: std_logic;
 
-signal s_irqDTACK: std_logic;					        -- acknowledge of IACK cycle 
-signal s_applyIRQmask: std_logic;						-- clears acknowlegded interrupt
-signal s_IDtoData: std_logic;					        -- puts IRQ Status/ID register on data bus
-signal s_IACKmatch: std_logic;					        -- signals that an active interrupt is being acknowledged
-signal s_wbIRQrisingEdge: std_logic;					-- rising edge detection on interrupt line 
-signal s_IRQenabled: std_logic;							-- indicates that interrupts are enabled (IRQlevelReg has a valid level value)	
-signal s_IRQreg: std_logic;								-- registers pending interrupt
+signal s_irqDTACK: std_logic;                            -- acknowledge of IACK cycle 
+signal s_applyIRQmask: std_logic;                        -- clears acknowlegded interrupt
+signal s_IDtoData: std_logic;                            -- puts IRQ Status/ID register on data bus
+signal s_IACKmatch: std_logic;                           -- signals that an active interrupt is being acknowledged
+signal s_wbIRQrisingEdge: std_logic;                     -- rising edge detection on interrupt line 
+signal s_IRQenabled: std_logic;                          -- indicates that interrupts are enabled (IRQlevelReg has a valid level value)    
+signal s_IRQreg: std_logic;                              -- registers pending interrupt
 
 type t_IRQstates is (IDLE, WAIT_FOR_DS, CHECK_MATCH, APPLY_MASK_AND_DATA, PROPAGATE_IACK, APPLY_DTACK);
 signal s_IRQstate: t_IRQstates;
@@ -183,13 +183,17 @@ begin
             end case;
         end if;
     end if;
-end process;
+end process; 
+
                     
 s_IACKmatch <= '1' when "00000"&locAddr_i = IRQlevelReg_i else '0';
-	
+    
 s_IRQenabled <= '1' when IRQlevelReg_i < 8 and IRQlevelReg_i /= 0 else '0';
     
-IDtoData_o <= s_IDtoData;
+IDtoData_o <= s_IDtoData; 
+
+
+-- Setting and clearing pending interrupt request register
 
 p_IRQregHandling: process(clk_i)
 begin
@@ -201,14 +205,20 @@ begin
         else
             if s_wbIRQrisingEdge='1' and s_IRQenabled='1' then
                 s_IRQreg <= '1';
-            end if;												 
+            end if;                                                 
         end if;
     end if;
-end process;  
+end process; 
+
+
+-- Driving VME_IRQ lines
 
 gen_IRQoutput: for i in 0 to 6 generate        
-	VME_IRQ_n_o(i) <= '0' when s_IRQreg='1' and IRQlevelReg_i=(i+1) else 'Z';
-end generate;
+    VME_IRQ_n_o(i) <= '0' when s_IRQreg='1' and IRQlevelReg_i=(i+1) else 'Z';
+end generate;  
+
+
+-- Signal input oversample & rising edge detection
 
 IRQrisingEdge: RisEdgeDetection
 port map (
