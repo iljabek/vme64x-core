@@ -36,7 +36,7 @@ Celoxica=0
 UseCeloxica=0
 PHYSSYNTH_STATUS=none
 RUN_MODE_SYNTH=0
-SYNTH_STATUS=warnings
+SYNTH_STATUS=none
 IMPL_STATUS=none
 PCBINTERFACE_STATUS=NONE
 C_SERVER_SIM=
@@ -168,7 +168,7 @@ MOVE_LAST_FF_STAGE=1
 JOB_DESCRIPTION=JobDesc1
 SERVERFARM_INCLUDE_INPUT_FILES=*.*
 SERVERFARM_EXCLUDE_INPUT_FILES=log*.*:implement*.*
-LAST_RUN=1273740002
+LAST_RUN=1274270640
 OUTPUT_NETLIST=d:\CSL\SVN\FAIR-VME64ext\trunk\HDL\VME64e_ActHDL\VME64xCore\synthesis\vme64xcore_top.ngc
 OUTPUT_SIMUL_NETLIST=synthesis\vme64xcore_top.vhd
 Show_SliceUtilizationRatioDelta=100
@@ -211,6 +211,7 @@ post-synthesis=1
 /VME_CRCSR_test.tcl=-1
 /VME_init_test.tcl=-1
 /VME_top_test.tcl=-1
+/WB_pipelined_test.tcl=-1
 post-synthesis/..\..\synthesis\vme64xcore_top.vhd=-1
 
 [Files.Data]
@@ -228,5 +229,6 @@ post-synthesis/..\..\synthesis\vme64xcore_top.vhd=-1
 .\src\VME_CRCSR_test.tcl=Tcl Script
 .\src\VME_init_test.tcl=Tcl Script
 .\src\VME_top_test.tcl=Tcl Script
+.\src\WB_pipelined_test.tcl=Tcl Script
 .\synthesis\vme64xcore_top.vhd=VHDL Source Code
 

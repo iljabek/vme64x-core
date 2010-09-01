@@ -316,7 +316,8 @@ signal s_berr_2: std_logic;                              --
 
 -- Access decode signals
 signal s_confAccess: std_logic;                             -- Asserted when CR or CSR is addressed
-signal s_cardSel: std_logic;                                -- Asserted when internal memory space is addressed    
+signal s_cardSel: std_logic;                                -- Asserted when internal memory space is addressed 
+signal s_lockSel: std_logic;                                -- Asserted when function losk is correctly addressed
 signal s_memAckCaseCondition: std_logic_vector(1 downto 0); -- Used in p_memAck for case condition 
     
 signal s_XAM: std_logic_vector(7 downto 0);                 -- Stores received XAM
@@ -394,9 +395,9 @@ begin
 s_reset <= (not VME_RST_n_oversampled) or s_CSRarray(BIT_SET_CLR_REG)(7);     -- hardware reset and software reset
 reset_o <= s_reset;
 
-VME_DTACK_OE_o <= s_dtackOE;
-VME_DATA_DIR_o <= s_dataDir;
-VME_DATA_OE_o  <= s_dataOE;
+VME_DTACK_OE_o <= '1' when IACKinProgress_i='1' else s_dtackOE;
+VME_DATA_DIR_o <= '1' when IACKinProgress_i='1' else s_dataDir;
+VME_DATA_OE_o  <= '1' when IACKinProgress_i='1' else s_dataOE;
 VME_ADDR_DIR_o <= s_addrDir;
 VME_ADDR_OE_o  <= s_addrOE;
 
@@ -504,7 +505,7 @@ begin
                 s_dataOE             <= '0';
                 s_addrDir            <= '0';
                 s_addrOE             <= '1';
-                s_mainDTACK          <= 'Z';
+                s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -532,7 +533,7 @@ begin
                 s_dataOE             <= '0';
                 s_addrDir            <= '0';
                 s_addrOE             <= '0';
-                s_mainDTACK          <= 'Z';
+                s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -548,12 +549,14 @@ begin
                 s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= '0';
-                if s_cardSel='1' and s_transferType=LCK then                       -- LOCK request
+                if s_lockSel='1' then                                               -- LOCK request
                     s_mainFSMstate   <= ACKNOWLEDGE_LOCK;
                 elsif s_addressingType=TWOedge then                                -- start 2e transfer
                     s_mainFSMstate   <= WAIT_FOR_DS_2e;
                 elsif s_confAccess='1' or (s_cardSel='1' and WBbusy_i='0') then    -- If this slave is addressed, start transfer
                     s_mainFSMstate   <= WAIT_FOR_DS;
+                else
+                    s_mainFSMstate   <= DECODE_ACCESS;
                 end if;
                 
                 when WAIT_FOR_DS =>    
@@ -562,7 +565,7 @@ begin
                 s_dataOE             <= '0';
                 s_addrDir            <= VME_WRITE_n_oversampled;
                 s_addrOE             <= '0';
-                s_mainDTACK          <= 'Z';
+                s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -590,7 +593,7 @@ begin
                 s_dataOE             <= '0';
                 s_addrDir            <= VME_WRITE_n_oversampled;
                 s_addrOE             <= '0';
-                s_mainDTACK          <= 'Z';
+                s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '1';
                 s_incrementAddr      <= '0'; 
@@ -614,7 +617,7 @@ begin
                 s_dataOE             <= '0';
                 s_addrDir            <= VME_WRITE_n_oversampled;
                 s_addrOE             <= '0';
-                s_mainDTACK          <= 'Z';
+                s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -644,7 +647,7 @@ begin
                 s_dataOE             <= '1';
                 s_addrDir            <= VME_WRITE_n_oversampled;
                 s_addrOE             <= '1';
-                s_mainDTACK          <= 'Z';
+                s_mainDTACK          <= '1';
                 s_memReq             <= '1';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -674,7 +677,7 @@ begin
                 s_dataOE             <= '1';
                 s_addrDir            <= VME_WRITE_n_oversampled;
                 s_addrOE             <= '1';
-                s_mainDTACK          <= 'Z';
+                s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -731,7 +734,7 @@ begin
                 s_dataOE             <= '0';
                 s_addrDir            <= VME_WRITE_n_oversampled;
                 s_addrOE             <= '0';
-                s_mainDTACK          <= 'Z';
+                s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -763,7 +766,7 @@ begin
                 s_dataOE             <= '0';
                 s_addrDir            <= VME_WRITE_n_oversampled;
                 s_addrOE             <= '0';
-                s_mainDTACK          <= 'Z';
+                s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '1'; 
@@ -787,7 +790,7 @@ begin
                 s_dataOE             <= '0';
                 s_addrDir            <= VME_WRITE_n_oversampled;
                 s_addrOE             <= '0';
-                s_mainDTACK          <= 'Z';
+                s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -814,7 +817,7 @@ begin
                 if VME_DS_n_oversampled /= "11" then
                     s_mainDTACK      <= '0';
                 else
-                    s_mainDTACK      <= 'Z';
+                    s_mainDTACK      <= '1';
                 end if;
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
@@ -839,7 +842,7 @@ begin
                 s_dataOE             <= '1';
                 s_addrDir            <= '0';
                 s_addrOE             <= '1';
-                s_mainDTACK          <= 'Z';
+                s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -865,7 +868,7 @@ begin
                 s_dataOE             <= '1';
                 s_addrDir            <= '0';
                 s_addrOE             <= '1';
-                s_mainDTACK          <= 'Z';
+                s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -889,7 +892,7 @@ begin
                 s_dataOE             <= '1';
                 s_addrDir            <= '0';
                 s_addrOE             <= '1';
-                s_mainDTACK          <= 'Z';
+                s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -971,7 +974,7 @@ begin
                 s_dataOE             <= '1';
                 s_addrDir            <= '0';
                 s_addrOE             <= '1';
-                s_mainDTACK          <= 'Z';
+                s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -997,7 +1000,7 @@ begin
                 s_dataOE             <= '1';
                 s_addrDir            <= '0';
                 s_addrOE             <= '1';
-                s_mainDTACK          <= 'Z';
+                s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -1155,7 +1158,7 @@ begin
                 s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= '0';
-                if readFIFOempty_i='0' and s_2eType=TWOe_SST then
+                if readFIFOempty_i='0' then--and s_2eType=TWOe_SST then
                     s_mainFSMstate   <= TWOe_FIFO_READ;
                 end if;
                 
@@ -1217,7 +1220,7 @@ begin
                 s_dataOE             <= '0';
                 s_addrDir            <= '0';
                 s_addrOE             <= '0';
-                s_mainDTACK          <= 'Z';
+                s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -1291,7 +1294,7 @@ begin
                 s_dataOE             <= '0';
                 s_addrDir            <= '0';
                 s_addrOE             <= '1';
-                s_mainDTACK          <= 'Z';
+                s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -1367,7 +1370,8 @@ lock_o <= s_lock;
 -- DTACK multiplexing
 
 VME_DTACK_n_o <=    irqDTACK_i when IACKinProgress_i='1' else
-                    s_mainDTACK;
+                    '0' when s_mainDTACK='0' else 
+                    'Z';
 
 
 -- Bidirectional signal handling 
@@ -1674,6 +1678,8 @@ memReq_o <= s_memReq and s_cardSel;             -- memory request to WB only if 
 -- Access decode (NOTE: since A64 is supported, there are 4 64-bit FUNC_ADERs, because two consecutive 32-bit FUNC_ADERs are needed to decode a 64 bit address)
 
 s_cardSel <= '1' when s_moduleEnable='1' and (((s_funcMatch(3)='1' and s_AMmatch(3)='1') or (s_funcMatch(2)='1' and s_AMmatch(2)='1') or (s_funcMatch(1)='1' and s_AMmatch(1)='1') or (s_funcMatch(0)='1' and s_AMmatch(0)='1'))) and s_addressingType/=CR_CSR and s_initInProgress='0' else '0';            -- NOTE: addressing any of the 4 functions will result in s_cardSel='1' (and the address and data will be forwarded to the WB bus), therefore the WB slave must decode the address by itself, if it wishes to implement different functions.
+
+s_lockSel <= '1' when s_moduleEnable='1' and s_initInProgress='0' and s_transferType=LCK and (s_funcMatch(3)='1' or s_funcMatch(2)='1' or s_funcMatch(1)='1' or s_funcMatch(0)='1') else '0';   
     
 s_confAccess <= '1' when s_CSRarray(BAR)(7 downto 3)=s_locAddr(23 downto 19) and s_addressingType=CR_CSR and s_initInProgress='0' else '0';                    -- CR/CSR decode
     
@@ -2121,7 +2127,9 @@ s_CSRdata <=    s_CSRarray(BAR)                  when s_CrCsrOffsetAddr=BAR_addr
                 s_CSRarray(FUNC0_ADER_3)         when s_CrCsrOffsetAddr=FUNC0_ADER_3_addr else
                 s_CSRarray(IRQ_ID)               when s_CrCsrOffsetAddr=IRQ_ID_addr else 
                 s_CSRarray(IRQ_level)            when s_CrCsrOffsetAddr=IRQ_level_addr;
-
+                
+                
+IRQlevelReg_o <= s_CSRarray(IRQ_level);               
     
 -- Initialization procedure                
 

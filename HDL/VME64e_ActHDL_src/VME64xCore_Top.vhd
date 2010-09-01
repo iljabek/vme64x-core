@@ -172,7 +172,6 @@ component WB_bus is
         ACK_i:           in std_logic;
         WE_o:            out std_logic;
         STALL_i:         in std_logic;
-        IRQ_i:           in std_logic;
         
         memReq_i:        in std_logic;                 
         memAck_o:        out std_logic;                  
@@ -182,7 +181,6 @@ component WB_bus is
         sel_i:           in std_logic_vector(7 downto 0);
         RW_i:            in std_logic;                 
         lock_i:          in std_logic;                 
-        IRQ_o:           out std_logic;
         err_o:           out std_logic;
         rty_o:           out std_logic;
         cyc_i:           in std_logic;
@@ -192,7 +190,8 @@ component WB_bus is
         FIFOrden_o:       out std_logic;
         FIFOwren_o:       out std_logic;
         FIFOdata_i:       in std_logic_vector(63 downto 0);
-        FIFOdata_o:       out std_logic_vector(63 downto 0);        
+        FIFOdata_o:       out std_logic_vector(63 downto 0);
+        FIFOreset_o:      out std_logic;
         writeFIFOempty_i: in std_logic;
         TWOeInProgress_i: in std_logic;
         WBbusy_o:         out std_logic
@@ -283,6 +282,8 @@ signal s_FIFOwriteEmpty: std_logic;
 signal s_FIFOfull: std_logic;
 signal s_FIFOwriteRden: std_logic;
 signal s_FIFOreadRden: std_logic;
+signal s_wbFIFOreset: std_logic;
+signal s_FIFOreset: std_logic;
 signal s_TWOeInProgress: std_logic;
 signal s_WBbusy: std_logic;
 signal s_beatCount: std_logic_vector(7 downto 0);
@@ -297,7 +298,10 @@ begin
 --CRAMdata_o <= s_CRAMdataIn;
 --CRAMwea_o <= s_CRAMwea;
 --CRaddr_o <= s_CRaddr;
---s_CRdata <= CRdata_i;
+--s_CRdata <= CRdata_i;  
+
+
+s_FIFOreset <= s_wbFIFOreset or s_reset;
 
 VME_bus_1 : VME_bus
   port map(
@@ -378,7 +382,6 @@ WB_bus_1: WB_bus
         ACK_i =>     ACK_i,
         WE_o =>      WE_o,
         STALL_i =>   STALL_i,
-        IRQ_i =>     IRQ_i,
         
         memReq_i =>         s_memReq,       
         memAck_o =>         s_memAckWB,                
@@ -388,7 +391,6 @@ WB_bus_1: WB_bus
         sel_i =>            s_wbSel,
         RW_i =>             s_RW,              
         lock_i =>           s_lock,                
-        IRQ_o =>            s_IRQ,
         err_o =>            s_err,
         rty_o =>            s_rty,
         cyc_i =>            s_cyc,
@@ -398,6 +400,7 @@ WB_bus_1: WB_bus
         FIFOwren_o =>       s_FIFOreadWren,
         FIFOdata_i =>       s_FIFOwriteDout,
         FIFOdata_o =>       s_FIFOreadDin,
+        FIFOreset_o =>      s_wbFIFOreset,
         writeFIFOempty_i => s_FIFOwriteEmpty,
         TWOeInProgress_i => s_TWOeInProgress,
         WBbusy_o =>         s_WBbusy
@@ -444,7 +447,7 @@ FIFO_write: FIFO
         clk =>   clk_i,
         din =>   s_FIFOwriteDin,
         rd_en => s_FIFOwriteRden,
-        rst =>   s_reset,
+        rst =>   s_FIFOreset,
         wr_en => s_FIFOwriteWren,
         dout =>  s_FIFOwriteDout,
         empty => s_FIFOwriteEmpty,
@@ -456,7 +459,7 @@ FIFO_read: FIFO
         clk =>   clk_i,
         din =>   s_FIFOreadDin,
         rd_en => s_FIFOreadRden,
-        rst =>   s_reset,
+        rst =>   s_FIFOreset,
         wr_en => s_FIFOreadWren,
         dout =>  s_FIFOreadDout,
         empty => s_FIFOreadEmpty,

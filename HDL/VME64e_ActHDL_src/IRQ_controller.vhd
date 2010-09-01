@@ -74,6 +74,8 @@ signal VME_DS_n_oversampled : STD_LOGIC_VECTOR(1 downto 0);
 
 signal s_reset: std_logic;
 
+signal s_VME_IACKOUT: std_logic;
+
 signal s_irqDTACK: std_logic;                            -- acknowledge of IACK cycle 
 signal s_applyIRQmask: std_logic;                        -- clears acknowlegded interrupt
 signal s_IDtoData: std_logic;                            -- puts IRQ Status/ID register on data bus
@@ -82,21 +84,28 @@ signal s_wbIRQrisingEdge: std_logic;                     -- rising edge detectio
 signal s_IRQenabled: std_logic;                          -- indicates that interrupts are enabled (IRQlevelReg has a valid level value)    
 signal s_IRQreg: std_logic;                              -- registers pending interrupt
 
-type t_IRQstates is (IDLE, WAIT_FOR_DS, CHECK_MATCH, APPLY_MASK_AND_DATA, PROPAGATE_IACK, APPLY_DTACK);
+type t_IRQstates is (   IDLE, 
+                        WAIT_FOR_DS, 
+                        CHECK_MATCH, 
+                        APPLY_MASK_AND_DATA, 
+                        PROPAGATE_IACK, 
+                        APPLY_DTACK
+                        );
 signal s_IRQstate: t_IRQstates;
 
 begin 
     
 s_reset <= reset_i;
 
-irqDTACK_o <= s_irqDTACK;
+irqDTACK_o <= '0' when s_irqDTACK='0' else 'Z';
+VME_IACKOUT_n_o <= '0' when s_VME_IACKOUT='0' else 'Z';    
 
 p_IRQcontrolFSM: process(clk_i)
 begin
     if rising_edge(clk_i) then
         if s_reset='1' then 
-            VME_IACKOUT_n_o      <= 'Z';
-            s_irqDTACK           <= 'Z';
+            s_VME_IACKOUT        <= '1';
+            s_irqDTACK           <= '1';
             s_applyIRQmask       <= '0';
             s_IDtoData           <= '0';
             IACKinProgress_o     <= '0';
@@ -105,8 +114,8 @@ begin
             case s_IRQstate is
                 
                 when IDLE => 
-                VME_IACKOUT_n_o  <= 'Z';
-                s_irqDTACK       <= 'Z';
+                s_VME_IACKOUT    <= '1';
+                s_irqDTACK       <= '1';
                 s_applyIRQmask   <= '0';
                 s_IDtoData       <= '0';    
                 IACKinProgress_o <= '0';
@@ -117,8 +126,8 @@ begin
                 end if;
                 
                 when WAIT_FOR_DS =>    
-                VME_IACKOUT_n_o  <= 'Z';
-                s_irqDTACK       <= 'Z';
+                s_VME_IACKOUT    <= '1';
+                s_irqDTACK       <= '1';
                 s_applyIRQmask   <= '0';
                 s_IDtoData       <= '0';
                 IACKinProgress_o <= '0';
@@ -129,11 +138,11 @@ begin
                 end if;
                 
                 when CHECK_MATCH =>    
-                VME_IACKOUT_n_o  <= 'Z';
-                s_irqDTACK       <= 'Z';
+                s_VME_IACKOUT    <= '1';
+                s_irqDTACK       <= '1';
                 s_applyIRQmask   <= '0';
                 s_IDtoData       <= '0';
-                IACKinProgress_o<= '0';
+                IACKinProgress_o <= '0';
                 if s_IACKmatch='1' then
                     s_IRQstate   <= APPLY_MASK_AND_DATA;
                 else
@@ -141,15 +150,15 @@ begin
                 end if;
                 
                 when APPLY_MASK_AND_DATA =>
-                VME_IACKOUT_n_o  <= 'Z';
-                s_irqDTACK       <= 'Z';
+                s_VME_IACKOUT    <= '1';
+                s_irqDTACK       <= '1';
                 s_applyIRQmask   <= '1';
                 s_IDtoData       <= '1';
                 IACKinProgress_o <= '1';
                 s_IRQstate       <= APPLY_DTACK;
                 
                 when APPLY_DTACK =>
-                VME_IACKOUT_n_o  <= 'Z';
+                s_VME_IACKOUT    <= '1';
                 s_irqDTACK       <= '0';
                 s_applyIRQmask   <= '0';
                 s_IDtoData       <= '1';
@@ -161,8 +170,8 @@ begin
                 end if;
                 
                 when PROPAGATE_IACK =>
-                VME_IACKOUT_n_o  <= VME_IACKIN_n_oversampled;
-                s_irqDTACK       <= 'Z';
+                s_VME_IACKOUT    <= VME_IACKIN_n_oversampled;
+                s_irqDTACK       <= '1';
                 s_applyIRQmask   <= '0';
                 s_IDtoData       <= '0';
                 IACKinProgress_o <= '0';
@@ -173,8 +182,8 @@ begin
                 end if;
                 
                 when OTHERS =>
-                VME_IACKOUT_n_o  <= 'Z';
-                s_irqDTACK       <= 'Z';
+                s_VME_IACKOUT    <= '1';
+                s_irqDTACK       <= '1';
                 s_applyIRQmask   <= '0';
                 s_IDtoData       <= '0';
                 IACKinProgress_o <= '0';
@@ -203,9 +212,7 @@ begin
         elsif s_applyIRQmask='1' then
             s_IRQreg <= '0';
         else
-            if s_wbIRQrisingEdge='1' and s_IRQenabled='1' then
-                s_IRQreg <= '1';
-            end if;                                                 
+            s_IRQreg <= s_wbIRQrisingEdge and s_IRQenabled;                                                 
         end if;
     end if;
 end process; 

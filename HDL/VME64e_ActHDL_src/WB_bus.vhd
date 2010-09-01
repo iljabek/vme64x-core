@@ -44,7 +44,6 @@ entity WB_bus is
         ACK_i:           in std_logic;
         WE_o:            out std_logic;
         STALL_i:         in std_logic;
-        IRQ_i:           in std_logic;
         
         memReq_i:        in std_logic;                 
         memAck_o:        out std_logic;                  
@@ -54,7 +53,6 @@ entity WB_bus is
         sel_i:           in std_logic_vector(7 downto 0);
         RW_i:            in std_logic;                 
         lock_i:          in std_logic;                 
-        IRQ_o:           out std_logic;
         err_o:           out std_logic;
         rty_o:           out std_logic;
         cyc_i:           in std_logic;
@@ -64,7 +62,8 @@ entity WB_bus is
         FIFOrden_o:      out std_logic;
         FIFOwren_o:      out std_logic;
         FIFOdata_i:      in std_logic_vector(63 downto 0);
-        FIFOdata_o:      out std_logic_vector(63 downto 0);        
+        FIFOdata_o:      out std_logic_vector(63 downto 0);
+        FIFOreset_o:     out std_logic;
         writeFIFOempty_i: in std_logic;
         TWOeInProgress_i: in std_logic;
         WBbusy_o:        out std_logic
@@ -98,7 +97,15 @@ signal s_ackCountEnd: std_logic;                              -- marks that all 
 
 signal s_FIFOrden: std_logic;                                 -- FIFO read enable
 
-type t_2eFSMstates is (IDLE, ADDR_LATCH, SET_CONTROL_SIGNALS, DO_PIPELINED_COMM, WAIT_FOR_END);
+signal s_FIFOreset, s_FIFOreset_1, s_FIFOreset_2: std_logic;          -- Resets FIFO at the end of each transfer
+
+type t_2eFSMstates is ( IDLE, 
+                        ADDR_LATCH, 
+                        SET_CONTROL_SIGNALS, 
+                        DO_PIPELINED_COMM, 
+                        WAIT_FOR_END, 
+                        FIFO_RESET
+                        );
 signal s_2eFSMstate: t_2eFSMstates;      
 
 begin 
@@ -132,14 +139,15 @@ DAT_o         <= locData_i   when s_FSMactive='0' else FIFOdata_i;
 ADR_o <= locAddr_i           when s_FSMactive='0' else s_locAddr;
 
 WE_o     <= not RW_i         when s_FSMactive='0' else s_WE;
-IRQ_o    <= IRQ_i;
 LOCK_o   <= lock_i;
 err_o    <= ERR_i            when s_FSMactive='0' else '0';
 rty_o    <= RTY_i            when s_FSMactive='0' else '0';
 SEL_o    <= sel_i            when s_FSMactive='0' else (others => '1');
 CYC_o    <= cyc_i            when s_FSMactive='0' else s_cyc;
 
-WBbusy_o <= s_FSMactive;
+WBbusy_o <= s_FSMactive; 
+
+
 
     
 -- 2e FSM
@@ -153,6 +161,7 @@ begin
             s_pipeCommActive         <='0';
             s_WE                     <='0';
             s_addrLatch              <='0';
+            s_FIFOreset              <='0';
             s_2eFSMstate            <= IDLE;
         else
             case s_2eFSMstate is
@@ -163,6 +172,7 @@ begin
                 s_WE                 <= not RW_i;
                 s_addrLatch          <='0';
                 s_pipeCommActive     <='0';
+                s_FIFOreset          <='0';
                 if TWOeInProgress_i='1' then    
                     s_2eFSMstate    <= ADDR_LATCH;
                 end if;
@@ -173,6 +183,7 @@ begin
                 s_WE                 <= s_WE;
                 s_addrLatch          <='1';
                 s_pipeCommActive     <='0';
+                s_FIFOreset          <='0';
                 s_2eFSMstate        <= SET_CONTROL_SIGNALS;
                 
                 when SET_CONTROL_SIGNALS =>
@@ -180,7 +191,8 @@ begin
                 s_cyc                <='1';
                 s_WE                 <= s_WE;
                 s_addrLatch          <='0';    
-                s_pipeCommActive     <='0';
+                s_pipeCommActive     <='0'; 
+                s_FIFOreset          <='0';
                 s_2eFSMstate        <= DO_PIPELINED_COMM;
                 
                 when DO_PIPELINED_COMM =>
@@ -189,6 +201,7 @@ begin
                 s_WE                 <= s_WE;
                 s_addrLatch          <='0';
                 s_pipeCommActive     <='1';
+                s_FIFOreset          <='0';
                 if s_ackCountEnd='1' then
                     s_2eFSMstate   <= WAIT_FOR_END;
                 else
@@ -201,9 +214,19 @@ begin
                 s_WE                 <= s_WE;
                 s_addrLatch          <='0';
                 s_pipeCommActive     <='0';
+                s_FIFOreset          <='0';
                 if TWOeInProgress_i='0' then
-                    s_2eFSMstate   <= IDLE;
+                    s_2eFSMstate   <= FIFO_RESET;
                 end if;
+                
+                when FIFO_RESET =>
+                s_FSMactive          <='0';
+                s_cyc                <='0';
+                s_WE                 <= s_WE;
+                s_addrLatch          <='0';
+                s_pipeCommActive     <='0';
+                s_FIFOreset          <='1';
+                s_2eFSMstate         <= IDLE;
                 
                 when OTHERS =>
                 s_FSMactive          <='0';
@@ -211,6 +234,7 @@ begin
                 s_WE                 <= s_WE;
                 s_addrLatch          <='0';
                 s_pipeCommActive     <='0';
+                s_FIFOreset          <='0';
                 s_2eFSMstate        <= IDLE;
             
             end case;
@@ -313,7 +337,21 @@ end process;
 s_FIFOrden <= '1' when s_pipeCommActive='1' and s_WE='1' and STALL_i='0' and writeFIFOempty_i='0' and s_beatCountEnd='0' else '0';
 FIFOrden_o <= s_FIFOrden;  
 
-FIFOwren_o <= ACK_i when s_pipeCommActive='1' and s_WE='0' else '0';
+FIFOwren_o <= ACK_i when s_pipeCommActive='1' and s_WE='0' else '0';  
+    
+    
+-- FIFO reset 
+
+p_FIFOresetStretch: process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        s_FIFOreset_1 <= s_FIFOreset;
+        s_FIFOreset_2 <= s_FIFOreset_1;
+    end if;
+end process;
+
+FIFOreset_o <= s_FIFOreset or s_FIFOreset_1 or s_FIFOreset_2;
+
 
 
         
