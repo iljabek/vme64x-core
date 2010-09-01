@@ -1,9 +1,3 @@
-HDL source code for VME64ext core is under major development.
-
-Current implementation can and will be significantly modified to resolve all issues,
-due to any non-optimal implemented constructs. 
-Current implementation will also be evolved to fully meet proposed specifications.
-
 Please send any questions or opinions to:
 
 Developers: rok.stefanic@cosylab.com, ziga.kroflic@cosylab.com
