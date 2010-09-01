@@ -1,0 +1,11 @@
+# Output products list for <CR>
+CR.gise
+CR.ise
+CR.mif
+CR.ngc
+CR.vhd
+CR.vho
+CR.xco
+CR.xise
+CR_flist.txt
+CR_xmdf.tcl

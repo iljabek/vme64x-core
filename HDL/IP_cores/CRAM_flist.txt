@@ -1,0 +1,10 @@
+# Output products list for <CRAM>
+CRAM.gise
+CRAM.ise
+CRAM.ngc
+CRAM.vhd
+CRAM.vho
+CRAM.xco
+CRAM.xise
+CRAM_flist.txt
+CRAM_xmdf.tcl
