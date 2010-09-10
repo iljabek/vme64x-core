@@ -1,0 +1,19 @@
+xst -ise "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64e_ISE.ise" -intstyle ise -ifn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.xst" -ofn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.syr"
+ngdbuild -ise "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64e_ISE.ise" -intstyle ise -dd _ngo  -nt timestamp -i -p xc5vlx30-ff324-3 "VME64xCore_Top.ngc" VME64xCore_Top.ngd
+xst -ise "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64e_ISE.ise" -intstyle ise -ifn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.xst" -ofn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.syr"
+ngdbuild -ise "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64e_ISE.ise" -intstyle ise -dd _ngo  -nt timestamp -i -p xc5vlx30-ff324-3 "VME64xCore_Top.ngc" VME64xCore_Top.ngd
+xst -ise "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64e_ISE.ise" -intstyle ise -ifn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.xst" -ofn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.syr"
+xst -ise "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64e_ISE.ise" -intstyle ise -ifn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.xst" -ofn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.syr"
+xst -ise "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64e_ISE.ise" -intstyle ise -ifn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.xst" -ofn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.syr"
+xst -ise "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64e_ISE.ise" -intstyle ise -ifn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.xst" -ofn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.syr"
+xst -ise "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64e_ISE.ise" -intstyle ise -ifn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.xst" -ofn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.syr"
+ngdbuild -ise "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64e_ISE.ise" -intstyle ise -dd _ngo  -nt timestamp -i -p xc5vlx30-ff324-3 "VME64xCore_Top.ngc" VME64xCore_Top.ngd
+map -ise "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64e_ISE.ise" -intstyle ise -p xc5vlx30-ff324-3 -w -logic_opt off -ol high -t 1 -cm area -pr off -k 6 -lc off -power off -o VME64xCore_Top_map.ncd VME64xCore_Top.ngd VME64xCore_Top.pcf
+xst -ise "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64e_ISE.ise" -intstyle ise -ifn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.xst" -ofn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.syr"
+xst -ise "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64e_ISE.ise" -intstyle ise -ifn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.xst" -ofn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.syr"
+xst -intstyle ise -ifn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.xst" -ofn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.syr" 
+ngdbuild -intstyle ise -dd _ngo -sd ipcore_dir -nt timestamp -i -p xc5vlx20t-ff323-2 VME64xCore_Top.ngc VME64xCore_Top.ngd  
+map -intstyle ise -p xc5vlx20t-ff323-2 -w -logic_opt off -ol high -t 1 -register_duplication off -global_opt off -cm area -ir off -pr off -lc off -power off -o VME64xCore_Top_map.ncd VME64xCore_Top.ngd VME64xCore_Top.pcf 
+xst -intstyle ise -ifn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.xst" -ofn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.syr" 
+ngdbuild -intstyle ise -dd _ngo -sd ipcore_dir -nt timestamp -i -p xc5vlx20t-ff323-2 VME64xCore_Top.ngc VME64xCore_Top.ngd  
+map -intstyle ise -p xc5vlx20t-ff323-2 -w -logic_opt off -ol high -t 1 -register_duplication off -global_opt off -cm area -ir off -pr off -lc off -power off -o VME64xCore_Top_map.ncd VME64xCore_Top.ngd VME64xCore_Top.pcf 

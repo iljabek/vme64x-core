@@ -1,0 +1,288 @@
+Release 12.1 Map M.53d (nt64)
+Xilinx Mapping Report File for Design 'VME64xCore_Top'
+
+Design Information
+------------------
+Command Line   : map -intstyle ise -p xc5vlx20t-ff323-2 -w -logic_opt off -ol
+high -t 1 -register_duplication off -global_opt off -cm area -ir off -pr off -lc
+off -power off -o VME64xCore_Top_map.ncd VME64xCore_Top.ngd VME64xCore_Top.pcf 
+Target Device  : xc5vlx20t
+Target Package : ff323
+Target Speed   : -2
+Mapper Version : virtex5 -- $Revision: 1.52 $
+Mapped Date    : Thu Sep 02 10:45:02 2010
+
+Interim Summary
+---------------
+Slice Logic Utilization:
+  Number of Slice Registers:                 1,521 out of  12,480   12%
+    Number used as Flip Flops:               1,513
+    Number used as Latches:                      8
+  Number of Slice LUTs:                      2,627 out of  12,480   21%
+    Number used as logic:                    2,521 out of  12,480   20%
+      Number using O6 output only:           2,221
+      Number using O5 output only:             120
+      Number using O5 and O6:                  180
+    Number used as Memory:                      93 out of   3,360    2%
+      Number used as Shift Register:            93
+        Number using O6 output only:            93
+    Number used as exclusive route-thru:        13
+  Number of route-thrus:                       133
+    Number using O6 output only:               133
+
+Slice Logic Distribution:
+  Number of LUT Flip Flop pairs used:        3,305
+    Number with an unused Flip Flop:         1,784 out of   3,305   53%
+    Number with an unused LUT:                 678 out of   3,305   20%
+    Number of fully used LUT-FF pairs:         843 out of   3,305   25%
+    Number of unique control sets:             167
+    Number of slice register sites lost
+      to control set restrictions:             190 out of  12,480    1%
+
+  A LUT Flip Flop pair for this architecture represents one LUT paired with
+  one Flip Flop within a slice.  A control set is a unique combination of
+  clock, reset, set, and enable signals for a registered element.
+  The Slice Logic Distribution report is not meaningful if the design is
+  over-mapped for a non-slice resource or if Placement fails.
+  OVERMAPPING of BRAM resources should be ignored if the design is
+  over-mapped for a non-BRAM resource or if placement fails.
+
+IO Utilization:
+  Number of bonded IOBs:                       310 out of     172  180% (OVERMAPPED)
+
+Specific Feature Utilization:
+  Number of BlockRAM/FIFO:                       4 out of      26   15%
+    Number using BlockRAM only:                  4
+    Total primitives used:
+      Number of 36k BlockRAM used:               3
+      Number of 18k BlockRAM used:               1
+    Total Memory used (KB):                    126 out of     936   13%
+  Number of BUFG/BUFGCTRLs:                      1 out of      32    3%
+    Number used as BUFGs:                        1
+
+
+Mapping completed.
+See MAP report file "VME64xCore_Top_map.mrp" for details.
+Problem encountered during the packing phase.
+
+Design Summary
+--------------
+Number of errors   :   2
+Number of warnings :  32
+
+Section 1 - Errors
+------------------
+ERROR:Pack:2309 - Too many bonded comps of type "IOB" found to fit this device.
+ERROR:Map:237 - The design is too large to fit the device.  Please check the
+   Design Summary section to see which resource requirement for your design
+   exceeds the resources available in the device. Note that the number of slices
+   reported may not be reflected accurately as their packing might not have been
+   completed.
+
+   NOTE:  An NCD file will still be generated to allow you to examine the mapped
+   design.  This file is intended for evaluation use only, and will not process
+   successfully through PAR.
+
+Section 2 - Warnings
+--------------------
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_1_IOBUF/OBUFT".  This may result in suboptimal timing.  The LUT-1
+   inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_2_IOBUF/OBUFT".  This may result in suboptimal timing.  The LUT-1
+   inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_3_IOBUF/OBUFT".  This may result in suboptimal timing.  The LUT-1
+   inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_4_IOBUF/OBUFT".  This may result in suboptimal timing.  The LUT-1
+   inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_5_IOBUF/OBUFT".  This may result in suboptimal timing.  The LUT-1
+   inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_6_IOBUF/OBUFT".  This may result in suboptimal timing.  The LUT-1
+   inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_7_IOBUF/OBUFT".  This may result in suboptimal timing.  The LUT-1
+   inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_8_IOBUF/OBUFT".  This may result in suboptimal timing.  The LUT-1
+   inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_9_IOBUF/OBUFT".  This may result in suboptimal timing.  The LUT-1
+   inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_10_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_11_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_20_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_12_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_21_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_13_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_30_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_22_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_14_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_31_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_23_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_15_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_24_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_16_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_25_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_17_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_26_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_18_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_27_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_19_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_28_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_ADDR_b_29_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+WARNING:Pack:2515 - The LUT-1 inverter "VME_bus_1/VME_ADDR_b_and00011_INV_0"
+   failed to join the OLOGIC comp matched to output buffer
+   "VME_LWORD_n_b_IOBUF/OBUFT".  This may result in suboptimal timing.  The
+   LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.
+
+Section 3 - Informational
+-------------------------
+INFO:LIT:243 - Logical network FIFO_write/full has no load.
+INFO:LIT:395 - The above info message is repeated 1 more times for the following
+   (max. 5 shown):
+   FIFO_read/full
+   To see the details of these info messages, please use the -detail switch.
+INFO:MapLib:562 - No environment variables are currently set.
+INFO:LIT:244 - All of the single ended outputs in this design are using slew
+   rate limited output drivers. The delay on speed critical single ended outputs
+   can be dramatically reduced by designating them as fast outputs.
+INFO:Pack:1716 - Initializing temperature to 85.000 Celsius. (default - Range:
+   0.000 to 85.000 Celsius)
+INFO:Pack:1720 - Initializing voltage to 0.950 Volts. (default - Range: 0.950 to
+   1.050 Volts)
+
+Section 4 - Removed Logic Summary
+---------------------------------
+  10 block(s) removed
+  10 block(s) optimized away
+   2 signal(s) removed
+
+Section 5 - Removed Logic
+-------------------------
+
+The trimmed logic report below shows the logic removed from your design due to
+sourceless or loadless signals, and VCC or ground connections.  If the removal
+of a signal or symbol results in the subsequent removal of an additional signal
+or symbol, the message explaining that second removal will be indented.  This
+indentation will be repeated as a chain of related logic is removed.
+
+To quickly locate the original cause for the removal of a chain of logic, look
+above the place where that logic is listed in the trimming report, then locate
+the lines that are least indented (begin at the leftmost edge).
+
+The signal "FIFO_write/full" is sourceless and has been removed.
+The signal "FIFO_read/full" is sourceless and has been removed.
+Unused block "CRAM_1/GND" (ZERO) removed.
+Unused block "CRAM_1/VCC" (ONE) removed.
+Unused block "CR_1/GND" (ZERO) removed.
+Unused block "CR_1/VCC" (ONE) removed.
+Unused block "FIFO_read/BU2/U0/grf.rf/gl0.wr/gwss.wsts/ram_full_i" (FF) removed.
+Unused block "FIFO_read/GND" (ZERO) removed.
+Unused block "FIFO_read/VCC" (ONE) removed.
+Unused block "FIFO_write/BU2/U0/grf.rf/gl0.wr/gwss.wsts/ram_full_i" (FF)
+removed.
+Unused block "FIFO_write/GND" (ZERO) removed.
+Unused block "FIFO_write/VCC" (ONE) removed.
+
+Optimized Block(s):
+TYPE 		BLOCK
+GND 		CRAM_1/BU2/XST_GND
+VCC 		CRAM_1/BU2/XST_VCC
+GND 		CR_1/BU2/XST_GND
+VCC 		CR_1/BU2/XST_VCC
+GND 		FIFO_read/BU2/XST_GND
+VCC 		FIFO_read/BU2/XST_VCC
+GND 		FIFO_write/BU2/XST_GND
+VCC 		FIFO_write/BU2/XST_VCC
+GND 		XST_GND
+VCC 		XST_VCC
+
+To enable printing of redundant blocks removed and signals merged, set the
+detailed map report option and rerun map.
+
+Section 12 - Configuration String Details
+-----------------------------------------
+Use the "-detail" map option to print out Configuration Strings
+
+Section 13 - Control Set Information
+------------------------------------
+Use the "-detail" map option to print out Control Set Information.

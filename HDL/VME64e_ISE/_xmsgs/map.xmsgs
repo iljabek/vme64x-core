@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- IMPORTANT: This is an internal file that has been generated
+     by the Xilinx ISE software.  Any direct editing or
+     changes made to this file may result in unpredictable
+     behavior or data corruption.  It is strongly advised that
+     users do not edit the contents of this file. -->
+<messages>
+<msg type="info" file="LIT" num="243" delta="old" >Logical network <arg fmt="%s" index="1">FIFO_write/full</arg> has no load.
+</msg>
+
+<msg type="info" file="LIT" num="395" delta="old" >The above <arg fmt="%s" index="1">info</arg> message is repeated <arg fmt="%d" index="2">1</arg> more times for the following (max. 5 shown):
+<arg fmt="%s" index="3">FIFO_read/full</arg>
+To see the details of these <arg fmt="%s" index="4">info</arg> messages, please use the -detail switch.
+</msg>
+
+<msg type="info" file="MapLib" num="562" delta="old" >No environment variables are currently set.
+</msg>
+
+<msg type="info" file="LIT" num="244" delta="old" >All of the single ended outputs in this design are using slew rate limited output drivers. The delay on speed critical single ended outputs can be dramatically reduced by designating them as fast outputs.
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_1_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_2_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_3_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_4_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_5_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_6_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_7_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_8_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_9_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_10_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_11_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_20_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_12_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_21_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_13_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_30_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_22_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_14_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_31_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_23_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_15_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_24_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_16_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_25_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_17_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_26_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_18_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_27_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_19_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_28_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_ADDR_b_29_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="warning" file="Pack" num="2515" delta="old" >The LUT-1 inverter &quot;<arg fmt="%s" index="1">VME_bus_1/VME_ADDR_b_and00011_INV_0</arg>&quot; failed to join the OLOGIC comp matched to output buffer &quot;<arg fmt="%s" index="2">VME_LWORD_n_b_IOBUF/OBUFT</arg>&quot;.  This may result in suboptimal timing.  <arg fmt="%z" index="3">The LUT-1 inverter VME_bus_1/VME_ADDR_b_and00011_INV_0 drives multiple loads.</arg>
+</msg>
+
+<msg type="info" file="Pack" num="1716" delta="old" >Initializing temperature to <arg fmt="%0.3f" index="1">85.000</arg> Celsius. (default - Range: <arg fmt="%0.3f" index="2">0.000</arg> to <arg fmt="%0.3f" index="3">85.000</arg> Celsius)
+</msg>
+
+<msg type="info" file="Pack" num="1720" delta="old" >Initializing voltage to <arg fmt="%0.3f" index="1">0.950</arg> Volts. (default - Range: <arg fmt="%0.3f" index="2">0.950</arg> to <arg fmt="%0.3f" index="3">1.050</arg> Volts)
+</msg>
+
+<msg type="error" file="Pack" num="2309" delta="old" >Too many bonded comps of type &quot;<arg fmt="%s" index="1">IOB</arg>&quot; found to fit this device.
+</msg>
+
+<msg type="error" file="Map" num="237" delta="old" >The design is too large to fit the device.  Please check the Design Summary section to see which resource requirement for your design exceeds the resources available in the device. Note that the number of slices reported may not be reflected accurately as their packing might not have been completed.
+ 
+NOTE:  An NCD file will still be generated to allow you to examine the mapped design.  This file is intended for evaluation use only, and will not process successfully through PAR.
+</msg>
+
+</messages>
+
