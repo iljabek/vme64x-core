@@ -97,21 +97,18 @@ end VME_bus;
 
 architecture RTL of VME_bus is
 
-component SigInputSampleAndFallingEdgeDetection is
+component RegInputSample is 
+    generic(
+        width: natural:=8
+        );
     port (
-        sig_i, clk_i: in std_logic;
-        sigEdge_o: out std_logic:='0' );
-end component;
-
-component SigInputSampleAndRisingEdgeDetection is
-    port (
-        sig_i, 
-        clk_i: in std_logic;
-        sigEdge_o: out std_logic:='0' 
+        reg_i: in std_logic_vector(width-1 downto 0);
+        reg_o: out std_logic_vector(width-1 downto 0):=(others => '0');
+        clk_i: in std_logic 
         );
 end component;
 
-component RegInputSample is 
+component DoubleRegInputSample is 
     generic(
         width: natural:=8
         );
@@ -128,13 +125,25 @@ component SigInputSample is
         sig_o: out std_logic );
 end component; 
 
+component DoubleSigInputSample is
+    port (
+        sig_i, clk_i: in std_logic;
+        sig_o: out std_logic );
+end component;
+
 component RisEdgeDetection is
     port (
         sig_i, clk_i: in std_logic;
         RisEdge_o: out std_logic );
 end component; 
 
-component SigInputSampleAndEdgeDetection is
+component FallingEdgeDetection is
+	port (
+		sig_i, clk_i: in std_logic;
+		FallEdge_o: out std_logic );
+end component;
+
+component EdgeDetection is
     port (
         sig_i, 
         clk_i: in std_logic;
@@ -151,7 +160,7 @@ signal VME_AS_n_oversampled : STD_LOGIC;
 signal VME_LWORD_n_oversampled : STD_LOGIC;
 signal VME_RETRY_n_oversampled : STD_LOGIC;
 signal VME_WRITE_n_oversampled : STD_LOGIC;
-signal VME_DS_n_oversampled : STD_LOGIC_VECTOR(1 downto 0);
+signal VME_DS_n_oversampled, VME_DS_n_oversampled_1 : STD_LOGIC_VECTOR(1 downto 0);
 signal VME_GA_oversampled: STD_LOGIC_VECTOR(5 downto 0);
 signal VME_ADDR_oversampled: STD_LOGIC_VECTOR(31 downto 1);
 signal VME_DATA_oversampled: STD_LOGIC_VECTOR(31 downto 0);
@@ -2289,23 +2298,23 @@ s_FUNC_ADEM(3) <= s_CRregArray(FUNC7_ADEM_3) & s_CRregArray(FUNC7_ADEM_2) & s_CR
 
 -- Input oversampling & edge detection
 
-ASfallingEdge: SigInputSampleAndFallingEdgeDetection
+ASfallingEdge: FallingEdgeDetection
     port map (
-    sig_i => VME_AS_n_i, 
+    sig_i => VME_AS_n_oversampled, 
     clk_i => clk_i,
-    sigEdge_o => s_VMEaddrLatch
+    FallEdge_o => s_VMEaddrLatch
     );
     
-ASrisingEdge: SigInputSampleAndRisingEdgeDetection
+ASrisingEdge: RisEdgeDetection
     port map (
-        sig_i => VME_AS_n_i,
+        sig_i => VME_AS_n_oversampled,
         clk_i => clk_i,
-        sigEdge_o => s_mainFSMreset 
+        RisEdge_o => s_mainFSMreset 
         ); 
         
-DS1oversmplingAndEdgeDetect: SigInputSampleAndEdgeDetection
+DS1EdgeDetect: EdgeDetection
     port map (
-        sig_i => VME_DS_n_i(1),
+        sig_i => VME_DS_n_oversampled_1(1),
         clk_i => clk_i,
         sigEdge_o => s_DS1pulse
         );
@@ -2350,15 +2359,22 @@ GAinputSample: RegInputSample
         clk_i => clk_i 
         );
         
-DSinputSample: RegInputSample 
+DSinputSample: DoubleRegInputSample 
     generic map(
         width => 2
         )
     port map(
         reg_i => VME_DS_n_i,
-        reg_o => VME_DS_n_oversampled,
+        reg_o => VME_DS_n_oversampled_1,
         clk_i => clk_i 
-        ); 
+        );
+        
+p_DSsync: process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        VME_DS_n_oversampled <= VME_DS_n_oversampled_1;
+    end if;
+end process;
         
 CRinputSample: RegInputSample 
     generic map(
@@ -2394,7 +2410,7 @@ LWORDinputSample: SigInputSample
         clk_i => clk_i
         );
         
-ASinputSample: SigInputSample
+ASinputSample: DoubleSigInputSample
     port map(
         sig_i => VME_AS_n_i,
         sig_o => VME_AS_n_oversampled,

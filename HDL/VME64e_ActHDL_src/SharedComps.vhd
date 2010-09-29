@@ -27,6 +27,31 @@ end RTL;
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 
+-- double sample sig_i signals to avoid metastable states
+entity DoubleSigInputSample is
+	port (
+		sig_i, clk_i: in std_logic;
+		sig_o: out std_logic );
+end DoubleSigInputSample;
+
+architecture RTL of DoubleSigInputSample is
+	signal s_1: std_logic;
+	signal s_2: std_logic;
+begin
+	process(clk_i)
+	begin
+		if rising_edge(clk_i) then
+			s_1     <= sig_i;
+			sig_o   <= s_1;
+		end if;
+	end process;
+end RTL;
+
+-- ***************************************************
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.all;
+
 -- detect rising edge
 entity RisEdgeDetection is
 	port (
@@ -53,35 +78,31 @@ begin
 	end process;
 end RTL;   
 
-
--- *************************************************** 
+-- ***************************************************   
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 
--- double sample input signal (sig_i) to avoid metastable states
--- and give pulse (sigEdge_o) at falling edge
-entity SigInputSampleAndFallingEdgeDetection is
+-- detect falling edge
+entity FallingEdgeDetection is
 	port (
 		sig_i, clk_i: in std_logic;
-		sigEdge_o: out std_logic);
-end SigInputSampleAndFallingEdgeDetection;
+		FallEdge_o: out std_logic );
+end FallingEdgeDetection;
 
-architecture RTL of SigInputSampleAndFallingEdgeDetection is
-	signal s_1, s_2, s_3: std_logic;
+architecture RTL of FallingEdgeDetection is
+	signal s_1: std_logic;
 begin
 	process(clk_i)
 	begin
 		if rising_edge(clk_i) then
 			
 			s_1 <= sig_i;
-			s_2 <= s_1;
-			s_3 <= s_2;
 			
-			if s_3 = '1' and s_2 = '0' then
-				sigEdge_o <= '1';
+			if s_1 = '1' and sig_i = '0' then
+				FallEdge_o <= '1';
 			else
-				sigEdge_o <= '0';
+				FallEdge_o <= '0';
 			end if;
 			
 		end if;
@@ -93,64 +114,25 @@ end RTL;
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 
--- double sample input signal (sig_i) to avoid metastable states
--- and give pulse (sigEdge_o) at rising edge
-entity SigInputSampleAndRisingEdgeDetection is
-	port (
-		sig_i, 
-		clk_i: in std_logic;
-		sigEdge_o: out std_logic 
-		);
-end SigInputSampleAndRisingEdgeDetection;
-
-architecture RTL of SigInputSampleAndRisingEdgeDetection is
-	signal s_1, s_2, s_3: std_logic;
-begin
-	process(clk_i)
-	begin
-		if rising_edge(clk_i) then
-			
-			s_1 <= sig_i;
-			s_2 <= s_1;
-			s_3 <= s_2;
-			
-			if s_3 = '0' and s_2 = '1' then
-				sigEdge_o <= '1';
-			else
-				sigEdge_o <= '0';
-			end if;
-			
-		end if;
-	end process;
-end RTL;
-
--- ***************************************************
-
-library IEEE;
-use IEEE.STD_LOGIC_1164.all;
-
--- double sample input signal (sig_i) to avoid metastable states
--- and give pulse (sigEdge_o) at rising and falling edge
-entity SigInputSampleAndEdgeDetection is
+-- give pulse (sigEdge_o) at rising and falling edge
+entity EdgeDetection is
 	port (
 		sig_i, 
 		clk_i: in std_logic;
 		sigEdge_o: out std_logic
 		);
-end SigInputSampleAndEdgeDetection;
+end EdgeDetection;
 
-architecture RTL of SigInputSampleAndEdgeDetection is
-	signal s_1, s_2, s_3: std_logic;
+architecture RTL of EdgeDetection is
+	signal s_1: std_logic;
 begin
 	process(clk_i)
 	begin
 		if rising_edge(clk_i) then
 			
 			s_1 <= sig_i;
-			s_2 <= s_1;
-			s_3 <= s_2;
 			
-			if (s_3 = '0' and s_2 = '1') or (s_3 = '1' and s_2 = '0') then
+			if (s_1 = '0' and sig_i = '1') or (s_1 = '1' and sig_i = '0') then
 				sigEdge_o <= '1';
 			else
 				sigEdge_o <= '0';
@@ -193,3 +175,33 @@ begin
 end RTL;
 
 
+-- ***************************************************
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.all;
+
+-- triple sample input register reg_i to avoid metastable states
+-- and catching of transition values
+entity DoubleRegInputSample is 
+	generic(
+		width: natural:=8
+		);
+	port (
+		reg_i: in std_logic_vector(width-1 downto 0);
+		reg_o: out std_logic_vector(width-1 downto 0);
+		clk_i: in std_logic 
+		);
+end DoubleRegInputSample;
+
+architecture RTL of DoubleRegInputSample is
+	signal reg_1, reg_2: std_logic_vector(width-1 downto 0);
+begin
+	process(clk_i)
+	begin
+		if rising_edge(clk_i) then
+			reg_1 <= reg_i;
+			reg_o <= reg_1;		 
+
+		end if;
+	end process;
+end RTL;

@@ -178,7 +178,7 @@ MOVE_LAST_FF_STAGE=1
 JOB_DESCRIPTION=JobDesc1
 SERVERFARM_INCLUDE_INPUT_FILES=*.*
 SERVERFARM_EXCLUDE_INPUT_FILES=log*.*:implement*.*
-LAST_RUN=1285746458
+LAST_RUN=1285750922
 OUTPUT_NETLIST=D:\SVN\FAIR-VME64ext\trunk\HDL\VME64e_ActHDL\VME64xCore\synthesis\vme64xcore_top.ngc
 OUTPUT_SIMUL_NETLIST=synthesis\vme64xcore_top.vhd
 Show_SliceUtilizationRatioDelta=100
@@ -193,7 +193,7 @@ Show_NumberOfRegionalClockBuffers=16
 
 [HierarchyViewer]
 SortInfo=u
-HierarchyInformation=vme64xcore_top|rtl|0 
+HierarchyInformation=
 ShowHide=ShowTopLevel
 Selected=
 
