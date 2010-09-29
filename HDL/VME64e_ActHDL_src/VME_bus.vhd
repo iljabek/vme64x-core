@@ -1326,7 +1326,16 @@ TWOeInProgress_o <= s_TWOeInProgress;
 
 -- RETRY driver
 
-VME_RETRY_n_o <= '0' when rty_i='1' or s_retry='1' else 'Z';
+p_RETRYdriver: process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        if rty_i='1' or s_retry='1' then
+            VME_RETRY_n_o <= '0';
+        else
+            VME_RETRY_n_o <= 'Z';
+        end if;
+    end if;
+end process;
 
 
 -- BERR driver 
@@ -1369,29 +1378,56 @@ lock_o <= s_lock;
 
 -- DTACK multiplexing
 
-VME_DTACK_n_o <=    irqDTACK_i when IACKinProgress_i='1' else
-                    '0' when s_mainDTACK='0' else 
-                    'Z';
+p_DTACKmux: process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        if IACKinProgress_i='1' then
+            VME_DTACK_n_o <= irqDTACK_i;
+        elsif s_mainDTACK='0' then
+            VME_DTACK_n_o <= '0';
+        else
+            VME_DTACK_n_o <= 'Z';
+        end if;
+    end if;
+end process;
 
 
 -- Bidirectional signal handling 
 
 s_VMEaddrInput <= VME_ADDR_oversampled;
 s_LWORDinput <= VME_LWORD_n_oversampled;
-s_VMEdataInput <= VME_DATA_oversampled;
+s_VMEdataInput <= VME_DATA_oversampled; 
 
-VME_ADDR_b <= FIFOdata_i(63 downto 33) when (s_dataToAddrBus='1' and s_TWOeInProgress='1') else
-              s_locData(63 downto 33) when s_dataToAddrBus='1' else 
-              (others => 'Z');
-    
-VME_LWORD_n_b <= FIFOdata_i(32) when (s_dataToAddrBus='1' and s_TWOeInProgress='1') else
-                 s_locData(32) when s_dataToAddrBus='1' else 
-                 'Z';
+p_ADDRmux: process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        if s_dataToAddrBus='1' and s_TWOeInProgress='1' then
+            VME_ADDR_b <= FIFOdata_i(63 downto 33);
+            VME_LWORD_n_b <= FIFOdata_i(32);
+        elsif s_dataToAddrBus='1' then
+            VME_ADDR_b <= s_locData(63 downto 33);
+            VME_LWORD_n_b <= s_locData(32);
+        else
+            VME_ADDR_b <= (others => 'Z');
+            VME_LWORD_n_b <= 'Z';
+        end if;
+    end if;
+end process;
 
-VME_DATA_b <=   FIFOdata_i(31 downto 0) when (s_dataToAddrBus='1' and s_TWOeInProgress='1') else
-                s_locData(31 downto 0) when (s_dataToAddrBus='1' or s_dataToOutput='1') else
-                "ZZZZZZZZZZZZZZZZZZZZZZZZ" & s_irqIDdata when IDtoData_i='1' else
-                (others => 'Z'); 
+p_DATAmux: process(clk_i)
+begin
+    if rising_edge(clk_i) then
+        if s_dataToAddrBus='1' and s_TWOeInProgress='1' then
+            VME_DATA_b <= FIFOdata_i(31 downto 0);
+        elsif s_dataToAddrBus='1' or s_dataToOutput='1' then
+            VME_DATA_b <= s_locData(31 downto 0);
+        elsif IDtoData_i='1' then
+            VME_DATA_b <= "ZZZZZZZZZZZZZZZZZZZZZZZZ" & s_irqIDdata;
+        else
+           VME_DATA_b <= (others => 'Z');
+        end if;
+    end if;
+end process; 
                 
 s_irqIDdata <= s_CSRarray(IRQ_ID);
     

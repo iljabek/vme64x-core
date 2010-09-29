@@ -53,38 +53,6 @@ begin
 	end process;
 end RTL;   
 
--- *************************************************** 
-
-library IEEE;
-use IEEE.STD_LOGIC_1164.all;
-
--- detect rising edge
-entity StretchedRisEdgeDetection is
-	port (
-		sig_i, clk_i: in std_logic;
-		RisEdge_o: out std_logic );
-end StretchedRisEdgeDetection;
-
-architecture RTL of StretchedRisEdgeDetection is
-	signal s_1: std_logic;
-	signal s_2: std_logic;
-begin
-	process(clk_i)
-	begin
-		if rising_edge(clk_i) then
-			
-			s_1 <= sig_i;
-			s_2 <= s_1;
-			
-			if (s_1 = '0' and sig_i = '1') or (s_2 = '0' and s_1 = '1') then
-				RisEdge_o <= '1';
-			else
-				RisEdge_o <= '0';
-			end if;
-			
-		end if;
-	end process;
-end RTL;
 
 -- *************************************************** 
 

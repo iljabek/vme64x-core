@@ -84,7 +84,7 @@ wave VME_bus_1/s_addressingType
 wave VME_bus_1/s_XAMtype
 wave VME_bus_1/s_berr
 wave VME_bus_1/s_retry
-wave VME_bus_1/s_addrOffset
+wave VME_bus_1/s_addrOffset 
 
 wave s_FIFOempty
 wave s_beatCount
@@ -92,13 +92,16 @@ wave WB_bus_1/s_2eFSMstate
 wave DAT_o
 wave DAT_i
 wave ADR_o 
+ 
+wave s_wbFIFOreset
 
+wave VME_bus_1/s_dataToAddrBus
 
 force clk_i 0 0, 1 0.5 ns -r 1 ns
 
 force VME_RST_n_i 0 0, 1 2 ns
 
-force VME_AS_n_i 1 0, 0 110 ns, 1 165 ns, 0 180 ns, 1 198 ns, 0 200 ns, 1 211 ns, 0 225 ns, 1 275 ns, 0 285 ns, 1 310 ns, 0 320 ns, 1 345 ns, 0 365 ns, 1 380 ns, 0 425 ns, 1 435 ns, 0 445 ns, 1 455 ns, 0 470 ns, 1 520 ns, 0 530 ns
+force VME_AS_n_i 1 0, 0 110 ns, 1 165 ns, 0 180 ns, 1 198 ns, 0 200 ns, 1 211 ns, 0 225 ns, 1 275 ns, 0 285 ns, 1 310 ns, 0 320 ns, 1 345 ns, 0 365 ns, 1 380 ns, 0 425 ns, 1 435 ns, 0 445 ns, 1 455 ns, 0 470 ns, 1 520 ns, 0 530 ns, 1 575 ns
 force VME_DS_n_i "11" 0, "10" 120 ns, "11" 135 ns, "10" 145 ns, "11" 160 ns, "10" 181 ns, "11" 192 ns, "10" 201 ns, "11" 210 ns, "00" 226 ns, "11" 270 ns, "10" 290 ns, "11" 305 ns, "10" 325 ns, "11" 454 ns, "10" 472 ns, "11" 481 ns, "10" 488 ns, "00" 496 ns, "10" 504 ns, "00" 512 ns, "11" 518 ns, "10" 532 ns, "11" 541 ns, "10" 548 ns, "00" 556 ns
 
 force VME_AM_i "16#2F" 0, "16#0D" 220 ns, "16#2F" 280 ns, "16#05" 420 ns, "16#0D" 440 ns, "16#20" 469 ns

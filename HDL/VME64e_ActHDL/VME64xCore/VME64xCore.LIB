@@ -1,6 +1,174 @@
-timestamp=1274258923148
+timestamp=1285746436741
+
+[cr]
+A/cr_a=A/CR_a 21|./../../IP_cores/CR.vhd|50|1*120818
+C=8.2.1986.SP1.35.3497  (Windows)
+C/cr_a=8.2.1986.SP1.35.3497  (Windows)
+I=0*90635
+I/cr_a=I/CR_a 0*92409
+M=11|0|v63|1285746435915|./../../IP_cores/CR.vhd|0*90300*0x2c947f4eeb023599396b64bad3737f2e03685f45|0*90562*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+M/cr_a=M/CR_a 21|0|v63|1285746435933|./../../IP_cores/CR.vhd|0*90731*0x4fcfa91fad65d9e941fd84c0000bc0cc4f34a79e|0*92328*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+R=./../../IP_cores/CR.vhd|43
+
+[cram]
+A/cram_a=A/CRAM_a 21|./../../IP_cores/CRAM.vhd|52|1*125053
+C=8.2.1986.SP1.35.3497  (Windows)
+C/cram_a=8.2.1986.SP1.35.3497  (Windows)
+I=0*93249
+I/cram_a=I/CRAM_a 0*95162
+M=11|0|v63|1285746436165|./../../IP_cores/CRAM.vhd|0*92831*0x0bf2d79a16babd3c6395b3c438a979ff23743cd9|0*93172*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+M/cram_a=M/CRAM_a 21|0|v63|1285746436169|./../../IP_cores/CRAM.vhd|0*93347*0x99d3482171bfb343d1fbeb9e7027f4829e910f1a|0*95075*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+R=./../../IP_cores/CRAM.vhd|43
+
+[fifo]
+A/fifo_a=A/FIFO_a 21|./../../IP_cores/FIFO.vhd|55|1*130179
+C=8.2.1986.SP1.35.3497  (Windows)
+C/fifo_a=8.2.1986.SP1.35.3497  (Windows)
+I=0*96085
+I/fifo_a=I/FIFO_a 0*98372
+M=11|0|v63|1285746436442|./../../IP_cores/FIFO.vhd|0*95630*0xd795c09b722183b9c4246f4404fb3cc227580d70|0*96008*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+M/fifo_a=M/FIFO_a 21|0|v63|1285746436459|./../../IP_cores/FIFO.vhd|0*96183*0xdf27b664a8ab7ffd9d4c53c81dabb95219b51a16|0*98285*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+R=./../../IP_cores/FIFO.vhd|43
+
+[irq_controller]
+A/rtl=A/RTL 21|./../../VME64e_ActHDL_src/IRQ_controller.vhd|47|1*113212
+B/rtl=3*179658
+C=8.2.1986.SP1.35.3497  (Windows)
+C/rtl=8.2.1986.SP1.35.3497  (Windows)
+I=0*85889
+I/rtl=I/RTL 0*89759
+M=11|0|v63|1285746435644|./../../VME64e_ActHDL_src/IRQ_controller.vhd|0*85119*0x895fe7b146d9a1d5cf1c94d91446578007f52037|0*85783*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+M/rtl=M/RTL 21|0|v63|1285746435646|./../../VME64e_ActHDL_src/IRQ_controller.vhd|0*86066*0xa13c32242d3a84c2d485ca9bd5372e8e066f5ff9|0*89646*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+R=./../../VME64e_ActHDL_src/IRQ_controller.vhd|29
+
+[reginputsample]
+A/rtl=A/RTL 21|./../../VME64e_ActHDL_src/SharedComps.vhd|181|1*6530
+B/rtl=3*6338
+C=8.2.1986.SP1.35.3497  (Windows)
+C/rtl=8.2.1986.SP1.35.3497  (Windows)
+I=0*7577
+I/rtl=I/RTL 0*8115
+M=11|0|v63|1285746434623|./../../VME64e_ActHDL_src/SharedComps.vhd|0*7128*0x694ff139f5f6d3a52f7319e81aee0deca8a034fa|0*7474*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+M/rtl=M/RTL 21|0|v63|1285746434625|./../../VME64e_ActHDL_src/SharedComps.vhd|0*7685*0xc95a38edfdc3fc85ba0c762dddba77e573c18847|0*8005*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+R=./../../VME64e_ActHDL_src/SharedComps.vhd|170
+
+[risedgedetection]
+A/rtl=A/RTL 21|./../../VME64e_ActHDL_src/SharedComps.vhd|37|1*1244
+B/rtl=3*1119
+C=8.2.1986.SP1.35.3497  (Windows)
+C/rtl=8.2.1986.SP1.35.3497  (Windows)
+I=0*1743
+I/rtl=I/RTL 0*2284
+M=11|0|v63|1285746434599|./../../VME64e_ActHDL_src/SharedComps.vhd|0*1373*0x7ae7405d25902e754b8b1ffa7c924869ea24e218|0*1638*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+M/rtl=M/RTL 21|0|v63|1285746434601|./../../VME64e_ActHDL_src/SharedComps.vhd|0*1853*0x94222cba61c0a158ce6021ce920dbe3079fdfd20|0*2172*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+R=./../../VME64e_ActHDL_src/SharedComps.vhd|31
+
+[siginputsample]
+A/rtl=A/RTL 21|./../../VME64e_ActHDL_src/SharedComps.vhd|11|1*0
+B/rtl=3*0
+C=8.2.1986.SP1.35.3497  (Windows)
+C/rtl=8.2.1986.SP1.35.3497  (Windows)
+I=0*545
+I/rtl=I/RTL 0*1064
+M=11|0|v63|1285746434593|./../../VME64e_ActHDL_src/SharedComps.vhd|0*187*0xf89b1a2b1c85c63f81c6818f8323699f55eaab32|0*442*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+M/rtl=M/RTL 21|0|v63|1285746434595|./../../VME64e_ActHDL_src/SharedComps.vhd|0*653*0x003cba2d832ab8a74f6437d2fcf3af8b5c96ec9d|0*954*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+R=./../../VME64e_ActHDL_src/SharedComps.vhd|5
+
+[siginputsampleandedgedetection]
+A/rtl=A/RTL 21|./../../VME64e_ActHDL_src/SharedComps.vhd|142|1*5154
+B/rtl=3*4883
+C=8.2.1986.SP1.35.3497  (Windows)
+C/rtl=8.2.1986.SP1.35.3497  (Windows)
+I=0*6083
+I/rtl=I/RTL 0*6740
+M=11|0|v63|1285746434617|./../../VME64e_ActHDL_src/SharedComps.vhd|0*5653*0x8522f687b41d59f6cd41444af998a402d9c8eb71|0*5964*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+M/rtl=M/RTL 21|0|v63|1285746434619|./../../VME64e_ActHDL_src/SharedComps.vhd|0*6207*0x38337d74fbb284c2c7d68c0b44395b67b5763681|0*6614*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+R=./../../VME64e_ActHDL_src/SharedComps.vhd|134
+
+[siginputsampleandfallingedgedetection]
+A/rtl=A/RTL 21|./../../VME64e_ActHDL_src/SharedComps.vhd|70|1*2400
+B/rtl=3*2093
+C=8.2.1986.SP1.35.3497  (Windows)
+C/rtl=8.2.1986.SP1.35.3497  (Windows)
+I=0*3112
+I/rtl=I/RTL 0*3775
+M=11|0|v63|1285746434605|./../../VME64e_ActHDL_src/SharedComps.vhd|0*2658*0xe895375909c5fffdf76e8ef8105d5de789a8fa79|0*2986*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+M/rtl=M/RTL 21|0|v63|1285746434607|./../../VME64e_ActHDL_src/SharedComps.vhd|0*3243*0xc520fd8842f1ba702ee467ea85487e4fd29f8647|0*3642*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+R=./../../VME64e_ActHDL_src/SharedComps.vhd|64
+
+[siginputsampleandrisingedgedetection]
+A/rtl=A/RTL 21|./../../VME64e_ActHDL_src/SharedComps.vhd|106|1*3773
+B/rtl=3*3488
+C=8.2.1986.SP1.35.3497  (Windows)
+C/rtl=8.2.1986.SP1.35.3497  (Windows)
+I=0*4621
+I/rtl=I/RTL 0*5280
+M=11|0|v63|1285746434611|./../../VME64e_ActHDL_src/SharedComps.vhd|0*4167*0x10588bdd1c377fcaa9ef54d99db77386d8295da7|0*4496*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+M/rtl=M/RTL 21|0|v63|1285746434613|./../../VME64e_ActHDL_src/SharedComps.vhd|0*4751*0x73be90ff5255bd646b9be23739520b51c6518ffc|0*5148*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+R=./../../VME64e_ActHDL_src/SharedComps.vhd|98
+
+[vme64xcore_top]
+A/rtl=A/RTL 21|./../../VME64e_ActHDL_src/VME64xCore_Top.vhd|87|1*136249
+B/rtl=3*187665
+C=8.2.1986.SP1.35.3497  (Windows)
+C/rtl=8.2.1986.SP1.35.3497  (Windows)
+I=0*101197
+I/rtl=I/RTL 0*110089
+M=11|0|v63|1285746436677|./../../VME64e_ActHDL_src/VME64xCore_Top.vhd|0*99768*0x4922b8b2cf53c8544fb71844cc3e781f3c37d7f6|0*101091*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+M/rtl=M/RTL 21|0|v63|1285746436699|./../../VME64e_ActHDL_src/VME64xCore_Top.vhd|0*101305*0x26d70007d31474776f45e29b49fcbe5b054a9b4c|0*109976*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+R=./../../VME64e_ActHDL_src/VME64xCore_Top.vhd|25
+
+[vme_bus]
+A/rtl=A/RTL 21|./../../VME64e_ActHDL_src/VME_bus.vhd|98|1*28219
+B/rtl=3*8309
+C=8.2.1986.SP1.35.3497  (Windows)
+C/rtl=8.2.1986.SP1.35.3497  (Windows)
+I=0*21563
+I/rtl=I/RTL 0*76220
+M=11|0|v63|1285746435082|./../../VME64e_ActHDL_src/VME_bus.vhd|0*19578*0x97289b96e212dee81555e4ff07a9626dd4c3c4f4|0*21471*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+M/rtl=M/RTL 21|0|v63|1285746435109|./../../VME64e_ActHDL_src/VME_bus.vhd|0*21788*0xe8cc71ffd0ad4e46d1111c42745e5d12f6e66a24|0*76121*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+R=./../../VME64e_ActHDL_src/VME_bus.vhd|28
+
+[vme_pack]
+C=8.2.1986.SP1.35.3497  (Windows)
+E=1*8548
+I=0*17760
+M=3|0|v63|1285746434816|./../../VME64e_ActHDL_src/VME_pack.vhd|0*11702*0x48c3602668c235b1ca6900f34c72e11f1b2ccf9b|0*17666*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+R=./../../VME64e_ActHDL_src/VME_pack.vhd|4
+
+[wb_bus]
+A/rtl=A/RTL 21|./../../VME64e_ActHDL_src/WB_bus.vhd|74|1*101843
+B/rtl=3*160462
+C=8.2.1986.SP1.35.3497  (Windows)
+C/rtl=8.2.1986.SP1.35.3497  (Windows)
+I=0*79316
+I/rtl=I/RTL 0*84417
+M=11|0|v63|1285746435430|./../../VME64e_ActHDL_src/WB_bus.vhd|0*77980*0xd216518cea5289dc63e7a17108f1c0e0ea72bead|0*79226*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+M/rtl=M/RTL 21|0|v63|1285746435449|./../../VME64e_ActHDL_src/WB_bus.vhd|0*79485*0x7d7f12d40819c7873dbf382643b1fdaa531021f7|0*84320*0xfce7a17cbf8a959a0c8fb6f5d0fad10d
+R=./../../VME64e_ActHDL_src/WB_bus.vhd|29
 
 [~A]
-ModifyID=1
+ModifyID=69
 Version=73
+
+[~MFT]
+0=95|0VME64xCore.mgf|110089|0
+1=13|1VME64xCore.mgf|136249|0
+3=9|3VME64xCore.mgf|187665|0
+
+[~U]
+cr=CR 11|0*90125|
+cram=CRAM 11|0*92586|
+fifo=FIFO 11|0*95343|
+irq_controller=IRQ_controller 11|0*84590|
+reginputsample=RegInputSample 11|0*6868|
+risedgedetection=RisEdgeDetection 11|0*1176|
+siginputsample=SigInputSample 11|0*0|
+siginputsampleandedgedetection=SigInputSampleAndEdgeDetection 11|0*5414|
+siginputsampleandfallingedgedetection=SigInputSampleAndFallingEdgeDetection 11|0*2398|
+siginputsampleandrisingedgedetection=SigInputSampleAndRisingEdgeDetection 11|0*3910|
+vme64xcore_top=VME64xCore_Top 11|0*98556|
+vme_bus=VME_bus 11|0*17862|
+vme_pack=VME_pack 3|0*8227|0*8469
+wb_bus=WB_bus 11|0*76878|
 
