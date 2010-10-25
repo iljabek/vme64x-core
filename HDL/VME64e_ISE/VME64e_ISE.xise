@@ -15,52 +15,49 @@
   <version xil_pn:ise_version="12.1" xil_pn:schema_version="2"/>
 
   <files>
-    <file xil_pn:name="CR.ngc" xil_pn:type="FILE_NGC"/>
-    <file xil_pn:name="CRAM.ngc" xil_pn:type="FILE_NGC"/>
-    <file xil_pn:name="VME64xCore_Top.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../VME64e_ActHDL_src/IRQ_controller.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation"/>
       <association xil_pn:name="Implementation"/>
     </file>
-    <file xil_pn:name="VME_pack.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../VME64e_ActHDL_src/SharedComps.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation"/>
       <association xil_pn:name="Implementation"/>
     </file>
-    <file xil_pn:name="FIFO.ngc" xil_pn:type="FILE_NGC"/>
-    <file xil_pn:name="SharedComps.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../VME64e_ActHDL_src/VME_bus.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation"/>
       <association xil_pn:name="Implementation"/>
     </file>
-    <file xil_pn:name="IRQ_controller.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../VME64e_ActHDL_src/VME_pack.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation"/>
       <association xil_pn:name="Implementation"/>
     </file>
-    <file xil_pn:name="WB_bus.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../VME64e_ActHDL_src/VME64xCore_Top.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation"/>
       <association xil_pn:name="Implementation"/>
     </file>
-    <file xil_pn:name="VME_bus.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../VME64e_ActHDL_src/WB_bus.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation"/>
       <association xil_pn:name="Implementation"/>
     </file>
-    <file xil_pn:name="ipcore_dir/CRAM.xco" xil_pn:type="FILE_COREGEN">
+    <file xil_pn:name="../IP_cores/CR.xco" xil_pn:type="FILE_COREGEN">
       <association xil_pn:name="BehavioralSimulation"/>
       <association xil_pn:name="Implementation"/>
     </file>
-    <file xil_pn:name="ipcore_dir/FIFO.xco" xil_pn:type="FILE_COREGEN">
+    <file xil_pn:name="../IP_cores/CRAM.xco" xil_pn:type="FILE_COREGEN">
       <association xil_pn:name="BehavioralSimulation"/>
       <association xil_pn:name="Implementation"/>
     </file>
-    <file xil_pn:name="ipcore_dir/CR.xco" xil_pn:type="FILE_COREGEN">
+    <file xil_pn:name="../IP_cores/FIFO.xco" xil_pn:type="FILE_COREGEN">
       <association xil_pn:name="BehavioralSimulation"/>
       <association xil_pn:name="Implementation"/>
     </file>
-    <file xil_pn:name="ipcore_dir/CRAM.xise" xil_pn:type="FILE_COREGENISE">
+    <file xil_pn:name="../IP_cores/CR.xise" xil_pn:type="FILE_COREGENISE">
       <association xil_pn:name="Implementation"/>
     </file>
-    <file xil_pn:name="ipcore_dir/FIFO.xise" xil_pn:type="FILE_COREGENISE">
+    <file xil_pn:name="../IP_cores/CRAM.xise" xil_pn:type="FILE_COREGENISE">
       <association xil_pn:name="Implementation"/>
     </file>
-    <file xil_pn:name="ipcore_dir/CR.xise" xil_pn:type="FILE_COREGENISE">
+    <file xil_pn:name="../IP_cores/FIFO.xise" xil_pn:type="FILE_COREGENISE">
       <association xil_pn:name="Implementation"/>
     </file>
   </files>
@@ -136,6 +133,7 @@
     <property xil_pn:name="Enable Cyclic Redundancy Checking (CRC)" xil_pn:value="true" xil_pn:valueState="default"/>
     <property xil_pn:name="Enable Debugging of Serial Mode BitStream" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Enable Enhanced Design Summary" xil_pn:value="true" xil_pn:valueState="default"/>
+    <property xil_pn:name="Enable Hardware Co-Simulation" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Enable Internal Done Pipe" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Enable Message Filtering" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Enable Multi-Threading" xil_pn:value="Off" xil_pn:valueState="default"/>
@@ -183,7 +181,7 @@
     <property xil_pn:name="Ignore User Timing Constraints Map" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Ignore User Timing Constraints Par" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Implementation Top" xil_pn:value="Architecture|VME64xCore_Top|RTL" xil_pn:valueState="non-default"/>
-    <property xil_pn:name="Implementation Top File" xil_pn:value="VME64xCore_Top.vhd" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Implementation Top File" xil_pn:value="../VME64e_ActHDL_src/VME64xCore_Top.vhd" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Implementation Top Instance Path" xil_pn:value="/VME64xCore_Top" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Include 'uselib Directive in Verilog File" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Include SIMPRIM Models in Verilog File" xil_pn:value="false" xil_pn:valueState="default"/>

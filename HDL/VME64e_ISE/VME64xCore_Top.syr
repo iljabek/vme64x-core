@@ -4,13 +4,13 @@ Copyright (c) 1995-2010 Xilinx, Inc.  All rights reserved.
 
 
 Total REAL time to Xst completion: 0.00 secs
-Total CPU time to Xst completion: 0.09 secs
+Total CPU time to Xst completion: 0.38 secs
  
 --> Parameter xsthdpdir set to xst
 
 
 Total REAL time to Xst completion: 0.00 secs
-Total CPU time to Xst completion: 0.09 secs
+Total CPU time to Xst completion: 0.38 secs
  
 --> Reading design: VME64xCore_Top.prj
 
@@ -104,7 +104,7 @@ Auto BRAM Packing                  : NO
 Slice Utilization Ratio Delta      : 5
 
 ---- Other Options
-Cores Search Directories           : {"ipcore_dir"  }
+Cores Search Directories           : {"../IP_cores"  }
 
 =========================================================================
 
@@ -112,28 +112,61 @@ Cores Search Directories           : {"ipcore_dir"  }
 =========================================================================
 *                          HDL Compilation                              *
 =========================================================================
-Compiling vhdl file "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd" in Library work.
-Architecture rtl of Entity siginputsample is up to date.
-Architecture rtl of Entity risedgedetection is up to date.
-Architecture rtl of Entity siginputsampleandfallingedgedetection is up to date.
-Architecture rtl of Entity siginputsampleandrisingedgedetection is up to date.
-Architecture rtl of Entity siginputsampleandedgedetection is up to date.
-Architecture rtl of Entity reginputsample is up to date.
-Compiling vhdl file "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_pack.vhd" in Library work.
-Compiling vhdl file "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_bus.vhd" in Library work.
-Architecture rtl of Entity vme_bus is up to date.
-Compiling vhdl file "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/WB_bus.vhd" in Library work.
+WARNING:HDLParsers:3607 - Unit work/VME64xCore_Top is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd".
+WARNING:HDLParsers:3607 - Unit work/VME64xCore_Top/RTL is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd".
+WARNING:HDLParsers:3607 - Unit work/CRAM is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/ipcore_dir/CRAM.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/IP_cores/CRAM.vhd".
+WARNING:HDLParsers:3607 - Unit work/CRAM/CRAM_a is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/ipcore_dir/CRAM.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/IP_cores/CRAM.vhd".
+WARNING:HDLParsers:3607 - Unit work/FIFO is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/ipcore_dir/FIFO.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/IP_cores/FIFO.vhd".
+WARNING:HDLParsers:3607 - Unit work/FIFO/FIFO_a is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/ipcore_dir/FIFO.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/IP_cores/FIFO.vhd".
+WARNING:HDLParsers:3607 - Unit work/IRQ_controller is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/IRQ_controller.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/IRQ_controller.vhd".
+WARNING:HDLParsers:3607 - Unit work/IRQ_controller/RTL is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/IRQ_controller.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/IRQ_controller.vhd".
+WARNING:HDLParsers:3607 - Unit work/VME_bus is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_bus.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd".
+WARNING:HDLParsers:3607 - Unit work/VME_bus/RTL is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_bus.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd".
+WARNING:HDLParsers:3607 - Unit work/WB_bus is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/WB_bus.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/WB_bus.vhd".
+WARNING:HDLParsers:3607 - Unit work/WB_bus/RTL is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/WB_bus.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/WB_bus.vhd".
+WARNING:HDLParsers:3607 - Unit work/SigInputSample is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
+WARNING:HDLParsers:3607 - Unit work/SigInputSample/RTL is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
+WARNING:HDLParsers:3607 - Unit work/RisEdgeDetection is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
+WARNING:HDLParsers:3607 - Unit work/RisEdgeDetection/RTL is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
+WARNING:HDLParsers:3607 - Unit work/SigInputSampleAndFallingEdgeDetection is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
+WARNING:HDLParsers:3607 - Unit work/SigInputSampleAndFallingEdgeDetection/RTL is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
+WARNING:HDLParsers:3607 - Unit work/SigInputSampleAndRisingEdgeDetection is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
+WARNING:HDLParsers:3607 - Unit work/SigInputSampleAndRisingEdgeDetection/RTL is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
+WARNING:HDLParsers:3607 - Unit work/SigInputSampleAndEdgeDetection is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
+WARNING:HDLParsers:3607 - Unit work/SigInputSampleAndEdgeDetection/RTL is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
+WARNING:HDLParsers:3607 - Unit work/RegInputSample is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
+WARNING:HDLParsers:3607 - Unit work/RegInputSample/RTL is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
+WARNING:HDLParsers:3607 - Unit work/VME_pack is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_pack.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_pack.vhd".
+WARNING:HDLParsers:3607 - Unit work/CR is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/ipcore_dir/CR.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/IP_cores/CR.vhd".
+WARNING:HDLParsers:3607 - Unit work/CR/CR_a is now defined in a different file.  It was defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/ipcore_dir/CR.vhd", and is now defined in "D:/SVN/FAIR-VME64ext/trunk/HDL/IP_cores/CR.vhd".
+Compiling vhdl file "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd" in Library work.
+Entity <siginputsample> compiled.
+Entity <siginputsample> (Architecture <rtl>) compiled.
+Entity <risedgedetection> compiled.
+Entity <risedgedetection> (Architecture <rtl>) compiled.
+Entity <siginputsampleandfallingedgedetection> compiled.
+Entity <siginputsampleandfallingedgedetection> (Architecture <rtl>) compiled.
+Entity <siginputsampleandrisingedgedetection> compiled.
+Entity <siginputsampleandrisingedgedetection> (Architecture <rtl>) compiled.
+Entity <siginputsampleandedgedetection> compiled.
+Entity <siginputsampleandedgedetection> (Architecture <rtl>) compiled.
+Entity <reginputsample> compiled.
+Entity <reginputsample> (Architecture <rtl>) compiled.
+Compiling vhdl file "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_pack.vhd" in Library work.
+Compiling vhdl file "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd" in Library work.
+Entity <vme_bus> compiled.
+Entity <vme_bus> (Architecture <rtl>) compiled.
+Compiling vhdl file "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/WB_bus.vhd" in Library work.
 Architecture rtl of Entity wb_bus is up to date.
-Compiling vhdl file "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/IRQ_controller.vhd" in Library work.
+Compiling vhdl file "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/IRQ_controller.vhd" in Library work.
 Architecture rtl of Entity irq_controller is up to date.
-Compiling vhdl file "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/ipcore_dir/CR.vhd" in Library work.
-Entity <CR> compiled.
-Entity <CR> (Architecture <CR_a>) compiled.
-Compiling vhdl file "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/ipcore_dir/CRAM.vhd" in Library work.
+Compiling vhdl file "D:/SVN/FAIR-VME64ext/trunk/HDL/IP_cores/CR.vhd" in Library work.
+Architecture cr_a of Entity cr is up to date.
+Compiling vhdl file "D:/SVN/FAIR-VME64ext/trunk/HDL/IP_cores/CRAM.vhd" in Library work.
 Architecture cram_a of Entity cram is up to date.
-Compiling vhdl file "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/ipcore_dir/FIFO.vhd" in Library work.
+Compiling vhdl file "D:/SVN/FAIR-VME64ext/trunk/HDL/IP_cores/FIFO.vhd" in Library work.
 Architecture fifo_a of Entity fifo is up to date.
-Compiling vhdl file "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.vhd" in Library work.
+Compiling vhdl file "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd" in Library work.
 Architecture rtl of Entity vme64xcore_top is up to date.
 
 =========================================================================
@@ -177,21 +210,21 @@ Analyzing hierarchy for entity <SigInputSample> in library <work> (architecture 
 *                            HDL Analysis                               *
 =========================================================================
 Analyzing Entity <VME64xCore_Top> in library <work> (Architecture <rtl>).
-WARNING:Xst:2211 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.vhd" line 428: Instantiating black box module <CR>.
-WARNING:Xst:2211 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.vhd" line 436: Instantiating black box module <CRAM>.
-WARNING:Xst:2211 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.vhd" line 445: Instantiating black box module <FIFO>.
-WARNING:Xst:753 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.vhd" line 457: Unconnected output port 'full' of component 'FIFO'.
-WARNING:Xst:2211 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.vhd" line 457: Instantiating black box module <FIFO>.
+WARNING:Xst:2211 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd" line 428: Instantiating black box module <CR>.
+WARNING:Xst:2211 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd" line 436: Instantiating black box module <CRAM>.
+WARNING:Xst:2211 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd" line 445: Instantiating black box module <FIFO>.
+WARNING:Xst:753 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd" line 457: Unconnected output port 'full' of component 'FIFO'.
+WARNING:Xst:2211 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd" line 457: Instantiating black box module <FIFO>.
 Entity <VME64xCore_Top> analyzed. Unit <VME64xCore_Top> generated.
 
 Analyzing Entity <VME_bus> in library <work> (Architecture <rtl>).
-WARNING:Xst:819 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_bus.vhd" line 1686: One or more signals are missing in the process sensitivity list. To enable synthesis of FPGA/CPLD hardware, XST will assume that all necessary signals are present in the sensitivity list. Please note that the result of the synthesis may differ from the initial design specification. The missing signals are:
+WARNING:Xst:819 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd" line 1722: One or more signals are missing in the process sensitivity list. To enable synthesis of FPGA/CPLD hardware, XST will assume that all necessary signals are present in the sensitivity list. Please note that the result of the synthesis may differ from the initial design specification. The missing signals are:
    <s_addrWidth>, <s_addressingType>, <s_XAMtype>, <s_FUNC_ADER>, <s_FUNC_ADEM>, <s_locAddr>
-INFO:Xst:1561 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_bus.vhd" line 1760: Mux is complete : default of case is discarded
-INFO:Xst:1561 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_bus.vhd" line 1760: Mux is complete : default of case is discarded
-INFO:Xst:1561 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_bus.vhd" line 1760: Mux is complete : default of case is discarded
-INFO:Xst:1561 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_bus.vhd" line 1760: Mux is complete : default of case is discarded
-WARNING:Xst:819 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_bus.vhd" line 1745: One or more signals are missing in the process sensitivity list. To enable synthesis of FPGA/CPLD hardware, XST will assume that all necessary signals are present in the sensitivity list. Please note that the result of the synthesis may differ from the initial design specification. The missing signals are:
+INFO:Xst:1561 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd" line 1796: Mux is complete : default of case is discarded
+INFO:Xst:1561 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd" line 1796: Mux is complete : default of case is discarded
+INFO:Xst:1561 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd" line 1796: Mux is complete : default of case is discarded
+INFO:Xst:1561 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd" line 1796: Mux is complete : default of case is discarded
+WARNING:Xst:819 - "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd" line 1781: One or more signals are missing in the process sensitivity list. To enable synthesis of FPGA/CPLD hardware, XST will assume that all necessary signals are present in the sensitivity list. Please note that the result of the synthesis may differ from the initial design specification. The missing signals are:
    <s_FUNC_ADER>, <VME_AM_oversampled>, <s_addressingType>, <s_XAM>
 INFO:Xst:2679 - Register <s_CSRarray<8>> in unit <VME_bus> has a constant value of 00000000 during circuit operation. The register is replaced by logic.
 Entity <VME_bus> analyzed. Unit <VME_bus> generated.
@@ -245,7 +278,7 @@ Entity <IRQ_controller> analyzed. Unit <IRQ_controller> generated.
 Performing bidirectional port resolution...
 
 Synthesizing Unit <WB_bus>.
-    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/WB_bus.vhd".
+    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/WB_bus.vhd".
     Register <s_FSMactive> equivalent to <s_cyc> has been removed
     Found finite state machine <FSM_0> for signal <s_2eFSMstate>.
     -----------------------------------------------------------------------
@@ -288,7 +321,7 @@ Unit <WB_bus> synthesized.
 
 
 Synthesizing Unit <RisEdgeDetection>.
-    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd".
+    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
     Found 1-bit register for signal <RisEdge_o>.
     Found 1-bit register for signal <s_1>.
     Summary:
@@ -297,7 +330,7 @@ Unit <RisEdgeDetection> synthesized.
 
 
 Synthesizing Unit <SigInputSampleAndFallingEdgeDetection>.
-    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd".
+    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
     Found 1-bit register for signal <sigEdge_o>.
     Found 1-bit register for signal <s_1>.
     Found 1-bit register for signal <s_2>.
@@ -308,7 +341,7 @@ Unit <SigInputSampleAndFallingEdgeDetection> synthesized.
 
 
 Synthesizing Unit <SigInputSampleAndRisingEdgeDetection>.
-    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd".
+    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
     Found 1-bit register for signal <sigEdge_o>.
     Found 1-bit register for signal <s_1>.
     Found 1-bit register for signal <s_2>.
@@ -319,7 +352,7 @@ Unit <SigInputSampleAndRisingEdgeDetection> synthesized.
 
 
 Synthesizing Unit <SigInputSampleAndEdgeDetection>.
-    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd".
+    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
     Found 1-bit register for signal <sigEdge_o>.
     Found 1-bit register for signal <s_1>.
     Found 1-bit register for signal <s_2>.
@@ -330,7 +363,7 @@ Unit <SigInputSampleAndEdgeDetection> synthesized.
 
 
 Synthesizing Unit <RegInputSample_1>.
-    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd".
+    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
     Found 6-bit register for signal <reg_o>.
     Found 6-bit register for signal <reg_1>.
     Found 6-bit register for signal <reg_2>.
@@ -340,7 +373,7 @@ Unit <RegInputSample_1> synthesized.
 
 
 Synthesizing Unit <RegInputSample_2>.
-    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd".
+    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
     Found 32-bit register for signal <reg_o>.
     Found 32-bit register for signal <reg_1>.
     Found 32-bit register for signal <reg_2>.
@@ -350,7 +383,7 @@ Unit <RegInputSample_2> synthesized.
 
 
 Synthesizing Unit <RegInputSample_3>.
-    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd".
+    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
     Found 31-bit register for signal <reg_o>.
     Found 31-bit register for signal <reg_1>.
     Found 31-bit register for signal <reg_2>.
@@ -360,7 +393,7 @@ Unit <RegInputSample_3> synthesized.
 
 
 Synthesizing Unit <RegInputSample_4>.
-    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd".
+    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
     Found 2-bit register for signal <reg_o>.
     Found 2-bit register for signal <reg_1>.
     Found 2-bit register for signal <reg_2>.
@@ -370,7 +403,7 @@ Unit <RegInputSample_4> synthesized.
 
 
 Synthesizing Unit <RegInputSample_5>.
-    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd".
+    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
     Found 8-bit register for signal <reg_o>.
     Found 8-bit register for signal <reg_1>.
     Found 8-bit register for signal <reg_2>.
@@ -380,7 +413,7 @@ Unit <RegInputSample_5> synthesized.
 
 
 Synthesizing Unit <SigInputSample>.
-    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd".
+    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd".
     Found 1-bit register for signal <sig_o>.
     Found 1-bit register for signal <s_1>.
     Found 1-bit register for signal <s_2>.
@@ -390,7 +423,7 @@ Unit <SigInputSample> synthesized.
 
 
 Synthesizing Unit <VME_bus>.
-    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_bus.vhd".
+    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd".
 WARNING:Xst:646 - Signal <s_phase3addr> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
 WARNING:Xst:646 - Signal <s_phase2addr<63:16>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
 WARNING:Xst:1780 - Signal <s_memAckCaseCondition> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
@@ -449,7 +482,7 @@ WARNING:Xst:646 - Signal <VME_AS_n_oversampled> is assigned but never used. This
     Using one-hot encoding for signal <s_transferType>.
     Using one-hot encoding for signal <s_typeOfDataTransfer>.
     Using one-hot encoding for signal <s_2eLatchAddr>.
-    Found 52x12-bit ROM for signal <CRaddr_o$varindex0000> created at line 1775.
+    Found 52x12-bit ROM for signal <CRaddr_o$varindex0000> created at line 1811.
     Found 16x7-bit ROM for signal <s_typeOfDataTransfer>.
 WARNING:Xst:737 - Found 8-bit latch for signal <s_CSRdata>. Latches may be generated from incomplete case or if statements. We do not recommend the use of latches in FPGA/CPLD designs, as they may lead to timing problems.
 INFO:Xst:2371 - HDL ADVISOR - Logic functions respectively driving the data and gate enable inputs of this latch share common terms. This situation will potentially lead to setup/hold violations and, as a result, to simulation problems. This situation may come from an incomplete case statement (all selector values are not covered). You should carefully review if it was in your intentions to describe such a latch.
@@ -460,172 +493,183 @@ INFO:Xst:2371 - HDL ADVISOR - Logic functions respectively driving the data and 
     Found 1-bit tristate buffer for signal <VME_RETRY_n_o>.
     Found 32-bit tristate buffer for signal <VME_DATA_b>.
     Found 1-bit tristate buffer for signal <VME_BERR_n_o>.
-    Found 1-bit register for signal <Mtridata_s_locData<0>> created at line 1572.
-    Found 1-bit register for signal <Mtridata_s_locData<10>> created at line 1570.
-    Found 1-bit register for signal <Mtridata_s_locData<11>> created at line 1570.
-    Found 1-bit register for signal <Mtridata_s_locData<12>> created at line 1570.
-    Found 1-bit register for signal <Mtridata_s_locData<13>> created at line 1570.
-    Found 1-bit register for signal <Mtridata_s_locData<14>> created at line 1570.
-    Found 1-bit register for signal <Mtridata_s_locData<15>> created at line 1570.
-    Found 1-bit register for signal <Mtridata_s_locData<16>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<17>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<18>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<19>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<1>> created at line 1572.
-    Found 1-bit register for signal <Mtridata_s_locData<20>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<21>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<22>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<23>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<24>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<25>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<26>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<27>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<28>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<29>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<2>> created at line 1572.
-    Found 1-bit register for signal <Mtridata_s_locData<30>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<31>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<32>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<33>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<34>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<35>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<36>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<37>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<38>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<39>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<3>> created at line 1572.
-    Found 1-bit register for signal <Mtridata_s_locData<40>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<41>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<42>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<43>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<44>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<45>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<46>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<47>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<48>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<49>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<4>> created at line 1572.
-    Found 1-bit register for signal <Mtridata_s_locData<50>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<51>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<52>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<53>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<54>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<55>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<56>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<57>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<58>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<59>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<5>> created at line 1572.
-    Found 1-bit register for signal <Mtridata_s_locData<60>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<61>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<62>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<63>> created at line 1571.
-    Found 1-bit register for signal <Mtridata_s_locData<6>> created at line 1572.
-    Found 1-bit register for signal <Mtridata_s_locData<7>> created at line 1572.
-    Found 1-bit register for signal <Mtridata_s_locData<8>> created at line 1570.
-    Found 1-bit register for signal <Mtridata_s_locData<9>> created at line 1570.
+    Found 1-bit register for signal <Mtridata_s_locData<0>> created at line 1608.
+    Found 1-bit register for signal <Mtridata_s_locData<10>> created at line 1606.
+    Found 1-bit register for signal <Mtridata_s_locData<11>> created at line 1606.
+    Found 1-bit register for signal <Mtridata_s_locData<12>> created at line 1606.
+    Found 1-bit register for signal <Mtridata_s_locData<13>> created at line 1606.
+    Found 1-bit register for signal <Mtridata_s_locData<14>> created at line 1606.
+    Found 1-bit register for signal <Mtridata_s_locData<15>> created at line 1606.
+    Found 1-bit register for signal <Mtridata_s_locData<16>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<17>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<18>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<19>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<1>> created at line 1608.
+    Found 1-bit register for signal <Mtridata_s_locData<20>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<21>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<22>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<23>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<24>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<25>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<26>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<27>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<28>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<29>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<2>> created at line 1608.
+    Found 1-bit register for signal <Mtridata_s_locData<30>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<31>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<32>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<33>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<34>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<35>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<36>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<37>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<38>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<39>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<3>> created at line 1608.
+    Found 1-bit register for signal <Mtridata_s_locData<40>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<41>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<42>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<43>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<44>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<45>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<46>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<47>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<48>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<49>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<4>> created at line 1608.
+    Found 1-bit register for signal <Mtridata_s_locData<50>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<51>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<52>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<53>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<54>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<55>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<56>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<57>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<58>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<59>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<5>> created at line 1608.
+    Found 1-bit register for signal <Mtridata_s_locData<60>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<61>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<62>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<63>> created at line 1607.
+    Found 1-bit register for signal <Mtridata_s_locData<6>> created at line 1608.
+    Found 1-bit register for signal <Mtridata_s_locData<7>> created at line 1608.
+    Found 1-bit register for signal <Mtridata_s_locData<8>> created at line 1606.
+    Found 1-bit register for signal <Mtridata_s_locData<9>> created at line 1606.
     Found 1-bit register for signal <Mtridata_s_mainDTACK> created at line 478.
-    Found 1-bit register for signal <Mtridata_VME_BERR_n_o> created at line 1340.
-    Found 1-bit register for signal <Mtrien_s_locData<0>> created at line 1572.
-    Found 1-bit register for signal <Mtrien_s_locData<10>> created at line 1570.
-    Found 1-bit register for signal <Mtrien_s_locData<11>> created at line 1570.
-    Found 1-bit register for signal <Mtrien_s_locData<12>> created at line 1570.
-    Found 1-bit register for signal <Mtrien_s_locData<13>> created at line 1570.
-    Found 1-bit register for signal <Mtrien_s_locData<14>> created at line 1570.
-    Found 1-bit register for signal <Mtrien_s_locData<15>> created at line 1570.
-    Found 1-bit register for signal <Mtrien_s_locData<16>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<17>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<18>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<19>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<1>> created at line 1572.
-    Found 1-bit register for signal <Mtrien_s_locData<20>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<21>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<22>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<23>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<24>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<25>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<26>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<27>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<28>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<29>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<2>> created at line 1572.
-    Found 1-bit register for signal <Mtrien_s_locData<30>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<31>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<32>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<33>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<34>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<35>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<36>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<37>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<38>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<39>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<3>> created at line 1572.
-    Found 1-bit register for signal <Mtrien_s_locData<40>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<41>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<42>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<43>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<44>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<45>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<46>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<47>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<48>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<49>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<4>> created at line 1572.
-    Found 1-bit register for signal <Mtrien_s_locData<50>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<51>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<52>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<53>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<54>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<55>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<56>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<57>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<58>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<59>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<5>> created at line 1572.
-    Found 1-bit register for signal <Mtrien_s_locData<60>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<61>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<62>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<63>> created at line 1571.
-    Found 1-bit register for signal <Mtrien_s_locData<6>> created at line 1572.
-    Found 1-bit register for signal <Mtrien_s_locData<7>> created at line 1572.
-    Found 1-bit register for signal <Mtrien_s_locData<8>> created at line 1570.
-    Found 1-bit register for signal <Mtrien_s_locData<9>> created at line 1570.
+    Found 31-bit register for signal <Mtridata_VME_ADDR_b> created at line 1405.
+    Found 1-bit register for signal <Mtridata_VME_BERR_n_o> created at line 1349.
+    Found 32-bit register for signal <Mtridata_VME_DATA_b> created at line 1421.
+    Found 24-bit tristate buffer for signal <Mtridata_VME_DATA_b$mux0000<31:8>>.
+    Found 1-bit register for signal <Mtridata_VME_DTACK_n_o> created at line 1385.
+    Found 1-bit register for signal <Mtridata_VME_LWORD_n_b> created at line 1406.
+    Found 1-bit register for signal <Mtridata_VME_RETRY_n_o> created at line 1333.
+    Found 1-bit register for signal <Mtrien_s_locData<0>> created at line 1608.
+    Found 1-bit register for signal <Mtrien_s_locData<10>> created at line 1606.
+    Found 1-bit register for signal <Mtrien_s_locData<11>> created at line 1606.
+    Found 1-bit register for signal <Mtrien_s_locData<12>> created at line 1606.
+    Found 1-bit register for signal <Mtrien_s_locData<13>> created at line 1606.
+    Found 1-bit register for signal <Mtrien_s_locData<14>> created at line 1606.
+    Found 1-bit register for signal <Mtrien_s_locData<15>> created at line 1606.
+    Found 1-bit register for signal <Mtrien_s_locData<16>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<17>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<18>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<19>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<1>> created at line 1608.
+    Found 1-bit register for signal <Mtrien_s_locData<20>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<21>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<22>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<23>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<24>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<25>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<26>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<27>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<28>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<29>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<2>> created at line 1608.
+    Found 1-bit register for signal <Mtrien_s_locData<30>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<31>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<32>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<33>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<34>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<35>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<36>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<37>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<38>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<39>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<3>> created at line 1608.
+    Found 1-bit register for signal <Mtrien_s_locData<40>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<41>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<42>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<43>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<44>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<45>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<46>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<47>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<48>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<49>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<4>> created at line 1608.
+    Found 1-bit register for signal <Mtrien_s_locData<50>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<51>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<52>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<53>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<54>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<55>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<56>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<57>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<58>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<59>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<5>> created at line 1608.
+    Found 1-bit register for signal <Mtrien_s_locData<60>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<61>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<62>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<63>> created at line 1607.
+    Found 1-bit register for signal <Mtrien_s_locData<6>> created at line 1608.
+    Found 1-bit register for signal <Mtrien_s_locData<7>> created at line 1608.
+    Found 1-bit register for signal <Mtrien_s_locData<8>> created at line 1606.
+    Found 1-bit register for signal <Mtrien_s_locData<9>> created at line 1606.
     Found 1-bit register for signal <Mtrien_s_mainDTACK> created at line 478.
-    Found 1-bit register for signal <Mtrien_VME_BERR_n_o> created at line 1340.
+    Found 1-bit register for signal <Mtrien_VME_ADDR_b> created at line 1405.
+    Found 1-bit register for signal <Mtrien_VME_BERR_n_o> created at line 1349.
+    Found 1-bit register for signal <Mtrien_VME_DATA_b> created at line 1421.
+    Found 1-bit register for signal <Mtrien_VME_DTACK_n_o> created at line 1385.
+    Found 1-bit register for signal <Mtrien_VME_LWORD_n_b> created at line 1406.
+    Found 1-bit register for signal <Mtrien_VME_RETRY_n_o> created at line 1333.
     Found 4-bit register for signal <s_2eLatchAddr>.
     Found 1-bit register for signal <s_addrDir>.
     Found 1-bit register for signal <s_addrOE>.
     Found 18-bit register for signal <s_addrOffset>.
     Found 18-bit adder for signal <s_addrOffset$mux0006>.
-    Found 6-bit comparator equal for signal <s_AMmatch_0$cmp_eq0000> created at line 1750.
-    Found 8-bit comparator equal for signal <s_AMmatch_0$cmp_eq0001> created at line 1757.
-    Found 6-bit comparator equal for signal <s_AMmatch_1$cmp_eq0000> created at line 1750.
-    Found 8-bit comparator equal for signal <s_AMmatch_1$cmp_eq0001> created at line 1757.
-    Found 6-bit comparator equal for signal <s_AMmatch_2$cmp_eq0000> created at line 1750.
-    Found 8-bit comparator equal for signal <s_AMmatch_2$cmp_eq0001> created at line 1757.
-    Found 6-bit comparator equal for signal <s_AMmatch_3$cmp_eq0000> created at line 1750.
-    Found 8-bit comparator equal for signal <s_AMmatch_3$cmp_eq0001> created at line 1757.
-    Found 9-bit comparator less for signal <s_beatCountEnd$cmp_lt0000> created at line 1489.
+    Found 6-bit comparator equal for signal <s_AMmatch_0$cmp_eq0000> created at line 1786.
+    Found 8-bit comparator equal for signal <s_AMmatch_0$cmp_eq0001> created at line 1793.
+    Found 6-bit comparator equal for signal <s_AMmatch_1$cmp_eq0000> created at line 1786.
+    Found 8-bit comparator equal for signal <s_AMmatch_1$cmp_eq0001> created at line 1793.
+    Found 6-bit comparator equal for signal <s_AMmatch_2$cmp_eq0000> created at line 1786.
+    Found 8-bit comparator equal for signal <s_AMmatch_2$cmp_eq0001> created at line 1793.
+    Found 6-bit comparator equal for signal <s_AMmatch_3$cmp_eq0000> created at line 1786.
+    Found 8-bit comparator equal for signal <s_AMmatch_3$cmp_eq0001> created at line 1793.
+    Found 9-bit comparator less for signal <s_beatCountEnd$cmp_lt0000> created at line 1525.
     Found 1-bit register for signal <s_berr>.
     Found 1-bit register for signal <s_berr_1>.
     Found 1-bit register for signal <s_berr_2>.
     Found 8-bit register for signal <s_BitClrReg>.
     Found 8-bit register for signal <s_BitSetReg>.
-    Found 5-bit comparator equal for signal <s_confAccess$cmp_eq0000> created at line 1684.
-    Found 19-bit comparator greatequal for signal <s_CRaddressed$cmp_ge0000> created at line 1781.
-    Found 20-bit comparator lessequal for signal <s_CRaddressed$cmp_le0000> created at line 1781.
-    Found 19-bit comparator lessequal for signal <s_CRaddressed$cmp_le0001> created at line 1781.
-    Found 24-bit comparator less for signal <s_CRaddressed$cmp_lt0000> created at line 1781.
-    Found 1-bit xor2 for signal <s_CRaddressed$xor0000> created at line 1781.
-    Found 19-bit comparator greatequal for signal <s_CRAMaddressed$cmp_ge0000> created at line 1782.
-    Found 19-bit comparator lessequal for signal <s_CRAMaddressed$cmp_le0000> created at line 1782.
-    Found 24-bit comparator less for signal <s_CRAMaddressed$cmp_lt0000> created at line 1782.
+    Found 5-bit comparator equal for signal <s_confAccess$cmp_eq0000> created at line 1720.
+    Found 19-bit comparator greatequal for signal <s_CRaddressed$cmp_ge0000> created at line 1817.
+    Found 20-bit comparator lessequal for signal <s_CRaddressed$cmp_le0000> created at line 1817.
+    Found 19-bit comparator lessequal for signal <s_CRaddressed$cmp_le0001> created at line 1817.
+    Found 24-bit comparator less for signal <s_CRaddressed$cmp_lt0000> created at line 1817.
+    Found 1-bit xor2 for signal <s_CRaddressed$xor0000> created at line 1817.
+    Found 19-bit comparator greatequal for signal <s_CRAMaddressed$cmp_ge0000> created at line 1818.
+    Found 19-bit comparator lessequal for signal <s_CRAMaddressed$cmp_le0000> created at line 1818.
+    Found 24-bit comparator less for signal <s_CRAMaddressed$cmp_lt0000> created at line 1818.
     Found 400-bit register for signal <s_CRregArray<50:1>>.
-    Found 20-bit comparator greatequal for signal <s_CSRaddressed$cmp_ge0000> created at line 1780.
-    Found 19-bit comparator greatequal for signal <s_CSRaddressed$cmp_ge0001> created at line 1780.
-    Found 19-bit comparator lessequal for signal <s_CSRaddressed$cmp_le0000> created at line 1780.
-    Found 24-bit comparator less for signal <s_CSRaddressed$cmp_lt0000> created at line 1780.
-    Found 1-bit xor2 for signal <s_CSRaddressed$xor0000> created at line 1780.
+    Found 20-bit comparator greatequal for signal <s_CSRaddressed$cmp_ge0000> created at line 1816.
+    Found 19-bit comparator greatequal for signal <s_CSRaddressed$cmp_ge0001> created at line 1816.
+    Found 19-bit comparator lessequal for signal <s_CSRaddressed$cmp_le0000> created at line 1816.
+    Found 24-bit comparator less for signal <s_CSRaddressed$cmp_lt0000> created at line 1816.
+    Found 1-bit xor2 for signal <s_CSRaddressed$xor0000> created at line 1816.
     Found 232-bit register for signal <s_CSRarray<37:9>>.
     Found 32-bit register for signal <s_CSRarray<7:4>>.
     Found 8-bit register for signal <s_CSRarray<2>>.
@@ -638,37 +682,37 @@ INFO:Xst:2371 - HDL ADVISOR - Logic functions respectively driving the data and 
     Found 1-bit register for signal <s_DSlatch>.
     Found 2-bit register for signal <s_DSlatched>.
     Found 1-bit register for signal <s_dtackOE>.
-    Found 22-bit comparator equal for signal <s_funcMatch_0$cmp_eq0000> created at line 1692.
-    Found 54-bit comparator equal for signal <s_funcMatch_0$cmp_eq0001> created at line 1698.
-    Found 56-bit comparator equal for signal <s_funcMatch_0$cmp_eq0002> created at line 1704.
-    Found 24-bit comparator equal for signal <s_funcMatch_0$cmp_eq0003> created at line 1714.
-    Found 8-bit comparator equal for signal <s_funcMatch_0$cmp_eq0004> created at line 1731.
-    Found 22-bit comparator equal for signal <s_funcMatch_1$cmp_eq0000> created at line 1692.
-    Found 54-bit comparator equal for signal <s_funcMatch_1$cmp_eq0001> created at line 1698.
-    Found 56-bit comparator equal for signal <s_funcMatch_1$cmp_eq0002> created at line 1704.
-    Found 24-bit comparator equal for signal <s_funcMatch_1$cmp_eq0003> created at line 1714.
-    Found 8-bit comparator equal for signal <s_funcMatch_1$cmp_eq0004> created at line 1731.
-    Found 22-bit comparator equal for signal <s_funcMatch_2$cmp_eq0000> created at line 1692.
-    Found 54-bit comparator equal for signal <s_funcMatch_2$cmp_eq0001> created at line 1698.
-    Found 56-bit comparator equal for signal <s_funcMatch_2$cmp_eq0002> created at line 1704.
-    Found 24-bit comparator equal for signal <s_funcMatch_2$cmp_eq0003> created at line 1714.
-    Found 8-bit comparator equal for signal <s_funcMatch_2$cmp_eq0004> created at line 1731.
-    Found 22-bit comparator equal for signal <s_funcMatch_3$cmp_eq0000> created at line 1692.
-    Found 54-bit comparator equal for signal <s_funcMatch_3$cmp_eq0001> created at line 1698.
-    Found 56-bit comparator equal for signal <s_funcMatch_3$cmp_eq0002> created at line 1704.
-    Found 24-bit comparator equal for signal <s_funcMatch_3$cmp_eq0003> created at line 1714.
-    Found 8-bit comparator equal for signal <s_funcMatch_3$cmp_eq0004> created at line 1731.
-    Found 1-bit xor5 for signal <s_GAparityMatch$xor0000> created at line 1805.
-    Found 1-bit xor2 for signal <s_GAparityMatch$xor0001> created at line 1805.
+    Found 22-bit comparator equal for signal <s_funcMatch_0$cmp_eq0000> created at line 1728.
+    Found 54-bit comparator equal for signal <s_funcMatch_0$cmp_eq0001> created at line 1734.
+    Found 56-bit comparator equal for signal <s_funcMatch_0$cmp_eq0002> created at line 1740.
+    Found 24-bit comparator equal for signal <s_funcMatch_0$cmp_eq0003> created at line 1750.
+    Found 8-bit comparator equal for signal <s_funcMatch_0$cmp_eq0004> created at line 1767.
+    Found 22-bit comparator equal for signal <s_funcMatch_1$cmp_eq0000> created at line 1728.
+    Found 54-bit comparator equal for signal <s_funcMatch_1$cmp_eq0001> created at line 1734.
+    Found 56-bit comparator equal for signal <s_funcMatch_1$cmp_eq0002> created at line 1740.
+    Found 24-bit comparator equal for signal <s_funcMatch_1$cmp_eq0003> created at line 1750.
+    Found 8-bit comparator equal for signal <s_funcMatch_1$cmp_eq0004> created at line 1767.
+    Found 22-bit comparator equal for signal <s_funcMatch_2$cmp_eq0000> created at line 1728.
+    Found 54-bit comparator equal for signal <s_funcMatch_2$cmp_eq0001> created at line 1734.
+    Found 56-bit comparator equal for signal <s_funcMatch_2$cmp_eq0002> created at line 1740.
+    Found 24-bit comparator equal for signal <s_funcMatch_2$cmp_eq0003> created at line 1750.
+    Found 8-bit comparator equal for signal <s_funcMatch_2$cmp_eq0004> created at line 1767.
+    Found 22-bit comparator equal for signal <s_funcMatch_3$cmp_eq0000> created at line 1728.
+    Found 54-bit comparator equal for signal <s_funcMatch_3$cmp_eq0001> created at line 1734.
+    Found 56-bit comparator equal for signal <s_funcMatch_3$cmp_eq0002> created at line 1740.
+    Found 24-bit comparator equal for signal <s_funcMatch_3$cmp_eq0003> created at line 1750.
+    Found 8-bit comparator equal for signal <s_funcMatch_3$cmp_eq0004> created at line 1767.
+    Found 1-bit xor5 for signal <s_GAparityMatch$xor0000> created at line 1841.
+    Found 1-bit xor2 for signal <s_GAparityMatch$xor0001> created at line 1841.
     Found 1-bit register for signal <s_incrementAddr>.
     Found 1-bit register for signal <s_incrementAddr_1>.
     Found 1-bit register for signal <s_incrementAddrPulse>.
-    Found 6-bit comparator lessequal for signal <s_initInProgress$cmp_le0000> created at line 2186.
+    Found 6-bit comparator lessequal for signal <s_initInProgress$cmp_le0000> created at line 2222.
     Found 6-bit register for signal <s_initReadCounter>.
-    Found 6-bit adder for signal <s_initReadCounter$addsub0000> created at line 2154.
+    Found 6-bit adder for signal <s_initReadCounter$addsub0000> created at line 2190.
     Found 1-bit register for signal <s_latchCRdata>.
     Found 64-bit adder for signal <s_locAddr>.
-    Found 64-bit subtractor for signal <s_locAddr$addsub0000> created at line 1505.
+    Found 64-bit subtractor for signal <s_locAddr$addsub0000> created at line 1541.
     Found 64-bit tristate buffer for signal <s_locData>.
     Found 64-bit register for signal <s_locDataIn>.
     Found 64-bit tristate buffer for signal <s_locDataOut>.
@@ -696,16 +740,16 @@ INFO:Xst:738 - HDL ADVISOR - 296 flip-flops were inferred for signal <s_CSRarray
 	inferred   2 Finite State Machine(s).
 	inferred   2 ROM(s).
 	inferred   1 Counter(s).
-	inferred 1181 D-type flip-flop(s).
+	inferred 1252 D-type flip-flop(s).
 	inferred   5 Adder/Subtractor(s).
 	inferred  42 Comparator(s).
 	inferred   1 Xor(s).
-	inferred 196 Tristate(s).
+	inferred 220 Tristate(s).
 Unit <VME_bus> synthesized.
 
 
 Synthesizing Unit <IRQ_controller>.
-    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/IRQ_controller.vhd".
+    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/IRQ_controller.vhd".
 WARNING:Xst:647 - Input <VME_AS_n_i> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
     Register <s_IDtoData> equivalent to <IACKinProgress_o> has been removed
     Found finite state machine <FSM_3> for signal <s_IRQstate>.
@@ -741,7 +785,7 @@ Unit <IRQ_controller> synthesized.
 
 
 Synthesizing Unit <VME64xCore_Top>.
-    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.vhd".
+    Related source file is "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd".
 WARNING:Xst:1780 - Signal <s_IRQ> is never used or assigned. This unconnected signal will be trimmed during the optimization process.
 WARNING:Xst:646 - Signal <s_FIFOfull> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
 WARNING:Xst:646 - Signal <s_CRaddr<18:12>> is assigned but never used. This unconnected signal will be trimmed during the optimization process.
@@ -770,13 +814,13 @@ Macro Statistics
 # Counters                                             : 3
  8-bit up counter                                      : 1
  9-bit up counter                                      : 2
-# Registers                                            : 407
- 1-bit register                                        : 285
+# Registers                                            : 417
+ 1-bit register                                        : 293
  18-bit register                                       : 1
  2-bit register                                        : 7
  3-bit register                                        : 1
- 31-bit register                                       : 3
- 32-bit register                                       : 3
+ 31-bit register                                       : 4
+ 32-bit register                                       : 4
  4-bit register                                        : 1
  6-bit register                                        : 4
  63-bit register                                       : 1
@@ -799,9 +843,10 @@ Macro Statistics
  6-bit comparator lessequal                            : 1
  8-bit comparator equal                                : 10
  9-bit comparator less                                 : 3
-# Tristates                                            : 112
- 1-bit tristate buffer                                 : 110
+# Tristates                                            : 105
+ 1-bit tristate buffer                                 : 102
  31-bit tristate buffer                                : 1
+ 32-bit tristate buffer                                : 1
  64-bit tristate buffer                                : 1
 # Xors                                                 : 4
  1-bit xor2                                            : 3
@@ -889,6 +934,8 @@ Loading core <CR> for timing and area information for instance <CR_1>.
 Loading core <CRAM> for timing and area information for instance <CRAM_1>.
 Loading core <FIFO> for timing and area information for instance <FIFO_write>.
 Loading core <FIFO> for timing and area information for instance <FIFO_read>.
+INFO:Xst:2261 - The FF/Latch <Mtridata_VME_BERR_n_o> in Unit <VME_bus_1> is equivalent to the following FF/Latch, which will be removed : <Mtridata_VME_RETRY_n_o> 
+WARNING:Xst:638 - in unit VME_bus_1 Conflict on KEEP property on signal Mtridata_VME_BERR_n_o and Mtridata_VME_RETRY_n_o Mtridata_VME_RETRY_n_o signal will be lost.
 WARNING:Xst:1710 - FF/Latch <Mtridata_VME_BERR_n_o> (without init value) has a constant value of 0 in block <VME_bus_1>. This FF/Latch will be trimmed during the optimization process.
 WARNING:Xst:2677 - Node <s_2eLatchAddr_0> of sequential type is unconnected in block <VME_bus_1>.
 WARNING:Xst:2677 - Node <s_2eLatchAddr_3> of sequential type is unconnected in block <VME_bus_1>.
@@ -1012,8 +1059,8 @@ Macro Statistics
 # Counters                                             : 3
  8-bit up counter                                      : 1
  9-bit up counter                                      : 2
-# Registers                                            : 1550
- Flip-Flops                                            : 1550
+# Registers                                            : 1621
+ Flip-Flops                                            : 1621
 # Latches                                              : 1
  8-bit latch                                           : 1
 # Comparators                                          : 45
@@ -1041,6 +1088,8 @@ Macro Statistics
 *                         Low Level Synthesis                           *
 =========================================================================
 WARNING:Xst:1710 - FF/Latch <Mtridata_VME_BERR_n_o> (without init value) has a constant value of 0 in block <VME_bus>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1895 - Due to other FF/Latch trimming, FF/Latch <Mtridata_VME_RETRY_n_o> (without init value) has a constant value of 0 in block <VME_bus>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:638 - in unit VME_bus Conflict on KEEP property on signal Mtridata_VME_BERR_n_o and Mtridata_VME_RETRY_n_o Mtridata_VME_RETRY_n_o signal will be lost.
 INFO:Xst:2261 - The FF/Latch <s_sel_4> in Unit <VME_bus> is equivalent to the following 3 FFs/Latches, which will be removed : <s_sel_5> <s_sel_6> <s_sel_7> 
 INFO:Xst:2261 - The FF/Latch <ASfallingEdge/s_1> in Unit <VME_bus> is equivalent to the following FF/Latch, which will be removed : <ASrisingEdge/s_1> 
 INFO:Xst:2261 - The FF/Latch <ASfallingEdge/s_2> in Unit <VME_bus> is equivalent to the following FF/Latch, which will be removed : <ASrisingEdge/s_2> 
@@ -1055,7 +1104,7 @@ INFO:Xst:2261 - The FF/Latch <VME_bus_1/IACKINinputSample/s_2> in Unit <VME64xCo
 INFO:Xst:2261 - The FF/Latch <VME_bus_1/DSinputSample/reg_o_0> in Unit <VME64xCore_Top> is equivalent to the following FF/Latch, which will be removed : <IRQ_controller_1/DSinputSample/reg_o_0> 
 INFO:Xst:2261 - The FF/Latch <VME_bus_1/DSinputSample/reg_o_1> in Unit <VME64xCore_Top> is equivalent to the following 2 FFs/Latches, which will be removed : <IRQ_controller_1/DSinputSample/reg_o_1> <VME_bus_1/DS1oversmplingAndEdgeDetect/s_3> 
 INFO:Xst:2261 - The FF/Latch <VME_bus_1/IACKINinputSample/sig_o> in Unit <VME64xCore_Top> is equivalent to the following FF/Latch, which will be removed : <IRQ_controller_1/IACKINinputSample/sig_o> 
-WARNING:Xst:2042 - Unit VME64xCore_Top: 130 internal tristates are replaced by logic (pull-up yes): VME_bus_1/s_locData<0>, VME_bus_1/s_locData<10>, VME_bus_1/s_locData<11>, VME_bus_1/s_locData<12>, VME_bus_1/s_locData<13>, VME_bus_1/s_locData<14>, VME_bus_1/s_locData<15>, VME_bus_1/s_locData<16>, VME_bus_1/s_locData<17>, VME_bus_1/s_locData<18>, VME_bus_1/s_locData<19>, VME_bus_1/s_locData<1>, VME_bus_1/s_locData<20>, VME_bus_1/s_locData<21>, VME_bus_1/s_locData<22>, VME_bus_1/s_locData<23>, VME_bus_1/s_locData<24>, VME_bus_1/s_locData<25>, VME_bus_1/s_locData<26>, VME_bus_1/s_locData<27>, VME_bus_1/s_locData<28>, VME_bus_1/s_locData<29>, VME_bus_1/s_locData<2>, VME_bus_1/s_locData<30>, VME_bus_1/s_locData<31>, VME_bus_1/s_locData<32>, VME_bus_1/s_locData<33>, VME_bus_1/s_locData<34>, VME_bus_1/s_locData<35>, VME_bus_1/s_locData<36>, VME_bus_1/s_locData<37>, VME_bus_1/s_locData<38>, VME_bus_1/s_locData<39>, VME_bus_1/s_locData<3>, VME_bus_1/s_locData<40>, VME_bus_1/s_locData<41>, VME_bus_1/s_locData<42>, VME_bus_1/s_locData<43>, VME_bus_1/s_locData<44>, VME_bus_1/s_locData<45>, VME_bus_1/s_locData<46>, VME_bus_1/s_locData<47>, VME_bus_1/s_locData<48>, VME_bus_1/s_locData<49>, VME_bus_1/s_locData<4>, VME_bus_1/s_locData<50>, VME_bus_1/s_locData<51>, VME_bus_1/s_locData<52>, VME_bus_1/s_locData<53>, VME_bus_1/s_locData<54>, VME_bus_1/s_locData<55>, VME_bus_1/s_locData<56>, VME_bus_1/s_locData<57>, VME_bus_1/s_locData<58>, VME_bus_1/s_locData<59>, VME_bus_1/s_locData<5>, VME_bus_1/s_locData<60>, VME_bus_1/s_locData<61>, VME_bus_1/s_locData<62>, VME_bus_1/s_locData<63>, VME_bus_1/s_locData<6>, VME_bus_1/s_locData<7>, VME_bus_1/s_locData<8>, VME_bus_1/s_locData<9>, VME_bus_1/s_locDataOut<0>, VME_bus_1/s_locDataOut<10>, VME_bus_1/s_locDataOut<11>, VME_bus_1/s_locDataOut<12>, VME_bus_1/s_locDataOut<13>, VME_bus_1/s_locDataOut<14>, VME_bus_1/s_locDataOut<15>, VME_bus_1/s_locDataOut<16>, VME_bus_1/s_locDataOut<17>, VME_bus_1/s_locDataOut<18>, VME_bus_1/s_locDataOut<19>, VME_bus_1/s_locDataOut<1>, VME_bus_1/s_locDataOut<20>, VME_bus_1/s_locDataOut<21>, VME_bus_1/s_locDataOut<22>, VME_bus_1/s_locDataOut<23>, VME_bus_1/s_locDataOut<24>, VME_bus_1/s_locDataOut<25>, VME_bus_1/s_locDataOut<26>, VME_bus_1/s_locDataOut<27>, VME_bus_1/s_locDataOut<28>, VME_bus_1/s_locDataOut<29>, VME_bus_1/s_locDataOut<2>, VME_bus_1/s_locDataOut<30>, VME_bus_1/s_locDataOut<31>, VME_bus_1/s_locDataOut<32>, VME_bus_1/s_locDataOut<33>, VME_bus_1/s_locDataOut<34>, VME_bus_1/s_locDataOut<35>, VME_bus_1/s_locDataOut<36>, VME_bus_1/s_locDataOut<37>, VME_bus_1/s_locDataOut<38>, VME_bus_1/s_locDataOut<39>, VME_bus_1/s_locDataOut<3>, VME_bus_1/s_locDataOut<40>, VME_bus_1/s_locDataOut<41>, VME_bus_1/s_locDataOut<42>, VME_bus_1/s_locDataOut<43>, VME_bus_1/s_locDataOut<44>, VME_bus_1/s_locDataOut<45>, VME_bus_1/s_locDataOut<46>, VME_bus_1/s_locDataOut<47>, VME_bus_1/s_locDataOut<48>, VME_bus_1/s_locDataOut<49>, VME_bus_1/s_locDataOut<4>, VME_bus_1/s_locDataOut<50>, VME_bus_1/s_locDataOut<51>, VME_bus_1/s_locDataOut<52>, VME_bus_1/s_locDataOut<53>, VME_bus_1/s_locDataOut<54>, VME_bus_1/s_locDataOut<55>, VME_bus_1/s_locDataOut<56>, VME_bus_1/s_locDataOut<57>, VME_bus_1/s_locDataOut<58>, VME_bus_1/s_locDataOut<59>, VME_bus_1/s_locDataOut<5>, VME_bus_1/s_locDataOut<60>, VME_bus_1/s_locDataOut<61>, VME_bus_1/s_locDataOut<62>, VME_bus_1/s_locDataOut<63>, VME_bus_1/s_locDataOut<6>, VME_bus_1/s_locDataOut<7>, VME_bus_1/s_locDataOut<8>, VME_bus_1/s_locDataOut<9>, VME_bus_1/s_mainDTACK, s_irqDTACK.
+WARNING:Xst:2042 - Unit VME64xCore_Top: 154 internal tristates are replaced by logic (pull-up yes): VME_bus_1/Mtridata_VME_DATA_b_index0000, VME_bus_1/Mtridata_VME_DATA_b_index0001, VME_bus_1/Mtridata_VME_DATA_b_index0002, VME_bus_1/Mtridata_VME_DATA_b_index0003, VME_bus_1/Mtridata_VME_DATA_b_index0004, VME_bus_1/Mtridata_VME_DATA_b_index0005, VME_bus_1/Mtridata_VME_DATA_b_index0006, VME_bus_1/Mtridata_VME_DATA_b_index0007, VME_bus_1/Mtridata_VME_DATA_b_index0008, VME_bus_1/Mtridata_VME_DATA_b_index0009, VME_bus_1/Mtridata_VME_DATA_b_index0010, VME_bus_1/Mtridata_VME_DATA_b_index0011, VME_bus_1/Mtridata_VME_DATA_b_index0012, VME_bus_1/Mtridata_VME_DATA_b_index0013, VME_bus_1/Mtridata_VME_DATA_b_index0014, VME_bus_1/Mtridata_VME_DATA_b_index0015, VME_bus_1/Mtridata_VME_DATA_b_index0016, VME_bus_1/Mtridata_VME_DATA_b_index0017, VME_bus_1/Mtridata_VME_DATA_b_index0018, VME_bus_1/Mtridata_VME_DATA_b_index0019, VME_bus_1/Mtridata_VME_DATA_b_index0020, VME_bus_1/Mtridata_VME_DATA_b_index0021, VME_bus_1/Mtridata_VME_DATA_b_index0022, VME_bus_1/Mtridata_VME_DATA_b_index0023, VME_bus_1/Mtrien_VME_DTACK_n_o_mux0000_norst, VME_bus_1/s_locData<0>, VME_bus_1/s_locData<10>, VME_bus_1/s_locData<11>, VME_bus_1/s_locData<12>, VME_bus_1/s_locData<13>, VME_bus_1/s_locData<14>, VME_bus_1/s_locData<15>, VME_bus_1/s_locData<16>, VME_bus_1/s_locData<17>, VME_bus_1/s_locData<18>, VME_bus_1/s_locData<19>, VME_bus_1/s_locData<1>, VME_bus_1/s_locData<20>, VME_bus_1/s_locData<21>, VME_bus_1/s_locData<22>, VME_bus_1/s_locData<23>, VME_bus_1/s_locData<24>, VME_bus_1/s_locData<25>, VME_bus_1/s_locData<26>, VME_bus_1/s_locData<27>, VME_bus_1/s_locData<28>, VME_bus_1/s_locData<29>, VME_bus_1/s_locData<2>, VME_bus_1/s_locData<30>, VME_bus_1/s_locData<31>, VME_bus_1/s_locData<32>, VME_bus_1/s_locData<33>, VME_bus_1/s_locData<34>, VME_bus_1/s_locData<35>, VME_bus_1/s_locData<36>, VME_bus_1/s_locData<37>, VME_bus_1/s_locData<38>, VME_bus_1/s_locData<39>, VME_bus_1/s_locData<3>, VME_bus_1/s_locData<40>, VME_bus_1/s_locData<41>, VME_bus_1/s_locData<42>, VME_bus_1/s_locData<43>, VME_bus_1/s_locData<44>, VME_bus_1/s_locData<45>, VME_bus_1/s_locData<46>, VME_bus_1/s_locData<47>, VME_bus_1/s_locData<48>, VME_bus_1/s_locData<49>, VME_bus_1/s_locData<4>, VME_bus_1/s_locData<50>, VME_bus_1/s_locData<51>, VME_bus_1/s_locData<52>, VME_bus_1/s_locData<53>, VME_bus_1/s_locData<54>, VME_bus_1/s_locData<55>, VME_bus_1/s_locData<56>, VME_bus_1/s_locData<57>, VME_bus_1/s_locData<58>, VME_bus_1/s_locData<59>, VME_bus_1/s_locData<5>, VME_bus_1/s_locData<60>, VME_bus_1/s_locData<61>, VME_bus_1/s_locData<62>, VME_bus_1/s_locData<63>, VME_bus_1/s_locData<6>, VME_bus_1/s_locData<7>, VME_bus_1/s_locData<8>, VME_bus_1/s_locData<9>, VME_bus_1/s_locDataOut<0>, VME_bus_1/s_locDataOut<10>, VME_bus_1/s_locDataOut<11>, VME_bus_1/s_locDataOut<12>, VME_bus_1/s_locDataOut<13>, VME_bus_1/s_locDataOut<14>, VME_bus_1/s_locDataOut<15>, VME_bus_1/s_locDataOut<16>, VME_bus_1/s_locDataOut<17>, VME_bus_1/s_locDataOut<18>, VME_bus_1/s_locDataOut<19>, VME_bus_1/s_locDataOut<1>, VME_bus_1/s_locDataOut<20>, VME_bus_1/s_locDataOut<21>, VME_bus_1/s_locDataOut<22>, VME_bus_1/s_locDataOut<23>, VME_bus_1/s_locDataOut<24>, VME_bus_1/s_locDataOut<25>, VME_bus_1/s_locDataOut<26>, VME_bus_1/s_locDataOut<27>, VME_bus_1/s_locDataOut<28>, VME_bus_1/s_locDataOut<29>, VME_bus_1/s_locDataOut<2>, VME_bus_1/s_locDataOut<30>, VME_bus_1/s_locDataOut<31>, VME_bus_1/s_locDataOut<32>, VME_bus_1/s_locDataOut<33>, VME_bus_1/s_locDataOut<34>, VME_bus_1/s_locDataOut<35>, VME_bus_1/s_locDataOut<36>, VME_bus_1/s_locDataOut<37>, VME_bus_1/s_locDataOut<38>, VME_bus_1/s_locDataOut<39>, VME_bus_1/s_locDataOut<3>, VME_bus_1/s_locDataOut<40>, VME_bus_1/s_locDataOut<41>, VME_bus_1/s_locDataOut<42>, VME_bus_1/s_locDataOut<43>, VME_bus_1/s_locDataOut<44>, VME_bus_1/s_locDataOut<45>, VME_bus_1/s_locDataOut<46>, VME_bus_1/s_locDataOut<47>, VME_bus_1/s_locDataOut<48>, VME_bus_1/s_locDataOut<49>, VME_bus_1/s_locDataOut<4>, VME_bus_1/s_locDataOut<50>, VME_bus_1/s_locDataOut<51>, VME_bus_1/s_locDataOut<52>, VME_bus_1/s_locDataOut<53>, VME_bus_1/s_locDataOut<54>, VME_bus_1/s_locDataOut<55>, VME_bus_1/s_locDataOut<56>, VME_bus_1/s_locDataOut<57>, VME_bus_1/s_locDataOut<58>, VME_bus_1/s_locDataOut<59>, VME_bus_1/s_locDataOut<5>, VME_bus_1/s_locDataOut<60>, VME_bus_1/s_locDataOut<61>, VME_bus_1/s_locDataOut<62>, VME_bus_1/s_locDataOut<63>, VME_bus_1/s_locDataOut<6>, VME_bus_1/s_locDataOut<7>, VME_bus_1/s_locDataOut<8>, VME_bus_1/s_locDataOut<9>, s_irqDTACK.
 
 Optimizing unit <VME64xCore_Top> ...
 WARNING:Xst:1710 - FF/Latch <VME_bus_1/s_sel_0> (without init value) has a constant value of 1 in block <VME64xCore_Top>. This FF/Latch will be trimmed during the optimization process.
@@ -1086,7 +1135,6 @@ INFO:Xst:2260 - The FF/Latch <U0/grf.rf/gl0.wr/gwss.wsts/ram_full_fb_i> in Unit 
 INFO:Xst:2260 - The FF/Latch <U0/grf.rf/gl0.rd/grss.rsts/ram_empty_i> in Unit <BU2> is equivalent to the following FF/Latch : <U0/grf.rf/gl0.rd/grss.rsts/ram_empty_fb_i> 
 INFO:Xst:2260 - The FF/Latch <U0/grf.rf/rstblk/rd_rst_reg_2> in Unit <BU2> is equivalent to the following FF/Latch : <U0/grf.rf/rstblk/rd_rst_reg_0> 
 FlipFlop VME_bus_1/AMinputSample/reg_o_1 has been replicated 1 time(s)
-FlipFlop VME_bus_1/AMinputSample/reg_o_3 has been replicated 1 time(s)
 FlipFlop VME_bus_1/AMinputSample/reg_o_4 has been replicated 1 time(s)
 FlipFlop VME_bus_1/AMinputSample/reg_o_5 has been replicated 1 time(s)
 FlipFlop VME_bus_1/s_DSlatched_1 has been replicated 1 time(s)
@@ -1103,11 +1151,11 @@ Processing Unit <VME64xCore_Top> :
 	Found 2-bit shift register for signal <VME_bus_1/DSinputSample/reg_2_1>.
 	Found 3-bit shift register for signal <VME_bus_1/DSinputSample/reg_o_0>.
 	Found 2-bit shift register for signal <VME_bus_1/ASfallingEdge/s_2>.
+	Found 3-bit shift register for signal <VME_bus_1/AMinputSample/reg_o_3>.
 	Found 3-bit shift register for signal <VME_bus_1/AMinputSample/reg_o_2>.
 	Found 3-bit shift register for signal <VME_bus_1/AMinputSample/reg_o_0>.
 	Found 2-bit shift register for signal <VME_bus_1/AMinputSample/reg_2_5>.
 	Found 2-bit shift register for signal <VME_bus_1/AMinputSample/reg_2_4>.
-	Found 2-bit shift register for signal <VME_bus_1/AMinputSample/reg_2_3>.
 	Found 2-bit shift register for signal <VME_bus_1/AMinputSample/reg_2_1>.
 	Found 3-bit shift register for signal <VME_bus_1/DATAinputSample/reg_o_31>.
 	Found 3-bit shift register for signal <VME_bus_1/DATAinputSample/reg_o_30>.
@@ -1194,11 +1242,11 @@ Unit <VME64xCore_Top> processed.
 Final Register Report
 
 Macro Statistics
-# Registers                                            : 1330
- Flip-Flops                                            : 1330
+# Registers                                            : 1398
+ Flip-Flops                                            : 1398
 # Shift Registers                                      : 93
- 2-bit shift register                                  : 6
- 3-bit shift register                                  : 87
+ 2-bit shift register                                  : 5
+ 3-bit shift register                                  : 88
 
 =========================================================================
 
@@ -1227,30 +1275,30 @@ Design Statistics
 # IOs                              : 310
 
 Cell Usage :
-# BELS                             : 3508
+# BELS                             : 3502
 #      GND                         : 5
-#      INV                         : 24
+#      INV                         : 25
 #      LUT1                        : 129
-#      LUT2                        : 239
-#      LUT3                        : 607
-#      LUT4                        : 350
-#      LUT5                        : 589
-#      LUT6                        : 694
+#      LUT2                        : 236
+#      LUT3                        : 592
+#      LUT4                        : 401
+#      LUT5                        : 562
+#      LUT6                        : 689
 #      MUXCY                       : 573
-#      MUXF7                       : 20
+#      MUXF7                       : 12
 #      VCC                         : 5
 #      XORCY                       : 273
-# FlipFlops/Latches                : 1523
-#      FD                          : 31
+# FlipFlops/Latches                : 1591
+#      FD                          : 62
 #      FDCE                        : 60
 #      FDE                         : 736
 #      FDP                         : 16
 #      FDPE                        : 8
-#      FDR                         : 61
+#      FDR                         : 66
 #      FDRE                        : 573
 #      FDRS                        : 21
 #      FDRSE                       : 2
-#      FDS                         : 6
+#      FDS                         : 38
 #      FDSE                        : 1
 #      LD                          : 8
 # RAMS                             : 4
@@ -1275,18 +1323,18 @@ Selected Device : 5vlx20tff323-2
 
 
 Slice Logic Utilization: 
- Number of Slice Registers:            1523  out of  12480    12%  
- Number of Slice LUTs:                 2725  out of  12480    21%  
-    Number used as Logic:              2632  out of  12480    21%  
+ Number of Slice Registers:            1591  out of  12480    12%  
+ Number of Slice LUTs:                 2727  out of  12480    21%  
+    Number used as Logic:              2634  out of  12480    21%  
     Number used as Memory:               93  out of   3360     2%  
        Number used as SRL:               93
 
 Slice Logic Distribution: 
- Number of LUT Flip Flop pairs used:   3070
-   Number with an unused Flip Flop:    1547  out of   3070    50%  
-   Number with an unused LUT:           345  out of   3070    11%  
-   Number of fully used LUT-FF pairs:  1178  out of   3070    38%  
-   Number of unique control sets:       169
+ Number of LUT Flip Flop pairs used:   3092
+   Number with an unused Flip Flop:    1501  out of   3092    48%  
+   Number with an unused LUT:           365  out of   3092    11%  
+   Number of fully used LUT-FF pairs:  1226  out of   3092    39%  
+   Number of unique control sets:       182
 
 IO Utilization: 
  Number of IOs:                         310
@@ -1317,13 +1365,13 @@ NOTE: THESE TIMING NUMBERS ARE ONLY A SYNTHESIS ESTIMATE.
 
 Clock Information:
 ------------------
-----------------------------------------------------------+------------------------------------------------------------------------------------------------+-------+
-Clock Signal                                              | Clock buffer(FF name)                                                                          | Load  |
-----------------------------------------------------------+------------------------------------------------------------------------------------------------+-------+
-clk_i                                                     | BUFGP                                                                                          | 1612  |
-CR_1/BU2/dbiterr                                          | NONE(CR_1/BU2/U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM36.SP)| 1     |
-VME_bus_1/s_CSRdata_not0001(VME_bus_1/s_CSRdata_not0001:O)| NONE(*)(VME_bus_1/s_CSRdata_7)                                                                 | 8     |
-----------------------------------------------------------+------------------------------------------------------------------------------------------------+-------+
+-------------------------------------------------------------+------------------------------------------------------------------------------------------------+-------+
+Clock Signal                                                 | Clock buffer(FF name)                                                                          | Load  |
+-------------------------------------------------------------+------------------------------------------------------------------------------------------------+-------+
+clk_i                                                        | BUFGP                                                                                          | 1680  |
+CR_1/BU2/dbiterr                                             | NONE(CR_1/BU2/U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM36.SP)| 1     |
+VME_bus_1/s_CSRdata_not0001(VME_bus_1/s_CSRdata_not0001_f7:O)| NONE(*)(VME_bus_1/s_CSRdata_7)                                                                 | 8     |
+-------------------------------------------------------------+------------------------------------------------------------------------------------------------+-------+
 (*) This 1 clock signal(s) are generated by combinatorial logic,
 and XST is not able to identify which are the primary clock signals.
 Please use the CLOCK_SIGNAL constraint to specify the clock signal(s) generated by combinatorial logic.
@@ -1352,9 +1400,9 @@ Timing Summary:
 ---------------
 Speed Grade: -2
 
-   Minimum period: 8.971ns (Maximum Frequency: 111.472MHz)
+   Minimum period: 8.970ns (Maximum Frequency: 111.481MHz)
    Minimum input arrival time before clock: 3.162ns
-   Maximum output required time after clock: 10.980ns
+   Maximum output required time after clock: 10.979ns
    Maximum combinational path delay: 4.775ns
 
 Timing Detail:
@@ -1363,22 +1411,22 @@ All values displayed in nanoseconds (ns)
 
 =========================================================================
 Timing constraint: Default period analysis for Clock 'clk_i'
-  Clock period: 8.971ns (frequency: 111.472MHz)
-  Total number of paths / destination ports: 548695742 / 3554
+  Clock period: 8.970ns (frequency: 111.480MHz)
+  Total number of paths / destination ports: 548672162 / 3658
 -------------------------------------------------------------------------
-Delay:               8.971ns (Levels of Logic = 49)
-  Source:            VME_bus_1/AMinputSample/reg_o_3_1 (FF)
+Delay:               8.970ns (Levels of Logic = 49)
+  Source:            VME_bus_1/AMinputSample/reg_o_5_1 (FF)
   Destination:       VME_bus_1/Mtridata_s_locData<6> (FF)
   Source Clock:      clk_i rising
   Destination Clock: clk_i rising
 
-  Data Path: VME_bus_1/AMinputSample/reg_o_3_1 to VME_bus_1/Mtridata_s_locData<6>
+  Data Path: VME_bus_1/AMinputSample/reg_o_5_1 to VME_bus_1/Mtridata_s_locData<6>
                                 Gate     Net
     Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
     ----------------------------------------  ------------
-     FD:C->Q               3   0.396   0.828  VME_bus_1/AMinputSample/reg_o_3_1 (VME_bus_1/AMinputSample/reg_o_3_1)
-     LUT5:I0->O           22   0.086   0.583  VME_bus_1/s_addrWidth_or00001 (VME_bus_1/s_addrWidth<0>)
-     LUT3:I1->O            1   0.086   0.000  VME_bus_1/Msub_s_locAddr_addsub0000_lut<24> (VME_bus_1/Msub_s_locAddr_addsub0000_lut<24>)
+     FD:C->Q               3   0.396   0.910  VME_bus_1/AMinputSample/reg_o_5_1 (VME_bus_1/AMinputSample/reg_o_5_1)
+     LUT6:I0->O           20   0.086   0.500  VME_bus_1/s_addrWidth_or00011 (VME_bus_1/s_addrWidth<1>)
+     LUT3:I2->O            1   0.086   0.000  VME_bus_1/Msub_s_locAddr_addsub0000_lut<24> (VME_bus_1/Msub_s_locAddr_addsub0000_lut<24>)
      MUXCY:S->O            1   0.305   0.000  VME_bus_1/Msub_s_locAddr_addsub0000_cy<24> (VME_bus_1/Msub_s_locAddr_addsub0000_cy<24>)
      MUXCY:CI->O           1   0.023   0.000  VME_bus_1/Msub_s_locAddr_addsub0000_cy<25> (VME_bus_1/Msub_s_locAddr_addsub0000_cy<25>)
      MUXCY:CI->O           1   0.023   0.000  VME_bus_1/Msub_s_locAddr_addsub0000_cy<26> (VME_bus_1/Msub_s_locAddr_addsub0000_cy<26>)
@@ -1417,7 +1465,7 @@ Delay:               8.971ns (Levels of Logic = 49)
      LUT6:I5->O            1   0.086   0.000  VME_bus_1/s_locAddr_mux0000<58>1 (VME_bus_1/s_locAddr_mux0000<58>)
      MUXCY:S->O            1   0.305   0.000  VME_bus_1/Madd_s_locAddr_cy<58> (VME_bus_1/Madd_s_locAddr_cy<58>)
      XORCY:CI->O          14   0.300   0.472  VME_bus_1/Madd_s_locAddr_xor<59> (s_locAddr<59>)
-     LUT5:I4->O            1   0.086   0.487  VME_bus_1/Mcompar_s_funcMatch_0_cmp_eq0002_lut<17>_SW1 (N626)
+     LUT5:I4->O            1   0.086   0.487  VME_bus_1/Mcompar_s_funcMatch_0_cmp_eq0002_lut<17>_SW1 (N625)
      LUT6:I4->O            1   0.086   0.000  VME_bus_1/Mcompar_s_funcMatch_0_cmp_eq0002_lut<17> (VME_bus_1/Mcompar_s_funcMatch_0_cmp_eq0002_lut<17>)
      MUXCY:S->O            1   0.305   0.000  VME_bus_1/Mcompar_s_funcMatch_0_cmp_eq0002_cy<17> (VME_bus_1/Mcompar_s_funcMatch_0_cmp_eq0002_cy<17>)
      MUXCY:CI->O           1   0.222   0.487  VME_bus_1/Mcompar_s_funcMatch_0_cmp_eq0002_cy<18> (VME_bus_1/s_funcMatch_0_cmp_eq0002)
@@ -1428,12 +1476,12 @@ Delay:               8.971ns (Levels of Logic = 49)
      LUT4:I3->O            1   0.086   0.000  VME_bus_1/Mtridata_s_locData<63>_mux00001 (VME_bus_1/Mtridata_s_locData<63>_mux0000)
      FDE:D                    -0.022          VME_bus_1/Mtridata_s_locData<63>
     ----------------------------------------
-    Total                      8.971ns (3.743ns logic, 5.227ns route)
+    Total                      8.970ns (3.743ns logic, 5.227ns route)
                                        (41.7% logic, 58.3% route)
 
 =========================================================================
 Timing constraint: Default OFFSET IN BEFORE for Clock 'clk_i'
-  Total number of paths / destination ports: 543 / 513
+  Total number of paths / destination ports: 544 / 514
 -------------------------------------------------------------------------
 Offset:              3.162ns (Levels of Logic = 5)
   Source:            ACK_i (PAD)
@@ -1457,20 +1505,20 @@ Offset:              3.162ns (Levels of Logic = 5)
 
 =========================================================================
 Timing constraint: Default OFFSET OUT AFTER for Clock 'clk_i'
-  Total number of paths / destination ports: 8832749 / 219
+  Total number of paths / destination ports: 8832457 / 219
 -------------------------------------------------------------------------
-Offset:              10.980ns (Levels of Logic = 49)
-  Source:            VME_bus_1/AMinputSample/reg_o_3_1 (FF)
+Offset:              10.979ns (Levels of Logic = 49)
+  Source:            VME_bus_1/AMinputSample/reg_o_5_1 (FF)
   Destination:       CYC_o (PAD)
   Source Clock:      clk_i rising
 
-  Data Path: VME_bus_1/AMinputSample/reg_o_3_1 to CYC_o
+  Data Path: VME_bus_1/AMinputSample/reg_o_5_1 to CYC_o
                                 Gate     Net
     Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
     ----------------------------------------  ------------
-     FD:C->Q               3   0.396   0.828  VME_bus_1/AMinputSample/reg_o_3_1 (VME_bus_1/AMinputSample/reg_o_3_1)
-     LUT5:I0->O           22   0.086   0.583  VME_bus_1/s_addrWidth_or00001 (VME_bus_1/s_addrWidth<0>)
-     LUT3:I1->O            1   0.086   0.000  VME_bus_1/Msub_s_locAddr_addsub0000_lut<24> (VME_bus_1/Msub_s_locAddr_addsub0000_lut<24>)
+     FD:C->Q               3   0.396   0.910  VME_bus_1/AMinputSample/reg_o_5_1 (VME_bus_1/AMinputSample/reg_o_5_1)
+     LUT6:I0->O           20   0.086   0.500  VME_bus_1/s_addrWidth_or00011 (VME_bus_1/s_addrWidth<1>)
+     LUT3:I2->O            1   0.086   0.000  VME_bus_1/Msub_s_locAddr_addsub0000_lut<24> (VME_bus_1/Msub_s_locAddr_addsub0000_lut<24>)
      MUXCY:S->O            1   0.305   0.000  VME_bus_1/Msub_s_locAddr_addsub0000_cy<24> (VME_bus_1/Msub_s_locAddr_addsub0000_cy<24>)
      MUXCY:CI->O           1   0.023   0.000  VME_bus_1/Msub_s_locAddr_addsub0000_cy<25> (VME_bus_1/Msub_s_locAddr_addsub0000_cy<25>)
      MUXCY:CI->O           1   0.023   0.000  VME_bus_1/Msub_s_locAddr_addsub0000_cy<26> (VME_bus_1/Msub_s_locAddr_addsub0000_cy<26>)
@@ -1509,7 +1557,7 @@ Offset:              10.980ns (Levels of Logic = 49)
      LUT6:I5->O            1   0.086   0.000  VME_bus_1/s_locAddr_mux0000<58>1 (VME_bus_1/s_locAddr_mux0000<58>)
      MUXCY:S->O            1   0.305   0.000  VME_bus_1/Madd_s_locAddr_cy<58> (VME_bus_1/Madd_s_locAddr_cy<58>)
      XORCY:CI->O          14   0.300   0.472  VME_bus_1/Madd_s_locAddr_xor<59> (s_locAddr<59>)
-     LUT5:I4->O            1   0.086   0.487  VME_bus_1/Mcompar_s_funcMatch_0_cmp_eq0002_lut<17>_SW1 (N626)
+     LUT5:I4->O            1   0.086   0.487  VME_bus_1/Mcompar_s_funcMatch_0_cmp_eq0002_lut<17>_SW1 (N625)
      LUT6:I4->O            1   0.086   0.000  VME_bus_1/Mcompar_s_funcMatch_0_cmp_eq0002_lut<17> (VME_bus_1/Mcompar_s_funcMatch_0_cmp_eq0002_lut<17>)
      MUXCY:S->O            1   0.305   0.000  VME_bus_1/Mcompar_s_funcMatch_0_cmp_eq0002_cy<17> (VME_bus_1/Mcompar_s_funcMatch_0_cmp_eq0002_cy<17>)
      MUXCY:CI->O           1   0.222   0.487  VME_bus_1/Mcompar_s_funcMatch_0_cmp_eq0002_cy<18> (VME_bus_1/s_funcMatch_0_cmp_eq0002)
@@ -1519,12 +1567,12 @@ Offset:              10.980ns (Levels of Logic = 49)
      LUT4:I2->O            1   0.086   0.286  WB_bus_1/CYC_o1 (CYC_o_OBUF)
      OBUF:I->O                 2.144          CYC_o_OBUF (CYC_o)
     ----------------------------------------
-    Total                     10.980ns (5.801ns logic, 5.179ns route)
+    Total                     10.979ns (5.801ns logic, 5.178ns route)
                                        (52.8% logic, 47.2% route)
 
 =========================================================================
 Timing constraint: Default path analysis
-  Total number of paths / destination ports: 2 / 2
+  Total number of paths / destination ports: 1 / 1
 -------------------------------------------------------------------------
 Delay:               4.775ns (Levels of Logic = 5)
   Source:            ERR_i (PAD)
@@ -1546,14 +1594,14 @@ Delay:               4.775ns (Levels of Logic = 5)
 =========================================================================
 
 
-Total REAL time to Xst completion: 53.00 secs
-Total CPU time to Xst completion: 53.41 secs
+Total REAL time to Xst completion: 56.00 secs
+Total CPU time to Xst completion: 56.60 secs
  
 --> 
 
-Total memory usage is 436732 kilobytes
+Total memory usage is 443452 kilobytes
 
 Number of errors   :    0 (   0 filtered)
-Number of warnings :  144 (   0 filtered)
-Number of infos    :   36 (   0 filtered)
+Number of warnings :  174 (   0 filtered)
+Number of infos    :   37 (   0 filtered)
 

@@ -5,38 +5,119 @@
      behavior or data corruption.  It is strongly advised that
      users do not edit the contents of this file. -->
 <messages>
-<msg type="warning" file="Xst" num="2211" delta="old" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.vhd</arg>&quot; line <arg fmt="%d" index="2">428</arg>: Instantiating black box module &lt;<arg fmt="%s" index="3">CR</arg>&gt;.
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/VME64xCore_Top</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd</arg>&quot;.
 </msg>
 
-<msg type="warning" file="Xst" num="2211" delta="old" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.vhd</arg>&quot; line <arg fmt="%d" index="2">436</arg>: Instantiating black box module &lt;<arg fmt="%s" index="3">CRAM</arg>&gt;.
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/VME64xCore_Top/RTL</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd</arg>&quot;.
 </msg>
 
-<msg type="warning" file="Xst" num="2211" delta="old" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.vhd</arg>&quot; line <arg fmt="%d" index="2">445</arg>: Instantiating black box module &lt;<arg fmt="%s" index="3">FIFO</arg>&gt;.
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/CRAM</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/ipcore_dir/CRAM.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/IP_cores/CRAM.vhd</arg>&quot;.
 </msg>
 
-<msg type="warning" file="Xst" num="753" delta="old" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.vhd</arg>&quot; line <arg fmt="%d" index="2">457</arg>: Unconnected output port &apos;<arg fmt="%s" index="3">full</arg>&apos; of component &apos;<arg fmt="%s" index="4">FIFO</arg>&apos;.
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/CRAM/CRAM_a</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/ipcore_dir/CRAM.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/IP_cores/CRAM.vhd</arg>&quot;.
 </msg>
 
-<msg type="warning" file="Xst" num="2211" delta="old" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.vhd</arg>&quot; line <arg fmt="%d" index="2">457</arg>: Instantiating black box module &lt;<arg fmt="%s" index="3">FIFO</arg>&gt;.
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/FIFO</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/ipcore_dir/FIFO.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/IP_cores/FIFO.vhd</arg>&quot;.
 </msg>
 
-<msg type="warning" file="Xst" num="819" delta="old" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_bus.vhd</arg>&quot; line <arg fmt="%d" index="2">1686</arg>: One or more signals are missing in the process sensitivity list. To enable synthesis of FPGA/CPLD hardware, XST will assume that all necessary signals are present in the sensitivity list. Please note that the result of the synthesis may differ from the initial design specification. The missing signals are:
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/FIFO/FIFO_a</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/ipcore_dir/FIFO.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/IP_cores/FIFO.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/IRQ_controller</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/IRQ_controller.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/IRQ_controller.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/IRQ_controller/RTL</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/IRQ_controller.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/IRQ_controller.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/VME_bus</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_bus.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/VME_bus/RTL</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_bus.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/WB_bus</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/WB_bus.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/WB_bus.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/WB_bus/RTL</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/WB_bus.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/WB_bus.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/SigInputSample</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/SigInputSample/RTL</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/RisEdgeDetection</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/RisEdgeDetection/RTL</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/SigInputSampleAndFallingEdgeDetection</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/SigInputSampleAndFallingEdgeDetection/RTL</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/SigInputSampleAndRisingEdgeDetection</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/SigInputSampleAndRisingEdgeDetection/RTL</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/SigInputSampleAndEdgeDetection</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/SigInputSampleAndEdgeDetection/RTL</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/RegInputSample</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/RegInputSample/RTL</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/VME_pack</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_pack.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_pack.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/CR</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/ipcore_dir/CR.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/IP_cores/CR.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/CR/CR_a</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/ipcore_dir/CR.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/IP_cores/CR.vhd</arg>&quot;.
+</msg>
+
+<msg type="warning" file="Xst" num="2211" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd</arg>&quot; line <arg fmt="%d" index="2">428</arg>: Instantiating black box module &lt;<arg fmt="%s" index="3">CR</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2211" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd</arg>&quot; line <arg fmt="%d" index="2">436</arg>: Instantiating black box module &lt;<arg fmt="%s" index="3">CRAM</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2211" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd</arg>&quot; line <arg fmt="%d" index="2">445</arg>: Instantiating black box module &lt;<arg fmt="%s" index="3">FIFO</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="753" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd</arg>&quot; line <arg fmt="%d" index="2">457</arg>: Unconnected output port &apos;<arg fmt="%s" index="3">full</arg>&apos; of component &apos;<arg fmt="%s" index="4">FIFO</arg>&apos;.
+</msg>
+
+<msg type="warning" file="Xst" num="2211" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd</arg>&quot; line <arg fmt="%d" index="2">457</arg>: Instantiating black box module &lt;<arg fmt="%s" index="3">FIFO</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="819" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd</arg>&quot; line <arg fmt="%d" index="2">1722</arg>: One or more signals are missing in the process sensitivity list. To enable synthesis of FPGA/CPLD hardware, XST will assume that all necessary signals are present in the sensitivity list. Please note that the result of the synthesis may differ from the initial design specification. The missing signals are:
 <arg fmt="%s" index="3">&lt;s_addrWidth&gt;, &lt;s_addressingType&gt;, &lt;s_XAMtype&gt;, &lt;s_FUNC_ADER&gt;, &lt;s_FUNC_ADEM&gt;, &lt;s_locAddr&gt;</arg>
 </msg>
 
-<msg type="info" file="Xst" num="1561" delta="old" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_bus.vhd</arg>&quot; line <arg fmt="%d" index="2">1760</arg>: Mux is complete : default of case is discarded
+<msg type="info" file="Xst" num="1561" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd</arg>&quot; line <arg fmt="%d" index="2">1796</arg>: Mux is complete : default of case is discarded
 </msg>
 
-<msg type="info" file="Xst" num="1561" delta="old" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_bus.vhd</arg>&quot; line <arg fmt="%d" index="2">1760</arg>: Mux is complete : default of case is discarded
+<msg type="info" file="Xst" num="1561" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd</arg>&quot; line <arg fmt="%d" index="2">1796</arg>: Mux is complete : default of case is discarded
 </msg>
 
-<msg type="info" file="Xst" num="1561" delta="old" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_bus.vhd</arg>&quot; line <arg fmt="%d" index="2">1760</arg>: Mux is complete : default of case is discarded
+<msg type="info" file="Xst" num="1561" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd</arg>&quot; line <arg fmt="%d" index="2">1796</arg>: Mux is complete : default of case is discarded
 </msg>
 
-<msg type="info" file="Xst" num="1561" delta="old" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_bus.vhd</arg>&quot; line <arg fmt="%d" index="2">1760</arg>: Mux is complete : default of case is discarded
+<msg type="info" file="Xst" num="1561" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd</arg>&quot; line <arg fmt="%d" index="2">1796</arg>: Mux is complete : default of case is discarded
 </msg>
 
-<msg type="warning" file="Xst" num="819" delta="old" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_bus.vhd</arg>&quot; line <arg fmt="%d" index="2">1745</arg>: One or more signals are missing in the process sensitivity list. To enable synthesis of FPGA/CPLD hardware, XST will assume that all necessary signals are present in the sensitivity list. Please note that the result of the synthesis may differ from the initial design specification. The missing signals are:
+<msg type="warning" file="Xst" num="819" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd</arg>&quot; line <arg fmt="%d" index="2">1781</arg>: One or more signals are missing in the process sensitivity list. To enable synthesis of FPGA/CPLD hardware, XST will assume that all necessary signals are present in the sensitivity list. Please note that the result of the synthesis may differ from the initial design specification. The missing signals are:
 <arg fmt="%s" index="3">&lt;s_FUNC_ADER&gt;, &lt;VME_AM_oversampled&gt;, &lt;s_addressingType&gt;, &lt;s_XAM&gt;</arg>
 </msg>
 
@@ -148,6 +229,12 @@ This instance will be removed from the design along with all underlying logic
 
 <msg type="warning" file="Xst" num="524" delta="old" >All outputs of the instance &lt;<arg fmt="%s" index="1">ASinputSample</arg>&gt; of the block &lt;<arg fmt="%s" index="2">SigInputSample</arg>&gt; are unconnected in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;.
 This instance will be removed from the design along with all underlying logic
+</msg>
+
+<msg type="info" file="Xst" num="2261" delta="new" >The FF/Latch &lt;<arg fmt="%s" index="1">Mtridata_VME_BERR_n_o</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg>, which will be removed : <arg fmt="%s" index="4">&lt;Mtridata_VME_RETRY_n_o&gt; </arg>
+</msg>
+
+<msg type="warning" file="Xst" num="638" delta="new" >in unit <arg fmt="%s" index="1">VME_bus_1</arg> Conflict on KEEP property on signal <arg fmt="%s" index="2">Mtridata_VME_BERR_n_o</arg> and <arg fmt="%s" index="3">Mtridata_VME_RETRY_n_o</arg> <arg fmt="%s" index="4">Mtridata_VME_RETRY_n_o</arg> signal will be lost.
 </msg>
 
 <msg type="warning" file="Xst" num="1710" delta="old" >FF/Latch &lt;<arg fmt="%s" index="1">Mtridata_VME_BERR_n_o</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus_1</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
@@ -459,6 +546,12 @@ This instance will be removed from the design along with all underlying logic
 <msg type="warning" file="Xst" num="1710" delta="old" >FF/Latch &lt;<arg fmt="%s" index="1">Mtridata_VME_BERR_n_o</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
 </msg>
 
+<msg type="warning" file="Xst" num="1895" delta="new" >Due to other FF/Latch trimming, FF/Latch &lt;<arg fmt="%s" index="1">Mtridata_VME_RETRY_n_o</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
+</msg>
+
+<msg type="warning" file="Xst" num="638" delta="new" >in unit <arg fmt="%s" index="1">VME_bus</arg> Conflict on KEEP property on signal <arg fmt="%s" index="2">Mtridata_VME_BERR_n_o</arg> and <arg fmt="%s" index="3">Mtridata_VME_RETRY_n_o</arg> <arg fmt="%s" index="4">Mtridata_VME_RETRY_n_o</arg> signal will be lost.
+</msg>
+
 <msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">s_sel_4</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">3 FFs/Latches</arg>, which will be removed : <arg fmt="%s" index="4">&lt;s_sel_5&gt; &lt;s_sel_6&gt; &lt;s_sel_7&gt; </arg>
 </msg>
 
@@ -501,7 +594,7 @@ This instance will be removed from the design along with all underlying logic
 <msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">VME_bus_1/IACKINinputSample/sig_o</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME64xCore_Top</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg>, which will be removed : <arg fmt="%s" index="4">&lt;IRQ_controller_1/IACKINinputSample/sig_o&gt; </arg>
 </msg>
 
-<msg type="warning" file="Xst" num="2042" delta="old" >Unit <arg fmt="%s" index="1">VME64xCore_Top</arg>: <arg fmt="%d" index="2">130</arg> internal tristates are replaced by logic (pull-up <arg fmt="%s" index="3">yes</arg>): </msg>
+<msg type="warning" file="Xst" num="2042" delta="new" >Unit <arg fmt="%s" index="1">VME64xCore_Top</arg>: <arg fmt="%d" index="2">154</arg> internal tristates are replaced by logic (pull-up <arg fmt="%s" index="3">yes</arg>): </msg>
 
 <msg type="warning" file="Xst" num="1710" delta="old" >FF/Latch &lt;<arg fmt="%s" index="1">VME_bus_1/s_sel_0</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">1</arg> in block &lt;<arg fmt="%s" index="3">VME64xCore_Top</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
 </msg>

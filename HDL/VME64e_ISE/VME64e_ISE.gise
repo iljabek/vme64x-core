@@ -22,6 +22,11 @@
   <sourceproject xmlns="http://www.xilinx.com/XMLSchema" xil_pn:fileType="FILE_XISE" xil_pn:name="VME64e_ISE.xise"/>
 
   <files xmlns="http://www.xilinx.com/XMLSchema">
+    <file xil_pn:fileType="FILE_COREGEN_PROJECT" xil_pn:name="../IP_cores/CRAM.cgp"/>
+    <file xil_pn:fileType="FILE_USERDOC" xil_pn:name="../IP_cores/CRAM_readme.txt"/>
+    <file xil_pn:fileType="FILE_USERDOC" xil_pn:name="../IP_cores/CR_readme.txt"/>
+    <file xil_pn:fileType="FILE_COREGEN_PROJECT" xil_pn:name="../IP_cores/FIFO.cgp"/>
+    <file xil_pn:fileType="FILE_USERDOC" xil_pn:name="../IP_cores/FIFO_readme.txt"/>
     <file xil_pn:fileType="FILE_LOG" xil_pn:name="VME64e_ISE.ntrc_log"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGDBUILD_LOG" xil_pn:name="VME64xCore_Top.bld"/>
     <file xil_pn:fileType="FILE_CMD_LOG" xil_pn:name="VME64xCore_Top.cmd_log"/>
@@ -47,12 +52,6 @@
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/map.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/xst.xmsgs"/>
-    <file xil_pn:fileType="FILE_USERDOC" xil_pn:name="ipcore_dir/CRAM_readme.txt"/>
-    <file xil_pn:fileType="FILE_USERDOC" xil_pn:name="ipcore_dir/CR_readme.txt"/>
-    <file xil_pn:fileType="FILE_USERDOC" xil_pn:name="ipcore_dir/FIFO_readme.txt"/>
-    <file xil_pn:fileType="FILE_COREGEN_PROJECT" xil_pn:name="ipcore_dir/coregen.cgp"/>
-    <file xil_pn:fileType="FILE_LOG" xil_pn:name="ipcore_dir/coregen.log"/>
-    <file xil_pn:fileType="FILE_RESPONSE" xil_pn:name="ipcore_dir/coregen.rsp"/>
     <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="webtalk_pn.xml"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xlnx_auto_0_xdb"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xst"/>
@@ -63,25 +62,25 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1283416575" xil_pn:name="TRAN_schematicsToHdl" xil_pn:prop_ck="5084833147041544619" xil_pn:start_ts="1283416575">
+    <transform xil_pn:end_ts="1285746335" xil_pn:name="TRAN_schematicsToHdl" xil_pn:prop_ck="5084833147041544619" xil_pn:start_ts="1285746335">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1283417041" xil_pn:in_ck="-5981931411149976335" xil_pn:name="TRAN_regenerateCores" xil_pn:prop_ck="5562680853294819280" xil_pn:start_ts="1283417041">
+    <transform xil_pn:end_ts="1285746336" xil_pn:in_ck="7401202389017945550" xil_pn:name="TRAN_regenerateCores" xil_pn:prop_ck="5562680853294819280" xil_pn:start_ts="1285746335">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <outfile xil_pn:name="ipcore_dir/CR.ngc"/>
-      <outfile xil_pn:name="ipcore_dir/CR.vhd"/>
-      <outfile xil_pn:name="ipcore_dir/CRAM.ngc"/>
-      <outfile xil_pn:name="ipcore_dir/CRAM.vhd"/>
-      <outfile xil_pn:name="ipcore_dir/FIFO.ngc"/>
-      <outfile xil_pn:name="ipcore_dir/FIFO.vhd"/>
+      <outfile xil_pn:name="../IP_cores/CR.ngc"/>
+      <outfile xil_pn:name="../IP_cores/CR.vhd"/>
+      <outfile xil_pn:name="../IP_cores/CRAM.ngc"/>
+      <outfile xil_pn:name="../IP_cores/CRAM.vhd"/>
+      <outfile xil_pn:name="../IP_cores/FIFO.ngc"/>
+      <outfile xil_pn:name="../IP_cores/FIFO.vhd"/>
     </transform>
     <transform xil_pn:name="TRAN_SubProjectAbstractToPreProxy">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1283416714" xil_pn:name="TRAN_xawsTohdl" xil_pn:prop_ck="3628963557787100221" xil_pn:start_ts="1283416714">
+    <transform xil_pn:end_ts="1285746336" xil_pn:name="TRAN_xawsTohdl" xil_pn:prop_ck="3628963557787100221" xil_pn:start_ts="1285746336">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
@@ -89,16 +88,14 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1283416714" xil_pn:name="TRAN_platgen" xil_pn:prop_ck="4316985326968841178" xil_pn:start_ts="1283416714">
+    <transform xil_pn:end_ts="1285746336" xil_pn:name="TRAN_platgen" xil_pn:prop_ck="4316985326968841178" xil_pn:start_ts="1285746336">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1283417096" xil_pn:in_ck="-156755651022357249" xil_pn:name="TRANEXT_xstsynthesize_virtex5" xil_pn:prop_ck="-467913739352410528" xil_pn:start_ts="1283417041">
+    <transform xil_pn:end_ts="1285746397" xil_pn:in_ck="-4674645310522607386" xil_pn:name="TRANEXT_xstsynthesize_virtex5" xil_pn:prop_ck="-467913739352410528" xil_pn:start_ts="1285746336">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForOutputs"/>
-      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="VME64e_ISE.ntrc_log"/>
       <outfile xil_pn:name="VME64xCore_Top.cmd_log"/>
       <outfile xil_pn:name="VME64xCore_Top.lso"/>
@@ -118,29 +115,28 @@
     <transform xil_pn:end_ts="1283416798" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="6878073351094540754" xil_pn:start_ts="1283416797">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForProperties"/>
     </transform>
     <transform xil_pn:end_ts="1283417102" xil_pn:in_ck="7368411555270321862" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="500526388826779459" xil_pn:start_ts="1283417096">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <outfile xil_pn:name="VME64xCore_Top.bld"/>
-      <outfile xil_pn:name="VME64xCore_Top.cmd_log"/>
-      <outfile xil_pn:name="VME64xCore_Top.ngd"/>
-      <outfile xil_pn:name="VME64xCore_Top_ngdbuild.xrpt"/>
-      <outfile xil_pn:name="_ngo"/>
-      <outfile xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
-      <outfile xil_pn:name="xlnx_auto_0_xdb"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForProperties"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputAdded"/>
+      <status xil_pn:value="InputRemoved"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
     <transform xil_pn:end_ts="1283417120" xil_pn:in_ck="3990433084374946988" xil_pn:name="TRANEXT_map_virtex5" xil_pn:prop_ck="832886413622344519" xil_pn:start_ts="1283417102">
       <status xil_pn:value="FailedRun"/>
       <status xil_pn:value="WarningsGenerated"/>
-      <status xil_pn:value="ReadyToRun"/>
-      <outfile xil_pn:name="VME64xCore_Top.pcf"/>
-      <outfile xil_pn:name="VME64xCore_Top_map.map"/>
-      <outfile xil_pn:name="VME64xCore_Top_map.mrp"/>
-      <outfile xil_pn:name="VME64xCore_Top_map.ncd"/>
-      <outfile xil_pn:name="VME64xCore_Top_map.ngm"/>
-      <outfile xil_pn:name="VME64xCore_Top_map.xrpt"/>
-      <outfile xil_pn:name="_xmsgs/map.xmsgs"/>
+      <status xil_pn:value="NotReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputRemoved"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
   </transforms>
 
