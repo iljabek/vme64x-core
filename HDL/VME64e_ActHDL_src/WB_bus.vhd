@@ -113,12 +113,6 @@ begin
 s_reset <= reset_i or RST_i; 
 
 
--- WB handshaking
-
-STB_o <= memReq_i         when s_FSMactive='0' else s_stb;
-memAck_o <= ACK_i         when s_FSMactive='0' else '0';
-
-
 -- WB data latching
 
 p_dataLatch: process(clk_i)
@@ -134,6 +128,40 @@ end process;
 
 locData_o     <= s_locDataOut;
 FIFOdata_o    <= DAT_i;
+
+--p_ioRegister: process(clk_i)
+--begin
+--    if rising_edge(clk_i) then
+--        if s_FSMactive='0' then
+--            DAT_o    <= locData_i;
+--            ADR_o    <= locAddr_i;                      
+--            WE_o     <= not RW_i;
+--            err_o    <= ERR_i;   
+--            rty_o    <= RTY_i;   
+--            SEL_o    <= sel_i;   
+--            CYC_o    <= cyc_i;
+--            STB_o    <= memReq_i;
+--            memAck_o <= ACK_i;
+--       else
+--            DAT_o    <= FIFOdata_i;
+--            ADR_o    <= s_locAddr;
+--            WE_o     <= s_WE;
+--            err_o    <= '0';
+--            rty_o    <= '0';
+--            SEL_o    <= (others => '1');
+--            CYC_o    <= s_cyc;
+--            STB_o    <= s_stb;
+--            memAck_o <= '0';
+--       end if;
+--       
+--       LOCK_o   <= lock_i;
+--   end if;
+--end process;
+
+
+STB_o <= memReq_i         when s_FSMactive='0' else s_stb;
+memAck_o <= ACK_i         when s_FSMactive='0' else '0';
+        
 DAT_o         <= locData_i   when s_FSMactive='0' else FIFOdata_i;
 
 ADR_o <= locAddr_i           when s_FSMactive='0' else s_locAddr;
