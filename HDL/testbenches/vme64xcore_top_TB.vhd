@@ -245,9 +245,9 @@ begin
 		--clk_i<='0', '1' after 0.5 ns;
 		--wait for 0.5ns;
 		clk_i <= '0';
-		wait for 0.5ns;
+		wait for 5 ns;
 		clk_i <= '1';
-		wait for 0.5ns;
+		wait for 5 ns;
 	end	process;
 	
 	VME_GA_i <= "011111";
