@@ -369,7 +369,7 @@ begin
 		begin 
 			--d32 read opeartion
 			s_dataTransferTypeSelect <= D32;
-			wait for 100ns; --addressing	
+			wait for 10ns; --addressing	
 			s_write := '1';
 			addressPhase;
 			
@@ -481,6 +481,7 @@ begin
 			addressPhase;
 			wait for 75 ns;			
 			
+            DATA <= (others=>'Z');
 			for I in 0 to numberOf loop
 				if DTACK = '0' then			   
 					wait until  DTACK /= '0';
@@ -530,7 +531,6 @@ begin
 				
 				wait for 10ns;
 				DS <= "11"; --rise strobe			
-				
 			end loop;
 			
 			terminateCycle;
@@ -1099,7 +1099,8 @@ begin
 		--s_AM <= "001101"; --A32 data access
 		--s_AM <= "001100"; --A32 data access	mblt
 		--s_AM <= "001000"; --A32 data access	mblt
-		--s_dataTransferTypeSelect <= D32;
+		s_dataTransferTypeSelect <= D32;
+        
 		
 		s_address(63 downto 0) <= (others => '0');
 		wait for 10ns;
@@ -1108,44 +1109,50 @@ begin
 		--s_address <= x"00ff00ff77f00004";--x"0003fffd"; 
 		s_dataToSend <= x"00001110";
 		wait for 500 ns;
+                 
+         
 		                          --
 --		-----2eVME test suite ----
---		write2e(5);		
+--        write2e(5);  
 --		wait for 200 ns;
---		read2e(5);
+--		read2e(5);   
+--        wait;
 --		--------------------------
-		
-		write2eSST(5);
+    		
+        write2eSST(5);
 		wait for 200ns;
-		--read2eSST(5);
+		read2eSST(5);
+		wait;  
 
-		wait;
-		--readGenericBlock(5);	
-		--writeGenericBlock(5);	
-		
-		
-		--read2eSST(10);
-		--write2eSST(10);
-		wait for 30 ns;
-		write2eSST(10);		
-		wait for 30 ns;
-		write2eSST(10);
-		--read2e(100);
-		wait;
-		
-		
-		wait;
-		
-		readGenericSingleAP(false);
-		writeGenericSingle;
-		readGenericBlock(5);
-		
-		readGenericSingle(false);		
-		wait;
-		--s_AM <= "111111"; --A24 data access blt
-		s_address(32 downto 1) <= x"00f0000f";--x"0003fffd";			
-		--readGenericBlock(5);
-		writeGenericBlock(5);
+--      readGenericBlock(5);
+--      readGenericBlockMBLT(5);
+--        wait;
+
+--		writeGenericBlock(5);	
+--		
+--		
+--		--read2eSST(10);
+--		--write2eSST(10);
+--		wait for 30 ns;
+--		write2eSST(10);		
+--		wait for 30 ns;
+--		write2eSST(10);
+----		read2e(100);
+--		wait;
+--		
+--		
+--		wait;
+--		
+--		readGenericSingleAP(false);
+--		writeGenericSingle;
+--		readGenericBlock(5);
+--		
+--		readGenericSingle(false);		
+--		wait;
+--		--s_AM <= "111111"; --A24 data access blt
+--		s_address(32 downto 1) <= x"00f0000f";--x"0003fffd";			
+--		--readGenericBlock(5);
+--		writeGenericBlock(5);
 		
 		
 	end process;
@@ -1153,26 +1160,26 @@ begin
 	
 	
 	
-	IRQ_ACK: process 
-	begin
-		IACK <= '1';
-		wait until IRQ(1) = '0';
-		--wait for 3050ns;
-		report "INTERRUPT TRIGGERED";  
-		s_IRQ_A <= '1';
-		s_IRQ_DS <= "11";			  
-		s_IRQ_AS <= '1';
-		s_IRQ_ADDR <= (others => '0');
-		wait for 1ns;
-		s_IRQ_ADDR(3 downto 1) <= "010";
-		IACK <= '0'; 
-		s_IRQ_AS <= '0';
-		--s_IRQ_DS <= "10";
-		wait for 10 ns;
-		s_IRQ_DS <= "00";
-		wait until DTACK = '0';
-		s_IRQ_A <= '0';		
-	end process;
+--	IRQ_ACK: process                -- NOTE: commented out by zkroflic
+--	begin          
+--		IACK <= '1';
+--		wait until IRQ(1) = '0';
+--		--wait for 3050ns;
+--		report "INTERRUPT TRIGGERED";  
+--		s_IRQ_A <= '1';
+--		s_IRQ_DS <= "11";			  
+--		s_IRQ_AS <= '1';
+--		s_IRQ_ADDR <= (others => '0');
+--		wait for 1ns;
+--		s_IRQ_ADDR(3 downto 1) <= "010";
+--		IACK <= '0'; 
+--		s_IRQ_AS <= '0';
+--		--s_IRQ_DS <= "10";
+--		wait for 10 ns;
+--		s_IRQ_DS <= "00";
+--		wait until DTACK = '0';
+--		s_IRQ_A <= '0';	
+--	end process;
 	
 	
 	

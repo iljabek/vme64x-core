@@ -1,8 +1,11 @@
 SetActiveLib -work
-comp -include "C:\Users\tom\CSL\vme64\FAIR-VME64ext\trunk\HDL\VME64e_ActHDL_src\VME64xCore_Top.vhd" 
-comp -include "$dsn\src\vme64xcore_top_TB.vhd" 
+--comp -include "C:\Users\tom\CSL\vme64\FAIR-VME64ext\trunk\HDL\VME64e_ActHDL_src\VME64xCore_Top.vhd"
+--comp -include "$dsn\..\..\VME64e_ActHDL_src\VME64xCore_Top.vhd" 
+acom -work vme64xcore -2002 "$DSN/../../testbenches/sim_vme64master.vhd"
+acom -work vme64xcore -2002 "$DSN/../../testbenches/sim_wbSlave.vhd"
+acom -work vme64xcore -2002 "$DSN/../../testbenches/vme64xcore_top_TB.vhd"
+comp -include "$dsn\..\..\testbenches\vme64xcore_top_TB.vhd" 
 asim TESTBENCH_FOR_vme64xcore_top 
-wave 
 wave -noreg clk_i
 wave -noreg VME_AS_n_i
 wave -noreg VME_RST_n_i
@@ -34,8 +37,15 @@ wave -noreg SEL_o
 wave -noreg STB_o
 wave -noreg ACK_i
 wave -noreg WE_o
-wave -noreg IRQ_i
+wave -noreg IRQ_i 
+wave -noreg UUT/VME_bus_1/s_mainFSMstate
+wave -noreg UUT/VME_bus_1/s_cardSel	
+wave -noreg stimulGen/s_receivedData
 # The following lines can be used for timing simulation
 # acom <backannotated_vhdl_file_name>
 # comp -include "$dsn\src\TestBench\vme64xcore_top_TB_tim_cfg.vhd" 
-# asim TIMING_FOR_vme64xcore_top 
+# asim TIMING_FOR_vme64xcore_top   
+
+run 10 us
+
+endsim

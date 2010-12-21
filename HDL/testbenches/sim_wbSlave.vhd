@@ -57,7 +57,8 @@ signal s_ram : t_ram;
 signal s_selectedData : std_logic_vector(63 downto 0);
 
 signal s_stb_count : integer := 0;	 
-signal s_sendCount : std_logic_vector(3 downto 0) := "0000";
+signal s_sendCount : std_logic_vector(3 downto 0) := "0000";  
+signal s_stb_1: std_logic;
 
 begin
 	
@@ -69,11 +70,11 @@ RTY_o <= '0';
 
 --ACK_o <= '1' when STB_i = '1';
 
-fakeInterruot: process
+fakeInterruot: process       
 begin
 	IRQ_o <= '0';
 	wait for 3500ns;
-	IRQ_o <= '1','0' after 50 ns;
+--	IRQ_o <= '1','0' after 50 ns;           -- NOTE: commented out by zkroflic
 	wait;
 end process;
 
@@ -95,22 +96,11 @@ begin
 	end if;	 	
 	
 	--wait for 10ns;
-	--ACK_o <= '1', '0' after 1ns;	
+	--ACK_o <= '1', '0' after 10ns;	
 end process;  
 
 DAT_o(63 downto 4) <= x"012345670123456";  
 DAT_o(3 downto 0) <= s_sendCount;
-
-fakeAckReply: process
-variable ack_counter : integer := 0;
-begin 
-	if(ack_counter /= s_stb_count) then
-		ACK_o <= '1', '0' after 1ns;	
-		ack_counter := ack_counter +1 ;	
-		s_sendCount <= s_sendCount +1;
-	end if;
-	wait for 30ns;
-end process;
 
 fakeSTALL: process
 begin
@@ -122,15 +112,37 @@ begin
 	wait for 1ns;
 		
 end process;
-		
+
+
+
+--stbCounter: process      -- for normal behaviour
+--begin
+--	ACK_o <= '0';
+--    wait until STB_i='1';
+--    wait for 10 ns;
+--	ACK_o <= '1';
+--    s_sendCount <= s_sendCount +1;
+--    wait until STB_i='0';
+--end process;
 						
-stbCounter: process(clk_i)
+stbCounter: process(clk_i)       --for pipelined behaviour
 begin
 	if rising_edge(clk_i) then
 		if(STB_i = '1') then
 		s_stb_count <= s_stb_count +1;
 		end if;
 	end if;
+end process; 
+
+fakeAckReply: process
+variable ack_counter : integer := 0;
+begin 
+	if(ack_counter /= s_stb_count) then
+		ACK_o <= '1', '0' after 10ns;	
+		ack_counter := ack_counter +1 ;	
+		s_sendCount <= s_sendCount +1;
+	end if;
+	wait for 20ns;
 end process;
 		
 
