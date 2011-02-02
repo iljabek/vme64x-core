@@ -5,398 +5,109 @@
      behavior or data corruption.  It is strongly advised that
      users do not edit the contents of this file. -->
 <messages>
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/VME64xCore_Top</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd</arg>&quot;.
+<msg type="warning" file="HDLCompiler" num="92" delta="old" >"/ohr/vme64x-core/trunk/HDL/VME64e_ISE/../VME64e_ActHDL_src/VME_bus.vhd" Line 1733: <arg fmt="%s" index="1">s_addrwidth</arg> should be on the sensitivity list of the process
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/VME64xCore_Top/RTL</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd</arg>&quot;.
+<msg type="warning" file="HDLCompiler" num="92" delta="old" >"/ohr/vme64x-core/trunk/HDL/VME64e_ISE/../VME64e_ActHDL_src/VME_bus.vhd" Line 1736: <arg fmt="%s" index="1">s_addressingtype</arg> should be on the sensitivity list of the process
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/CRAM</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/ipcore_dir/CRAM.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/IP_cores/CRAM.vhd</arg>&quot;.
+<msg type="warning" file="HDLCompiler" num="92" delta="old" >"/ohr/vme64x-core/trunk/HDL/VME64e_ISE/../VME64e_ActHDL_src/VME_bus.vhd" Line 1737: <arg fmt="%s" index="1">s_func_ader</arg> should be on the sensitivity list of the process
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/CRAM/CRAM_a</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/ipcore_dir/CRAM.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/IP_cores/CRAM.vhd</arg>&quot;.
+<msg type="warning" file="HDLCompiler" num="92" delta="old" >"/ohr/vme64x-core/trunk/HDL/VME64e_ISE/../VME64e_ActHDL_src/VME_bus.vhd" Line 1742: <arg fmt="%s" index="1">s_addressingtype</arg> should be on the sensitivity list of the process
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/FIFO</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/ipcore_dir/FIFO.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/IP_cores/FIFO.vhd</arg>&quot;.
+<msg type="warning" file="HDLCompiler" num="92" delta="old" >"/ohr/vme64x-core/trunk/HDL/VME64e_ISE/../VME64e_ActHDL_src/VME_bus.vhd" Line 1743: <arg fmt="%s" index="1">s_func_ader</arg> should be on the sensitivity list of the process
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/FIFO/FIFO_a</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/ipcore_dir/FIFO.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/IP_cores/FIFO.vhd</arg>&quot;.
+<msg type="warning" file="HDLCompiler" num="92" delta="old" >"/ohr/vme64x-core/trunk/HDL/VME64e_ISE/../VME64e_ActHDL_src/VME_bus.vhd" Line 1749: <arg fmt="%s" index="1">s_func_ader</arg> should be on the sensitivity list of the process
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/IRQ_controller</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/IRQ_controller.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/IRQ_controller.vhd</arg>&quot;.
+<msg type="warning" file="HDLCompiler" num="92" delta="old" >"/ohr/vme64x-core/trunk/HDL/VME64e_ISE/../VME64e_ActHDL_src/VME_bus.vhd" Line 1759: <arg fmt="%s" index="1">s_func_ader</arg> should be on the sensitivity list of the process
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/IRQ_controller/RTL</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/IRQ_controller.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/IRQ_controller.vhd</arg>&quot;.
+<msg type="warning" file="HDLCompiler" num="92" delta="old" >"/ohr/vme64x-core/trunk/HDL/VME64e_ISE/../VME64e_ActHDL_src/VME_bus.vhd" Line 1768: <arg fmt="%s" index="1">s_func_ader</arg> should be on the sensitivity list of the process
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/VME_bus</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_bus.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd</arg>&quot;.
+<msg type="warning" file="HDLCompiler" num="92" delta="old" >"/ohr/vme64x-core/trunk/HDL/VME64e_ISE/../VME64e_ActHDL_src/VME_bus.vhd" Line 1776: <arg fmt="%s" index="1">s_func_ader</arg> should be on the sensitivity list of the process
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/VME_bus/RTL</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_bus.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd</arg>&quot;.
+<msg type="warning" file="HDLCompiler" num="92" delta="old" >"/ohr/vme64x-core/trunk/HDL/VME64e_ISE/../VME64e_ActHDL_src/VME_bus.vhd" Line 1793: <arg fmt="%s" index="1">s_func_ader</arg> should be on the sensitivity list of the process
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/WB_bus</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/WB_bus.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/WB_bus.vhd</arg>&quot;.
+<msg type="warning" file="HDLCompiler" num="92" delta="old" >"/ohr/vme64x-core/trunk/HDL/VME64e_ISE/../VME64e_ActHDL_src/VME_bus.vhd" Line 1795: <arg fmt="%s" index="1">s_func_ader</arg> should be on the sensitivity list of the process
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/WB_bus/RTL</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/WB_bus.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/WB_bus.vhd</arg>&quot;.
+<msg type="warning" file="HDLCompiler" num="92" delta="old" >"/ohr/vme64x-core/trunk/HDL/VME64e_ISE/../VME64e_ActHDL_src/VME_bus.vhd" Line 1802: <arg fmt="%s" index="1">s_addressingtype</arg> should be on the sensitivity list of the process
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/SigInputSample</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+<msg type="warning" file="HDLCompiler" num="634" delta="old" >"/ohr/vme64x-core/trunk/HDL/VME64e_ISE/../VME64e_ActHDL_src/VME_bus.vhd" Line 382: Net &lt;<arg fmt="%s" index="1">s_CRinitAddr[51][11]</arg>&gt; does not have a driver.
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/SigInputSample/RTL</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+<msg type="warning" file="Xst" num="2972" delta="old" >&quot;<arg fmt="%s" index="1">/ohr/vme64x-core/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd</arg>&quot; line <arg fmt="%d" index="2">2352</arg>. All outputs of instance &lt;<arg fmt="%s" index="3">GAinputSample</arg>&gt; of block &lt;<arg fmt="%s" index="4">RegInputSample</arg>&gt; are unconnected in block &lt;<arg fmt="%s" index="5">VME_bus</arg>&gt;. Underlying logic will be removed.
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/RisEdgeDetection</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+<msg type="info" file="Xst" num="3010" delta="old" >&quot;<arg fmt="%s" index="1">/ohr/vme64x-core/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd</arg>&quot; line <arg fmt="%d" index="2">2352</arg>: Output port &lt;<arg fmt="%s" index="3">reg_o</arg>&gt; of the instance &lt;<arg fmt="%s" index="4">GAinputSample</arg>&gt; is unconnected or connected to loadless signal.
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/RisEdgeDetection/RTL</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+<msg type="warning" file="Xst" num="653" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_CRinitAddr&lt;51&gt;</arg>&gt; is used but never assigned. This sourceless signal will be automatically connected to value <arg fmt="%s" index="2">GND</arg>.
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/SigInputSampleAndFallingEdgeDetection</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+<msg type="warning" file="Xst" num="653" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_CRinitAddr&lt;0&gt;</arg>&gt; is used but never assigned. This sourceless signal will be automatically connected to value <arg fmt="%s" index="2">GND</arg>.
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/SigInputSampleAndFallingEdgeDetection/RTL</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+<msg type="warning" file="Xst" num="737" delta="old" >Found <arg fmt="%d" index="1">1</arg>-bit latch for signal &lt;<arg fmt="%s" index="2">s_CSRdata&lt;7&gt;</arg>&gt;. Latches may be generated from incomplete case or if statements. We do not recommend the use of latches in FPGA/CPLD designs, as they may lead to timing problems.
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/SigInputSampleAndRisingEdgeDetection</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+<msg type="warning" file="Xst" num="737" delta="old" >Found <arg fmt="%d" index="1">1</arg>-bit latch for signal &lt;<arg fmt="%s" index="2">s_CSRdata&lt;6&gt;</arg>&gt;. Latches may be generated from incomplete case or if statements. We do not recommend the use of latches in FPGA/CPLD designs, as they may lead to timing problems.
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/SigInputSampleAndRisingEdgeDetection/RTL</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+<msg type="warning" file="Xst" num="737" delta="old" >Found <arg fmt="%d" index="1">1</arg>-bit latch for signal &lt;<arg fmt="%s" index="2">s_CSRdata&lt;5&gt;</arg>&gt;. Latches may be generated from incomplete case or if statements. We do not recommend the use of latches in FPGA/CPLD designs, as they may lead to timing problems.
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/SigInputSampleAndEdgeDetection</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+<msg type="warning" file="Xst" num="737" delta="old" >Found <arg fmt="%d" index="1">1</arg>-bit latch for signal &lt;<arg fmt="%s" index="2">s_CSRdata&lt;4&gt;</arg>&gt;. Latches may be generated from incomplete case or if statements. We do not recommend the use of latches in FPGA/CPLD designs, as they may lead to timing problems.
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/SigInputSampleAndEdgeDetection/RTL</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+<msg type="warning" file="Xst" num="737" delta="old" >Found <arg fmt="%d" index="1">1</arg>-bit latch for signal &lt;<arg fmt="%s" index="2">s_CSRdata&lt;3&gt;</arg>&gt;. Latches may be generated from incomplete case or if statements. We do not recommend the use of latches in FPGA/CPLD designs, as they may lead to timing problems.
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/RegInputSample</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+<msg type="warning" file="Xst" num="737" delta="old" >Found <arg fmt="%d" index="1">1</arg>-bit latch for signal &lt;<arg fmt="%s" index="2">s_CSRdata&lt;2&gt;</arg>&gt;. Latches may be generated from incomplete case or if statements. We do not recommend the use of latches in FPGA/CPLD designs, as they may lead to timing problems.
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/RegInputSample/RTL</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/SharedComps.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/SharedComps.vhd</arg>&quot;.
+<msg type="warning" file="Xst" num="737" delta="old" >Found <arg fmt="%d" index="1">1</arg>-bit latch for signal &lt;<arg fmt="%s" index="2">s_CSRdata&lt;1&gt;</arg>&gt;. Latches may be generated from incomplete case or if statements. We do not recommend the use of latches in FPGA/CPLD designs, as they may lead to timing problems.
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/VME_pack</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME_pack.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_pack.vhd</arg>&quot;.
+<msg type="warning" file="Xst" num="737" delta="old" >Found <arg fmt="%d" index="1">1</arg>-bit latch for signal &lt;<arg fmt="%s" index="2">s_CSRdata&lt;0&gt;</arg>&gt;. Latches may be generated from incomplete case or if statements. We do not recommend the use of latches in FPGA/CPLD designs, as they may lead to timing problems.
 </msg>
 
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/CR</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/ipcore_dir/CR.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/IP_cores/CR.vhd</arg>&quot;.
-</msg>
-
-<msg type="warning" file="HDLParsers" num="3607" delta="new" >Unit <arg fmt="%s" index="1">work/CR/CR_a</arg> is now defined in a different file.  It was defined in &quot;<arg fmt="%s" index="2">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/ipcore_dir/CR.vhd</arg>&quot;, and is now defined in &quot;<arg fmt="%s" index="3">D:/SVN/FAIR-VME64ext/trunk/HDL/IP_cores/CR.vhd</arg>&quot;.
-</msg>
-
-<msg type="warning" file="Xst" num="2211" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd</arg>&quot; line <arg fmt="%d" index="2">428</arg>: Instantiating black box module &lt;<arg fmt="%s" index="3">CR</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2211" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd</arg>&quot; line <arg fmt="%d" index="2">436</arg>: Instantiating black box module &lt;<arg fmt="%s" index="3">CRAM</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2211" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd</arg>&quot; line <arg fmt="%d" index="2">445</arg>: Instantiating black box module &lt;<arg fmt="%s" index="3">FIFO</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="753" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd</arg>&quot; line <arg fmt="%d" index="2">457</arg>: Unconnected output port &apos;<arg fmt="%s" index="3">full</arg>&apos; of component &apos;<arg fmt="%s" index="4">FIFO</arg>&apos;.
-</msg>
-
-<msg type="warning" file="Xst" num="2211" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME64xCore_Top.vhd</arg>&quot; line <arg fmt="%d" index="2">457</arg>: Instantiating black box module &lt;<arg fmt="%s" index="3">FIFO</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="819" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd</arg>&quot; line <arg fmt="%d" index="2">1722</arg>: One or more signals are missing in the process sensitivity list. To enable synthesis of FPGA/CPLD hardware, XST will assume that all necessary signals are present in the sensitivity list. Please note that the result of the synthesis may differ from the initial design specification. The missing signals are:
-<arg fmt="%s" index="3">&lt;s_addrWidth&gt;, &lt;s_addressingType&gt;, &lt;s_XAMtype&gt;, &lt;s_FUNC_ADER&gt;, &lt;s_FUNC_ADEM&gt;, &lt;s_locAddr&gt;</arg>
-</msg>
-
-<msg type="info" file="Xst" num="1561" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd</arg>&quot; line <arg fmt="%d" index="2">1796</arg>: Mux is complete : default of case is discarded
-</msg>
-
-<msg type="info" file="Xst" num="1561" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd</arg>&quot; line <arg fmt="%d" index="2">1796</arg>: Mux is complete : default of case is discarded
-</msg>
-
-<msg type="info" file="Xst" num="1561" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd</arg>&quot; line <arg fmt="%d" index="2">1796</arg>: Mux is complete : default of case is discarded
-</msg>
-
-<msg type="info" file="Xst" num="1561" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd</arg>&quot; line <arg fmt="%d" index="2">1796</arg>: Mux is complete : default of case is discarded
-</msg>
-
-<msg type="warning" file="Xst" num="819" delta="new" >&quot;<arg fmt="%s" index="1">D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ActHDL_src/VME_bus.vhd</arg>&quot; line <arg fmt="%d" index="2">1781</arg>: One or more signals are missing in the process sensitivity list. To enable synthesis of FPGA/CPLD hardware, XST will assume that all necessary signals are present in the sensitivity list. Please note that the result of the synthesis may differ from the initial design specification. The missing signals are:
-<arg fmt="%s" index="3">&lt;s_FUNC_ADER&gt;, &lt;VME_AM_oversampled&gt;, &lt;s_addressingType&gt;, &lt;s_XAM&gt;</arg>
-</msg>
-
-<msg type="info" file="Xst" num="2679" delta="old" >Register &lt;<arg fmt="%s" index="1">s_CSRarray&lt;8&gt;</arg>&gt; in unit &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt; has a constant value of <arg fmt="%s" index="3">00000000</arg> during circuit operation. The register is replaced by logic.
-</msg>
-
-<msg type="warning" file="Xst" num="646" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_phase3addr</arg>&gt; is assigned but never used. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="646" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_phase2addr&lt;63:16&gt;</arg>&gt; is assigned but never used. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="1780" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_memAckCaseCondition</arg>&gt; is never used or assigned. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="1780" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_dataWidth</arg>&gt; is never used or assigned. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="1780" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_VMEdataOutput</arg>&gt; is never used or assigned. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="1780" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_VMEaddrOutput</arg>&gt; is never used or assigned. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="1780" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_LWORDoutput</arg>&gt; is never used or assigned. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="646" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_FUNC_ADER&lt;0&gt;&lt;1&gt;</arg>&gt; is assigned but never used. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="646" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_FUNC_ADER&lt;1&gt;&lt;1&gt;</arg>&gt; is assigned but never used. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="646" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_FUNC_ADER&lt;2&gt;&lt;1&gt;</arg>&gt; is assigned but never used. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="646" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_FUNC_ADER&lt;3&gt;&lt;1&gt;</arg>&gt; is assigned but never used. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="646" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_FUNC_ADEM&lt;0&gt;&lt;7:0&gt;</arg>&gt; is assigned but never used. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="646" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_FUNC_ADEM&lt;1&gt;&lt;7:0&gt;</arg>&gt; is assigned but never used. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="646" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_FUNC_ADEM&lt;2&gt;&lt;7:0&gt;</arg>&gt; is assigned but never used. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="646" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_FUNC_ADEM&lt;3&gt;&lt;7:0&gt;</arg>&gt; is assigned but never used. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="646" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_CRregArray&lt;51&gt;</arg>&gt; is assigned but never used. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="646" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_CRregArray&lt;0&gt;</arg>&gt; is assigned but never used. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="653" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_CRinitAddr&lt;51&gt;</arg>&gt; is used but never assigned. This sourceless signal will be automatically connected to value <arg fmt="%s" index="2">000000000000</arg>.
-</msg>
-
-<msg type="warning" file="Xst" num="653" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_CRinitAddr&lt;0&gt;</arg>&gt; is used but never assigned. This sourceless signal will be automatically connected to value <arg fmt="%s" index="2">000000000000</arg>.
-</msg>
-
-<msg type="warning" file="Xst" num="646" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_AMlatched</arg>&gt; is assigned but never used. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="1780" delta="old" >Signal &lt;<arg fmt="%s" index="1">VME_RETRY_n_oversampled</arg>&gt; is never used or assigned. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="646" delta="old" >Signal &lt;<arg fmt="%s" index="1">VME_GA_oversampled</arg>&gt; is assigned but never used. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="646" delta="old" >Signal &lt;<arg fmt="%s" index="1">VME_AS_n_oversampled</arg>&gt; is assigned but never used. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="737" delta="old" >Found <arg fmt="%d" index="1">8</arg>-bit latch for signal &lt;<arg fmt="%s" index="2">s_CSRdata</arg>&gt;. Latches may be generated from incomplete case or if statements. We do not recommend the use of latches in FPGA/CPLD designs, as they may lead to timing problems.
-</msg>
-
-<msg type="info" file="Xst" num="2371" delta="old" >HDL ADVISOR - Logic functions respectively driving the data and gate enable inputs of this latch share common terms. This situation will potentially lead to setup/hold violations and, as a result, to simulation problems. This situation may come from an incomplete case statement (all selector values are not covered). You should carefully review if it was in your intentions to describe such a latch.
-</msg>
-
-<msg type="info" file="Xst" num="738" delta="old" >HDL ADVISOR - <arg fmt="%d" index="1">400</arg> flip-flops were inferred for signal &lt;<arg fmt="%s" index="2">s_CRregArray</arg>&gt;. You may be trying to describe a RAM in a way that is incompatible with block and distributed RAM resources available on Xilinx devices, or with a specific template that is not supported. Please review the Xilinx resources documentation and the XST user manual for coding guidelines. Taking advantage of RAM resources will lead to improved device usage and reduced synthesis time.
-</msg>
-
-<msg type="info" file="Xst" num="738" delta="old" >HDL ADVISOR - <arg fmt="%d" index="1">296</arg> flip-flops were inferred for signal &lt;<arg fmt="%s" index="2">s_CSRarray</arg>&gt;. You may be trying to describe a RAM in a way that is incompatible with block and distributed RAM resources available on Xilinx devices, or with a specific template that is not supported. Please review the Xilinx resources documentation and the XST user manual for coding guidelines. Taking advantage of RAM resources will lead to improved device usage and reduced synthesis time.
-</msg>
-
-<msg type="warning" file="Xst" num="647" delta="old" >Input &lt;<arg fmt="%s" index="1">VME_AS_n_i</arg>&gt; is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
-</msg>
-
-<msg type="warning" file="Xst" num="1780" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_IRQ</arg>&gt; is never used or assigned. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="646" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_FIFOfull</arg>&gt; is assigned but never used. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="646" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_CRaddr&lt;18:12&gt;</arg>&gt; is assigned but never used. This unconnected signal will be trimmed during the optimization process.
-</msg>
-
-<msg type="warning" file="Xst" num="646" delta="old" >Signal &lt;<arg fmt="%s" index="1">s_CRAMaddr&lt;18:9&gt;</arg>&gt; is assigned but never used. This unconnected signal will be trimmed during the optimization process.
+<msg type="warning" file="Xst" num="2404" delta="old" > FFs/Latches &lt;<arg fmt="%s" index="1">VME_RETRY_n_o</arg>&lt;<arg fmt="%d" index="2">0</arg>:<arg fmt="%d" index="3">0</arg>&gt;&gt; (without init value) have a constant value of <arg fmt="%c" index="4">0</arg> in block &lt;<arg fmt="%s" index="5">VME_bus</arg>&gt;.
 </msg>
 
 <msg type="info" file="Xst" num="1767" delta="old" >HDL ADVISOR - Resource sharing has identified that some arithmetic operations in this design can share the same physical resources for reduced device utilization. For improved clock frequency you may try to disable resource sharing.
 </msg>
 
-<msg type="warning" file="Xst" num="524" delta="old" >All outputs of the instance &lt;<arg fmt="%s" index="1">GAinputSample</arg>&gt; of the block &lt;<arg fmt="%s" index="2">RegInputSample_1</arg>&gt; are unconnected in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;.
-This instance will be removed from the design along with all underlying logic
+<msg type="warning" file="Xst" num="1710" delta="old" >FF/Latch &lt;<arg fmt="%s" index="1">s_CSRarray_8_0</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
 </msg>
 
-<msg type="warning" file="Xst" num="524" delta="old" >All outputs of the instance &lt;<arg fmt="%s" index="1">ASinputSample</arg>&gt; of the block &lt;<arg fmt="%s" index="2">SigInputSample</arg>&gt; are unconnected in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;.
-This instance will be removed from the design along with all underlying logic
+<msg type="warning" file="Xst" num="1895" delta="old" >Due to other FF/Latch trimming, FF/Latch &lt;<arg fmt="%s" index="1">s_CSRarray_8_1</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
 </msg>
 
-<msg type="info" file="Xst" num="2261" delta="new" >The FF/Latch &lt;<arg fmt="%s" index="1">Mtridata_VME_BERR_n_o</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg>, which will be removed : <arg fmt="%s" index="4">&lt;Mtridata_VME_RETRY_n_o&gt; </arg>
+<msg type="warning" file="Xst" num="1895" delta="old" >Due to other FF/Latch trimming, FF/Latch &lt;<arg fmt="%s" index="1">s_CSRarray_8_2</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
 </msg>
 
-<msg type="warning" file="Xst" num="638" delta="new" >in unit <arg fmt="%s" index="1">VME_bus_1</arg> Conflict on KEEP property on signal <arg fmt="%s" index="2">Mtridata_VME_BERR_n_o</arg> and <arg fmt="%s" index="3">Mtridata_VME_RETRY_n_o</arg> <arg fmt="%s" index="4">Mtridata_VME_RETRY_n_o</arg> signal will be lost.
+<msg type="warning" file="Xst" num="1895" delta="old" >Due to other FF/Latch trimming, FF/Latch &lt;<arg fmt="%s" index="1">s_CSRarray_8_3</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
 </msg>
 
-<msg type="warning" file="Xst" num="1710" delta="old" >FF/Latch &lt;<arg fmt="%s" index="1">Mtridata_VME_BERR_n_o</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus_1</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
+<msg type="warning" file="Xst" num="1895" delta="old" >Due to other FF/Latch trimming, FF/Latch &lt;<arg fmt="%s" index="1">s_CSRarray_8_4</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
 </msg>
 
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_2eLatchAddr_0</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
+<msg type="warning" file="Xst" num="1895" delta="old" >Due to other FF/Latch trimming, FF/Latch &lt;<arg fmt="%s" index="1">s_CSRarray_8_5</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
 </msg>
 
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_2eLatchAddr_3</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
+<msg type="warning" file="Xst" num="1895" delta="old" >Due to other FF/Latch trimming, FF/Latch &lt;<arg fmt="%s" index="1">s_CSRarray_8_6</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
 </msg>
 
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_16</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_17</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_18</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_19</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_20</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_21</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_22</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_23</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_24</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_25</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_26</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_27</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_28</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_29</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_30</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_31</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_32</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_33</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_34</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_35</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_36</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_37</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_38</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_39</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_40</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_41</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_42</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_43</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_44</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_45</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_46</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_47</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_48</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_49</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_50</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_51</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_52</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_53</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_54</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_55</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_56</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_57</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_58</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_59</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_60</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_61</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_62</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_63</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus_1</arg>&gt;.
-</msg>
-
-<msg type="info" file="Xst" num="3021" delta="old" >HDL ADVISOR - Asynchronous or synchronous initialization of the register &lt;<arg fmt="%s" index="1">s_initReadCounter</arg>&gt; prevents it from being combined with the ROM &lt;<arg fmt="%s" index="2">Mrom_CRaddr_o_varindex0000</arg>&gt; for implementation as read-only block RAM.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_2eLatchAddr_0</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
-</msg>
-
-<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_2eLatchAddr_3</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+<msg type="warning" file="Xst" num="1895" delta="old" >Due to other FF/Latch trimming, FF/Latch &lt;<arg fmt="%s" index="1">s_CSRarray_8_7</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
 </msg>
 
 <msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_16</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
@@ -543,97 +254,217 @@ This instance will be removed from the design along with all underlying logic
 <msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_63</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
 </msg>
 
-<msg type="warning" file="Xst" num="1710" delta="old" >FF/Latch &lt;<arg fmt="%s" index="1">Mtridata_VME_BERR_n_o</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
+<msg type="info" file="Xst" num="3048" delta="old" >The small RAM &lt;<arg fmt="%s" index="1">Mram_s_addressingType</arg>&gt; will be implemented on LUTs in order to maximize performance and save block RAM resources. If you want to force its implementation on block, use option/constraint ram_style.
 </msg>
 
-<msg type="warning" file="Xst" num="1895" delta="new" >Due to other FF/Latch trimming, FF/Latch &lt;<arg fmt="%s" index="1">Mtridata_VME_RETRY_n_o</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
+<msg type="info" file="Xst" num="3031" delta="old" >HDL ADVISOR - The RAM &lt;<arg fmt="%s" index="1">Mram_s_typeOfDataTransfer</arg>&gt; will be implemented on LUTs either because you have described an asynchronous read or because of currently unsupported block RAM features. If you have described an asynchronous read, making it synchronous would allow you to take advantage of available block RAM resources, for optimized device usage and improved timings. Please refer to your documentation for coding guidelines.
 </msg>
 
-<msg type="warning" file="Xst" num="638" delta="new" >in unit <arg fmt="%s" index="1">VME_bus</arg> Conflict on KEEP property on signal <arg fmt="%s" index="2">Mtridata_VME_BERR_n_o</arg> and <arg fmt="%s" index="3">Mtridata_VME_RETRY_n_o</arg> <arg fmt="%s" index="4">Mtridata_VME_RETRY_n_o</arg> signal will be lost.
+<msg type="info" file="Xst" num="3031" delta="new" >HDL ADVISOR - The RAM &lt;<arg fmt="%s" index="1">Mram_s_initReadCounter[5]_X_6_o_wide_mux_591_OUT</arg>&gt; will be implemented on LUTs either because you have described an asynchronous read or because of currently unsupported block RAM features. If you have described an asynchronous read, making it synchronous would allow you to take advantage of available block RAM resources, for optimized device usage and improved timings. Please refer to your documentation for coding guidelines.
+</msg>
+
+<msg type="info" file="Xst" num="3031" delta="new" >HDL ADVISOR - The RAM &lt;<arg fmt="%s" index="1">Mram__n14100</arg>&gt; will be implemented on LUTs either because you have described an asynchronous read or because of currently unsupported block RAM features. If you have described an asynchronous read, making it synchronous would allow you to take advantage of available block RAM resources, for optimized device usage and improved timings. Please refer to your documentation for coding guidelines.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_16</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_17</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_18</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_19</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_20</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_21</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_22</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_23</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_24</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_25</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_26</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_27</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_28</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_29</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_30</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_31</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_32</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_33</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_34</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_35</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_36</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_37</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_38</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_39</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_40</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_41</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_42</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_43</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_44</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_45</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_46</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_47</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_48</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_49</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_50</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_51</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_52</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_53</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_54</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_55</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_56</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_57</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_58</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_59</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_60</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_61</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_62</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="2677" delta="old" >Node &lt;<arg fmt="%s" index="1">s_phase2addr_63</arg>&gt; of sequential type is unconnected in block &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt;.
+</msg>
+
+<msg type="warning" file="Xst" num="1710" delta="old" >FF/Latch &lt;<arg fmt="%s" index="1">s_CSRarray_8_0</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
+</msg>
+
+<msg type="warning" file="Xst" num="1895" delta="old" >Due to other FF/Latch trimming, FF/Latch &lt;<arg fmt="%s" index="1">s_CSRarray_8_1</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
+</msg>
+
+<msg type="warning" file="Xst" num="1895" delta="old" >Due to other FF/Latch trimming, FF/Latch &lt;<arg fmt="%s" index="1">s_CSRarray_8_2</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
+</msg>
+
+<msg type="warning" file="Xst" num="1895" delta="old" >Due to other FF/Latch trimming, FF/Latch &lt;<arg fmt="%s" index="1">s_CSRarray_8_3</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
+</msg>
+
+<msg type="warning" file="Xst" num="1895" delta="old" >Due to other FF/Latch trimming, FF/Latch &lt;<arg fmt="%s" index="1">s_CSRarray_8_4</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
+</msg>
+
+<msg type="warning" file="Xst" num="1895" delta="old" >Due to other FF/Latch trimming, FF/Latch &lt;<arg fmt="%s" index="1">s_CSRarray_8_5</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
+</msg>
+
+<msg type="warning" file="Xst" num="1895" delta="old" >Due to other FF/Latch trimming, FF/Latch &lt;<arg fmt="%s" index="1">s_CSRarray_8_6</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
+</msg>
+
+<msg type="warning" file="Xst" num="1895" delta="old" >Due to other FF/Latch trimming, FF/Latch &lt;<arg fmt="%s" index="1">s_CSRarray_8_7</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
+</msg>
+
+<msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">s_typeOfDataTransfer[2]_clk_i_DFF_396</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">7 FFs/Latches</arg>, which will be removed : <arg fmt="%s" index="4">&lt;s_typeOfDataTransfer[2]_clk_i_DFF_395&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_397&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_398&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_401&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_399&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_400&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_402&gt; </arg>
+</msg>
+
+<msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">s_typeOfDataTransfer[2]_clk_i_DFF_387</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">7 FFs/Latches</arg>, which will be removed : <arg fmt="%s" index="4">&lt;s_typeOfDataTransfer[2]_clk_i_DFF_388&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_391&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_389&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_390&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_392&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_393&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_394&gt; </arg>
+</msg>
+
+<msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">s_typeOfDataTransfer[2]_clk_i_DFF_339</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">31 FFs/Latches</arg>, which will be removed : <arg fmt="%s" index="4">&lt;s_typeOfDataTransfer[2]_clk_i_DFF_340&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_341&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_344&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_342&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_343&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_345&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_346&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_349&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_347&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_348&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_350&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_351&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_354&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_352&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_353&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_355&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_356&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_359&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_357&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_358&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_360&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_361&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_364&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_362&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_363&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_367&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_365&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_366&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_370&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_368&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_369&gt; </arg>
+</msg>
+
+<msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">s_typeOfDataTransfer[2]_clk_i_DFF_372</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">7 FFs/Latches</arg>, which will be removed : <arg fmt="%s" index="4">&lt;s_typeOfDataTransfer[2]_clk_i_DFF_371&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_375&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_373&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_374&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_378&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_376&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_377&gt; </arg>
+</msg>
+
+<msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">s_typeOfDataTransfer[2]_clk_i_DFF_380</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">7 FFs/Latches</arg>, which will be removed : <arg fmt="%s" index="4">&lt;s_typeOfDataTransfer[2]_clk_i_DFF_379&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_383&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_381&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_382&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_386&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_384&gt; &lt;s_typeOfDataTransfer[2]_clk_i_DFF_385&gt; </arg>
 </msg>
 
 <msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">s_sel_4</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">3 FFs/Latches</arg>, which will be removed : <arg fmt="%s" index="4">&lt;s_sel_5&gt; &lt;s_sel_6&gt; &lt;s_sel_7&gt; </arg>
 </msg>
 
-<msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">ASfallingEdge/s_1</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg>, which will be removed : <arg fmt="%s" index="4">&lt;ASrisingEdge/s_1&gt; </arg>
+<msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">VME_DS_n_oversampled_1</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg>, which will be removed : <arg fmt="%s" index="4">&lt;DS1EdgeDetect/s_1&gt; </arg>
 </msg>
 
-<msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">ASfallingEdge/s_2</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg>, which will be removed : <arg fmt="%s" index="4">&lt;ASrisingEdge/s_2&gt; </arg>
-</msg>
-
-<msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">ASfallingEdge/s_3</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg>, which will be removed : <arg fmt="%s" index="4">&lt;ASrisingEdge/s_3&gt; </arg>
+<msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">ASrisingEdge/s_1</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg>, which will be removed : <arg fmt="%s" index="4">&lt;ASfallingEdge/s_1&gt; </arg>
 </msg>
 
 <msg type="warning" file="Xst" num="1710" delta="old" >FF/Latch &lt;<arg fmt="%s" index="1">s_addrOffset_0</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">0</arg> in block &lt;<arg fmt="%s" index="3">VME_bus</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
 </msg>
 
-<msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">VME_bus_1/DSinputSample/reg_1_0</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME64xCore_Top</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg>, which will be removed : <arg fmt="%s" index="4">&lt;IRQ_controller_1/DSinputSample/reg_1_0&gt; </arg>
+<msg type="info" file="Xst" num="2261" delta="new" >The FF/Latch &lt;<arg fmt="%s" index="1">s_dataDir</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME_bus</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg>, which will be removed : <arg fmt="%s" index="4">&lt;s_addrDir&gt; </arg>
 </msg>
 
-<msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">VME_bus_1/DSinputSample/reg_1_1</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME64xCore_Top</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">2 FFs/Latches</arg>, which will be removed : <arg fmt="%s" index="4">&lt;IRQ_controller_1/DSinputSample/reg_1_1&gt; &lt;VME_bus_1/DS1oversmplingAndEdgeDetect/s_1&gt; </arg>
-</msg>
-
-<msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">VME_bus_1/IACKINinputSample/s_1</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME64xCore_Top</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg>, which will be removed : <arg fmt="%s" index="4">&lt;IRQ_controller_1/IACKINinputSample/s_1&gt; </arg>
-</msg>
-
-<msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">VME_bus_1/DSinputSample/reg_2_0</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME64xCore_Top</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg>, which will be removed : <arg fmt="%s" index="4">&lt;IRQ_controller_1/DSinputSample/reg_2_0&gt; </arg>
-</msg>
-
-<msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">VME_bus_1/DSinputSample/reg_2_1</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME64xCore_Top</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">2 FFs/Latches</arg>, which will be removed : <arg fmt="%s" index="4">&lt;IRQ_controller_1/DSinputSample/reg_2_1&gt; &lt;VME_bus_1/DS1oversmplingAndEdgeDetect/s_2&gt; </arg>
-</msg>
-
-<msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">VME_bus_1/IACKINinputSample/s_2</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME64xCore_Top</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg>, which will be removed : <arg fmt="%s" index="4">&lt;IRQ_controller_1/IACKINinputSample/s_2&gt; </arg>
-</msg>
-
-<msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">VME_bus_1/DSinputSample/reg_o_0</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME64xCore_Top</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg>, which will be removed : <arg fmt="%s" index="4">&lt;IRQ_controller_1/DSinputSample/reg_o_0&gt; </arg>
-</msg>
-
-<msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">VME_bus_1/DSinputSample/reg_o_1</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME64xCore_Top</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">2 FFs/Latches</arg>, which will be removed : <arg fmt="%s" index="4">&lt;IRQ_controller_1/DSinputSample/reg_o_1&gt; &lt;VME_bus_1/DS1oversmplingAndEdgeDetect/s_3&gt; </arg>
-</msg>
-
-<msg type="info" file="Xst" num="2261" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">VME_bus_1/IACKINinputSample/sig_o</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">VME64xCore_Top</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg>, which will be removed : <arg fmt="%s" index="4">&lt;IRQ_controller_1/IACKINinputSample/sig_o&gt; </arg>
-</msg>
-
-<msg type="warning" file="Xst" num="2042" delta="new" >Unit <arg fmt="%s" index="1">VME64xCore_Top</arg>: <arg fmt="%d" index="2">154</arg> internal tristates are replaced by logic (pull-up <arg fmt="%s" index="3">yes</arg>): </msg>
-
-<msg type="warning" file="Xst" num="1710" delta="old" >FF/Latch &lt;<arg fmt="%s" index="1">VME_bus_1/s_sel_0</arg>&gt; (without init value) has a constant value of <arg fmt="%d" index="2">1</arg> in block &lt;<arg fmt="%s" index="3">VME64xCore_Top</arg>&gt;. This FF/Latch will be trimmed during the optimization process.
-</msg>
-
-<msg type="info" file="Xst" num="2260" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">U0/grf.rf/gl0.wr/gwss.wsts/ram_full_fb_i</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">BU2</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg> : <arg fmt="%s" index="4">&lt;U0/grf.rf/gl0.wr/gwss.wsts/ram_full_i&gt; </arg>
-</msg>
-
-<msg type="info" file="Xst" num="2260" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">U0/grf.rf/rstblk/rd_rst_reg_2</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">BU2</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg> : <arg fmt="%s" index="4">&lt;U0/grf.rf/rstblk/rd_rst_reg_0&gt; </arg>
-</msg>
-
-<msg type="info" file="Xst" num="2260" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">U0/grf.rf/gl0.rd/grss.rsts/ram_empty_i</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">BU2</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg> : <arg fmt="%s" index="4">&lt;U0/grf.rf/gl0.rd/grss.rsts/ram_empty_fb_i&gt; </arg>
-</msg>
-
-<msg type="info" file="Xst" num="2260" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">U0/grf.rf/gl0.wr/gwss.wsts/ram_full_fb_i</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">BU2</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg> : <arg fmt="%s" index="4">&lt;U0/grf.rf/gl0.wr/gwss.wsts/ram_full_i&gt; </arg>
-</msg>
-
-<msg type="info" file="Xst" num="2260" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">U0/grf.rf/rstblk/rd_rst_reg_2</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">BU2</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg> : <arg fmt="%s" index="4">&lt;U0/grf.rf/rstblk/rd_rst_reg_0&gt; </arg>
-</msg>
-
-<msg type="info" file="Xst" num="2260" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">U0/grf.rf/gl0.rd/grss.rsts/ram_empty_i</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">BU2</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg> : <arg fmt="%s" index="4">&lt;U0/grf.rf/gl0.rd/grss.rsts/ram_empty_fb_i&gt; </arg>
-</msg>
-
-<msg type="info" file="Xst" num="2260" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">U0/grf.rf/gl0.wr/gwss.wsts/ram_full_fb_i</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">BU2</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg> : <arg fmt="%s" index="4">&lt;U0/grf.rf/gl0.wr/gwss.wsts/ram_full_i&gt; </arg>
-</msg>
-
-<msg type="info" file="Xst" num="2260" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">U0/grf.rf/gl0.rd/grss.rsts/ram_empty_i</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">BU2</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg> : <arg fmt="%s" index="4">&lt;U0/grf.rf/gl0.rd/grss.rsts/ram_empty_fb_i&gt; </arg>
-</msg>
-
-<msg type="info" file="Xst" num="2260" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">U0/grf.rf/rstblk/rd_rst_reg_2</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">BU2</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg> : <arg fmt="%s" index="4">&lt;U0/grf.rf/rstblk/rd_rst_reg_0&gt; </arg>
-</msg>
-
-<msg type="info" file="Xst" num="2260" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">U0/grf.rf/gl0.wr/gwss.wsts/ram_full_fb_i</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">BU2</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg> : <arg fmt="%s" index="4">&lt;U0/grf.rf/gl0.wr/gwss.wsts/ram_full_i&gt; </arg>
-</msg>
-
-<msg type="info" file="Xst" num="2260" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">U0/grf.rf/gl0.rd/grss.rsts/ram_empty_i</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">BU2</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg> : <arg fmt="%s" index="4">&lt;U0/grf.rf/gl0.rd/grss.rsts/ram_empty_fb_i&gt; </arg>
-</msg>
-
-<msg type="info" file="Xst" num="2260" delta="old" >The FF/Latch &lt;<arg fmt="%s" index="1">U0/grf.rf/rstblk/rd_rst_reg_2</arg>&gt; in Unit &lt;<arg fmt="%s" index="2">BU2</arg>&gt; is equivalent to the following <arg fmt="%s" index="3">FF/Latch</arg> : <arg fmt="%s" index="4">&lt;U0/grf.rf/rstblk/rd_rst_reg_0&gt; </arg>
-</msg>
+<msg type="warning" file="Xst" num="2042" delta="new" >Unit <arg fmt="%s" index="1">VME_bus</arg>: <arg fmt="%d" index="2">129</arg> internal tristates are replaced by logic (pull-up <arg fmt="%s" index="3">yes</arg>): </msg>
 
 <msg type="warning" file="Xst" num="1336" delta="old" > (*) More than 100% of Device resources are used
 </msg>

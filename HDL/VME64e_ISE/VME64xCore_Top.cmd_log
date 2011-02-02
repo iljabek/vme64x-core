@@ -18,3 +18,11 @@ xst -intstyle ise -ifn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top
 ngdbuild -intstyle ise -dd _ngo -sd ipcore_dir -nt timestamp -i -p xc5vlx20t-ff323-2 VME64xCore_Top.ngc VME64xCore_Top.ngd  
 map -intstyle ise -p xc5vlx20t-ff323-2 -w -logic_opt off -ol high -t 1 -register_duplication off -global_opt off -cm area -ir off -pr off -lc off -power off -o VME64xCore_Top_map.ncd VME64xCore_Top.ngd VME64xCore_Top.pcf 
 xst -intstyle ise -ifn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.xst" -ofn "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.syr" 
+xst -intstyle ise -ifn "/ohr/vme64x-core/trunk/HDL/VME64e_ISE/VME64xCore_Top.xst" -ofn "/ohr/vme64x-core/trunk/HDL/VME64e_ISE/VME64xCore_Top.syr" 
+ngdbuild -intstyle ise -dd _ngo -sd ../IP_cores -nt timestamp -i -p xc6slx150t-fgg676-3 VME64xCore_Top.ngc VME64xCore_Top.ngd  
+netgen -intstyle ise -rpw 100 -tpw 0 -ar Structure -tm VME64xCore_Top -w -dir netgen/translate -ofmt vhdl -sim VME64xCore_Top.ngd VME64xCore_Top_translate.vhd 
+ngdbuild -intstyle ise -dd _ngo -sd ../IP_cores -nt timestamp -i -p xc6slx150t-fgg676-3 VME64xCore_Top.ngc VME64xCore_Top.ngd  
+xst -intstyle ise -ifn "/ohr/vme64x-core/trunk/HDL/VME64e_ISE/VME64xCore_Top.xst" -ofn "/ohr/vme64x-core/trunk/HDL/VME64e_ISE/VME64xCore_Top.syr" 
+ngdbuild -intstyle ise -dd _ngo -sd ../IP_cores -nt timestamp -i -p xc6slx150t-fgg676-3 VME64xCore_Top.ngc VME64xCore_Top.ngd  
+xst -intstyle ise -ifn "/ohr/vme64x-core/trunk/HDL/VME64e_ISE/VME64xCore_Top.xst" -ofn "/ohr/vme64x-core/trunk/HDL/VME64e_ISE/VME64xCore_Top.syr" 
+ngdbuild -intstyle ise -dd _ngo -sd ../IP_cores -nt timestamp -i -p xc6slx45t-fgg484-3 VME64xCore_Top.ngc VME64xCore_Top.ngd  

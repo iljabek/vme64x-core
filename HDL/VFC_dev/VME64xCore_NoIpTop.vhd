@@ -21,8 +21,8 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
-use IEEE.numeric_std.ALL;
-
+use IEEE.numeric_std.all;
+use work.common_components.all;
 entity VME64xCore_Top is
     port(
         clk_i :             in STD_LOGIC;			 -- 100 MHz clock input
@@ -34,9 +34,10 @@ entity VME64xCore_Top is
         VME_AM_i :          in STD_LOGIC_VECTOR(5 downto 0);
         VME_DS_n_i :        in STD_LOGIC_VECTOR(1 downto 0);
         VME_GA_i :          in STD_LOGIC_VECTOR(5 downto 0);
-        VME_BERR_n_o :      out STD_LOGIC;
+        VME_BERR_o :      out STD_LOGIC;
         VME_DTACK_n_o :     out STD_LOGIC;
         VME_RETRY_n_o :     out STD_LOGIC;
+		  VME_RETRY_OE_n_o :  out STD_LOGIC;
         VME_LWORD_n_b :     inout STD_LOGIC;
         VME_ADDR_b :        inout STD_LOGIC_VECTOR(31 downto 1);
         VME_DATA_b :        inout STD_LOGIC_VECTOR(31 downto 0);
@@ -97,11 +98,12 @@ component VME_bus
         VME_AS_n_i :          in STD_LOGIC;
         VME_LWORD_n_b :       inout STD_LOGIC;
         VME_RETRY_n_o :       out STD_LOGIC;
+		  VME_RETRY_OE_n_o :  out STD_LOGIC;
         VME_WRITE_n_i :       in STD_LOGIC;
         VME_DS_n_i :          in STD_LOGIC_VECTOR(1 downto 0);
         VME_GA_i :            in STD_LOGIC_VECTOR(5 downto 0);
         VME_DTACK_n_o :       out STD_LOGIC;
-        VME_BERR_n_o :        out STD_LOGIC;
+        VME_BERR_o :        out STD_LOGIC;
         VME_ADDR_b :          inout STD_LOGIC_VECTOR(31 downto 1);
         VME_DATA_b :          inout STD_LOGIC_VECTOR(31 downto 0);
         VME_AM_i :            in std_logic_vector(5 downto 0);
@@ -218,40 +220,10 @@ component IRQ_controller is
         );
 end component;
 
-component CR
-  port (
-       addra :    in STD_LOGIC_VECTOR(11 downto 0);
-       clka :     in STD_LOGIC;
-       douta :    out STD_LOGIC_VECTOR(7 downto 0)
-  );
-end component;
 
-component CRAM is
-    port (
-    clka:    IN std_logic;
-    wea:     IN std_logic_VECTOR(0 downto 0);
-    addra:   IN std_logic_VECTOR(8 downto 0);
-    dina:    IN std_logic_VECTOR(7 downto 0);
-    douta:   OUT std_logic_VECTOR(7 downto 0));
-end component;
+constant c_zeros : std_logic_vector(31 downto 0) := (others => '0');
+constant c_ones : std_logic_vector(31 downto 0) := (others => '1');
 
-component FIFO is
-    port (
-    clk:   IN std_logic;
-    din:   IN std_logic_VECTOR(63 downto 0);
-    rd_en: IN std_logic;
-    rst:   IN std_logic;
-    wr_en: IN std_logic;
-    dout:  OUT std_logic_VECTOR(63 downto 0);
-    empty: OUT std_logic;
-    full:  OUT std_logic);
-end component;
-
-
-
-
-    type t_cr_array is array (Natural range <>) of std_logic_vector(7 downto 0);
-    constant c_cr_array : 	t_cr_array(2**9 downto 0) := (others => (others => '0'));
 		   
 signal s_CRAMdataOut: std_logic_vector(7 downto 0);
 signal s_CRAMaddr: std_logic_vector(18 downto 0);   
@@ -295,7 +267,6 @@ signal s_TWOeInProgress: std_logic;
 signal s_WBbusy: std_logic;
 signal s_beatCount: std_logic_vector(7 downto 0);
 
-
 begin 
 	
 -- Uncomment this section for use of external CR and CRAM
@@ -318,10 +289,11 @@ VME_bus_1 : VME_bus
        VME_GA_i =>           VME_GA_i,
        VME_RST_n_i =>        VME_RST_n_i,
        VME_WRITE_n_i =>      VME_WRITE_n_i,
-       VME_BERR_n_o =>       VME_BERR_n_o,
+       VME_BERR_o =>         VME_BERR_o,
        VME_DTACK_n_o =>      VME_DTACK_n_o,
        VME_RETRY_n_o =>      VME_RETRY_n_o,
-       VME_ADDR_b =>         VME_ADDR_b,
+       VME_RETRY_OE_n_o =>   VME_RETRY_OE_n_o,		 
+		 VME_ADDR_b =>         VME_ADDR_b,
        VME_DATA_b =>         VME_DATA_b,
        VME_LWORD_n_b =>      VME_LWORD_n_b,
        VME_BBSY_n_i =>       VME_BBSY_n_i,
@@ -440,29 +412,83 @@ IRQ_controller_1: IRQ_controller
 --      );
 	process(clk_i)
 	begin
+	if rising_edge(clk_i) then
 	s_CRdata <= c_cr_array(to_integer(unsigned(s_CRaddr(11 downto 0))));
+	end if;
 	end process;
--- Comment this component instance for use of external CRAM  
-CRAM_1: CRAM
-    port map(
-        clka =>     clk_i,
-        wea(0) =>   s_CRAMwea,
-        addra =>    s_CRAMaddr(8 downto 0),
-        dina =>     s_CRAMdataIn,
-        douta =>    s_CRAMdataOut
-        );
+---- Comment this component instance for use of external CRAM  
+--CRAM_1: CRAM
+--    port map(
+--        clka =>     clk_i,
+--        wea(0) =>   s_CRAMwea,
+--        addra =>    s_CRAMaddr(8 downto 0),
+--        dina =>     s_CRAMdataIn,
+--        douta =>    s_CRAMdataOut
+--        );
+
+CRAM_1 : dpblockram 
+ generic map(dl => 8, 		-- Length of the data word 
+ 			 al => 9,			-- Size of the addr map (10 = 1024 words)
+			 nw => 2**8)    -- Number of words
+			 									-- 'nw' has to be coherent with 'al'
+ port map(clk  => clk_i, 			-- Global Clock
+ 	we  => s_CRAMwea,				-- Write Enable
+ 	aw  => s_CRAMaddr(8 downto 0), -- Write Address 
+ 	ar  => c_zeros(8 downto 0), 	 -- Read Address
+ 	di  => s_CRAMdataIn,   -- Data input
+ 	dw =>  s_CRAMdataOut,-- Data write, normaly open
+ 	do  => open); 	 -- Data output
+	
+		 
+		 
+		  
+		  
         
+--FIFO_write: FIFO
+--    port map(
+--        clk =>   clk_i,
+--        din =>   s_FIFOwriteDin,
+--        rd_en => s_FIFOwriteRden,
+--        rst =>   s_FIFOreset,
+--        wr_en => s_FIFOwriteWren,
+--        dout =>  s_FIFOwriteDout,
+--        empty => s_FIFOwriteEmpty,
+--        full =>  s_FIFOfull
+--    );
 FIFO_write: FIFO
-    port map(
-        clk =>   clk_i,
-        din =>   s_FIFOwriteDin,
-        rd_en => s_FIFOwriteRden,
-        rst =>   s_FIFOreset,
-        wr_en => s_FIFOwriteWren,
-        dout =>  s_FIFOwriteDout,
-        empty => s_FIFOwriteEmpty,
-        full =>  s_FIFOfull
-    );
+   generic map(g_ADDR_LENGTH => 8,
+		     g_DATA_LENGTH => 64)
+      port map(
+         Rst => s_FIFOreset, 
+         Clk => clk_i,
+			Mux => c_zeros(0),
+					-- NotUsed mux ='1' else FifoWrEn
+					--BusRead mux ='1' else FifoRead
+         DataRdEn => c_zeros(0),
+         Addr => c_zeros(7 downto 0), 
+			
+--			DataOutRec : out DataOutRecordType;
+			data_o => open,
+			RdDone => open,	
+			
+--        DataRdDone : in std_logic;
+-- 		 DataRdEn and DataRdDone should be synch with Mux in a top level entity
+
+         Index  => open,
+					
+--         FifoIn : in FifoInRecordType;
+			data_i => s_FIFOwriteDin,
+			WrEn => s_FIFOwriteWren,
+
+			
+         GetNewData => s_FIFOwriteRden , --Resquests new data from the FIFO. It should			                           -- be synch with Mux in a top level entity
+--			FifoControl : out FifoOutRecordType
+			Empty => s_FIFOwriteEmpty,
+         NewFifoDataReady => open,
+			FifoDataOut => s_FIFOwriteDout,
+			FifoOverFlow => open);	
+
+	
 	
 	
 --FifoTable_write : FifoTable
@@ -491,16 +517,50 @@ FIFO_write: FIFO
 --
 --);
     
-FIFO_read: FIFO
-    port map(
-        clk =>   clk_i,
-        din =>   s_FIFOreadDin,
-        rd_en => s_FIFOreadRden,
-        rst =>   s_FIFOreset,
-        wr_en => s_FIFOreadWren,
-        dout =>  s_FIFOreadDout,
-        empty => s_FIFOreadEmpty,
-        full =>  open
-    );
+--FIFO_read: FIFO
+--    port map(
+--        clk =>   clk_i,
+--        din =>   s_FIFOreadDin,
+--        rd_en => s_FIFOreadRden,
+--        rst =>   s_FIFOreset,
+--        wr_en => s_FIFOreadWren,
+--        dout =>  s_FIFOreadDout,
+--        empty => s_FIFOreadEmpty,
+--        full =>  open
+--    );
+--	 
+	 FIFO_read: Fifo 
+   generic map(g_ADDR_LENGTH => 8,
+		     g_DATA_LENGTH => 64)
+      port map(
+         Rst => s_FIFOreset, 
+         Clk => clk_i,
+			Mux => c_zeros(0),
+					-- NotUsed mux ='1' else FifoWrEn
+					--BusRead mux ='1' else FifoRead
+         DataRdEn => c_zeros(0),
+         Addr => c_zeros(7 downto 0), 
+			
+--			DataOutRec : out DataOutRecordType;
+			data_o => open,
+			RdDone => open,	
+			
+--        DataRdDone : in std_logic;
+-- 		 DataRdEn and DataRdDone should be synch with Mux in a top level entity
+
+         Index  => open,
+					
+--         FifoIn : in FifoInRecordType;
+			data_i => s_FIFOreadDin,
+			WrEn => s_FIFOreadWren,
+
+			
+         GetNewData => s_FIFOreadRden , --Resquests new data from the FIFO. It should			                           -- be synch with Mux in a top level entity
+--			FifoControl : out FifoOutRecordType
+			Empty => s_FIFOreadEmpty,
+         NewFifoDataReady => open,
+			FifoDataOut => s_FIFOreadDout,
+			FifoOverFlow => open);
+
 
 end RTL;

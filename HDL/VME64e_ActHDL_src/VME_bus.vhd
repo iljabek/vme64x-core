@@ -22,8 +22,11 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
-use IEEE.STD_LOGIC_unsigned.all;
+use IEEE.numeric_std.all;
+
+--use IEEE.STD_LOGIC_unsigned.all;
 use work.vme_pack.all;
+use work.VME_CR_pack.all;
 
 entity VME_bus is
     port(
@@ -35,11 +38,13 @@ entity VME_bus is
         VME_AS_n_i :          in STD_LOGIC;
         VME_LWORD_n_b :       inout STD_LOGIC;
         VME_RETRY_n_o :       out STD_LOGIC;
+		  VME_RETRY_OE_n_o :    out std_logic;
         VME_WRITE_n_i :       in STD_LOGIC;
         VME_DS_n_i :          in STD_LOGIC_VECTOR(1 downto 0);
         VME_GA_i :            in STD_LOGIC_VECTOR(5 downto 0);             -- Geographical Address and GA parity
         VME_DTACK_n_o :       out STD_LOGIC;
-        VME_BERR_n_o :        out STD_LOGIC;
+        VME_BERR_o :          out STD_LOGIC;
+		  
         VME_ADDR_b :          inout STD_LOGIC_VECTOR(31 downto 1);
         VME_DATA_b :          inout STD_LOGIC_VECTOR(31 downto 0);
         VME_AM_i :            in std_logic_vector(5 downto 0);
@@ -118,7 +123,7 @@ component DoubleRegInputSample is
         clk_i: in std_logic 
         );
 end component;
-
+ 
 component SigInputSample is
     port (
         sig_i, clk_i: in std_logic;
@@ -379,7 +384,7 @@ signal s_BEG_CRAM: std_logic_vector(23 downto 0);
 signal s_END_CRAM: std_logic_vector(23 downto 0);
 signal s_FUNC_ADEM: t_FUNC_ADDER_array;                       -- ADEM register array      
 signal s_CRregArray: t_reg52x8bit;                            -- CR image register array
-signal s_CRinitAddr: t_reg52x12bit;
+--signal c_CRinitAddr: t_reg52x12bit;
 
 -- Misc. signals
 signal s_BERRcondition: std_logic;                            -- Condition for asserting BERR 
@@ -401,7 +406,7 @@ signal s_initState: t_initState;
 
 begin 
     
-s_reset <= (not VME_RST_n_oversampled) or s_CSRarray(BIT_SET_CLR_REG)(7);     -- hardware reset and software reset
+s_reset <= (not VME_RST_n_oversampled); -- or s_CSRarray(BIT_SET_CLR_REG)(7);     -- hardware reset and software reset
 reset_o <= s_reset;
 
 VME_DTACK_OE_o <= '1' when IACKinProgress_i='1' else s_dtackOE;
@@ -484,7 +489,7 @@ begin
             s_dataOE                 <= '0';
             s_addrDir                <= '0';
             s_addrOE                 <= '1';
-            s_mainDTACK              <= 'Z';
+            s_mainDTACK              <= '1';  -- it was 'Z'
             s_memReq                 <= '0';
             s_DSlatch                <= '0';
             s_incrementAddr          <= '0'; 
@@ -1340,8 +1345,10 @@ begin
     if rising_edge(clk_i) then
         if rty_i='1' or s_retry='1' then
             VME_RETRY_n_o <= '0';
+				VME_RETRY_OE_n_o <= '1';
         else
-            VME_RETRY_n_o <= 'Z';
+            VME_RETRY_n_o <= '-';
+				VME_RETRY_OE_n_o <= '0';
         end if;
     end if;
 end process;
@@ -1355,9 +1362,9 @@ begin
         s_berr_1 <= s_berr;    
         s_berr_2 <= s_berr and s_berr_1;
         if (s_transferActive='1' and s_BERRcondition='1') or s_berr_2='1' then
-            VME_BERR_n_o <= '0';
+            VME_BERR_o <= '1';
         else
-            VME_BERR_n_o <= 'Z';
+            VME_BERR_o <= '0';
         end if;
     end if;
 end process;
@@ -1395,7 +1402,7 @@ begin
         elsif s_mainDTACK='0' then
             VME_DTACK_n_o <= '0';
         else
-            VME_DTACK_n_o <= 'Z';
+            VME_DTACK_n_o <= '-';
         end if;
     end if;
 end process;
@@ -1417,8 +1424,8 @@ begin
             VME_ADDR_b <= s_locData(63 downto 33);
             VME_LWORD_n_b <= s_locData(32);
         else
-            VME_ADDR_b <= (others => 'Z');
-            VME_LWORD_n_b <= 'Z';
+            VME_ADDR_b <= (others => '-');
+            VME_LWORD_n_b <= '-';
         end if;
     end if;
 end process;
@@ -1431,9 +1438,9 @@ begin
         elsif s_dataToAddrBus='1' or s_dataToOutput='1' then
             VME_DATA_b <= s_locData(31 downto 0);
         elsif IDtoData_i='1' then
-            VME_DATA_b <= "ZZZZZZZZZZZZZZZZZZZZZZZZ" & s_irqIDdata;
+            VME_DATA_b <= "------------------------" & s_irqIDdata;
         else
-           VME_DATA_b <= (others => 'Z');
+           VME_DATA_b <= (others => '-');
         end if;
     end if;
 end process; 
@@ -1613,17 +1620,17 @@ begin
                     case s_DSlatched(1) is
                         when '0' =>                                                    -- D08(E)
                             s_locData(15 downto 8) <= s_locDataOut(7 downto 0);
-                            s_locData(63 downto 16) <= (others => 'Z');
-                            s_locData(7 downto 0) <= (others => 'Z'); 
+                            s_locData(63 downto 16) <= (others => '-');
+                            s_locData(7 downto 0) <= (others => '-'); 
                             s_sel <= "00000001";
                         when others =>                                                -- D08(O)
                             s_locData(7 downto 0) <= s_locDataOut(7 downto 0);
-                            s_locData(63 downto 8) <= (others => 'Z');
+                            s_locData(63 downto 8) <= (others => '-');
                             s_sel <= "00000001";
                     end case;
                 when D16 =>                                                            -- D16
                     s_locData(15 downto 0) <= s_locDataOut(15 downto 0);
-                    s_locData(63 downto 16) <= (others => 'Z');
+                    s_locData(63 downto 16) <= (others => '-');
                     s_sel <= "00000011";
                 when D32 =>                                                             
                         case s_transferType is
@@ -1632,13 +1639,13 @@ begin
                                 s_sel <= "11111111";
                             when others =>                                            -- D32
                                 s_locData(31 downto 0) <= s_locDataOut(31 downto 0);
-                                s_locData(63 downto 32) <= (others => 'Z');
+                                s_locData(63 downto 32) <= (others => '-');
                                 s_sel <= "00001111";
                         end case;
                 when UnAl0to2 =>                                                    -- Unaligned transfer byte(0-2)
                     s_locData(31 downto 8) <= s_locDataOut(23 downto 0);
-                    s_locData(63 downto 32) <= (others => 'Z');
-                    s_locData(7 downto 0) <= (others => 'Z');
+                    s_locData(63 downto 32) <= (others => '-');
+                    s_locData(7 downto 0) <= (others => '-');
                     s_sel <= "00000111";
                 when UnAl1to3 =>                                                    -- Unaligned transfer byte(1-3)
                     s_locData(23 downto 0) <= s_locDataOut(23 downto 0);
@@ -1646,8 +1653,8 @@ begin
                     s_sel <= "00000111";
                 when UnAl1to2 =>                                                    -- Unaligned transfer byte(1-2)
                     s_locData(23 downto 8) <= s_locDataOut(15 downto 0);
-                    s_locData(63 downto 24) <= (others => 'Z');
-                    s_locData(7 downto 0) <= (others => 'Z');
+                    s_locData(63 downto 24) <= (others => '-');
+                    s_locData(7 downto 0) <= (others => '-');
                     s_sel <= "00000011";
                 when others =>
                     s_locData(63 downto 0) <= s_locDataOut(63 downto 0);
@@ -1704,7 +1711,7 @@ s_locDataOut <= WBdata_i when s_cardSel='1' else
                 x"00000000000000" & s_CSRdata when s_confAccess='1' and s_CSRaddressed='1' and s_CRAMaddressed='0' and s_CRaddressed='0' else
                 x"00000000000000" & s_CRdataIn when s_confAccess='1' and s_CRaddressed='1' and s_CRAMaddressed='0' and s_CSRaddressed='0' else
                 x"00000000000000" & s_CRAMdataIn when s_confAccess='1' and s_CRAMaddressed='1' and s_CRaddressed='0' and s_CSRaddressed='0' else
-                (others => 'Z');
+                (others => '-');
                     
 WBdata_o <= s_locDataIn;
 
@@ -1730,6 +1737,8 @@ s_confAccess <= '1' when s_CSRarray(BAR)(7 downto 3)=s_locAddr(23 downto 19) and
     
 p_functMatch: process(clk_i)            -- NOTE: interface will respond to different addressing types and will attempt to decode only the address width that it is given, even though the ADEM and ADER registers may contain a mask, that is greater than the current address width
 begin
+    if rising_edge(clk_i) then -- Added by pablo. Guess it should be clocked as the only signal in the
+									    -- sensitivity list was clk
     case s_addrWidth is
         when "11" =>
         for i in 0 to 3 loop
@@ -1785,10 +1794,13 @@ begin
             s_funcMatch(i) <= '0';
         end loop;
     end case;
+	 end if;
 end process;
 
 p_AMmatch: process(clk_i)
 begin
+    if rising_edge(clk_i) then -- Added by pablo. Guess it should be clocked as the only signal in the
+									    -- sensitivity list was clk_i
     for i in 0 to 3 loop
         case s_FUNC_ADER(i)(0) is
             when '0' =>
@@ -1810,6 +1822,7 @@ begin
             
         end case;
     end loop;
+	 end if;
 end process;
 
 
@@ -1818,7 +1831,7 @@ end process;
 s_CrCsrOffsetAddr <= s_locAddr(18 downto 0);
 
 CRaddr_o <= s_CrCsrOffsetAddr when s_initInProgress='0' else
-            "0000000" & s_CRinitAddr(s_initReadCounter);                    -- when s_initInProgress='1' the initialization procedure will hijack this address bus
+            "0000000" & c_CRinitAddr(s_initReadCounter);                    -- when s_initInProgress='1' the initialization procedure will hijack this address bus
     
 CRAMaddr_o <= s_CrCsrOffsetAddr - s_BEG_CRAM(18 downto 0);
 
@@ -1847,7 +1860,7 @@ end process;
 
 -- Control & Status Registers (NOTE: only D08 access is supported)    
 
-s_GAparityMatch <= '1' when VME_GA_i(5) = not (VME_GA_i(0) xor VME_GA_i(1) xor VME_GA_i(2) xor VME_GA_i(3) xor VME_GA_i(4)) else '0';
+s_GAparityMatch <= '1' when VME_GA_oversampled(5) = not (VME_GA_oversampled(0) xor VME_GA_oversampled(1) xor VME_GA_oversampled(2) xor VME_GA_oversampled(3) xor VME_GA_oversampled(4)) else '0';
     
 s_moduleEnable <= s_CSRarray(BIT_SET_CLR_REG)(4);
     
@@ -1868,7 +1881,7 @@ begin
             s_UsrBitSetReg          <= (others => '0');
             s_CSRarray(CRAM_OWNER)  <= (others => '0');
             if s_GAparityMatch='1' then
-                s_CSRarray(BAR)     <= (not VME_GA_i(4 downto 0) & "000");
+                s_CSRarray(BAR)     <= (not VME_GA_oversampled(4 downto 0) & "000");
             else
                 s_CSRarray(BAR)     <= (others => '0');
             end if;
@@ -1964,7 +1977,7 @@ begin
                 
                 when FUNC6_ADER_0_addr =>
                 if s_RW='0' then
-                    s_CSRarray(FUNC7_ADER_0) <= s_locDataIn(7 downto 0);
+                    s_CSRarray(FUNC6_ADER_0) <= s_locDataIn(7 downto 0);
                 end if;
                 
                 when FUNC6_ADER_1_addr =>
@@ -2132,48 +2145,56 @@ begin
 end process;
 
 -- CSR read
-s_CSRdata <=    s_CSRarray(BAR)                  when s_CrCsrOffsetAddr=BAR_addr else
-                s_CSRarray(BIT_SET_CLR_REG)      when s_CrCsrOffsetAddr=BIT_SET_REG_addr else
-                s_CSRarray(BIT_SET_CLR_REG)      when s_CrCsrOffsetAddr=BIT_CLR_REG_addr else
-                s_CSRarray(CRAM_OWNER)           when s_CrCsrOffsetAddr=CRAM_OWNER_addr else
-                s_CSRarray(USR_BIT_SET_CLR_REG)  when s_CrCsrOffsetAddr=USR_BIT_SET_REG_addr else
-                s_CSRarray(USR_BIT_SET_CLR_REG)  when s_CrCsrOffsetAddr=USR_BIT_CLR_REG_addr else
-                s_CSRarray(FUNC7_ADER_0)         when s_CrCsrOffsetAddr=FUNC7_ADER_0_addr else
-                s_CSRarray(FUNC7_ADER_1)         when s_CrCsrOffsetAddr=FUNC7_ADER_1_addr else
-                s_CSRarray(FUNC7_ADER_2)         when s_CrCsrOffsetAddr=FUNC7_ADER_2_addr else
-                s_CSRarray(FUNC7_ADER_3)         when s_CrCsrOffsetAddr=FUNC7_ADER_3_addr else
-                s_CSRarray(FUNC6_ADER_0)         when s_CrCsrOffsetAddr=FUNC6_ADER_0_addr else
-                s_CSRarray(FUNC6_ADER_1)         when s_CrCsrOffsetAddr=FUNC6_ADER_1_addr else
-                s_CSRarray(FUNC6_ADER_2)         when s_CrCsrOffsetAddr=FUNC6_ADER_2_addr else
-                s_CSRarray(FUNC6_ADER_3)         when s_CrCsrOffsetAddr=FUNC6_ADER_3_addr else
-                s_CSRarray(FUNC5_ADER_0)         when s_CrCsrOffsetAddr=FUNC5_ADER_0_addr else
-                s_CSRarray(FUNC5_ADER_1)         when s_CrCsrOffsetAddr=FUNC5_ADER_1_addr else
-                s_CSRarray(FUNC5_ADER_2)         when s_CrCsrOffsetAddr=FUNC5_ADER_2_addr else
-                s_CSRarray(FUNC5_ADER_3)         when s_CrCsrOffsetAddr=FUNC5_ADER_3_addr else
-                s_CSRarray(FUNC4_ADER_0)         when s_CrCsrOffsetAddr=FUNC4_ADER_0_addr else
-                s_CSRarray(FUNC4_ADER_1)         when s_CrCsrOffsetAddr=FUNC4_ADER_1_addr else
-                s_CSRarray(FUNC4_ADER_2)         when s_CrCsrOffsetAddr=FUNC4_ADER_2_addr else
-                s_CSRarray(FUNC4_ADER_3)         when s_CrCsrOffsetAddr=FUNC4_ADER_3_addr else
-                s_CSRarray(FUNC3_ADER_0)         when s_CrCsrOffsetAddr=FUNC3_ADER_0_addr else
-                s_CSRarray(FUNC3_ADER_1)         when s_CrCsrOffsetAddr=FUNC3_ADER_1_addr else
-                s_CSRarray(FUNC3_ADER_2)         when s_CrCsrOffsetAddr=FUNC3_ADER_2_addr else
-                s_CSRarray(FUNC3_ADER_3)         when s_CrCsrOffsetAddr=FUNC3_ADER_3_addr else
-                s_CSRarray(FUNC2_ADER_0)         when s_CrCsrOffsetAddr=FUNC2_ADER_0_addr else
-                s_CSRarray(FUNC2_ADER_1)         when s_CrCsrOffsetAddr=FUNC2_ADER_1_addr else
-                s_CSRarray(FUNC2_ADER_2)         when s_CrCsrOffsetAddr=FUNC2_ADER_2_addr else
-                s_CSRarray(FUNC2_ADER_3)         when s_CrCsrOffsetAddr=FUNC2_ADER_3_addr else
-                s_CSRarray(FUNC1_ADER_0)         when s_CrCsrOffsetAddr=FUNC1_ADER_0_addr else
-                s_CSRarray(FUNC1_ADER_1)         when s_CrCsrOffsetAddr=FUNC1_ADER_1_addr else
-                s_CSRarray(FUNC1_ADER_2)         when s_CrCsrOffsetAddr=FUNC1_ADER_2_addr else
-                s_CSRarray(FUNC1_ADER_3)         when s_CrCsrOffsetAddr=FUNC1_ADER_3_addr else
-                s_CSRarray(FUNC0_ADER_0)         when s_CrCsrOffsetAddr=FUNC0_ADER_0_addr else
-                s_CSRarray(FUNC0_ADER_1)         when s_CrCsrOffsetAddr=FUNC0_ADER_1_addr else
-                s_CSRarray(FUNC0_ADER_2)         when s_CrCsrOffsetAddr=FUNC0_ADER_2_addr else
-                s_CSRarray(FUNC0_ADER_3)         when s_CrCsrOffsetAddr=FUNC0_ADER_3_addr else
-                s_CSRarray(IRQ_ID)               when s_CrCsrOffsetAddr=IRQ_ID_addr else 
-                s_CSRarray(IRQ_level)            when s_CrCsrOffsetAddr=IRQ_level_addr;
-                
-                
+process(s_CSRarray, s_CrCsrOffsetAddr)
+begin
+s_CSRdata <= (others => '-');
+case s_CrCsrOffsetAddr is
+when BAR_addr => s_CSRdata <=s_CSRarray(BAR);
+when BIT_SET_REG_addr =>  s_CSRdata <=s_CSRarray(BIT_SET_CLR_REG);    					 
+when BIT_CLR_REG_addr => s_CSRdata <=s_CSRarray(BIT_SET_CLR_REG);				 
+when CRAM_OWNER_addr => s_CSRdata <=s_CSRarray(CRAM_OWNER);
+when USR_BIT_SET_REG_addr => s_CSRdata <=s_CSRarray(USR_BIT_SET_CLR_REG);
+when USR_BIT_CLR_REG_addr => s_CSRdata <=s_CSRarray(USR_BIT_SET_CLR_REG);
+when FUNC7_ADER_0_addr => s_CSRdata <=s_CSRarray(FUNC7_ADER_0);
+when FUNC7_ADER_1_addr => s_CSRdata <=s_CSRarray(FUNC7_ADER_1);
+when FUNC7_ADER_2_addr => s_CSRdata <=s_CSRarray(FUNC7_ADER_2);
+when FUNC7_ADER_3_addr => s_CSRdata <=s_CSRarray(FUNC7_ADER_3);
+when FUNC6_ADER_0_addr => s_CSRdata <=s_CSRarray(FUNC6_ADER_0);
+when FUNC6_ADER_1_addr => s_CSRdata <=s_CSRarray(FUNC6_ADER_1);
+when FUNC6_ADER_2_addr => s_CSRdata <=s_CSRarray(FUNC6_ADER_2);
+when FUNC6_ADER_3_addr => s_CSRdata <=s_CSRarray(FUNC6_ADER_3);
+when FUNC5_ADER_0_addr => s_CSRdata <=s_CSRarray(FUNC5_ADER_0);
+when FUNC5_ADER_1_addr => s_CSRdata <=s_CSRarray(FUNC5_ADER_1);
+when FUNC5_ADER_2_addr => s_CSRdata <=s_CSRarray(FUNC5_ADER_2);
+when FUNC5_ADER_3_addr => s_CSRdata <=s_CSRarray(FUNC5_ADER_3);
+when FUNC4_ADER_0_addr => s_CSRdata <=s_CSRarray(FUNC4_ADER_0);
+when FUNC4_ADER_1_addr => s_CSRdata <=s_CSRarray(FUNC4_ADER_1);
+when FUNC4_ADER_2_addr => s_CSRdata <=s_CSRarray(FUNC4_ADER_2);
+when FUNC4_ADER_3_addr => s_CSRdata <=s_CSRarray(FUNC4_ADER_3);
+when FUNC3_ADER_0_addr => s_CSRdata <=s_CSRarray(FUNC3_ADER_0);
+when FUNC3_ADER_1_addr => s_CSRdata <=s_CSRarray(FUNC3_ADER_1);
+when FUNC3_ADER_2_addr => s_CSRdata <=s_CSRarray(FUNC3_ADER_2);				 
+when FUNC3_ADER_3_addr => s_CSRdata <=s_CSRarray(FUNC3_ADER_3);
+when FUNC2_ADER_0_addr => s_CSRdata <=s_CSRarray(FUNC2_ADER_0);
+when FUNC2_ADER_1_addr => s_CSRdata <=s_CSRarray(FUNC2_ADER_1);
+when FUNC2_ADER_2_addr => s_CSRdata <=s_CSRarray(FUNC2_ADER_2);
+when FUNC2_ADER_3_addr => s_CSRdata <=s_CSRarray(FUNC2_ADER_3);
+when FUNC1_ADER_0_addr => s_CSRdata <=s_CSRarray(FUNC1_ADER_0);
+when FUNC1_ADER_1_addr => s_CSRdata <=s_CSRarray(FUNC1_ADER_1);
+when FUNC1_ADER_2_addr => s_CSRdata <=s_CSRarray(FUNC1_ADER_2);
+when FUNC1_ADER_3_addr => s_CSRdata <=s_CSRarray(FUNC1_ADER_3);
+when FUNC0_ADER_0_addr => s_CSRdata <=s_CSRarray(FUNC0_ADER_0);
+when FUNC0_ADER_1_addr => s_CSRdata <=s_CSRarray(FUNC0_ADER_1);
+when FUNC0_ADER_2_addr => s_CSRdata <=s_CSRarray(FUNC0_ADER_2);
+when FUNC0_ADER_3_addr => s_CSRdata <=s_CSRarray(FUNC0_ADER_3);
+when IRQ_ID_addr =>       s_CSRdata <=s_CSRarray(IRQ_ID);
+when IRQ_level_addr =>    s_CSRdata <=s_CSRarray(IRQ_level);
+when others => 
+end case;					 
+-----------------------------------------------
+-----------------------------------------------
+-----------------------------------------------
+end process;               
 IRQlevelReg_o <= s_CSRarray(IRQ_level);               
     
 -- Initialization procedure                
@@ -2220,66 +2241,65 @@ begin
                 s_latchCRdata       <= '0';
                 
             end case;
-        end if;
-        
-        if s_latchCRdata='1' then
+            if s_latchCRdata='1' then
             s_CRregArray(s_initReadCounter) <= CRdata_i;
+            end if;
         end if;
     end if;
 end process;
 
 s_initInProgress <= '1' when s_initReadCounter <= 50 else '0';
-    
-s_CRinitAddr(BEG_USER_CR_2) <=   x"083";
-s_CRinitAddr(BEG_USER_CR_1) <=   x"087";    
-s_CRinitAddr(BEG_USER_CR_0) <=   x"08B";    
-s_CRinitAddr(END_USER_CR_2) <=   x"08F";    
-s_CRinitAddr(END_USER_CR_1) <=   x"093";    
-s_CRinitAddr(END_USER_CR_0) <=   x"097";    
-s_CRinitAddr(BEG_CRAM_2) <=      x"09B";            
-s_CRinitAddr(BEG_CRAM_1) <=      x"09F";
-s_CRinitAddr(BEG_CRAM_0) <=      x"0A3";
-s_CRinitAddr(END_CRAM_2) <=      x"0A7";
-s_CRinitAddr(END_CRAM_1) <=      x"0AB";
-s_CRinitAddr(END_CRAM_0) <=      x"0AF";
-s_CRinitAddr(BEG_USER_CSR_2) <=  x"0B3";    
-s_CRinitAddr(BEG_USER_CSR_1) <=  x"0B7";    
-s_CRinitAddr(BEG_USER_CSR_0) <=  x"0BB";    
-s_CRinitAddr(END_USER_CSR_2) <=  x"0BF";    
-s_CRinitAddr(END_USER_CSR_1) <=  x"0C3";    
-s_CRinitAddr(END_USER_CSR_0) <=  x"0C7";    
-s_CRinitAddr(FUNC0_ADEM_3) <=    x"623";     
-s_CRinitAddr(FUNC0_ADEM_2) <=    x"627";     
-s_CRinitAddr(FUNC0_ADEM_1) <=    x"62B";     
-s_CRinitAddr(FUNC0_ADEM_0) <=    x"62F";     
-s_CRinitAddr(FUNC1_ADEM_3) <=    x"633";     
-s_CRinitAddr(FUNC1_ADEM_2) <=    x"637";     
-s_CRinitAddr(FUNC1_ADEM_1) <=    x"63B";     
-s_CRinitAddr(FUNC1_ADEM_0) <=    x"63F";     
-s_CRinitAddr(FUNC2_ADEM_3) <=    x"643";     
-s_CRinitAddr(FUNC2_ADEM_2) <=    x"647";     
-s_CRinitAddr(FUNC2_ADEM_1) <=    x"64B";     
-s_CRinitAddr(FUNC2_ADEM_0) <=    x"64F";     
-s_CRinitAddr(FUNC3_ADEM_3) <=    x"653";     
-s_CRinitAddr(FUNC3_ADEM_2) <=    x"657";     
-s_CRinitAddr(FUNC3_ADEM_1) <=    x"65B";     
-s_CRinitAddr(FUNC3_ADEM_0) <=    x"65F";     
-s_CRinitAddr(FUNC4_ADEM_3) <=    x"663";     
-s_CRinitAddr(FUNC4_ADEM_2) <=    x"667";     
-s_CRinitAddr(FUNC4_ADEM_1) <=    x"66B";     
-s_CRinitAddr(FUNC4_ADEM_0) <=    x"66F";     
-s_CRinitAddr(FUNC5_ADEM_3) <=    x"673";     
-s_CRinitAddr(FUNC5_ADEM_2) <=    x"677";     
-s_CRinitAddr(FUNC5_ADEM_1) <=    x"67B";     
-s_CRinitAddr(FUNC5_ADEM_0) <=    x"67F";     
-s_CRinitAddr(FUNC6_ADEM_3) <=    x"683";     
-s_CRinitAddr(FUNC6_ADEM_2) <=    x"687";     
-s_CRinitAddr(FUNC6_ADEM_1) <=    x"68B";     
-s_CRinitAddr(FUNC6_ADEM_0) <=    x"68F";     
-s_CRinitAddr(FUNC7_ADEM_3) <=    x"693";     
-s_CRinitAddr(FUNC7_ADEM_2) <=    x"697";     
-s_CRinitAddr(FUNC7_ADEM_1) <=    x"69B";     
-s_CRinitAddr(FUNC7_ADEM_0) <=    x"69F";
+--c_CRinitAddr is now a constant c_CRinitAddr defined in VME_pack
+--c_CRinitAddr(BEG_USER_CR_2) <=   x"083";
+--c_CRinitAddr(BEG_USER_CR_1) <=   x"087";    
+--c_CRinitAddr(BEG_USER_CR_0) <=   x"08B";    
+--c_CRinitAddr(END_USER_CR_2) <=   x"08F";    
+--c_CRinitAddr(END_USER_CR_1) <=   x"093";    
+--c_CRinitAddr(END_USER_CR_0) <=   x"097";    
+--c_CRinitAddr(BEG_CRAM_2) <=      x"09B";            
+--c_CRinitAddr(BEG_CRAM_1) <=      x"09F";
+--c_CRinitAddr(BEG_CRAM_0) <=      x"0A3";
+--c_CRinitAddr(END_CRAM_2) <=      x"0A7";
+--c_CRinitAddr(END_CRAM_1) <=      x"0AB";
+--c_CRinitAddr(END_CRAM_0) <=      x"0AF";
+--c_CRinitAddr(BEG_USER_CSR_2) <=  x"0B3";    
+--c_CRinitAddr(BEG_USER_CSR_1) <=  x"0B7";    
+--c_CRinitAddr(BEG_USER_CSR_0) <=  x"0BB";    
+--c_CRinitAddr(END_USER_CSR_2) <=  x"0BF";    
+--c_CRinitAddr(END_USER_CSR_1) <=  x"0C3";    
+--c_CRinitAddr(END_USER_CSR_0) <=  x"0C7";    
+--c_CRinitAddr(FUNC0_ADEM_3) <=    x"623";     
+--c_CRinitAddr(FUNC0_ADEM_2) <=    x"627";     
+--c_CRinitAddr(FUNC0_ADEM_1) <=    x"62B";     
+--c_CRinitAddr(FUNC0_ADEM_0) <=    x"62F";     
+--c_CRinitAddr(FUNC1_ADEM_3) <=    x"633";     
+--c_CRinitAddr(FUNC1_ADEM_2) <=    x"637";     
+--c_CRinitAddr(FUNC1_ADEM_1) <=    x"63B";     
+--c_CRinitAddr(FUNC1_ADEM_0) <=    x"63F";     
+--c_CRinitAddr(FUNC2_ADEM_3) <=    x"643";     
+--c_CRinitAddr(FUNC2_ADEM_2) <=    x"647";     
+--c_CRinitAddr(FUNC2_ADEM_1) <=    x"64B";     
+--c_CRinitAddr(FUNC2_ADEM_0) <=    x"64F";     
+--c_CRinitAddr(FUNC3_ADEM_3) <=    x"653";     
+--c_CRinitAddr(FUNC3_ADEM_2) <=    x"657";     
+--c_CRinitAddr(FUNC3_ADEM_1) <=    x"65B";     
+--c_CRinitAddr(FUNC3_ADEM_0) <=    x"65F";     
+--c_CRinitAddr(FUNC4_ADEM_3) <=    x"663";     
+--c_CRinitAddr(FUNC4_ADEM_2) <=    x"667";     
+--c_CRinitAddr(FUNC4_ADEM_1) <=    x"66B";     
+--c_CRinitAddr(FUNC4_ADEM_0) <=    x"66F";     
+--c_CRinitAddr(FUNC5_ADEM_3) <=    x"673";     
+--c_CRinitAddr(FUNC5_ADEM_2) <=    x"677";     
+--c_CRinitAddr(FUNC5_ADEM_1) <=    x"67B";     
+--c_CRinitAddr(FUNC5_ADEM_0) <=    x"67F";     
+--c_CRinitAddr(FUNC6_ADEM_3) <=    x"683";     
+--c_CRinitAddr(FUNC6_ADEM_2) <=    x"687";     
+--c_CRinitAddr(FUNC6_ADEM_1) <=    x"68B";     
+--c_CRinitAddr(FUNC6_ADEM_0) <=    x"68F";     
+--c_CRinitAddr(FUNC7_ADEM_3) <=    x"693";     
+--c_CRinitAddr(FUNC7_ADEM_2) <=    x"697";     
+--c_CRinitAddr(FUNC7_ADEM_1) <=    x"69B";     
+--c_CRinitAddr(FUNC7_ADEM_0) <=    x"69F";
 
 s_BEG_USER_CR <= s_CRregArray(BEG_USER_CR_2) & s_CRregArray(BEG_USER_CR_1) & s_CRregArray(BEG_USER_CR_0);
 s_END_USER_CR <= s_CRregArray(END_USER_CR_2) & s_CRregArray(END_USER_CR_1) & s_CRregArray(END_USER_CR_0);

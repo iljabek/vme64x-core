@@ -74,7 +74,7 @@ end TriPortRamWr_RdRD;
 architecture Behavioral of TriPortRamWr_RdRD is
 
 --signal nxBCDataIn :  std_logic_vector(31 downto 0);
-signal nxDADataIn :  std_logic_vector(31 downto 0);
+signal nxDADataIn :  std_logic_vector(dl - 1 downto 0);
 
 signal nxBCAdd :  std_logic_vector(Al-1 downto 0);
 signal nxDAAdd :  std_logic_vector(Al-1 downto 0);

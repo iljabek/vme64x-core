@@ -1,15 +1,14 @@
-Release 12.1 ngdbuild M.53d (nt64)
+Release 12.4 ngdbuild M.81d (lin64)
 Copyright (c) 1995-2010 Xilinx, Inc.  All rights reserved.
 
-Command Line: C:\Xilinx\12.1\ISE_DS\ISE\bin\nt64\unwrapped\ngdbuild.exe
--intstyle ise -dd _ngo -sd ipcore_dir -nt timestamp -i -p xc5vlx20t-ff323-2
+Command Line: /opt/Xilinx/12.4/ISE_DS/ISE/bin/lin64/unwrapped/ngdbuild -intstyle
+ise -dd _ngo -sd ../IP_cores -nt timestamp -i -p xc6slx45t-fgg484-3
 VME64xCore_Top.ngc VME64xCore_Top.ngd
 
-Reading NGO file "D:/SVN/FAIR-VME64ext/trunk/HDL/VME64e_ISE/VME64xCore_Top.ngc"
-...
-Loading design module "D:\SVN\FAIR-VME64ext\trunk\HDL\VME64e_ISE/CR.ngc"...
-Loading design module "D:\SVN\FAIR-VME64ext\trunk\HDL\VME64e_ISE/CRAM.ngc"...
-Loading design module "D:\SVN\FAIR-VME64ext\trunk\HDL\VME64e_ISE/FIFO.ngc"...
+Reading NGO file "/ohr/vme64x-core/trunk/HDL/VME64e_ISE/VME64xCore_Top.ngc" ...
+Loading design module "/ohr/vme64x-core/trunk/HDL/VME64e_ISE/CR.ngc"...
+Loading design module "/ohr/vme64x-core/trunk/HDL/VME64e_ISE/CRAM.ngc"...
+Loading design module "/ohr/vme64x-core/trunk/HDL/VME64e_ISE/FIFO.ngc"...
 Gathering constraint information from source properties...
 Done.
 
@@ -18,6 +17,1118 @@ Checking Constraint Associations...
 Done...
 
 Checking expanded design ...
+WARNING:NgdBuild:486 - Attribute "DOA_REG" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "DOB_REG" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_00" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_01" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_02" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_03" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_04" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_05" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_06" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_07" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "SRVAL_A" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "SRVAL_B" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_00" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_01" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_02" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_03" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_04" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_05" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_06" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_07" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_08" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_09" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0A" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0B" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0C" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0D" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0E" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0F" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_10" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_11" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_12" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_13" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_14" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_15" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_16" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_17" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_18" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_19" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1A" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1B" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1C" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1D" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1E" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1F" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_20" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_21" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_22" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_23" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_24" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_25" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_26" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_27" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_28" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_29" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2A" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2B" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2C" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2D" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2E" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2F" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_30" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_31" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_32" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_33" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_34" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_35" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_36" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_37" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_38" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_39" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3A" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3B" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3C" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3D" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3E" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3F" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_FILE" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_A" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_B" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "WRITE_MODE_A" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "WRITE_MODE_B" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SINGLE_PRIM3
+   6.SP" of type "RAMB36_EXP".  This attribute will be ignored.
+ERROR:NgdBuild:604 - logical block
+   'CR_1/BU2/U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.SIN
+   GLE_PRIM36.SP' with type 'RAMB36_EXP' could not be resolved. A pin name
+   misspelling can cause this, a missing edif or ngc file, case mismatch between
+   the block name and the edif or ngc file name, or the misspelling of a type
+   name. Symbol 'RAMB36_EXP' is not supported in target 'spartan6'.
+WARNING:NgdBuild:486 - Attribute "DOA_REG" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "DOB_REG" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_A" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_B" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_00" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_01" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_02" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_03" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_04" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_05" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "SRVAL_A" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_00" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_01" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_02" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_03" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_04" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_05" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_06" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_07" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_08" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_09" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0A" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0B" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0C" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0D" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0E" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0F" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_10" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_11" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_12" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_13" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_14" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_15" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_16" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_17" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_18" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_19" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1A" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1B" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1C" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1D" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1E" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1F" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_20" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_21" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_22" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_23" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_24" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_25" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_26" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_27" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_28" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_29" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2A" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2B" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2C" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2D" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2E" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2F" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_30" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_31" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_32" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_33" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_34" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_35" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_36" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_37" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_38" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_39" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3A" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3B" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3C" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3D" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3E" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3F" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_FILE" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_06" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_07" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "WRITE_MODE_A" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "WRITE_MODE_B" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "SRVAL_B" is not allowed on symbol
+   "U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.WIDE_PRIM18.
+   SP" of type "RAMB18".  This attribute will be ignored.
+ERROR:NgdBuild:604 - logical block
+   'CRAM_1/BU2/U0/blk_mem_generator/valid.cstr/ramloop[0].ram.r/v5_init.ram/SP.W
+   IDE_PRIM18.SP' with type 'RAMB18' could not be resolved. A pin name
+   misspelling can cause this, a missing edif or ngc file, case mismatch between
+   the block name and the edif or ngc file name, or the misspelling of a type
+   name. Symbol 'RAMB18' is not supported in target 'spartan6'.
+WARNING:NgdBuild:486 - Attribute "INITP_00" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_01" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_02" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_03" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_04" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_05" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_06" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_07" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "SRVAL" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_00" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_01" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_02" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_03" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_04" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_05" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_06" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_07" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_08" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_09" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0A" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0B" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0C" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0D" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0E" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0F" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_10" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_11" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_12" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_13" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_14" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_15" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_16" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_17" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_18" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_19" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1A" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1B" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1C" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1D" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1E" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1F" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_20" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_21" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_22" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_23" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_24" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_25" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_26" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_27" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_28" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_29" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2A" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2B" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2C" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2D" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2E" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2F" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_30" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_31" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_32" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_33" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_34" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_35" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_36" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_37" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_38" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_39" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3A" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3B" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3C" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3D" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3E" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3F" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_FILE" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+ERROR:NgdBuild:604 - logical block
+   'FIFO_read/BU2/U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid
+   .cstr/ramloop[0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP' with type
+   'RAMB36SDP_EXP' could not be resolved. A pin name misspelling can cause this,
+   a missing edif or ngc file, case mismatch between the block name and the edif
+   or ngc file name, or the misspelling of a type name. Symbol 'RAMB36SDP_EXP'
+   is not supported in target 'spartan6'.
+WARNING:NgdBuild:486 - Attribute "INITP_00" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_01" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_02" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_03" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_04" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_05" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_06" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INITP_07" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "SRVAL" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_00" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_01" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_02" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_03" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_04" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_05" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_06" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_07" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_08" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_09" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0A" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0B" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0C" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0D" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0E" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_0F" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_10" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_11" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_12" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_13" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_14" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_15" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_16" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_17" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_18" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_19" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1A" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1B" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1C" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1D" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1E" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_1F" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_20" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_21" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_22" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_23" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_24" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_25" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_26" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_27" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_28" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_29" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2A" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2B" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2C" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2D" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2E" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_2F" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_30" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_31" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_32" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_33" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_34" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_35" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_36" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_37" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_38" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_39" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3A" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3B" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3C" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3D" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3E" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_3F" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+WARNING:NgdBuild:486 - Attribute "INIT_FILE" is not allowed on symbol
+   "U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/valid.cstr/ramloop[
+   0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP" of type "RAMB36SDP_EXP".
+    This attribute will be ignored.
+ERROR:NgdBuild:604 - logical block
+   'FIFO_write/BU2/U0/grf.rf/mem/gbm.gbmg.gbmga.ngecc.bmg/blk_mem_generator/vali
+   d.cstr/ramloop[0].ram.r/v5_noinit.ram/SDP.WIDE_PRIM36.noeccerr.SDP' with type
+   'RAMB36SDP_EXP' could not be resolved. A pin name misspelling can cause this,
+   a missing edif or ngc file, case mismatch between the block name and the edif
+   or ngc file name, or the misspelling of a type name. Symbol 'RAMB36SDP_EXP'
+   is not supported in target 'spartan6'.
 
 Partition Implementation Status
 -------------------------------
@@ -27,13 +1138,14 @@ Partition Implementation Status
 -------------------------------
 
 NGDBUILD Design Results Summary:
-  Number of errors:     0
-  Number of warnings:   0
+  Number of errors:     4
+  Number of warnings: 312
 
-Total memory usage is 163072 kilobytes
+Total memory usage is 261232 kilobytes
 
-Writing NGD file "VME64xCore_Top.ngd" ...
-Total REAL time to NGDBUILD completion:  4 sec
-Total CPU time to NGDBUILD completion:   4 sec
+Total REAL time to NGDBUILD completion:  3 sec
+Total CPU time to NGDBUILD completion:   3 sec
+
+One or more errors were found during NGDBUILD.  No NGD file will be written.
 
 Writing NGDBUILD log file "VME64xCore_Top.bld"...
