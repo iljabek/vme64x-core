@@ -1405,7 +1405,7 @@ TWOeInProgress_o <= s_TWOeInProgress;
 --				VME_RETRY_OE_n_o <= '1';
 --        else
             VME_RETRY_n_o <= '0';
-				VME_RETRY_OE_n_o <= '1';
+				VME_RETRY_OE_n_o <= '0';
 --        end if;
 --    end if;
 --end process;
@@ -1419,7 +1419,7 @@ TWOeInProgress_o <= s_TWOeInProgress;
 --        s_berr_1 <= s_berr;    
 --        s_berr_2 <= s_berr and s_berr_1;
 --        if (s_transferActive='1' and s_BERRcondition='1') or s_berr_2='1' then
-            VME_BERR_o <= '1';
+            VME_BERR_o <= '0';
 --        else
 --            VME_BERR_o <= '0';
 --        end if;
