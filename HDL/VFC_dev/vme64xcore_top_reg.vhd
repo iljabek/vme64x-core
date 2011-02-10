@@ -23,6 +23,8 @@ port(
 --			VME_IACKIN_n_i : in STD_LOGIC;
 --			VME_IACKOUT_n_o : out STD_LOGIC; 
 			FpLed_onb8_5 : out std_logic;
+			FpLed_onb8_6 : out std_logic;
+			
 			VME_DTACK_OE_o:       out std_logic;
         	VME_DATA_DIR_o:       out std_logic;
         	VME_DATA_OE_o:        out std_logic;
@@ -288,6 +290,7 @@ end if;
 end process;
 
 FpLed_onb8_5 <= counter(counter'left);
+FpLed_onb8_6 <= DAT_i(0);
 		RST_i <= not VME_RST_n_i;
 --		DAT_i => DAT_i,
 --		DAT_o => DAT_o,
