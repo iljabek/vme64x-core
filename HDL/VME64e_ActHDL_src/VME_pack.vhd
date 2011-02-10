@@ -4,11 +4,20 @@ use IEEE.numeric_std.all;
 
 package VME_pack is
   
-    type t_reg38x8bit is array(37 downto 0) of (7 downto 0);
-    type t_reg52x8bit is array(51 downto 0) of (7 downto 0);
-    type t_reg52x12bit is array(51 downto 0) of (11 downto 0);
-    type t_cr_array is array (Natural range <>) of (7 downto 0);
-  
+    type t_reg38x8bit is array(37 downto 0) of unsigned(7 downto 0);
+    type t_reg52x8bit is array(51 downto 0) of unsigned(7 downto 0);
+    type t_reg52x12bit is array(51 downto 0) of unsigned(11 downto 0);
+    type t_cr_array is array (Natural range <>) of std_logic_vector(7 downto 0);
+	 
+	 type t_rom_cell is 
+	 record
+	   add : integer;
+		len : integer;
+	 end record;
+	 
+    type t_cr_struc is array (Natural range <>) of t_rom_cell;
+    
+	 constant c_cr_step : integer := 4;
     constant BAR : integer := 0;
     constant BIT_SET_CLR_REG : integer := 1;
     constant CRAM_OWNER : integer := 2;
@@ -47,47 +56,130 @@ package VME_pack is
     constant FUNC0_ADER_3 : integer := 35;
     constant IRQ_ID : integer := 36;
     constant IRQ_level : integer := 37;
-    
-    constant BAR_addr : integer := to_integer(unsigned(bit_vector("1111111111111111111")));        
-    constant BIT_SET_REG_addr : integer := to_integer(unsigned(bit_vector("1111111111111111011")));
-    constant BIT_CLR_REG_addr : integer := to_integer(unsigned(bit_vector("1111111111111110111")));
-    constant CRAM_OWNER_addr : integer := to_integer(unsigned(bit_vector("1111111111111110011")));   
-    constant USR_BIT_SET_REG_addr : integer := to_integer(unsigned(bit_vector("1111111111111101111")));
-    constant USR_BIT_CLR_REG_addr : integer := to_integer(unsigned(bit_vector("1111111111111101011")));
-    constant FUNC7_ADER_0_addr : integer := to_integer(unsigned(bit_vector("1111111111111011111")));   
-    constant FUNC7_ADER_1_addr : integer := to_integer(unsigned(bit_vector("1111111111111011011")));   
-    constant FUNC7_ADER_2_addr : integer := to_integer(unsigned(bit_vector("1111111111111010111")));   
-    constant FUNC7_ADER_3_addr : integer := to_integer(unsigned(bit_vector("1111111111111010011")));   
-    constant FUNC6_ADER_0_addr : integer := to_integer(unsigned(bit_vector("1111111111111001111")));   
-    constant FUNC6_ADER_1_addr : integer := to_integer(unsigned(bit_vector("1111111111111001011")));   
-    constant FUNC6_ADER_2_addr : integer := to_integer(unsigned(bit_vector("1111111111111000111")));   
-    constant FUNC6_ADER_3_addr : integer := to_integer(unsigned(bit_vector("1111111111111000011")));   
-    constant FUNC5_ADER_0_addr : integer := to_integer(unsigned(bit_vector("1111111111110111111")));   
-    constant FUNC5_ADER_1_addr : integer := to_integer(unsigned(bit_vector("1111111111110111011")));   
-    constant FUNC5_ADER_2_addr : integer := to_integer(unsigned(bit_vector("1111111111110110111")));   
-    constant FUNC5_ADER_3_addr : integer := to_integer(unsigned(bit_vector("1111111111110110011")));   
-    constant FUNC4_ADER_0_addr : integer := to_integer(unsigned(bit_vector("1111111111110101111")));   
-    constant FUNC4_ADER_1_addr : integer := to_integer(unsigned(bit_vector("1111111111110101011")));   
-    constant FUNC4_ADER_2_addr : integer := to_integer(unsigned(bit_vector("1111111111110100111")));   
-    constant FUNC4_ADER_3_addr : integer := to_integer(unsigned(bit_vector("1111111111110100011")));   
-    constant FUNC3_ADER_0_addr : integer := to_integer(unsigned(bit_vector("1111111111110011111")));   
-    constant FUNC3_ADER_1_addr : integer := to_integer(unsigned(bit_vector("1111111111110011011")));   
-    constant FUNC3_ADER_2_addr : integer := to_integer(unsigned(bit_vector("1111111111110010111")));   
-    constant FUNC3_ADER_3_addr : integer := to_integer(unsigned(bit_vector("1111111111110010011")));   
-    constant FUNC2_ADER_0_addr : integer := to_integer(unsigned(bit_vector("1111111111110001111")));   
-    constant FUNC2_ADER_1_addr : integer := to_integer(unsigned(bit_vector("1111111111110001011")));   
-    constant FUNC2_ADER_2_addr : integer := to_integer(unsigned(bit_vector("1111111111110000111")));   
-    constant FUNC2_ADER_3_addr : integer := to_integer(unsigned(bit_vector("1111111111110000011")));   
-    constant FUNC1_ADER_0_addr : integer := to_integer(unsigned(bit_vector("1111111111101111111")));   
-    constant FUNC1_ADER_1_addr : integer := to_integer(unsigned(bit_vector("1111111111101111011")));   
-    constant FUNC1_ADER_2_addr : integer := to_integer(unsigned(bit_vector("1111111111101110111")));   
-    constant FUNC1_ADER_3_addr : integer := to_integer(unsigned(bit_vector("1111111111101110011")));   
-    constant FUNC0_ADER_0_addr : integer := to_integer(unsigned(bit_vector("1111111111101101111")));   
-    constant FUNC0_ADER_1_addr : integer := to_integer(unsigned(bit_vector("1111111111101101011")));   
-    constant FUNC0_ADER_2_addr : integer := to_integer(unsigned(bit_vector("1111111111101100111")));   
-    constant FUNC0_ADER_3_addr : integer := to_integer(unsigned(bit_vector("1111111111101100011")));
-    constant IRQ_ID_addr : integer := to_integer(unsigned(bit_vector("1111111101111111111")));
-    constant IRQ_level_addr : integer := to_integer(unsigned(bit_vector("1111111101111111011")));
+ 
+
+
+--0x7FFFF CR/CSR (BAR) 1 byte VME64
+--        Base Address Register 
+--0x7FFFB Bit Set Register 1 byte VME64
+--        see Table 10-6 
+--0x7FFF7 Bit Clear Register 1 byte VME64
+--        see Table 10-7 
+--0x7FFF3 CRAM_OWNER Register 1 byte VME64x
+--0x7FFEF User-Defined Bit Set 1 byte VME64x
+--        Register 
+--0x7FFEB User-Defined Bit Clear 1 byte VME64x
+--        Register 
+--0x7FFE3 ... 0x7FFE7 RESERVED 2 bytes VME64x
+--0x7FFD3 ... 0x7FFDF Function 7 ADER 4 bytes VME64x
+--                    see Table 10-8 
+--0x7FFC3 ... 0x7FFCF Function 6 ADER 4 bytes VME64x
+--0x7FFB3 ... 0x7FFBF Function 5 ADER 4 bytes VME64x
+--0x7FFA3 ... 0x7FFAF Function 4 ADER 4 bytes VME64x
+--0x7FF93 ... 0x7FF9F Function 3 ADER 4 bytes VME64x
+--0x7FF83 ... 0x7FF8F Function 2 ADER 4 bytes VME64x
+--0x7FF73 ... 0x7FF7F Function 1 ADER 4 bytes VME64x
+--0x7FF63 ... 0x7FF6F Function 0 ADER 4 bytes VME64x
+--0x7FC00 ... 0x7FF5F RESERVED 216 bytes VME64x
+--
+-------------------
+    constant BAR_addr : integer := 16#7FFFF#;        
+    constant BIT_SET_REG_addr : integer := 16#7FFFB#;   
+    constant BIT_CLR_REG_addr : integer := 16#7FFF7#;   
+    constant CRAM_OWNER_addr : integer := 16#7FFF3#;    
+    constant USR_BIT_SET_REG_addr : integer := 16#7FFEF#;   
+    constant USR_BIT_CLR_REG_addr : integer := 16#7FFEB#; 
+--Reserved 16#7FFE7#;   
+--Reserved 16#7FFE3#;   
+    constant FUNC7_ADER_0_addr : integer := 16#7FFDF#;   
+    constant FUNC7_ADER_1_addr : integer := 16#7FFDB#;   
+    constant FUNC7_ADER_2_addr : integer := 16#7FFD7#;   
+    constant FUNC7_ADER_3_addr : integer := 16#7FFD3#;
+	 
+    constant FUNC6_ADER_0_addr : integer := 16#7FFCF#;   
+    constant FUNC6_ADER_1_addr : integer := 16#7FFCB#;      
+    constant FUNC6_ADER_2_addr : integer := 16#7FFC7#;      
+    constant FUNC6_ADER_3_addr : integer := 16#7FFC3#; 
+	 
+    constant FUNC5_ADER_0_addr : integer := 16#7FFBF#;      
+    constant FUNC5_ADER_1_addr : integer := 16#7FFBB#;      
+    constant FUNC5_ADER_2_addr : integer := 16#7FFB7#;      
+    constant FUNC5_ADER_3_addr : integer := 16#7FFB3#;
+	 
+    constant FUNC4_ADER_0_addr : integer := 16#7FFAF#;      
+    constant FUNC4_ADER_1_addr : integer := 16#7FFAB#;      
+    constant FUNC4_ADER_2_addr : integer := 16#7FFA7#;      
+    constant FUNC4_ADER_3_addr : integer := 16#7FFA3#;
+	 
+    constant FUNC3_ADER_0_addr : integer := 16#7FF9F#;      
+    constant FUNC3_ADER_1_addr : integer := 16#7FF9B#;      
+    constant FUNC3_ADER_2_addr : integer := 16#7FF97#;      
+    constant FUNC3_ADER_3_addr : integer := 16#7FF93#;
+	 
+    constant FUNC2_ADER_0_addr : integer := 16#7FF8F#;      
+    constant FUNC2_ADER_1_addr : integer := 16#7FF8B#;      
+    constant FUNC2_ADER_2_addr : integer := 16#7FF87#;     
+    constant FUNC2_ADER_3_addr : integer := 16#7FF83#;
+	 
+    constant FUNC1_ADER_0_addr : integer := 16#7FF7F#;      
+    constant FUNC1_ADER_1_addr : integer := 16#7FF7B#;      
+    constant FUNC1_ADER_2_addr : integer := 16#7FF77#;      
+    constant FUNC1_ADER_3_addr : integer := 16#7FF73#;
+	 
+    constant FUNC0_ADER_0_addr : integer := 16#7FF6F#;      
+    constant FUNC0_ADER_1_addr : integer := 16#7FF6B#;      
+    constant FUNC0_ADER_2_addr : integer := 16#7FF67#;     
+    constant FUNC0_ADER_3_addr : integer := 16#7FF63#; 
+	 
+    constant IRQ_ID_addr : integer := 16#7fbff#;   
+    constant IRQ_level_addr : integer := 16#7fbef#;   
+----------------------------------
+ 
+ 
+ 
+ 
+ 
+ 
+--    constant BAR_addr : integer := to_integer(unsigned(bit_vector("1111111111111111111")));        
+--    constant BIT_SET_REG_addr : integer := to_integer(unsigned(bit_vector("1111111111111111011")));
+--    constant BIT_CLR_REG_addr : integer := to_integer(unsigned(bit_vector("1111111111111110111")));
+--    constant CRAM_OWNER_addr : integer := to_integer(unsigned(bit_vector("1111111111111110011")));   
+--    constant USR_BIT_SET_REG_addr : integer := to_integer(unsigned(bit_vector("1111111111111101111")));
+--    constant USR_BIT_CLR_REG_addr : integer := to_integer(unsigned(bit_vector("1111111111111101011")));
+--    constant FUNC7_ADER_0_addr : integer := to_integer(unsigned(bit_vector("1111111111111011111")));   
+--    constant FUNC7_ADER_1_addr : integer := to_integer(unsigned(bit_vector("1111111111111011011")));   
+--    constant FUNC7_ADER_2_addr : integer := to_integer(unsigned(bit_vector("1111111111111010111")));   
+--    constant FUNC7_ADER_3_addr : integer := to_integer(unsigned(bit_vector("1111111111111010011")));   
+--    constant FUNC6_ADER_0_addr : integer := to_integer(unsigned(bit_vector("1111111111111001111")));   
+--    constant FUNC6_ADER_1_addr : integer := to_integer(unsigned(bit_vector("1111111111111001011")));   
+--    constant FUNC6_ADER_2_addr : integer := to_integer(unsigned(bit_vector("1111111111111000111")));   
+--    constant FUNC6_ADER_3_addr : integer := to_integer(unsigned(bit_vector("1111111111111000011")));   
+--    constant FUNC5_ADER_0_addr : integer := to_integer(unsigned(bit_vector("1111111111110111111")));   
+--    constant FUNC5_ADER_1_addr : integer := to_integer(unsigned(bit_vector("1111111111110111011")));   
+--    constant FUNC5_ADER_2_addr : integer := to_integer(unsigned(bit_vector("1111111111110110111")));   
+--    constant FUNC5_ADER_3_addr : integer := to_integer(unsigned(bit_vector("1111111111110110011")));   
+--    constant FUNC4_ADER_0_addr : integer := to_integer(unsigned(bit_vector("1111111111110101111")));   
+--    constant FUNC4_ADER_1_addr : integer := to_integer(unsigned(bit_vector("1111111111110101011")));   
+--    constant FUNC4_ADER_2_addr : integer := to_integer(unsigned(bit_vector("1111111111110100111")));   
+--    constant FUNC4_ADER_3_addr : integer := to_integer(unsigned(bit_vector("1111111111110100011")));   
+--    constant FUNC3_ADER_0_addr : integer := to_integer(unsigned(bit_vector("1111111111110011111")));   
+--    constant FUNC3_ADER_1_addr : integer := to_integer(unsigned(bit_vector("1111111111110011011")));   
+--    constant FUNC3_ADER_2_addr : integer := to_integer(unsigned(bit_vector("1111111111110010111")));   
+--    constant FUNC3_ADER_3_addr : integer := to_integer(unsigned(bit_vector("1111111111110010011")));   
+--    constant FUNC2_ADER_0_addr : integer := to_integer(unsigned(bit_vector("1111111111110001111")));   
+--    constant FUNC2_ADER_1_addr : integer := to_integer(unsigned(bit_vector("1111111111110001011")));   
+--    constant FUNC2_ADER_2_addr : integer := to_integer(unsigned(bit_vector("1111111111110000111")));   
+--    constant FUNC2_ADER_3_addr : integer := to_integer(unsigned(bit_vector("1111111111110000011")));   
+--    constant FUNC1_ADER_0_addr : integer := to_integer(unsigned(bit_vector("1111111111101111111")));   
+--    constant FUNC1_ADER_1_addr : integer := to_integer(unsigned(bit_vector("1111111111101111011")));   
+--    constant FUNC1_ADER_2_addr : integer := to_integer(unsigned(bit_vector("1111111111101110111")));   
+--    constant FUNC1_ADER_3_addr : integer := to_integer(unsigned(bit_vector("1111111111101110011")));   
+--    constant FUNC0_ADER_0_addr : integer := to_integer(unsigned(bit_vector("1111111111101101111")));   
+--    constant FUNC0_ADER_1_addr : integer := to_integer(unsigned(bit_vector("1111111111101101011")));   
+--    constant FUNC0_ADER_2_addr : integer := to_integer(unsigned(bit_vector("1111111111101100111")));   
+--    constant FUNC0_ADER_3_addr : integer := to_integer(unsigned(bit_vector("1111111111101100011")));
+--    constant IRQ_ID_addr : integer := to_integer(unsigned(bit_vector("1111111101111111111")));
+--    constant IRQ_level_addr : integer := to_integer(unsigned(bit_vector("1111111101111111011")));
 ---------------------------------------------------------------------------    
 
 ---------------------------------------------------------------------------
@@ -197,6 +289,34 @@ FUNC7_ADEM_2 =>    x"697",
 FUNC7_ADEM_1 =>    x"69B",     
 FUNC7_ADEM_0 =>    x"69F",
 others => (others => '0'));
+
+
+constant c_checksum_po : integer :=0;
+constant c_length_of_rom_po : integer :=1;
+constant c_csr_data_acc_width_po : integer :=2;
+constant c_cr_space_specification_id_po : integer :=3;
+constant c_ascii_c_po  : integer :=4;
+constant c_ascii_r_po : integer :=5;
+constant c_manu_id_po  : integer :=6;
+constant c_board_id_po : integer :=7;
+constant c_rev_id_po : integer :=8;
+constant c_cus_ascii_po : integer :=9;
+constant c_last_CR_pointer_po : integer := 9;
+--
+--constant c_cr_struc: t_cr_struc(0 to c_last_CR_pointer_po) := (
+--
+--c_checksum_po => (16#03#, 1),
+--c_length_of_rom_po =>	  (16#07#, 3),
+--c_csr_data_acc_width_po => (16#1b#, 1),
+--c_cr_space_specification_id_po => (16#1F#, 1),
+--c_ascii_c_po => (, 1),
+--c_ascii_r_po => (, 1),
+--c_manu_id_po => (, 1),
+--c_board_id_po => (, 4),
+--c_rev_id_po => (, 3),
+--c_cus_ascii_po => (, 3),
+--others => (0,0));
+
 
 
 

@@ -36,26 +36,33 @@ entity VME_bus is
          -- VME signals
         VME_RST_n_i :         in STD_LOGIC;
         VME_AS_n_i :          in STD_LOGIC;
-        VME_LWORD_n_b :       inout STD_LOGIC;
+        VME_LWORD_n_b_o :       out STD_LOGIC;
+        VME_LWORD_n_b_i :       in STD_LOGIC;
+
         VME_RETRY_n_o :       out STD_LOGIC;
 		  VME_RETRY_OE_n_o :    out std_logic;
         VME_WRITE_n_i :       in STD_LOGIC;
         VME_DS_n_i :          in STD_LOGIC_VECTOR(1 downto 0);
         VME_GA_i :            in STD_LOGIC_VECTOR(5 downto 0);             -- Geographical Address and GA parity
         VME_DTACK_n_o :       out STD_LOGIC;
+        VME_DTACK_OE_o:       out std_logic;
+
         VME_BERR_o :          out STD_LOGIC;
 		  
-        VME_ADDR_b :          inout STD_LOGIC_VECTOR(31 downto 1);
-        VME_DATA_b :          inout STD_LOGIC_VECTOR(31 downto 0);
+        VME_ADDR_b_i :        in STD_LOGIC_VECTOR(31 downto 1);
+        VME_ADDR_b_o :        out STD_LOGIC_VECTOR(31 downto 1);
+        VME_ADDR_DIR_o:       out std_logic;
+        VME_ADDR_OE_o:        out std_logic;
+		  
+        VME_DATA_b_i :        in STD_LOGIC_VECTOR(31 downto 0);
+        VME_DATA_b_o :        out STD_LOGIC_VECTOR(31 downto 0);
+        VME_DATA_DIR_o:       out std_logic;
+        VME_DATA_OE_o:        out std_logic;
+		  
         VME_AM_i :            in std_logic_vector(5 downto 0);
         VME_BBSY_n_i :        in std_logic;
         VME_IACKIN_n_i:       in std_logic;
         
-        VME_DTACK_OE_o:       out std_logic;
-        VME_DATA_DIR_o:       out std_logic;
-        VME_DATA_OE_o:        out std_logic;
-        VME_ADDR_DIR_o:       out std_logic;
-        VME_ADDR_OE_o:        out std_logic;
         
         -- CROM
         CRaddr_o:             out std_logic_vector(18 downto 0);
@@ -174,10 +181,10 @@ signal VME_BBSY_n_oversampled: std_logic;
 signal VME_IACKIN_n_oversampled: std_logic;
 
 -- Bidirectional signals
-signal s_VMEaddrInput: std_logic_vector(31 downto 1);
-signal s_VMEaddrOutput: std_logic_vector(31 downto 1);
-signal s_VMEdataInput: std_logic_vector(31 downto 0);
-signal s_VMEdataOutput: std_logic_vector(31 downto 0);
+signal s_VMEaddrInput: unsigned(31 downto 1);
+signal s_VMEaddrOutput: unsigned(31 downto 1);
+signal s_VMEdataInput: unsigned(31 downto 0);
+signal s_VMEdataOutput: unsigned(31 downto 0);
 signal s_LWORDinput: std_logic;
 signal s_LWORDoutput: std_logic;  
 
@@ -189,20 +196,20 @@ signal s_addrDir: std_logic;
 signal s_addrOE: std_logic; 
 
 -- Local data & address
-signal s_locDataIn: std_logic_vector(63 downto 0);
-signal s_locDataOut: std_logic_vector(63 downto 0);
-signal s_locData: std_logic_vector(63 downto 0);                    -- Local data
-signal s_locAddr: std_logic_vector(63 downto 0);                   -- Local address
-signal s_locAddr2e: std_logic_vector(63 downto 0);                 -- Local address for 2e transfers
-signal s_locAddrBeforeOffset: std_logic_vector(63 downto 0);
-signal s_phase1addr: std_logic_vector(63 downto 0);                 -- Stores received address in a certain address phase (for 2e transfers)
-signal s_phase2addr: std_logic_vector(63 downto 0);                 --
-signal s_phase3addr: std_logic_vector(63 downto 0);                 --
-signal s_addrOffset: std_logic_vector(17 downto 0);                 -- Offset to the initial address (for block transfers)
-signal s_CrCsrOffsetAddr: std_logic_vector(18 downto 0);            -- Offset to the initial CR/CSR address (for block transfers)
+signal s_locDataIn: unsigned(63 downto 0);
+signal s_locDataOut: unsigned(63 downto 0);
+signal s_locData: unsigned(63 downto 0);                    -- Local data
+signal s_locAddr: unsigned(63 downto 0);                   -- Local address
+signal s_locAddr2e: unsigned(63 downto 0);                 -- Local address for 2e transfers
+signal s_locAddrBeforeOffset: unsigned(63 downto 0);
+signal s_phase1addr: unsigned(63 downto 0);                 -- Stores received address in a certain address phase (for 2e transfers)
+signal s_phase2addr: unsigned(63 downto 0);                 --
+signal s_phase3addr: unsigned(63 downto 0);                 --
+signal s_addrOffset: unsigned(17 downto 0);                 -- Offset to the initial address (for block transfers)
+signal s_CrCsrOffsetAddr: unsigned(18 downto 0);            -- Offset to the initial CR/CSR address (for block transfers)
 
 -- Latched signals
-signal s_VMEaddrLatched: std_logic_vector(63 downto 1);           -- Stores address on falling edge of AS
+signal s_VMEaddrLatched: unsigned(63 downto 1);           -- Stores address on falling edge of AS
 signal s_LWORDlatched: std_logic;                                 -- Stores LWORD on falling edge of AS
 signal s_DSlatched: std_logic_vector(1 downto 0);                 -- Stores DS
 signal s_AMlatched: std_logic_vector(5 downto 0);                 -- Stores AM on falling edge of AS            
@@ -334,7 +341,7 @@ signal s_cardSel: std_logic;                                -- Asserted when int
 signal s_lockSel: std_logic;                                -- Asserted when function losk is correctly addressed
 signal s_memAckCaseCondition: std_logic_vector(1 downto 0); -- Used in p_memAck for case condition 
     
-signal s_XAM: std_logic_vector(7 downto 0);                 -- Stores received XAM
+signal s_XAM: unsigned(7 downto 0);                 -- Stores received XAM
 
 type t_funcMatch is array (0 to 3) of std_logic;            -- Indicates that a certain function has been sucesfully decoded
 signal s_funcMatch: t_funcMatch;
@@ -349,53 +356,53 @@ signal s_lock: std_logic;                                   -- LOCK WB signal
 signal s_cyc: std_logic;                                    -- CYC WB signal                         
 
 -- 2e related signals
-signal s_beatCount: std_logic_vector(8 downto 0);           -- cycleCount*2 for 2eVME, cycleCount for 2eSST
-signal s_runningBeatCount: std_logic_vector(8 downto 0);    -- Beat counter
+signal s_beatCount: unsigned(8 downto 0);           -- cycleCount*2 for 2eVME, cycleCount for 2eSST
+signal s_runningBeatCount: unsigned(8 downto 0);    -- Beat counter
 signal s_beatCountEnd: std_logic;                           -- Indicates that data transfer is over
-signal s_cycleCount: std_logic_vector(7 downto 0);          -- Stores received cycle count 
+signal s_cycleCount: unsigned(7 downto 0);          -- Stores received cycle count 
 signal s_DS1pulse: std_logic;                               -- Pulse on rising and falling edge of DS1
 
 -- CR/CSR related signals
 signal s_CRaddressed: std_logic;                            -- Indicates tha CR is addressed
 signal s_CRAMaddressed: std_logic;                          -- Indicates tha CRAM is addressed
 signal s_CSRaddressed: std_logic;                           -- Indicates tha CSR space is addressed
-signal s_CSRdata: std_logic_vector(7 downto 0);             -- Carries data for CSR write/read
+signal s_CSRdata: unsigned(7 downto 0);             -- Carries data for CSR write/read
 signal s_CRdataIn: std_logic_vector(7 downto 0);            -- CR data bus
 signal s_CRAMdataIn: std_logic_vector(7 downto 0);          -- CRAM data bus
-
+signal s_bar_written : std_logic; 
 -- Control Status Registers
 signal s_CSRarray: t_reg38x8bit;                            -- Array of CSR registers
-signal s_BitSetReg: std_logic_vector(7 downto 0);           -- Bit set register
-signal s_BitClrReg: std_logic_vector(7 downto 0);           -- Bit clear register
-signal s_UsrBitSetReg: std_logic_vector(7 downto 0);        -- User bit set register  
-signal s_UsrBitClrReg: std_logic_vector(7 downto 0);        -- User bit clear register
+signal s_BitSetReg: unsigned(7 downto 0);           -- Bit set register
+signal s_BitClrReg: unsigned(7 downto 0);           -- Bit clear register
+signal s_UsrBitSetReg: unsigned(7 downto 0);        -- User bit set register  
+signal s_UsrBitClrReg: unsigned(7 downto 0);        -- User bit clear register
 
-type t_FUNC_ADDER_array is array (0 to 3) of std_logic_vector(63 downto 0);         -- ADER register array
+type t_FUNC_ADDER_array is array (0 to 3) of unsigned(63 downto 0);         -- ADER register array
 signal s_FUNC_ADER: t_FUNC_ADDER_array;    
 
 signal s_GAparityMatch: std_logic;                            -- Indicates that geographical address is valid (parity matches)
 
 -- CR image registers
-signal s_BEG_USER_CSR: std_logic_vector(23 downto 0);
-signal s_END_USER_CSR: std_logic_vector(23 downto 0);
-signal s_BEG_USER_CR: std_logic_vector(23 downto 0);
-signal s_END_USER_CR: std_logic_vector(23 downto 0);
-signal s_BEG_CRAM: std_logic_vector(23 downto 0);
-signal s_END_CRAM: std_logic_vector(23 downto 0);
+signal s_BEG_USER_CSR: unsigned(23 downto 0);
+signal s_END_USER_CSR: unsigned(23 downto 0);
+signal s_BEG_USER_CR: unsigned(23 downto 0);
+signal s_END_USER_CR: unsigned(23 downto 0);
+signal s_BEG_CRAM: unsigned(23 downto 0);
+signal s_END_CRAM: unsigned(23 downto 0);
 signal s_FUNC_ADEM: t_FUNC_ADDER_array;                       -- ADEM register array      
 signal s_CRregArray: t_reg52x8bit;                            -- CR image register array
 --signal c_CRinitAddr: t_reg52x12bit;
 
 -- Misc. signals
 signal s_BERRcondition: std_logic;                            -- Condition for asserting BERR 
-signal s_irqIDdata: std_logic_vector(7 downto 0);              -- IRQ Status/ID data
+signal s_irqIDdata: unsigned(7 downto 0);              -- IRQ Status/ID data
 
 -- Initialization signals
 
 signal s_initInProgress: std_logic;                         -- Indicates that initialization procedure is in progress
 signal s_initReadCounter: integer range 0 to 52;            -- Counts read operations
 signal s_latchCRdata: std_logic;                            -- Stores read CR data
-
+signal s_WrRd : std_logic;
 type t_initState is (IDLE,                 -- Initialization procedure FSM
                     SET_ADDR, 
                     GET_DATA, 
@@ -403,17 +410,18 @@ type t_initState is (IDLE,                 -- Initialization procedure FSM
                     );
 signal s_initState: t_initState;
 
+signal s_locAddr_eq_bar, s_addressingType_CR_CSR : std_logic;
 
 begin 
     
 s_reset <= (not VME_RST_n_oversampled); -- or s_CSRarray(BIT_SET_CLR_REG)(7);     -- hardware reset and software reset
 reset_o <= s_reset;
 
-VME_DTACK_OE_o <= '1' when IACKinProgress_i='1' else s_dtackOE;
-VME_DATA_DIR_o <= '1' when IACKinProgress_i='1' else s_dataDir;
+VME_DTACK_OE_o <= '0'; -- added by pablo for testing. it was:'1' when IACKinProgress_i='1' else s_dtackOE;
+VME_DATA_DIR_o <= s_dataDir; -- added by pablo for testing. it was:'1' when IACKinProgress_i='1' else s_dataDir;
 VME_DATA_OE_o  <= '1' when IACKinProgress_i='1' else s_dataOE;
-VME_ADDR_DIR_o <= s_addrDir;
-VME_ADDR_OE_o  <= s_addrOE;
+VME_ADDR_DIR_o <= '0'; -- added by pablo for testing. it was:s_addrDir;
+VME_ADDR_OE_o  <= '0'; -- added by pablo for testing. it was:s_addrOE;
 
 
 -- Type of data transfer decoder
@@ -440,6 +448,7 @@ s_addressingTypeSelect <= VME_AM_oversampled;
 
 with s_addressingTypeSelect select
     s_addressingType <= A24            when "111101",
+								A24            when "111001",	 
                         A24_BLT        when "111111",
                         A24_MBLT       when "111100",
                         A24_LCK        when "110010",
@@ -484,14 +493,15 @@ p_VMEmainFSM: process(clk_i)
 begin
     if rising_edge(clk_i) then
         if s_reset='1' or s_mainFSMreset='1' or s_blockTransferLimitPulse='1' or VME_IACKIN_n_oversampled='0' then        -- FSM is also reset on rising edge of address strobe (which indicates end of transfer) and on rising edge of block transfer limit signal
-            s_dtackOE                <= '0';
+            --s_dtackOE                <= '0';
             s_dataDir                <= '0';
             s_dataOE                 <= '0';
             s_addrDir                <= '0';
-            s_addrOE                 <= '1';
+            s_addrOE                 <= '0';
             s_mainDTACK              <= '1';  -- it was 'Z'
             s_memReq                 <= '0';
-            s_DSlatch                <= '0';
+            s_DSlatch                <= '1';
+				--s_WrRd                   <= '0'; 
             s_incrementAddr          <= '0'; 
             s_resetAddrOffset        <= '1';
             s_dataPhase              <= '0';
@@ -510,18 +520,19 @@ begin
             case s_mainFSMstate is
                 
                 when IDLE =>
-                if IACKinProgress_i='1' then
-                    s_dtackOE        <= '1';
-                else
-                    s_dtackOE        <= '0';
-                end if;
+--                if IACKinProgress_i='1' then
+--                    --s_dtackOE        <= '1';
+--                else
+--                    --s_dtackOE        <= '0';
+--                end if;
                 s_dataDir            <= '0';
                 s_dataOE             <= '0';
                 s_addrDir            <= '0';
-                s_addrOE             <= '1';
+                s_addrOE             <= '0';
                 s_mainDTACK          <= '1';
                 s_memReq             <= '0';
-                s_DSlatch            <= '0';
+                s_DSlatch            <= '1';
+				    --s_WrRd               <= '0'; 
                 s_incrementAddr      <= '0'; 
                 s_resetAddrOffset    <= '1';
                 s_dataPhase          <= '0';
@@ -542,14 +553,15 @@ begin
                 end if;
                                                                                                     
                 when DECODE_ACCESS =>
-                s_dtackOE            <= '0';
+                --s_dtackOE            <= '0';
                 s_dataDir            <= '0';
                 s_dataOE             <= '0';
                 s_addrDir            <= '0';
                 s_addrOE             <= '0';
                 s_mainDTACK          <= '1';
                 s_memReq             <= '0';
-                s_DSlatch            <= '0';
+                s_DSlatch            <= '1';
+				    --s_WrRd               <= '0'; 
                 s_incrementAddr      <= '0'; 
                 s_resetAddrOffset    <= '0';
                 s_dataPhase          <= '0';
@@ -574,14 +586,16 @@ begin
                 end if;
                 
                 when WAIT_FOR_DS =>    
-                s_dtackOE            <= '0';
+                --s_dtackOE            <= '0';
                 s_dataDir            <= VME_WRITE_n_oversampled;
                 s_dataOE             <= '0';
                 s_addrDir            <= VME_WRITE_n_oversampled;
                 s_addrOE             <= '0';
                 s_mainDTACK          <= '1';
                 s_memReq             <= '0';
-                s_DSlatch            <= '0';
+                s_DSlatch            <= '1';
+				    --s_WrRd               <= '0'; 
+
                 s_incrementAddr      <= '0'; 
                 s_resetAddrOffset    <= '0';
                 s_dataPhase          <= s_dataPhase;
@@ -602,7 +616,7 @@ begin
                 end if;
                 
                 when LATCH_DS =>
-                s_dtackOE            <= '0';
+                --s_dtackOE            <= '0';
                 s_dataDir            <= VME_WRITE_n_oversampled;
                 s_dataOE             <= '0';
                 s_addrDir            <= VME_WRITE_n_oversampled;
@@ -610,6 +624,8 @@ begin
                 s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '1';
+				    --s_WrRd               <= '0'; 
+
                 s_incrementAddr      <= '0'; 
                 s_resetAddrOffset    <= '0';
                 s_dataPhase          <= s_dataPhase;    
@@ -626,7 +642,7 @@ begin
                 s_mainFSMstate       <= CHECK_TRANSFER_TYPE;
                 
                 when CHECK_TRANSFER_TYPE =>
-                s_dtackOE            <= '0';
+                --s_dtackOE            <= '0';
                 s_dataDir            <= VME_WRITE_n_oversampled;
                 s_dataOE             <= '0';
                 s_addrDir            <= VME_WRITE_n_oversampled;
@@ -634,6 +650,7 @@ begin
                 s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
+					 
                 s_incrementAddr      <= '0'; 
                 s_resetAddrOffset    <= '0';
                 s_dataPhase          <= s_dataPhase;
@@ -649,18 +666,21 @@ begin
                 s_berr               <= '0';
                 if s_transferType=SINGLE or s_transferType=BLT then
                     s_mainFSMstate   <= MEMORY_REQ;
+				        --s_WrRd           <= VME_WRITE_n_oversampled; 
                 elsif s_transferType=MBLT and s_dataPhase='0' then
                     s_mainFSMstate   <= DTACK_LOW;
+				        --s_WrRd           <= '0'; 
                 elsif s_transferType=MBLT and s_dataPhase='1' then
                     s_mainFSMstate   <= MEMORY_REQ;
+				        --s_WrRd           <= VME_WRITE_n_oversampled; 
                 end if;
                 
                 when MEMORY_REQ =>
-                s_dtackOE            <= '1';
+                --s_dtackOE            <= '1';
                 s_dataDir            <= VME_WRITE_n_oversampled;
                 s_dataOE             <= '1';
                 s_addrDir            <= VME_WRITE_n_oversampled;
-                s_addrOE             <= '1';
+                s_addrOE             <= '0';
                 s_mainDTACK          <= '1';
                 s_memReq             <= '1';
                 s_DSlatch            <= '0';
@@ -679,21 +699,25 @@ begin
                 s_berr               <= '0';
                 if s_memAck='1' and s_RW='0' then
                     s_mainFSMstate   <= DTACK_LOW;
+				        --s_WrRd               <= '0'; 
                 elsif s_memAck='1' and s_RW='1' then
                     s_mainFSMstate   <= DATA_TO_BUS;
+				        --s_WrRd               <= '0'; 
                 else
                     s_mainFSMstate   <= MEMORY_REQ;
+				        --s_WrRd               <= VME_WRITE_n_oversampled; 
                 end if;
                 
                 when DATA_TO_BUS =>
-                s_dtackOE            <= '1';
+                --s_dtackOE            <= '1';
                 s_dataDir            <= VME_WRITE_n_oversampled;
                 s_dataOE             <= '1';
                 s_addrDir            <= VME_WRITE_n_oversampled;
-                s_addrOE             <= '1';
+                s_addrOE             <= '0';
                 s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
+   		       --s_WrRd               <= '0'; 
                 s_incrementAddr      <= '0'; 
                 s_resetAddrOffset    <= '0';
                 s_dataPhase          <= '1';
@@ -715,14 +739,16 @@ begin
                 s_mainFSMstate       <= DTACK_LOW;
                 
                 when DTACK_LOW =>
-                s_dtackOE            <= '1';
+                --s_dtackOE            <= '1';
                 s_dataDir            <= VME_WRITE_n_oversampled;
                 s_dataOE             <= '1';
                 s_addrDir            <= VME_WRITE_n_oversampled;
-                s_addrOE             <= '1';
+                s_addrOE             <= '0';
                 s_mainDTACK          <= '0';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
+   		       --s_WrRd               <= '0'; 
+
                 s_incrementAddr      <= '0'; 
                 s_resetAddrOffset    <= '0';
                 s_dataPhase          <= s_dataPhase;
@@ -743,7 +769,7 @@ begin
                 end if;
                 
                 when DECIDE_NEXT_CYCLE =>
-                s_dtackOE            <= '0';
+                --s_dtackOE            <= '0';
                 s_dataDir            <= VME_WRITE_n_oversampled;
                 s_dataOE             <= '0';
                 s_addrDir            <= VME_WRITE_n_oversampled;
@@ -751,6 +777,8 @@ begin
                 s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
+   		       --s_WrRd               <= '0'; 
+
                 s_incrementAddr      <= '0'; 
                 s_resetAddrOffset    <= '0';
                 s_dataPhase          <= s_dataPhase;
@@ -768,6 +796,7 @@ begin
                     s_mainFSMstate   <= WAIT_FOR_DS;
                 elsif s_transferType=BLT then
                     s_mainFSMstate   <= INCREMENT_ADDR;
+						  
                 elsif s_transferType=MBLT and s_dataPhase='0' then
                     s_mainFSMstate   <= SET_DATA_PHASE;
                 elsif s_transferType=MBLT and s_dataPhase='1' then
@@ -775,7 +804,7 @@ begin
                 end if;
                 
                 when INCREMENT_ADDR =>
-                s_dtackOE            <= '0';
+                --s_dtackOE            <= '0';
                 s_dataDir            <= VME_WRITE_n_oversampled;
                 s_dataOE             <= '0';
                 s_addrDir            <= VME_WRITE_n_oversampled;
@@ -783,6 +812,7 @@ begin
                 s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
+   		       --s_WrRd               <= '0'; 
                 s_incrementAddr      <= '1'; 
                 s_resetAddrOffset    <= '0';
                 s_dataPhase          <= s_dataPhase;
@@ -799,7 +829,7 @@ begin
                 s_mainFSMstate       <= WAIT_FOR_DS;
                 
                 when SET_DATA_PHASE =>
-                s_dtackOE            <= '0';
+                --s_dtackOE            <= '0';
                 s_dataDir            <= VME_WRITE_n_oversampled;
                 s_dataOE             <= '0';
                 s_addrDir            <= VME_WRITE_n_oversampled;
@@ -807,6 +837,8 @@ begin
                 s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
+   		       --s_WrRd               <= '0'; 
+
                 s_incrementAddr      <= '0'; 
                 s_resetAddrOffset    <= '0';
                 s_dataPhase          <= '1';
@@ -823,7 +855,7 @@ begin
                 s_mainFSMstate       <= WAIT_FOR_DS;
                 
                 when ACKNOWLEDGE_LOCK =>
-                s_dtackOE            <= '1';
+                --s_dtackOE            <= '1';
                 s_dataDir            <= VME_WRITE_n_oversampled;
                 s_dataOE             <= '0';
                 s_addrDir            <= VME_WRITE_n_oversampled;
@@ -835,6 +867,8 @@ begin
                 end if;
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
+   		       --s_WrRd               <= '0'; 
+
                 s_incrementAddr      <= '0'; 
                 s_resetAddrOffset    <= '0';
                 s_dataPhase          <= '0';
@@ -851,7 +885,7 @@ begin
                 s_mainFSMstate       <= ACKNOWLEDGE_LOCK;          -- wait here until AS goes high, which resets the FSM      
                 
                 when WAIT_FOR_DS_2e =>
-                s_dtackOE            <= '0';
+                --s_dtackOE            <= '0';
                 s_dataDir            <= '0';
                 s_dataOE             <= '1';
                 s_addrDir            <= '0';
@@ -859,6 +893,7 @@ begin
                 s_mainDTACK          <= '1';
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
+   		       --s_WrRd               <= '0'; 
                 s_incrementAddr      <= '0'; 
                 s_resetAddrOffset    <= '0';
                 s_dataPhase          <= '0';
@@ -877,12 +912,14 @@ begin
                 end if;
                 
                 when ADDR_PHASE_1 =>
-                s_dtackOE            <= '0';
+                --s_dtackOE            <= '0';
                 s_dataDir            <= '0';
                 s_dataOE             <= '1';
                 s_addrDir            <= '0';
                 s_addrOE             <= '1';
                 s_mainDTACK          <= '1';
+   		       --s_WrRd               <= '0'; 
+
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -901,12 +938,14 @@ begin
                 s_mainFSMstate       <= DECODE_ACCESS_2e;
                 
                 when DECODE_ACCESS_2e =>
-                s_dtackOE            <= '1';
+                --s_dtackOE            <= '1';
                 s_dataDir            <= '0';
                 s_dataOE             <= '1';
                 s_addrDir            <= '0';
                 s_addrOE             <= '1';
                 s_mainDTACK          <= '1';
+   		       --s_WrRd               <= '0'; 
+
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -931,12 +970,14 @@ begin
                 end if;
                 
                 when DTACK_PHASE_1 =>
-                s_dtackOE            <= '1';
+                --s_dtackOE            <= '1';
                 s_dataDir            <= '0';
                 s_dataOE             <= '1';
                 s_addrDir            <= '0';
                 s_addrOE             <= '1';
                 s_mainDTACK          <= '0';
+   		       --s_WrRd               <= '0'; 
+
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -959,12 +1000,13 @@ begin
                 end if;
                 
                 when ADDR_PHASE_2 =>
-                s_dtackOE            <= '1';
+                --s_dtackOE            <= '1';
                 s_dataDir            <= '0';
                 s_dataOE             <= '1';
                 s_addrDir            <= '0';
                 s_addrOE             <= '1';
                 s_mainDTACK          <= '0';
+   		       --s_WrRd               <= '0'; 
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -983,12 +1025,14 @@ begin
                 s_mainFSMstate       <= DTACK_PHASE_2;
                 
                 when DTACK_PHASE_2 =>
-                s_dtackOE            <= '1';
+                --s_dtackOE            <= '1';
                 s_dataDir            <= '0';
                 s_dataOE             <= '1';
                 s_addrDir            <= '0';
                 s_addrOE             <= '1';
                 s_mainDTACK          <= '1';
+   		       --s_WrRd               <= '0'; 
+
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -1009,12 +1053,13 @@ begin
                 end if;    
                 
                 when ADDR_PHASE_3 =>
-                s_dtackOE            <= '1';
+                --s_dtackOE            <= '1';
                 s_dataDir            <= '0';
                 s_dataOE             <= '1';
                 s_addrDir            <= '0';
                 s_addrOE             <= '1';
                 s_mainDTACK          <= '1';
+   		       --s_WrRd               <= '0'; 
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
                 s_incrementAddr      <= '0'; 
@@ -1039,7 +1084,7 @@ begin
                 end if;
                 
                 when DTACK_PHASE_3 =>
-                s_dtackOE            <= '1';
+                --s_dtackOE            <= '1';
                 s_dataDir            <= '0';
                 s_dataOE             <= '1';
                 s_addrDir            <= '0';
@@ -1062,14 +1107,17 @@ begin
                 s_berr               <= '0';
                 if s_RW='0' and s_retry='0' then
                     s_mainFSMstate   <= TWOe_FIFO_WRITE;
+   		       --s_WrRd               <= VME_WRITE_n_oversampled; 						  
                 elsif s_RW='1' and s_retry='0' then
                     s_mainFSMstate   <= TWOe_FIFO_WAIT_READ;
+   		       --s_WrRd               <= VME_WRITE_n_oversampled; 						  						 
                 elsif VME_DS_n_oversampled(0)='1' and s_retry='1' then
                     s_mainFSMstate   <= TWOe_RELEASE_DTACK;
+   		           --s_WrRd               <= '0'; 						  
                 end if;   
                 
                 when TWOe_FIFO_WRITE =>    
-                s_dtackOE            <= '1';
+                --s_dtackOE            <= '1';
                 s_dataDir            <= '0';
                 s_dataOE             <= '1';
                 s_addrDir            <= '0';
@@ -1077,6 +1125,7 @@ begin
                 s_mainDTACK          <= s_mainDTACK;
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
+   		       --s_WrRd               <= '0'; 						  						 
                 s_incrementAddr      <= '0'; 
                 s_resetAddrOffset    <= '0';
                 s_dataPhase          <= '0';
@@ -1090,6 +1139,7 @@ begin
                 s_readFIFO           <= '0';
                 s_retry              <= '0';
                 s_berr               <= '0';
+					
                 if s_DS1pulse='1' and s_2eType=TWOe_VME then
                     s_mainFSMstate   <= TWOe_TOGGLE_DTACK;
                 elsif VME_DS_n_oversampled(0)='1' then
@@ -1097,7 +1147,7 @@ begin
                 end if;
                 
                 when TWOe_TOGGLE_DTACK =>    
-                s_dtackOE            <= '1';
+                --s_dtackOE            <= '1';
                 s_dataDir            <= s_dataDir;
                 s_dataOE             <= '1';
                 s_addrDir            <= s_addrDir;
@@ -1105,6 +1155,7 @@ begin
                 s_mainDTACK          <= not s_mainDTACK;
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
+   		       --s_WrRd               <= '0'; 						  						 
                 s_incrementAddr      <= '0'; 
                 s_resetAddrOffset    <= '0';
                 s_dataPhase          <= '0';
@@ -1125,7 +1176,7 @@ begin
                 end if;
                 
                 when TWOe_WAIT_FOR_DS1 =>    
-                s_dtackOE            <= '1';
+                --s_dtackOE            <= '1';
                 s_dataDir            <= s_dataDir;
                 s_dataOE             <= '1';
                 s_addrDir            <= s_addrDir;
@@ -1133,6 +1184,8 @@ begin
                 s_mainDTACK          <= s_mainDTACK;
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
+   		       --s_WrRd               <= '0'; 						  						 
+
                 s_incrementAddr      <= '0'; 
                 s_resetAddrOffset    <= '0';
                 s_dataPhase          <= '0';
@@ -1151,7 +1204,7 @@ begin
                 end if;
                 
                 when TWOe_FIFO_WAIT_READ =>    
-                s_dtackOE            <= '1';
+                --s_dtackOE            <= '1';
                 s_dataDir            <= '1';
                 s_dataOE             <= '1';
                 s_addrDir            <= '1';
@@ -1159,6 +1212,10 @@ begin
                 s_mainDTACK          <= s_mainDTACK;
                 s_memReq             <= '0';
                 s_DSlatch            <= '0';
+   		       --s_WrRd               <= '0'; 						  						 
+					 
+					 
+	--				 me he queda do con lo del WrRd ---------------
                 s_incrementAddr      <= '0'; 
                 s_resetAddrOffset    <= '0';
                 s_dataPhase          <= '0';
@@ -1177,7 +1234,7 @@ begin
                 end if;
                 
                 when TWOe_FIFO_READ =>    
-                s_dtackOE            <= '1';
+                --s_dtackOE            <= '1';
                 s_dataDir            <= '1';
                 s_dataOE             <= '1';
                 s_addrDir            <= '1';
@@ -1201,7 +1258,7 @@ begin
                 s_mainFSMstate       <= TWOe_TOGGLE_DTACK;    
                 
                 when TWOe_CHECK_BEAT =>
-                s_dtackOE            <= '1';
+                --s_dtackOE            <= '1';
                 s_dataDir            <= '1';
                 s_dataOE             <= '1';
                 s_addrDir            <= '1';
@@ -1229,7 +1286,7 @@ begin
                 end if;
                 
                 when TWOe_RELEASE_DTACK =>
-                s_dtackOE            <= '0';
+                --s_dtackOE            <= '0';
                 s_dataDir            <= '0';
                 s_dataOE             <= '0';
                 s_addrDir            <= '0';
@@ -1253,7 +1310,7 @@ begin
                 s_mainFSMstate       <= TWOe_RELEASE_DTACK; 
                 
                 when TWOe_END_1 => 
-                s_dtackOE            <= '1';
+                --s_dtackOE            <= '1';
                 s_dataDir            <= '0';
                 s_dataOE             <= '0';
                 s_addrDir            <= '0';
@@ -1277,7 +1334,7 @@ begin
                 s_mainFSMstate       <= TWOe_END_2;
                 
                 when TWOe_END_2 =>
-                s_dtackOE            <= '1';
+                --s_dtackOE            <= '1';
                 s_dataDir            <= '0';
                 s_dataOE             <= '0';
                 s_addrDir            <= '0';
@@ -1303,7 +1360,7 @@ begin
                 end if;
                 
                 when OTHERS =>
-                s_dtackOE            <= '0';
+                --s_dtackOE            <= '0';
                 s_dataDir            <= '0';
                 s_dataOE             <= '0';
                 s_addrDir            <= '0';
@@ -1347,7 +1404,7 @@ begin
             VME_RETRY_n_o <= '0';
 				VME_RETRY_OE_n_o <= '1';
         else
-            VME_RETRY_n_o <= '-';
+            VME_RETRY_n_o <= '0';
 				VME_RETRY_OE_n_o <= '0';
         end if;
     end if;
@@ -1399,10 +1456,13 @@ begin
     if rising_edge(clk_i) then
         if IACKinProgress_i='1' then
             VME_DTACK_n_o <= irqDTACK_i;
+				s_dtackOE <= not irqDTACK_i;
         elsif s_mainDTACK='0' then
             VME_DTACK_n_o <= '0';
+				s_dtackOE <= '1';
         else
-            VME_DTACK_n_o <= '-';
+            VME_DTACK_n_o <= '0';
+				s_dtackOE <= '0';
         end if;
     end if;
 end process;
@@ -1410,22 +1470,22 @@ end process;
 
 -- Bidirectional signal handling 
 
-s_VMEaddrInput <= VME_ADDR_oversampled;
+s_VMEaddrInput <= unsigned(VME_ADDR_oversampled);
 s_LWORDinput <= VME_LWORD_n_oversampled;
-s_VMEdataInput <= VME_DATA_oversampled; 
-
+s_VMEdataInput <= unsigned(VME_DATA_oversampled); 
+	  
 p_ADDRmux: process(clk_i)
 begin
     if rising_edge(clk_i) then
         if s_dataToAddrBus='1' and s_TWOeInProgress='1' then
-            VME_ADDR_b <= FIFOdata_i(63 downto 33);
-            VME_LWORD_n_b <= FIFOdata_i(32);
+            VME_ADDR_b_o <= FIFOdata_i(63 downto 33);
+            VME_LWORD_n_b_o <= FIFOdata_i(32);
         elsif s_dataToAddrBus='1' then
-            VME_ADDR_b <= s_locData(63 downto 33);
-            VME_LWORD_n_b <= s_locData(32);
+            VME_ADDR_b_o <= std_logic_vector(s_locData(63 downto 33));
+            VME_LWORD_n_b_o <= s_locData(32);
         else
-            VME_ADDR_b <= (others => '-');
-            VME_LWORD_n_b <= '-';
+            VME_ADDR_b_o <= (others => '0');
+            VME_LWORD_n_b_o <= '0';
         end if;
     end if;
 end process;
@@ -1434,13 +1494,13 @@ p_DATAmux: process(clk_i)
 begin
     if rising_edge(clk_i) then
         if s_dataToAddrBus='1' and s_TWOeInProgress='1' then
-            VME_DATA_b <= FIFOdata_i(31 downto 0);
+            VME_DATA_b_o <= FIFOdata_i(31 downto 0);
         elsif s_dataToAddrBus='1' or s_dataToOutput='1' then
-            VME_DATA_b <= s_locData(31 downto 0);
+            VME_DATA_b_o <= std_logic_vector(s_locData(31 downto 0));
         elsif IDtoData_i='1' then
-            VME_DATA_b <= "------------------------" & s_irqIDdata;
+            VME_DATA_b_o <= "------------------------" & std_logic_vector(s_irqIDdata);
         else
-           VME_DATA_b <= (others => '-');
+           VME_DATA_b_o <= (others => '0');
         end if;
     end if;
 end process; 
@@ -1459,7 +1519,7 @@ begin
             s_AMlatched <= (others => '0');
         else
             if s_VMEaddrLatch='1' then                                               -- Latching on falling edge of VME_AS_n_i
-                s_VMEaddrLatched <= s_VMEdataInput & s_VMEaddrInput;
+                s_VMEaddrLatched <= unsigned(s_VMEdataInput) & s_VMEaddrInput;
                 s_LWORDlatched <= s_LWORDinput;
                 s_AMlatched <= VME_AM_oversampled;
             else
@@ -1515,12 +1575,16 @@ begin
 end process;
 
 s_XAM            <= s_phase1addr(7 downto 0);
-s_cycleCount     <= s_phase2addr(15 downto 8);       
+s_cycleCount     <= unsigned(s_phase2addr(15 downto 8));       
 
-s_beatCount      <= s_cycleCount&'0' when s_XAMtype=A32_2eVME or s_XAMtype=A64_2eVME else
-                    '0'&s_cycleCount;
-    
-beatCount_o      <= s_beatCount(7 downto 0);
+
+--s_beatCount      <= ((s_cycleCount)&'0') when s_XAMtype=A32_2eVME or s_XAMtype=A64_2eVME else
+--                    ('0'&(s_cycleCount));
+
+s_beatCount      <=  (resize(s_cycleCount*2,s_beatCount'length)) when (s_XAMtype=A32_2eVME or s_XAMtype=A64_2eVME) else
+                     resize(s_cycleCount,s_beatCount'length);
+--
+beatCount_o      <= std_logic_vector(s_beatCount(7 downto 0));
 
 
 -- Beat counter
@@ -1558,7 +1622,7 @@ s_locAddr <=    s_locAddrBeforeOffset - 1 + s_addrOffset when s_typeOfDataTransf
                 s_locAddr2e + s_addrOffset when s_addressingType=TWOedge else
                 s_locAddrBeforeOffset + s_addrOffset;
     
-locAddr_o <= s_locAddr;
+locAddr_o <= std_logic_vector(s_locAddr);
 
                 
 -- Local address incrementing 
@@ -1620,17 +1684,17 @@ begin
                     case s_DSlatched(1) is
                         when '0' =>                                                    -- D08(E)
                             s_locData(15 downto 8) <= s_locDataOut(7 downto 0);
-                            s_locData(63 downto 16) <= (others => '-');
-                            s_locData(7 downto 0) <= (others => '-'); 
+                            s_locData(63 downto 16) <= (others => '0');
+                            s_locData(7 downto 0) <= (others => '0'); 
                             s_sel <= "00000001";
                         when others =>                                                -- D08(O)
                             s_locData(7 downto 0) <= s_locDataOut(7 downto 0);
-                            s_locData(63 downto 8) <= (others => '-');
+                            s_locData(63 downto 8) <= (others => '0');
                             s_sel <= "00000001";
                     end case;
                 when D16 =>                                                            -- D16
                     s_locData(15 downto 0) <= s_locDataOut(15 downto 0);
-                    s_locData(63 downto 16) <= (others => '-');
+                    s_locData(63 downto 16) <= (others => '0');
                     s_sel <= "00000011";
                 when D32 =>                                                             
                         case s_transferType is
@@ -1639,13 +1703,13 @@ begin
                                 s_sel <= "11111111";
                             when others =>                                            -- D32
                                 s_locData(31 downto 0) <= s_locDataOut(31 downto 0);
-                                s_locData(63 downto 32) <= (others => '-');
+                                s_locData(63 downto 32) <= (others => '0');
                                 s_sel <= "00001111";
                         end case;
                 when UnAl0to2 =>                                                    -- Unaligned transfer byte(0-2)
                     s_locData(31 downto 8) <= s_locDataOut(23 downto 0);
-                    s_locData(63 downto 32) <= (others => '-');
-                    s_locData(7 downto 0) <= (others => '-');
+                    s_locData(63 downto 32) <= (others => '0');
+                    s_locData(7 downto 0) <= (others => '0');
                     s_sel <= "00000111";
                 when UnAl1to3 =>                                                    -- Unaligned transfer byte(1-3)
                     s_locData(23 downto 0) <= s_locDataOut(23 downto 0);
@@ -1653,8 +1717,8 @@ begin
                     s_sel <= "00000111";
                 when UnAl1to2 =>                                                    -- Unaligned transfer byte(1-2)
                     s_locData(23 downto 8) <= s_locDataOut(15 downto 0);
-                    s_locData(63 downto 24) <= (others => '-');
-                    s_locData(7 downto 0) <= (others => '-');
+                    s_locData(63 downto 24) <= (others => '0');
+                    s_locData(7 downto 0) <= (others => '0');
                     s_sel <= "00000011";
                 when others =>
                     s_locData(63 downto 0) <= s_locDataOut(63 downto 0);
@@ -1705,25 +1769,25 @@ begin
     end if;
 end process;
 
-FIFOdata_o <= s_VMEaddrInput & s_LWORDinput &  s_VMEdataInput;
+FIFOdata_o <= std_logic_vector(s_VMEaddrInput) & s_LWORDinput &  std_logic_vector(s_VMEdataInput);
 
-s_locDataOut <= WBdata_i when s_cardSel='1' else
-                x"00000000000000" & s_CSRdata when s_confAccess='1' and s_CSRaddressed='1' and s_CRAMaddressed='0' and s_CRaddressed='0' else
-                x"00000000000000" & s_CRdataIn when s_confAccess='1' and s_CRaddressed='1' and s_CRAMaddressed='0' and s_CSRaddressed='0' else
-                x"00000000000000" & s_CRAMdataIn when s_confAccess='1' and s_CRAMaddressed='1' and s_CRaddressed='0' and s_CSRaddressed='0' else
-                (others => '-');
+s_locDataOut <= unsigned(WBdata_i) when s_cardSel='1' else
+                resize(unsigned(s_CSRdata),s_locDataOut'length) when s_confAccess='1' and s_CSRaddressed='1' and s_CRAMaddressed='0' and s_CRaddressed='0' else
+                resize(unsigned(s_CRdataIn),s_locDataOut'length) when s_confAccess='1' and s_CRaddressed='1' and s_CRAMaddressed='0' and s_CSRaddressed='0' else
+                resize(unsigned(s_CRAMdataIn),s_locDataOut'length) when s_confAccess='1' and s_CRAMaddressed='1' and s_CRaddressed='0' and s_CSRaddressed='0' else
+                (others => '0');
                     
-WBdata_o <= s_locDataIn;
+WBdata_o <= std_logic_vector(s_locDataIn);
 
-CRAMdata_o    <= s_locDataIn(7 downto 0);
+CRAMdata_o    <= std_logic_vector(s_locDataIn(7 downto 0));
 CRAMwea_o     <= '1' when s_confAccess='1' and s_CRAMaddressed='1' and s_memReq='1' and s_RW='0' else '0';
 
-s_RW <= VME_WRITE_n_oversampled;        -- read if s_RW='1', write if s_RW='0'
+s_RW <= VME_WRITE_n_oversampled ;--and s_WrRd;        -- read if s_RW='1', write if s_RW='0'
 RW_o <= s_RW;
 
 wbSel_o <= s_sel;
     
-s_memAck <= s_memAckCSR(2) or memAckWB_i;
+s_memAck <= s_memAckCSR(0) or memAckWB_i;
 memReq_o <= s_memReq and s_cardSel;             -- memory request to WB only if it is selected with s_cardSel
     
     
@@ -1731,10 +1795,14 @@ memReq_o <= s_memReq and s_cardSel;             -- memory request to WB only if 
 
 s_cardSel <= '1' when s_moduleEnable='1' and (((s_funcMatch(3)='1' and s_AMmatch(3)='1') or (s_funcMatch(2)='1' and s_AMmatch(2)='1') or (s_funcMatch(1)='1' and s_AMmatch(1)='1') or (s_funcMatch(0)='1' and s_AMmatch(0)='1'))) and s_addressingType/=CR_CSR and s_initInProgress='0' else '0';            -- NOTE: addressing any of the 4 functions will result in s_cardSel='1' (and the address and data will be forwarded to the WB bus), therefore the WB slave must decode the address by itself, if it wishes to implement different functions.
 
+
 s_lockSel <= '1' when s_moduleEnable='1' and s_initInProgress='0' and s_transferType=LCK and (s_funcMatch(3)='1' or s_funcMatch(2)='1' or s_funcMatch(1)='1' or s_funcMatch(0)='1') else '0';   
     
-s_confAccess <= '1' when s_CSRarray(BAR)(7 downto 3)=s_locAddr(23 downto 19) and s_addressingType=CR_CSR and s_initInProgress='0' else '0';                    -- CR/CSR decode
-    
+s_confAccess <= '1' when unsigned(s_CSRarray(BAR)(7 downto 3))=s_locAddr(23 downto 19) and s_addressingType=CR_CSR and s_initInProgress='0' else '0';                    -- CR/CSR decode
+
+s_locAddr_eq_bar <= '1' when unsigned(s_CSRarray(BAR)(7 downto 3))=s_locAddr(23 downto 19) else '0'; -- added by pablo to check simulation
+s_addressingType_CR_CSR <= '1' when s_addressingType=CR_CSR else '0';
+
 p_functMatch: process(clk_i)            -- NOTE: interface will respond to different addressing types and will attempt to decode only the address width that it is given, even though the ADEM and ADER registers may contain a mask, that is greater than the current address width
 begin
     if rising_edge(clk_i) then -- Added by pablo. Guess it should be clocked as the only signal in the
@@ -1743,19 +1811,19 @@ begin
         when "11" =>
         for i in 0 to 3 loop
             if s_addressingType=TWOedge and (s_XAMtype=A32_2eVME or s_XAMtype=A32_2eSST) then  
-                if (s_FUNC_ADER(i)(31 downto 10) and s_FUNC_ADEM(i)(31 downto 10))=(s_locAddr(31 downto 10) and s_FUNC_ADEM(i)(31 downto 10)) then
+                if (s_FUNC_ADER(i)(31 downto 10) and s_FUNC_ADEM(i)(31 downto 10))=((s_locAddr(31 downto 10)) and s_FUNC_ADEM(i)(31 downto 10)) then
                     s_funcMatch(i) <= '1';
                 else
                     s_funcMatch(i) <= '0';
                 end if;    
             elsif s_addressingType=TWOedge and (s_XAMtype=A64_2eVME or s_XAMtype=A64_2eSST) then  
-                if (s_FUNC_ADER(i)(63 downto 10) and s_FUNC_ADEM(i)(63 downto 10))=(s_locAddr(63 downto 10) and s_FUNC_ADEM(i)(63 downto 10)) then
+                if (s_FUNC_ADER(i)(63 downto 10) and s_FUNC_ADEM(i)(63 downto 10))=((s_locAddr(63 downto 10)) and s_FUNC_ADEM(i)(63 downto 10)) then
                     s_funcMatch(i) <= '1';
                 else
                     s_funcMatch(i) <= '0';
                 end if;
             else    
-                if (s_FUNC_ADER(i)(63 downto 8) and s_FUNC_ADEM(i)(63 downto 8))=(s_locAddr(63 downto 8) and s_FUNC_ADEM(i)(63 downto 8)) then
+                if (s_FUNC_ADER(i)(63 downto 8) and s_FUNC_ADEM(i)(63 downto 8))=((s_locAddr(63 downto 8)) and s_FUNC_ADEM(i)(63 downto 8)) then
                     s_funcMatch(i) <= '1';
                 else
                     s_funcMatch(i) <= '0';
@@ -1765,7 +1833,7 @@ begin
         
         when "10" =>
         for i in 0 to 3 loop
-            if (s_FUNC_ADER(i)(31 downto 8) and s_FUNC_ADEM(i)(31 downto 8))=(s_locAddr(31 downto 8) and s_FUNC_ADEM(i)(31 downto 8)) then
+            if (s_FUNC_ADER(i)(31 downto 8) and s_FUNC_ADEM(i)(31 downto 8))=((s_locAddr(31 downto 8)) and s_FUNC_ADEM(i)(31 downto 8)) then
                 s_funcMatch(i) <= '1';
             else
                 s_funcMatch(i) <= '0';
@@ -1774,7 +1842,7 @@ begin
         
         when "01" =>
         for i in 0 to 3 loop
-            if (s_FUNC_ADER(i)(23 downto 8) and s_FUNC_ADEM(i)(23 downto 8))=(s_locAddr(23 downto 8) and s_FUNC_ADEM(i)(23 downto 8)) then
+            if (s_FUNC_ADER(i)(23 downto 8) and s_FUNC_ADEM(i)(23 downto 8))=((s_locAddr(23 downto 8)) and s_FUNC_ADEM(i)(23 downto 8)) then
                 s_funcMatch(i) <= '1';
             else
                 s_funcMatch(i) <= '0';
@@ -1782,7 +1850,7 @@ begin
         end loop;
         
         for i in 0 to 3 loop
-            if (s_FUNC_ADER(i)(15 downto 8) and s_FUNC_ADEM(i)(15 downto 8))=(s_locAddr(15 downto 8) and s_FUNC_ADEM(i)(15 downto 8)) then
+            if (s_FUNC_ADER(i)(15 downto 8) and s_FUNC_ADEM(i)(15 downto 8))=((s_locAddr(15 downto 8)) and s_FUNC_ADEM(i)(15 downto 8)) then
                 s_funcMatch(i) <= '1';
             else
                 s_funcMatch(i) <= '0';
@@ -1800,27 +1868,27 @@ end process;
 p_AMmatch: process(clk_i)
 begin
     if rising_edge(clk_i) then -- Added by pablo. Guess it should be clocked as the only signal in the
-									    -- sensitivity list was clk_i
+--									    -- sensitivity list was clk_i
     for i in 0 to 3 loop
-        case s_FUNC_ADER(i)(0) is
-            when '0' =>
-            if s_FUNC_ADER(i)(7 downto 2)=VME_AM_oversampled and s_FUNC_ADER(i)(0)='0' then
+--        case s_FUNC_ADER(i)(0) is
+--            when '0' =>
+            if "111001"=unsigned(VME_AM_oversampled)  then
                 s_AMmatch(i) <= '1';
             else
                 s_AMmatch(i) <= '0';
             end if;
             
-            when '1' =>
-            if s_addressingType=TWOedge and s_FUNC_ADER(i)(0)='1' and s_XAM=s_FUNC_ADER(i)(9 downto 2) then
-                s_AMmatch(i) <= '1';
-            else
-                s_AMmatch(i) <= '0';
-            end if;
-            
-            when others =>
-            s_AMmatch(i) <= '0';
-            
-        end case;
+--            when '1' =>
+--            if (s_addressingType=TWOedge) and (s_FUNC_ADER(i)(0)='1') and ((s_XAM)=s_FUNC_ADER(i)(9 downto 2)) then
+--                s_AMmatch(i) <= '1';
+--            else
+--                s_AMmatch(i) <= '0';
+--            end if;
+--            
+--            when others =>
+--            s_AMmatch(i) <= '0';
+--            
+--        end case;
     end loop;
 	 end if;
 end process;
@@ -1830,10 +1898,10 @@ end process;
 
 s_CrCsrOffsetAddr <= s_locAddr(18 downto 0);
 
-CRaddr_o <= s_CrCsrOffsetAddr when s_initInProgress='0' else
-            "0000000" & c_CRinitAddr(s_initReadCounter);                    -- when s_initInProgress='1' the initialization procedure will hijack this address bus
+CRaddr_o <= std_logic_vector(s_CrCsrOffsetAddr) when s_initInProgress='0' else
+            std_logic_vector(resize(unsigned(c_CRinitAddr(s_initReadCounter)),CRaddr_o'length));                    -- when s_initInProgress='1' the initialization procedure will hijack this address bus
     
-CRAMaddr_o <= s_CrCsrOffsetAddr - s_BEG_CRAM(18 downto 0);
+CRAMaddr_o <= std_logic_vector(s_CrCsrOffsetAddr - unsigned(s_BEG_CRAM(18 downto 0)));
 
 s_CSRaddressed  <= '1' when (s_CrCsrOffsetAddr<=x"7FFFF" and s_CrCsrOffsetAddr>=x"7FC00") xor (s_CrCsrOffsetAddr>=s_BEG_USER_CSR(18 downto 0) and s_CrCsrOffsetAddr<=s_END_USER_CSR(18 downto 0) and s_BEG_USER_CSR<s_END_USER_CSR) else '0'; 
 s_CRaddressed   <= '1' when (s_CrCsrOffsetAddr<=x"00FFF" and s_CrCsrOffsetAddr>=x"00000") xor (s_CrCsrOffsetAddr>=s_BEG_USER_CR(18 downto 0) and s_CrCsrOffsetAddr<=s_END_USER_CR(18 downto 0) and s_BEG_USER_CR<s_END_USER_CR) else '0';
@@ -1862,12 +1930,12 @@ end process;
 
 s_GAparityMatch <= '1' when VME_GA_oversampled(5) = not (VME_GA_oversampled(0) xor VME_GA_oversampled(1) xor VME_GA_oversampled(2) xor VME_GA_oversampled(3) xor VME_GA_oversampled(4)) else '0';
     
-s_moduleEnable <= s_CSRarray(BIT_SET_CLR_REG)(4);
+s_moduleEnable <= '1'; -- set by pablo for testing it was: s_CSRarray(BIT_SET_CLR_REG)(4);
     
-s_FUNC_ADER(0) <= s_CSRarray(FUNC1_ADER_3) & s_CSRarray(FUNC1_ADER_2) & s_CSRarray(FUNC1_ADER_1) & s_CSRarray(FUNC1_ADER_0) & s_CSRarray(FUNC0_ADER_3) & s_CSRarray(FUNC0_ADER_2) & s_CSRarray(FUNC0_ADER_1) & s_CSRarray(FUNC0_ADER_0);
-s_FUNC_ADER(1) <= s_CSRarray(FUNC3_ADER_3) & s_CSRarray(FUNC3_ADER_2) & s_CSRarray(FUNC3_ADER_1) & s_CSRarray(FUNC3_ADER_0) & s_CSRarray(FUNC2_ADER_3) & s_CSRarray(FUNC2_ADER_2) & s_CSRarray(FUNC2_ADER_1) & s_CSRarray(FUNC2_ADER_0);
-s_FUNC_ADER(2) <= s_CSRarray(FUNC5_ADER_3) & s_CSRarray(FUNC5_ADER_2) & s_CSRarray(FUNC5_ADER_1) & s_CSRarray(FUNC5_ADER_0) & s_CSRarray(FUNC4_ADER_3) & s_CSRarray(FUNC4_ADER_2) & s_CSRarray(FUNC4_ADER_1) & s_CSRarray(FUNC4_ADER_0);
-s_FUNC_ADER(3) <= s_CSRarray(FUNC7_ADER_3) & s_CSRarray(FUNC7_ADER_2) & s_CSRarray(FUNC7_ADER_1) & s_CSRarray(FUNC7_ADER_0) & s_CSRarray(FUNC6_ADER_3) & s_CSRarray(FUNC6_ADER_2) & s_CSRarray(FUNC6_ADER_1) & s_CSRarray(FUNC6_ADER_0); 
+s_FUNC_ADER(0) <= (s_CSRarray(FUNC1_ADER_3) & s_CSRarray(FUNC1_ADER_2) & s_CSRarray(FUNC1_ADER_1) & s_CSRarray(FUNC1_ADER_0) & s_CSRarray(FUNC0_ADER_3) & s_CSRarray(FUNC0_ADER_2) & s_CSRarray(FUNC0_ADER_1) & s_CSRarray(FUNC0_ADER_0));
+s_FUNC_ADER(1) <= (s_CSRarray(FUNC3_ADER_3) & s_CSRarray(FUNC3_ADER_2) & s_CSRarray(FUNC3_ADER_1) & s_CSRarray(FUNC3_ADER_0) & s_CSRarray(FUNC2_ADER_3) & s_CSRarray(FUNC2_ADER_2) & s_CSRarray(FUNC2_ADER_1) & s_CSRarray(FUNC2_ADER_0));
+s_FUNC_ADER(2) <= (s_CSRarray(FUNC5_ADER_3) & s_CSRarray(FUNC5_ADER_2) & s_CSRarray(FUNC5_ADER_1) & s_CSRarray(FUNC5_ADER_0) & s_CSRarray(FUNC4_ADER_3) & s_CSRarray(FUNC4_ADER_2) & s_CSRarray(FUNC4_ADER_1) & s_CSRarray(FUNC4_ADER_0));
+s_FUNC_ADER(3) <= (s_CSRarray(FUNC7_ADER_3) & s_CSRarray(FUNC7_ADER_2) & s_CSRarray(FUNC7_ADER_1) & s_CSRarray(FUNC7_ADER_0) & s_CSRarray(FUNC6_ADER_3) & s_CSRarray(FUNC6_ADER_2) & s_CSRarray(FUNC6_ADER_1) & s_CSRarray(FUNC6_ADER_0)); 
 
 
 -- CSR write
@@ -1875,30 +1943,41 @@ p_CSR_Write: process(clk_i)
 begin
     if rising_edge(clk_i) then
         if s_reset='1' then
+            if s_GAparityMatch='1' then
+                s_CSRarray(BAR)     <= (resize(unsigned(not VME_GA_oversampled(4 downto 0))*8,s_CSRarray(BAR)'length));
+            else
+                s_CSRarray(BAR)     <= (others => '0');
+            end if;
+ 				s_bar_written <= '0';
+        elsif  s_memReq='1' and s_confAccess='1' then	 
+	             if s_CrCsrOffsetAddr = BAR and s_RW='0' then
+                    s_CSRarray(BAR) <= s_locDataIn(7 downto 0);
+						  s_bar_written <= '1';
+				     end if;
+					 
+		   elsif s_bar_written = '0' then
+                    s_CSRarray(BAR)(7 downto 3)     <= unsigned(not VME_GA_oversampled(4 downto 0));			
+                    s_CSRarray(BAR)(2 downto 0)      <= "000";
+         end if;
+
+        if s_reset='1' then
             s_BitSetReg             <= (others => '0');
             s_BitClrReg             <= (others => '0');
             s_UsrBitClrReg          <= (others => '0');
             s_UsrBitSetReg          <= (others => '0');
             s_CSRarray(CRAM_OWNER)  <= (others => '0');
-            if s_GAparityMatch='1' then
-                s_CSRarray(BAR)     <= (not VME_GA_oversampled(4 downto 0) & "000");
-            else
-                s_CSRarray(BAR)     <= (others => '0');
-            end if;
             s_CSRarray(1)           <= (others => '0');
             for i in 3 to 37 loop
                 s_CSRarray(i)       <= (others => '0');
             end loop;
-            
         elsif s_memReq='1' and s_confAccess='1' then
-            
-            case s_CrCsrOffsetAddr is
+       
+
+		 
+            case to_integer(s_CrCsrOffsetAddr) is
                 
                 -- Base Address Register
                 when BAR_addr =>
-                if s_RW='0' then
-                    s_CSRarray(BAR) <= s_locDataIn(7 downto 0);
-                end if;
             
                 -- Bit Set Register
                 when BIT_SET_REG_addr =>
@@ -2144,11 +2223,12 @@ begin
     end if;
 end process;
 
+
 -- CSR read
 process(s_CSRarray, s_CrCsrOffsetAddr)
 begin
-s_CSRdata <= (others => '-');
-case s_CrCsrOffsetAddr is
+s_CSRdata <= (others => '0');
+case to_integer(s_CrCsrOffsetAddr) is
 when BAR_addr => s_CSRdata <=s_CSRarray(BAR);
 when BIT_SET_REG_addr =>  s_CSRdata <=s_CSRarray(BIT_SET_CLR_REG);    					 
 when BIT_CLR_REG_addr => s_CSRdata <=s_CSRarray(BIT_SET_CLR_REG);				 
@@ -2195,7 +2275,7 @@ end case;
 -----------------------------------------------
 -----------------------------------------------
 end process;               
-IRQlevelReg_o <= s_CSRarray(IRQ_level);               
+IRQlevelReg_o <= std_logic_vector(s_CSRarray(IRQ_level));               
     
 -- Initialization procedure                
 
@@ -2242,7 +2322,7 @@ begin
                 
             end case;
             if s_latchCRdata='1' then
-            s_CRregArray(s_initReadCounter) <= CRdata_i;
+            s_CRregArray(s_initReadCounter) <= unsigned(CRdata_i);
             end if;
         end if;
     end if;
@@ -2354,7 +2434,7 @@ DATAinputSample: RegInputSample
         width => 32
         )
     port map (
-        reg_i => VME_DATA_b,
+        reg_i => VME_DATA_b_i,
         reg_o => VME_DATA_oversampled,
         clk_i => clk_i 
         );
@@ -2364,7 +2444,7 @@ ADDRinputSample: RegInputSample
         width => 31
         )
     port map(
-        reg_i => VME_ADDR_b,
+        reg_i => VME_ADDR_b_i,
         reg_o => VME_ADDR_oversampled,
         clk_i => clk_i 
         );
@@ -2425,7 +2505,7 @@ WRITEinputSample: SigInputSample
  
 LWORDinputSample: SigInputSample
     port map(
-        sig_i => VME_LWORD_n_b,
+        sig_i => VME_LWORD_n_b_i,
         sig_o => VME_LWORD_n_oversampled,
         clk_i => clk_i
         );

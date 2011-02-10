@@ -38,7 +38,7 @@ entity sim_vme64master is
 		VME_RETRY_n_i 	: 		in STD_LOGIC;
 		VME_WRITE_n_o	: 		out STD_LOGIC;
 		VME_DS_n_o 		: 		out STD_LOGIC_VECTOR(1 downto 0);
-		--VME_GA_i 		: 		in STD_LOGIC_VECTOR(4 downto 0);
+		VME_GA_i 		: 		in STD_LOGIC_VECTOR(4 downto 0);
 		VME_DTACK_n_i 	:		in STD_LOGIC;
 		VME_BERR_n_i 	:		in STD_LOGIC;
 		VME_ADDR_b 		: 		inout STD_LOGIC_VECTOR(31 downto 1);
@@ -298,7 +298,10 @@ begin
 		begin
 			
 			--present address
-			ADDR(31 downto 1) <= s_address(31 downto 1); 
+			ADDR <= (others => '0');
+			ADDR(18 downto 1) <= s_address(18 downto 1); 
+			ADDR(23 downto 19) <= not VME_GA_i(4 downto 0);
+			
 			DATA <= s_address(63 downto 32);
 			--present address modifier
 			AM <= s_AM;						
@@ -1087,13 +1090,14 @@ begin
 		
 		begin
 		--execute
-		wait for 70 ns;
+		wait for 100 us;
 		
 		configBus;
 		wait for 200 ns;
 		--s_AM <= "111101"; --A24 data access blt
 		--s_AM <= "111111"; --A24 data access 
-		s_AM <= "000001"; --A64 data access 
+		s_AM <= "111001";
+		--s_AM <= "000001"; --A64 data access 
 		--s_AM <= "000011"; --A64 data access blt
 		--s_AM <= "000000"; --A64 data access mblt
 		--s_AM <= "001101"; --A32 data access
@@ -1119,12 +1123,12 @@ begin
 --        wait;
 --		--------------------------
     		
-        write2eSST(5);
-		wait for 200ns;
-		read2eSST(5);
-		wait;  
+ --       write2eSST(5);
+--		wait for 200ns;
+--		read2eSST(5);
+--		wait;  
 
---      readGenericBlock(5);
+ --     readGenericBlock(5);
 --      readGenericBlockMBLT(5);
 --        wait;
 
@@ -1144,7 +1148,21 @@ begin
 --		wait;
 --		
 --		readGenericSingleAP(false);
---		writeGenericSingle;
+		s_address(31 downto 0) <= x"77f00004";--x"0003fffd"; 
+		s_dataToSend <= x"00001110";
+      wait for 100 ns;
+		writeGenericSingle;
+
+		readGenericSingle(false);		
+
+
+		s_address(31 downto 0) <= x"77f00009";--x"0003fffd"; 
+		s_dataToSend <= x"00001310";
+      wait for 100 ns;
+		writeGenericSingle;
+
+		readGenericSingle(false);		
+		
 --		readGenericBlock(5);
 --		
 --		readGenericSingle(false);		

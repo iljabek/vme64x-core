@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 -- Add your library and packages declaration here ...
-
+ 
 entity vme64xcore_top_tb is
 end vme64xcore_top_tb;
 
@@ -17,13 +17,13 @@ architecture TB_ARCHITECTURE of vme64xcore_top_tb is
 			VME_AM_i : in STD_LOGIC_VECTOR(5 downto 0);
 			VME_DS_n_i : in STD_LOGIC_VECTOR(1 downto 0);
 			VME_GA_i : in STD_LOGIC_VECTOR(5 downto 0);
-			VME_BERR_n_o : out STD_LOGIC;
+			VME_BERR_o : out STD_LOGIC;
 			VME_DTACK_n_o : out STD_LOGIC;
 			VME_RETRY_n_o : out STD_LOGIC;
 			VME_LWORD_n_b : inout STD_LOGIC;
 			VME_ADDR_b : inout STD_LOGIC_VECTOR(31 downto 1);
 			VME_DATA_b : inout STD_LOGIC_VECTOR(31 downto 0);
-			VME_BBSY_n_i : in STD_LOGIC;
+			VME_BBSY_n_i : in STD_LOGIC; 
 			VME_IRQ_n_o : out STD_LOGIC_VECTOR(6 downto 0);
 			VME_IACKIN_n_i : in STD_LOGIC;
 			VME_IACKOUT_n_o : out STD_LOGIC; 
@@ -125,7 +125,7 @@ architecture TB_ARCHITECTURE of vme64xcore_top_tb is
 	signal VME_ADDR_b : STD_LOGIC_VECTOR(31 downto 1);
 	signal VME_DATA_b : STD_LOGIC_VECTOR(31 downto 0);
 	-- Observed signals - signals mapped to the output ports of tested entity
-	signal VME_BERR_n_o : STD_LOGIC;
+	signal VME_BERR_n_o, VME_BERR_o : STD_LOGIC;
 	signal VME_DTACK_n_o : STD_LOGIC;
 	signal VME_RETRY_n_o : STD_LOGIC;
 	signal VME_IRQ_n_o : STD_LOGIC_VECTOR(6 downto 0);
@@ -145,7 +145,7 @@ architecture TB_ARCHITECTURE of vme64xcore_top_tb is
    	signal VME_DATA_OE_o:std_logic;
     signal VME_ADDR_DIR_o:       std_logic;
     signal VME_ADDR_OE_o:std_logic;
-	
+	 signal s_VME_DTACK_n : std_logic;
 	-- Add your code here ...
 	
 begin
@@ -160,7 +160,7 @@ begin
 		VME_AM_i => VME_AM_i,
 		VME_DS_n_i => VME_DS_n_i,
 		VME_GA_i => VME_GA_i,
-		VME_BERR_n_o => VME_BERR_n_o,
+		VME_BERR_o => VME_BERR_o,
 		VME_DTACK_n_o => VME_DTACK_n_o,
 		VME_RETRY_n_o => VME_RETRY_n_o,
 		VME_LWORD_n_b => VME_LWORD_n_b,
@@ -194,7 +194,18 @@ begin
 		STALL_i => STALL_i,
 		IRQ_i => IRQ_i
 		);
+		
+	VME_BERR_n_o <= VME_BERR_o;
+	s_VME_DTACK_n <= VME_DTACK_n_o when VME_DTACK_OE_o = '1' else '1';
+--	s_VME_ADDR_b <= VME_ADDR_b when 
+--		VME_DTACK_OE_i => VME_DTACK_OE_o,
+--        VME_DATA_DIR_i => VME_DATA_DIR_o,
+--        VME_DATA_OE_i => VME_DATA_OE_o,
+--        VME_ADDR_DIR_i => VME_ADDR_DIR_o,
+--        VME_ADDR_OE_i => VME_ADDR_OE_o,
 	
+		  
+		  
 	stimulGen : sim_vme64master
 	port map(
 		clk_i => clk_i,
@@ -203,7 +214,7 @@ begin
 		VME_RETRY_n_i => VME_RETRY_n_o,
 		VME_WRITE_n_o => VME_WRITE_n_i,
 		VME_DS_n_o => VME_DS_n_i,
-		VME_DTACK_n_i => VME_DTACK_n_o,
+		VME_DTACK_n_i => s_VME_DTACK_n,
 		VME_BERR_n_i => VME_BERR_n_o,
 		VME_ADDR_b => VME_ADDR_b,
 		VME_DATA_b => VME_DATA_b,
@@ -218,7 +229,8 @@ begin
 		VME_IRQ_n_i => VME_IRQ_n_o,
 		VME_IACKOUT_n_o => VME_IACKIN_n_i
 		);
-	
+
+
 	stimulGen_wb : sim_wbslave
 	port map(
 		clk_i => clk_i,
@@ -250,10 +262,10 @@ begin
 		wait for 5 ns;
 	end	process;
 	
-	VME_GA_i <= "011111";
+	VME_GA_i <= "111011";
 	
-	VME_RST_n_i <= '0', '1' after 20ns;	 
-	RST_i <= '1', '0' after 20 ns;
+	VME_RST_n_i <= '0', '1' after 200 ns;	 
+	RST_i <= '1', '0' after 200 ns;
 	--RTY_i <= '0';
 	--ERR_I <= '0';
 	

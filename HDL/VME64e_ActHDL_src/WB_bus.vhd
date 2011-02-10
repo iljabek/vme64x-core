@@ -340,11 +340,15 @@ s_ackCountEnd <= '1' when s_ackCount=s_beatCount else '0';
 p_beatCountRegister: process(clk_i)
 begin
     if rising_edge(clk_i) then 
+	  if reset_i = '1' then 
+            s_beatCount <= (others => '0');
+	  else
         if s_addrLatch='1' then
             s_beatCount <= beatCount_i;
         else
             s_beatCount <= s_beatCount;
         end if;
+	  end if;
     end if;
 end process; 
 
@@ -354,11 +358,15 @@ end process;
 p_pipSTB: process(clk_i)
 begin
     if rising_edge(clk_i) then
+	  if reset_i = '1' then 
+	         s_stb <= '0';
+     else
         if s_pipeCommActive='1' and STALL_i='0' and ((writeFIFOempty_i='0' and s_WE='1') or (s_WE='0')) and s_beatCountEnd='0' then
             s_stb <= '1';
         else
             s_stb <= '0';
         end if;
+		end if;
     end if;
 end process; 
 
