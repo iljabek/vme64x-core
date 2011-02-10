@@ -415,7 +415,7 @@ WB_bus_1: WB_bus
         WBbusy_o =>         s_WBbusy
         );
         VME_IACKOUT_n_o <= '1';
-        VME_IRQ_n_o <=  (others => '1');
+        VME_IRQ_n_o <=  (others => '0');
 --IRQ_controller_1: IRQ_controller
 --     port map(
 --         clk_i =>            clk_i,
