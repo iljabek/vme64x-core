@@ -1397,34 +1397,34 @@ TWOeInProgress_o <= s_TWOeInProgress;
 
 -- RETRY driver
 
-p_RETRYdriver: process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        if rty_i='1' or s_retry='1' then
+--p_RETRYdriver: process(clk_i)
+--begin
+--    if rising_edge(clk_i) then
+--        if rty_i='1' or s_retry='1' then
+--            VME_RETRY_n_o <= '0';
+--				VME_RETRY_OE_n_o <= '1';
+--        else
             VME_RETRY_n_o <= '0';
 				VME_RETRY_OE_n_o <= '1';
-        else
-            VME_RETRY_n_o <= '0';
-				VME_RETRY_OE_n_o <= '0';
-        end if;
-    end if;
-end process;
+--        end if;
+--    end if;
+--end process;
 
 
 -- BERR driver 
 
-p_BERRdriver: process(clk_i)
-begin
-    if rising_edge(clk_i) then
-        s_berr_1 <= s_berr;    
-        s_berr_2 <= s_berr and s_berr_1;
-        if (s_transferActive='1' and s_BERRcondition='1') or s_berr_2='1' then
+--p_BERRdriver: process(clk_i)
+--begin
+--    if rising_edge(clk_i) then
+--        s_berr_1 <= s_berr;    
+--        s_berr_2 <= s_berr and s_berr_1;
+--        if (s_transferActive='1' and s_BERRcondition='1') or s_berr_2='1' then
             VME_BERR_o <= '1';
-        else
-            VME_BERR_o <= '0';
-        end if;
-    end if;
-end process;
+--        else
+--            VME_BERR_o <= '0';
+--        end if;
+--    end if;
+--end process;
 
 s_BERRcondition <= '1' when s_transferType=ERROR or s_typeOfDataTransfer=TypeError or err_i='1' or (s_CRaddressed='1' and s_confAccess='1' and s_RW='0') or ((s_CSRaddressed='1' and s_CRaddressed='1') or (s_CRAMaddressed='1' and s_CRaddressed='1') or (s_CRAMaddressed='1' and s_CSRaddressed='1')) else '0';
                 
