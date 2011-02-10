@@ -279,7 +279,7 @@ signal s_beatCount: std_logic_vector(7 downto 0);
  
 signal s_vme_addr_b_o : std_logic_vector(31 downto 1);
 signal s_VME_LWORD_n_b_o : std_logic;
-signal s_VME_ADDR_OE_o, s_VME_DATA_OE : std_logic;
+signal s_VME_ADDR_OE_o, s_VME_DATA_OE, s_VME_DATA_DIR : std_logic;
 signal s_VME_DATA_b_o : std_logic_vector(31 downto 0);
 --signal s_vme_addr_b_i : std_logic_vector(31 downto 1);
 
@@ -321,7 +321,7 @@ VME_bus_1 : VME_bus
 
        VME_DATA_b_o =>       s_VME_DATA_b_o,
        VME_DATA_b_i =>       VME_DATA_b,
-       VME_DATA_DIR_o =>     VME_DATA_DIR_o,
+       VME_DATA_DIR_o =>     s_VME_DATA_DIR,
        VME_DATA_OE_o =>      s_VME_DATA_OE, 
 		 
        VME_BBSY_n_i =>       VME_BBSY_n_i,
@@ -369,10 +369,10 @@ VME_bus_1 : VME_bus
  
 		 VME_ADDR_b  <= s_VME_ADDR_b_o when s_VME_ADDR_OE_o = '1' else (others => 'Z');
 		 VME_LWORD_n_b <= s_VME_LWORD_n_b_o when s_VME_ADDR_OE_o = '1' else 'Z';
-		 VME_DATA_b <= s_VME_DATA_b_o when s_VME_DATA_OE = '1' else (others => 'Z');
+		 VME_DATA_b <= s_VME_DATA_b_o when s_VME_DATA_DIR = '1' else (others => 'Z');
 		 VME_DATA_OE_o <= s_VME_DATA_OE;
 		 VME_ADDR_OE_o <= s_VME_ADDR_OE_o;
-		 
+		 VME_DATA_DIR_o <= s_VME_DATA_DIR;
 WB_bus_1: WB_bus  
     port map(
         clk_i =>     clk_i,
