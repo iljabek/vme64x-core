@@ -170,7 +170,7 @@ signal s_moduleEnable: std_logic;
 signal VME_RST_n_oversampled : STD_LOGIC;
 signal VME_AS_n_oversampled : STD_LOGIC;
 signal VME_LWORD_n_oversampled : STD_LOGIC;
-signal VME_RETRY_n_oversampled : STD_LOGIC;
+--signal VME_RETRY_n_oversampled : STD_LOGIC;
 signal VME_WRITE_n_oversampled : STD_LOGIC;
 signal VME_DS_n_oversampled, VME_DS_n_oversampled_1 : STD_LOGIC_VECTOR(1 downto 0);
 signal VME_GA_oversampled: STD_LOGIC_VECTOR(5 downto 0);
@@ -182,11 +182,11 @@ signal VME_IACKIN_n_oversampled: std_logic;
 
 -- Bidirectional signals
 signal s_VMEaddrInput: unsigned(31 downto 1);
-signal s_VMEaddrOutput: unsigned(31 downto 1);
+--signal s_VMEaddrOutput: unsigned(31 downto 1);
 signal s_VMEdataInput: unsigned(31 downto 0);
-signal s_VMEdataOutput: unsigned(31 downto 0);
+--signal s_VMEdataOutput: unsigned(31 downto 0);
 signal s_LWORDinput: std_logic;
-signal s_LWORDoutput: std_logic;  
+--signal s_LWORDoutput: std_logic;  
 
 -- External latch signals
 signal s_dtackOE: std_logic;
@@ -312,7 +312,7 @@ signal s_mainDTACK: std_logic;                            -- DTACK driving
 signal s_2eLatchAddr: std_logic_vector(1 downto 0);      -- Stores address in different address phases (for 2e transfers)
 signal s_readFIFO: std_logic;                            -- FIFO memory request
 
-signal s_dataWidth: std_logic_vector(1 downto 0);        -- Tells WB the width of valid data
+--signal s_dataWidth: std_logic_vector(1 downto 0);        -- Tells WB the width of valid data
 signal s_addrWidth: std_logic_vector(1 downto 0);        -- Width of valid address 
 signal s_memAck: std_logic;                              -- Memory acknowledge (from CR/CSR or from WB)
 signal s_memAckCSR: std_logic_vector(2 downto 0);        -- Memory acknowledge from CR/CSR (shift register for delaying of the acknowledge)
@@ -339,7 +339,7 @@ signal s_berr_2: std_logic;                              --
 signal s_confAccess: std_logic;                             -- Asserted when CR or CSR is addressed
 signal s_cardSel: std_logic;                                -- Asserted when internal memory space is addressed 
 signal s_lockSel: std_logic;                                -- Asserted when function losk is correctly addressed
-signal s_memAckCaseCondition: std_logic_vector(1 downto 0); -- Used in p_memAck for case condition 
+--signal s_memAckCaseCondition: std_logic_vector(1 downto 0); -- Used in p_memAck for case condition 
     
 signal s_XAM: unsigned(7 downto 0);                 -- Stores received XAM
 
@@ -402,7 +402,7 @@ signal s_irqIDdata: unsigned(7 downto 0);              -- IRQ Status/ID data
 signal s_initInProgress: std_logic;                         -- Indicates that initialization procedure is in progress
 signal s_initReadCounter: integer range 0 to 52;            -- Counts read operations
 signal s_latchCRdata: std_logic;                            -- Stores read CR data
-signal s_WrRd : std_logic;
+--signal s_WrRd : std_logic;
 type t_initState is (IDLE,                 -- Initialization procedure FSM
                     SET_ADDR, 
                     GET_DATA, 
@@ -417,9 +417,9 @@ begin
 s_reset <= (not VME_RST_n_oversampled); -- or s_CSRarray(BIT_SET_CLR_REG)(7);     -- hardware reset and software reset
 reset_o <= s_reset;
 
-VME_DTACK_OE_o <= '0'; -- added by pablo for testing. it was:'1' when IACKinProgress_i='1' else s_dtackOE;
+VME_DTACK_OE_o <= s_dataOE; -- added by pablo for testing. it was:'1' when IACKinProgress_i='1' else s_dtackOE;
 VME_DATA_DIR_o <= s_dataDir; -- added by pablo for testing. it was:'1' when IACKinProgress_i='1' else s_dataDir;
-VME_DATA_OE_o  <= '1' when IACKinProgress_i='1' else s_dataOE;
+VME_DATA_OE_o  <= s_dataOE; -- added by pablo for testing. it was: '1' when IACKinProgress_i='1' else s_dataOE;
 VME_ADDR_DIR_o <= '0'; -- added by pablo for testing. it was:s_addrDir;
 VME_ADDR_OE_o  <= '0'; -- added by pablo for testing. it was:s_addrOE;
 
@@ -1454,14 +1454,15 @@ lock_o <= s_lock;
 p_DTACKmux: process(clk_i)
 begin
     if rising_edge(clk_i) then
-        if IACKinProgress_i='1' then
-            VME_DTACK_n_o <= irqDTACK_i;
-				s_dtackOE <= not irqDTACK_i;
-        elsif s_mainDTACK='0' then
+--        if IACKinProgress_i='1' then
+--            VME_DTACK_n_o <= irqDTACK_i;
+--				s_dtackOE <= not irqDTACK_i;
+--        els
+		  if s_mainDTACK='0' then
             VME_DTACK_n_o <= '0';
 				s_dtackOE <= '1';
         else
-            VME_DTACK_n_o <= '0';
+            VME_DTACK_n_o <= '1';
 				s_dtackOE <= '0';
         end if;
     end if;

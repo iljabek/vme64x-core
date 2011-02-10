@@ -36,7 +36,7 @@ end DoubleSigInputSample;
 
 architecture RTL of DoubleSigInputSample is
 	signal s_1: std_logic;
-	signal s_2: std_logic;
+--	signal s_2: std_logic;
 begin
 	process(clk_i)
 	begin

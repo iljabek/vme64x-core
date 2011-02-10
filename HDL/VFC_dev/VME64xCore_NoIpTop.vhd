@@ -249,7 +249,7 @@ signal s_WBdataOut: std_logic_vector(63 downto 0);
 signal s_WBsel: std_logic_vector(7 downto 0);     
 signal s_memAckWB: std_logic;  
 signal s_memReq: std_logic;
-signal s_IRQ: std_logic;
+--signal s_IRQ: std_logic;
 signal s_cyc: std_logic;
 signal s_reset: std_logic; 
 signal s_err: std_logic;
@@ -268,7 +268,7 @@ signal s_FIFOwriteDout: std_logic_vector(63 downto 0);
 signal s_FIFOreadDin: std_logic_vector(63 downto 0);
 signal s_FIFOreadEmpty: std_logic;
 signal s_FIFOwriteEmpty: std_logic;
-signal s_FIFOfull: std_logic;
+--signal s_FIFOfull: std_logic;
 signal s_FIFOwriteRden: std_logic;
 signal s_FIFOreadRden: std_logic;
 signal s_wbFIFOreset: std_logic;
@@ -414,7 +414,8 @@ WB_bus_1: WB_bus
         TWOeInProgress_i => s_TWOeInProgress,
         WBbusy_o =>         s_WBbusy
         );
-        
+        VME_IACKOUT_n_o <= '1';
+        VME_IRQ_n_o <=  (others => '1');
 --IRQ_controller_1: IRQ_controller
 --     port map(
 --         clk_i =>            clk_i,

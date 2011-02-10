@@ -22,246 +22,146 @@
   <sourceproject xmlns="http://www.xilinx.com/XMLSchema" xil_pn:fileType="FILE_XISE" xil_pn:name="VME64e_VFC.xise"/>
 
   <files xmlns="http://www.xilinx.com/XMLSchema">
-    <file xil_pn:fileType="FILE_CMD_LOG" xil_pn:name="Fifo.cmd_log"/>
-    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_MODELSIM_CMD" xil_pn:name="Fifo.fdo"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_LSO" xil_pn:name="Fifo.lso"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="Fifo.ngc"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGR" xil_pn:name="Fifo.ngr"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="Fifo.prj"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_STX" xil_pn:name="Fifo.stx"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_REPORT" xil_pn:name="Fifo.syr"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST" xil_pn:name="Fifo.xst"/>
-    <file xil_pn:fileType="FILE_HTML" xil_pn:name="Fifo_envsettings.html"/>
-    <file xil_pn:fileType="FILE_HTML" xil_pn:name="Fifo_summary.html"/>
-    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="Fifo_xst.xrpt"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_REPORT" xil_pn:name="VME64xCore_Top.bgn" xil_pn:subbranch="FPGAConfiguration"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BIT" xil_pn:name="VME64xCore_Top.bit" xil_pn:subbranch="FPGAConfiguration"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGDBUILD_LOG" xil_pn:name="VME64xCore_Top.bld"/>
-    <file xil_pn:fileType="FILE_CMD_LOG" xil_pn:name="VME64xCore_Top.cmd_log"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_DRC" xil_pn:name="VME64xCore_Top.drc" xil_pn:subbranch="FPGAConfiguration"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_LSO" xil_pn:name="VME64xCore_Top.lso"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NCD" xil_pn:name="VME64xCore_Top.ncd" xil_pn:subbranch="Par"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="VME64xCore_Top.ngc"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGD" xil_pn:name="VME64xCore_Top.ngd"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGR" xil_pn:name="VME64xCore_Top.ngr"/>
-    <file xil_pn:fileType="FILE_PAD_MISC" xil_pn:name="VME64xCore_Top.pad"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PAR_REPORT" xil_pn:name="VME64xCore_Top.par" xil_pn:subbranch="Par"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PCF" xil_pn:name="VME64xCore_Top.pcf" xil_pn:subbranch="Map"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="VME64xCore_Top.prj"/>
-    <file xil_pn:fileType="FILE_TRCE_MISC" xil_pn:name="VME64xCore_Top.ptwx"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_STX" xil_pn:name="VME64xCore_Top.stx"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_REPORT" xil_pn:name="VME64xCore_Top.syr"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_TIMING_TXT_REPORT" xil_pn:name="VME64xCore_Top.twr" xil_pn:subbranch="Par"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_TIMING_XML_REPORT" xil_pn:name="VME64xCore_Top.twx" xil_pn:subbranch="Par"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_UNROUTES" xil_pn:name="VME64xCore_Top.unroutes" xil_pn:subbranch="Par"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_REPORT" xil_pn:name="VME64xCore_Top.ut" xil_pn:subbranch="FPGAConfiguration"/>
-    <file xil_pn:fileType="FILE_XPI" xil_pn:name="VME64xCore_Top.xpi"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST" xil_pn:name="VME64xCore_Top.xst"/>
-    <file xil_pn:fileType="FILE_HTML" xil_pn:name="VME64xCore_Top_envsettings.html"/>
-    <file xil_pn:fileType="FILE_NCD" xil_pn:name="VME64xCore_Top_guide.ncd" xil_pn:origination="imported"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_MAP_REPORT" xil_pn:name="VME64xCore_Top_map.map" xil_pn:subbranch="Map"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_MAP_REPORT" xil_pn:name="VME64xCore_Top_map.mrp" xil_pn:subbranch="Map"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NCD" xil_pn:name="VME64xCore_Top_map.ncd" xil_pn:subbranch="Map"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGM" xil_pn:name="VME64xCore_Top_map.ngm" xil_pn:subbranch="Map"/>
-    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="VME64xCore_Top_map.xrpt"/>
-    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="VME64xCore_Top_ngdbuild.xrpt"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PAD_EXCEL_REPORT" xil_pn:name="VME64xCore_Top_pad.csv" xil_pn:subbranch="Par"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PAD_TXT_REPORT" xil_pn:name="VME64xCore_Top_pad.txt" xil_pn:subbranch="Par"/>
-    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="VME64xCore_Top_par.xrpt"/>
-    <file xil_pn:fileType="FILE_HTML" xil_pn:name="VME64xCore_Top_summary.html"/>
-    <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="VME64xCore_Top_summary.xml"/>
-    <file xil_pn:fileType="FILE_WEBTALK" xil_pn:name="VME64xCore_Top_usage.xml"/>
-    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="VME64xCore_Top_xst.xrpt"/>
-    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_MODELSIM_CMD" xil_pn:name="VME_bus.fdo"/>
+    <file xil_pn:fileType="FILE_SYNPLIFY_MISC" xil_pn:name=".recordref"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="_ngo"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/bitgen.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/map.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/par.xmsgs"/>
     <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/trce.xmsgs"/>
-    <file xil_pn:fileType="FILE_XMSGS" xil_pn:name="_xmsgs/xst.xmsgs"/>
-    <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="planAhead_run_1"/>
-    <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="planAhead_run_2"/>
+    <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="backup"/>
+    <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="coreip"/>
+    <file xil_pn:fileType="FILE_SYNPLIFY_MISC" xil_pn:name="rpt_vme64xcore_top_reg.areasrr"/>
+    <file xil_pn:fileType="FILE_HTML" xil_pn:name="rpt_vme64xcore_top_reg_areasrr.htm"/>
+    <file xil_pn:fileType="FILE_USERDOC" xil_pn:name="run_options.txt"/>
+    <file xil_pn:fileType="FILE_LOG" xil_pn:name="stdout.log"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_UCF" xil_pn:name="synplicity.ucf"/>
+    <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="syntmp"/>
+    <file xil_pn:fileType="FILE_HTML" xil_pn:name="usage_statistics_webtalk.html"/>
+    <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="verif"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_REPORT" xil_pn:name="vme64xcore_top_reg.bgn" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BIT" xil_pn:name="vme64xcore_top_reg.bit" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGDBUILD_LOG" xil_pn:name="vme64xcore_top_reg.bld"/>
     <file xil_pn:fileType="FILE_CMD_LOG" xil_pn:name="vme64xcore_top_reg.cmd_log"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_DRC" xil_pn:name="vme64xcore_top_reg.drc" xil_pn:subbranch="FPGAConfiguration"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_LSO" xil_pn:name="vme64xcore_top_reg.lso"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_IMPACT_MISC" xil_pn:name="vme64xcore_top_reg.mcs"/>
+    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_EDIF" xil_pn:name="vme64xcore_top_reg.edn"/>
+    <file xil_pn:fileType="FILE_SYNPLIFY_MISC" xil_pn:name="vme64xcore_top_reg.fse"/>
+    <file xil_pn:fileType="FILE_MAP_REPORT" xil_pn:name="vme64xcore_top_reg.map"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NCD" xil_pn:name="vme64xcore_top_reg.ncd" xil_pn:subbranch="Par"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGC" xil_pn:name="vme64xcore_top_reg.ngc"/>
+    <file xil_pn:fileType="FILE_SYNPLIFY_MISC" xil_pn:name="vme64xcore_top_reg.ncf"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGD" xil_pn:name="vme64xcore_top_reg.ngd"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGR" xil_pn:name="vme64xcore_top_reg.ngr"/>
     <file xil_pn:fileType="FILE_PAD_MISC" xil_pn:name="vme64xcore_top_reg.pad"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PAR_REPORT" xil_pn:name="vme64xcore_top_reg.par" xil_pn:subbranch="Par"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PCF" xil_pn:name="vme64xcore_top_reg.pcf" xil_pn:subbranch="Map"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="vme64xcore_top_reg.prj"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_IMPACT_MISC" xil_pn:name="vme64xcore_top_reg.prm"/>
     <file xil_pn:fileType="FILE_TRCE_MISC" xil_pn:name="vme64xcore_top_reg.ptwx"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_STX" xil_pn:name="vme64xcore_top_reg.stx"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_REPORT" xil_pn:name="vme64xcore_top_reg.syr"/>
+    <file xil_pn:fileType="FILE_SYNPLIFY_MISC" xil_pn:name="vme64xcore_top_reg.sap"/>
+    <file xil_pn:fileType="FILE_SYNPLIFY_MISC" xil_pn:name="vme64xcore_top_reg.sdc" xil_pn:origination="imported"/>
+    <file xil_pn:fileType="FILE_SYNPLIFY_MISC" xil_pn:name="vme64xcore_top_reg.srd"/>
+    <file xil_pn:fileType="FILE_SYNPLIFY_SRM" xil_pn:name="vme64xcore_top_reg.srm"/>
+    <file xil_pn:fileType="FILE_SYNPLIFY_REPORT" xil_pn:name="vme64xcore_top_reg.srr"/>
+    <file xil_pn:fileType="FILE_SYNPLIFY_SRS" xil_pn:name="vme64xcore_top_reg.srs"/>
+    <file xil_pn:fileType="FILE_SYNPLIFY_MISC" xil_pn:name="vme64xcore_top_reg.szr"/>
+    <file xil_pn:fileType="FILE_SYNPLIFY_MISC" xil_pn:name="vme64xcore_top_reg.tlg"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_TIMING_TXT_REPORT" xil_pn:name="vme64xcore_top_reg.twr" xil_pn:subbranch="Par"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_TIMING_XML_REPORT" xil_pn:name="vme64xcore_top_reg.twx" xil_pn:subbranch="Par"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_UNROUTES" xil_pn:name="vme64xcore_top_reg.unroutes" xil_pn:subbranch="Par"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_BITGEN_REPORT" xil_pn:name="vme64xcore_top_reg.ut" xil_pn:subbranch="FPGAConfiguration"/>
     <file xil_pn:fileType="FILE_XPI" xil_pn:name="vme64xcore_top_reg.xpi"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST" xil_pn:name="vme64xcore_top_reg.xst"/>
-    <file xil_pn:fileType="FILE_HTML" xil_pn:name="vme64xcore_top_reg_envsettings.html"/>
+    <file xil_pn:fileType="FILE_TCL" xil_pn:name="vme64xcore_top_reg_compile.tcl"/>
+    <file xil_pn:fileType="FILE_BLIF" xil_pn:name="vme64xcore_top_reg_cs.blc"/>
+    <file xil_pn:fileType="FILE_NGC" xil_pn:name="vme64xcore_top_reg_cs.ngc"/>
     <file xil_pn:fileType="FILE_NCD" xil_pn:name="vme64xcore_top_reg_guide.ncd" xil_pn:origination="imported"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_MAP_REPORT" xil_pn:name="vme64xcore_top_reg_map.map" xil_pn:subbranch="Map"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_MAP_REPORT" xil_pn:name="vme64xcore_top_reg_map.mrp" xil_pn:subbranch="Map"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NCD" xil_pn:name="vme64xcore_top_reg_map.ncd" xil_pn:subbranch="Map"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGM" xil_pn:name="vme64xcore_top_reg_map.ngm" xil_pn:subbranch="Map"/>
+    <file xil_pn:fileType="FILE_TCL" xil_pn:name="vme64xcore_top_reg_map.tcl"/>
     <file xil_pn:fileType="FILE_XRPT" xil_pn:name="vme64xcore_top_reg_map.xrpt"/>
     <file xil_pn:fileType="FILE_XRPT" xil_pn:name="vme64xcore_top_reg_ngdbuild.xrpt"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PAD_EXCEL_REPORT" xil_pn:name="vme64xcore_top_reg_pad.csv" xil_pn:subbranch="Par"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_PAD_TXT_REPORT" xil_pn:name="vme64xcore_top_reg_pad.txt" xil_pn:subbranch="Par"/>
     <file xil_pn:fileType="FILE_XRPT" xil_pn:name="vme64xcore_top_reg_par.xrpt"/>
-    <file xil_pn:fileType="FILE_HTML" xil_pn:name="vme64xcore_top_reg_summary.html"/>
     <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="vme64xcore_top_reg_summary.xml"/>
-    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_MODELSIM_CMD" xil_pn:name="vme64xcore_top_reg_tb.fdo"/>
     <file xil_pn:fileType="FILE_WEBTALK" xil_pn:name="vme64xcore_top_reg_usage.xml"/>
-    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="vme64xcore_top_reg_xst.xrpt"/>
-    <file xil_pn:fileType="FILE_CMD_LOG" xil_pn:name="vme64xcore_top_tb.cmd_log"/>
-    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_MODELSIM_CMD" xil_pn:name="vme64xcore_top_tb.fdo"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_LSO" xil_pn:name="vme64xcore_top_tb.lso"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_PROJECT" xil_pn:name="vme64xcore_top_tb.prj"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST_REPORT" xil_pn:name="vme64xcore_top_tb.syr"/>
-    <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_XST" xil_pn:name="vme64xcore_top_tb.xst"/>
-    <file xil_pn:fileType="FILE_HTML" xil_pn:name="vme64xcore_top_tb_envsettings.html"/>
-    <file xil_pn:fileType="FILE_HTML" xil_pn:name="vme64xcore_top_tb_summary.html"/>
-    <file xil_pn:fileType="FILE_XRPT" xil_pn:name="vme64xcore_top_tb_xst.xrpt"/>
-    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_MODELSIM_LOG" xil_pn:name="vsim.wlf"/>
     <file xil_pn:fileType="FILE_LOG" xil_pn:name="webtalk.log"/>
     <file xil_pn:fileType="FILE_FITTER_REPORT" xil_pn:name="webtalk_pn.xml"/>
-    <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="work"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xlnx_auto_0_xdb"/>
-    <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="xst"/>
   </files>
 
   <transforms xmlns="http://www.xilinx.com/XMLSchema">
-    <transform xil_pn:end_ts="1297074176" xil_pn:name="TRAN_copyInitialToAbstractSimulation" xil_pn:start_ts="1297074176">
+    <transform xil_pn:end_ts="1297332773" xil_pn:name="TRAN_copyInitialToXSTAbstractSynthesis" xil_pn:start_ts="1297332773">
+      <status xil_pn:value="SuccessfullyRun"/>
+    </transform>
+    <transform xil_pn:end_ts="1297332773" xil_pn:name="TRAN_schematicsToHdl" xil_pn:prop_ck="-8393724050418123731" xil_pn:start_ts="1297332773">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1297329321" xil_pn:in_ck="293867872863820755" xil_pn:name="TRAN_copyAbstractToPostAbstractSimulation" xil_pn:start_ts="1297329321">
-      <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-      <outfile xil_pn:name="../NOIP_cores/DpRam/DpBlockRam.vhd"/>
-      <outfile xil_pn:name="../NOIP_cores/fifo/Fifo.vhd"/>
-      <outfile xil_pn:name="../NOIP_cores/fifo/TriPortRamWr-RdRd.vhd"/>
-      <outfile xil_pn:name="../NOIP_cores/fifo/common_components.vhd"/>
-      <outfile xil_pn:name="../VFC_dev/VME64xCore_NoIpTop.vhd"/>
-      <outfile xil_pn:name="../VFC_dev/vme64xcore_top_reg.vhd"/>
-      <outfile xil_pn:name="../VME64e_ActHDL_src/IRQ_controller.vhd"/>
-      <outfile xil_pn:name="../VME64e_ActHDL_src/SharedComps.vhd"/>
-      <outfile xil_pn:name="../VME64e_ActHDL_src/VME_bus.vhd"/>
-      <outfile xil_pn:name="../VME64e_ActHDL_src/VME_pack.vhd"/>
-      <outfile xil_pn:name="../VME64e_ActHDL_src/WB_bus.vhd"/>
-      <outfile xil_pn:name="../testbenches/sim_vme64master.vhd"/>
-      <outfile xil_pn:name="../testbenches/sim_wbSlave.vhd"/>
-      <outfile xil_pn:name="../testbenches/vme64xcore_top_TB.vhd"/>
-      <outfile xil_pn:name="../testbenches/vme64xcore_top_reg_TB.vhd"/>
-      <outfile xil_pn:name="VME_CR_pack.vhd"/>
-    </transform>
-    <transform xil_pn:end_ts="1297252330" xil_pn:name="TRAN_xawsToSimhdl" xil_pn:prop_ck="7790827019890879253" xil_pn:start_ts="1297252330">
+    <transform xil_pn:end_ts="1297332773" xil_pn:name="TRAN_regenerateCores" xil_pn:prop_ck="3078483064561418152" xil_pn:start_ts="1297332773">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1297252330" xil_pn:name="TRAN_schematicsToHdlSim" xil_pn:prop_ck="2419440285402483091" xil_pn:start_ts="1297252330">
+    <transform xil_pn:end_ts="1297332773" xil_pn:name="TRAN_SubProjectAbstractToPreProxy" xil_pn:start_ts="1297332773">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1297252330" xil_pn:name="TRAN_regenerateCoresSim" xil_pn:prop_ck="3078483064561418152" xil_pn:start_ts="1297252330">
+    <transform xil_pn:end_ts="1297332773" xil_pn:name="TRAN_xawsTohdl" xil_pn:prop_ck="-5469881937784473169" xil_pn:start_ts="1297332773">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1297329321" xil_pn:in_ck="293867872863820755" xil_pn:name="TRAN_copyPostAbstractToPreSimulation" xil_pn:start_ts="1297329321">
+    <transform xil_pn:end_ts="1297336571" xil_pn:in_ck="1034761229370256344" xil_pn:name="TRANEXT_synsynthesize" xil_pn:prop_ck="4932200877595510738" xil_pn:start_ts="1297336517">
       <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-      <outfile xil_pn:name="../NOIP_cores/DpRam/DpBlockRam.vhd"/>
-      <outfile xil_pn:name="../NOIP_cores/fifo/Fifo.vhd"/>
-      <outfile xil_pn:name="../NOIP_cores/fifo/TriPortRamWr-RdRd.vhd"/>
-      <outfile xil_pn:name="../NOIP_cores/fifo/common_components.vhd"/>
-      <outfile xil_pn:name="../VFC_dev/VME64xCore_NoIpTop.vhd"/>
-      <outfile xil_pn:name="../VFC_dev/vme64xcore_top_reg.vhd"/>
-      <outfile xil_pn:name="../VME64e_ActHDL_src/IRQ_controller.vhd"/>
-      <outfile xil_pn:name="../VME64e_ActHDL_src/SharedComps.vhd"/>
-      <outfile xil_pn:name="../VME64e_ActHDL_src/VME_bus.vhd"/>
-      <outfile xil_pn:name="../VME64e_ActHDL_src/VME_pack.vhd"/>
-      <outfile xil_pn:name="../VME64e_ActHDL_src/WB_bus.vhd"/>
-      <outfile xil_pn:name="../testbenches/sim_vme64master.vhd"/>
-      <outfile xil_pn:name="../testbenches/sim_wbSlave.vhd"/>
-      <outfile xil_pn:name="../testbenches/vme64xcore_top_TB.vhd"/>
-      <outfile xil_pn:name="../testbenches/vme64xcore_top_reg_TB.vhd"/>
-      <outfile xil_pn:name="VME_CR_pack.vhd"/>
-    </transform>
-    <transform xil_pn:end_ts="1297329395" xil_pn:name="TRAN_copyInitialToXSTAbstractSynthesis" xil_pn:start_ts="1297329395">
-      <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-    </transform>
-    <transform xil_pn:end_ts="1297329395" xil_pn:name="TRAN_schematicsToHdl" xil_pn:prop_ck="1704490868404487445" xil_pn:start_ts="1297329395">
-      <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-    </transform>
-    <transform xil_pn:end_ts="1297329395" xil_pn:name="TRAN_regenerateCores" xil_pn:prop_ck="3078483064561418152" xil_pn:start_ts="1297329395">
-      <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-    </transform>
-    <transform xil_pn:end_ts="1297329395" xil_pn:name="TRAN_SubProjectAbstractToPreProxy" xil_pn:start_ts="1297329395">
-      <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-    </transform>
-    <transform xil_pn:end_ts="1297329395" xil_pn:name="TRAN_xawsTohdl" xil_pn:prop_ck="3164248734298729303" xil_pn:start_ts="1297329395">
-      <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-    </transform>
-    <transform xil_pn:end_ts="1297329395" xil_pn:name="TRAN_SubProjectPreToStructuralProxy" xil_pn:prop_ck="-563469029221826088" xil_pn:start_ts="1297329395">
-      <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-    </transform>
-    <transform xil_pn:end_ts="1297329395" xil_pn:name="TRAN_platgen" xil_pn:prop_ck="-4327245695312982926" xil_pn:start_ts="1297329395">
-      <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="ReadyToRun"/>
-    </transform>
-    <transform xil_pn:end_ts="1297329430" xil_pn:in_ck="6966874970936884625" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="7631510052154532617" xil_pn:start_ts="1297329395">
-      <status xil_pn:value="SuccessfullyRun"/>
-      <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForOutputs"/>
       <status xil_pn:value="OutputChanged"/>
-      <outfile xil_pn:name="Fifo.ngr"/>
-      <outfile xil_pn:name="_xmsgs/xst.xmsgs"/>
-      <outfile xil_pn:name="vme64xcore_top_reg.lso"/>
-      <outfile xil_pn:name="vme64xcore_top_reg.ngc"/>
-      <outfile xil_pn:name="vme64xcore_top_reg.ngr"/>
+      <outfile xil_pn:name=".recordref"/>
+      <outfile xil_pn:name="backup"/>
+      <outfile xil_pn:name="coreip"/>
+      <outfile xil_pn:name="rpt_vme64xcore_top_reg.areasrr"/>
+      <outfile xil_pn:name="rpt_vme64xcore_top_reg_areasrr.htm"/>
+      <outfile xil_pn:name="run_options.txt"/>
+      <outfile xil_pn:name="stdout.log"/>
+      <outfile xil_pn:name="synplicity.ucf"/>
+      <outfile xil_pn:name="syntmp"/>
+      <outfile xil_pn:name="verif"/>
+      <outfile xil_pn:name="vme64xcore_top_reg.edn"/>
+      <outfile xil_pn:name="vme64xcore_top_reg.fse"/>
+      <outfile xil_pn:name="vme64xcore_top_reg.map"/>
+      <outfile xil_pn:name="vme64xcore_top_reg.ncf"/>
       <outfile xil_pn:name="vme64xcore_top_reg.prj"/>
-      <outfile xil_pn:name="vme64xcore_top_reg.stx"/>
-      <outfile xil_pn:name="vme64xcore_top_reg.syr"/>
-      <outfile xil_pn:name="vme64xcore_top_reg.xst"/>
-      <outfile xil_pn:name="vme64xcore_top_reg_xst.xrpt"/>
-      <outfile xil_pn:name="webtalk_pn.xml"/>
-      <outfile xil_pn:name="xst"/>
+      <outfile xil_pn:name="vme64xcore_top_reg.sap"/>
+      <outfile xil_pn:name="vme64xcore_top_reg.sdc"/>
+      <outfile xil_pn:name="vme64xcore_top_reg.srd"/>
+      <outfile xil_pn:name="vme64xcore_top_reg.srm"/>
+      <outfile xil_pn:name="vme64xcore_top_reg.srr"/>
+      <outfile xil_pn:name="vme64xcore_top_reg.srs"/>
+      <outfile xil_pn:name="vme64xcore_top_reg.szr"/>
+      <outfile xil_pn:name="vme64xcore_top_reg.tlg"/>
+      <outfile xil_pn:name="vme64xcore_top_reg_compile.tcl"/>
+      <outfile xil_pn:name="vme64xcore_top_reg_map.tcl"/>
     </transform>
-    <transform xil_pn:end_ts="1297329430" xil_pn:in_ck="1246737430911366229" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="4228032853562161068" xil_pn:start_ts="1297329430">
+    <transform xil_pn:end_ts="1297334280" xil_pn:in_ck="1246737430911366229" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="4228032853562161068" xil_pn:start_ts="1297334280">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1297329434" xil_pn:in_ck="-508604036733406286" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="5973292016675018579" xil_pn:start_ts="1297329430">
+    <transform xil_pn:end_ts="1297341305" xil_pn:in_ck="2791423789218013301" xil_pn:name="TRANEXT_ngdbuild_FPGA" xil_pn:prop_ck="5973292016675018579" xil_pn:start_ts="1297341194">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="_ngo"/>
       <outfile xil_pn:name="_xmsgs/ngdbuild.xmsgs"/>
       <outfile xil_pn:name="vme64xcore_top_reg.bld"/>
+      <outfile xil_pn:name="vme64xcore_top_reg.cmd_log"/>
       <outfile xil_pn:name="vme64xcore_top_reg.ngd"/>
+      <outfile xil_pn:name="vme64xcore_top_reg_cs.blc"/>
+      <outfile xil_pn:name="vme64xcore_top_reg_cs.ngc"/>
       <outfile xil_pn:name="vme64xcore_top_reg_ngdbuild.xrpt"/>
+      <outfile xil_pn:name="xlnx_auto_0_xdb"/>
     </transform>
-    <transform xil_pn:end_ts="1297329505" xil_pn:in_ck="-1091897851557040214" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="346394261158932323" xil_pn:start_ts="1297329434">
+    <transform xil_pn:end_ts="1297341376" xil_pn:in_ck="-2095089995491766594" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="-8102165840137127644" xil_pn:start_ts="1297341305">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForOutputs"/>
-      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="_xmsgs/map.xmsgs"/>
       <outfile xil_pn:name="vme64xcore_top_reg.pcf"/>
       <outfile xil_pn:name="vme64xcore_top_reg_map.map"/>
@@ -272,10 +172,9 @@
       <outfile xil_pn:name="vme64xcore_top_reg_summary.xml"/>
       <outfile xil_pn:name="vme64xcore_top_reg_usage.xml"/>
     </transform>
-    <transform xil_pn:end_ts="1297329699" xil_pn:in_ck="5444649263478042780" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="7718621589074559188" xil_pn:start_ts="1297329632">
+    <transform xil_pn:end_ts="1297341459" xil_pn:in_ck="-816509491320779561" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="-8749232887259508934" xil_pn:start_ts="1297341376">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForProperties"/>
       <outfile xil_pn:name="_xmsgs/par.xmsgs"/>
       <outfile xil_pn:name="vme64xcore_top_reg.ncd"/>
       <outfile xil_pn:name="vme64xcore_top_reg.pad"/>
@@ -287,11 +186,12 @@
       <outfile xil_pn:name="vme64xcore_top_reg_pad.txt"/>
       <outfile xil_pn:name="vme64xcore_top_reg_par.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1297329722" xil_pn:in_ck="-6139244621610154419" xil_pn:name="TRANEXT_bitFile_spartan6" xil_pn:prop_ck="396117104113915555" xil_pn:start_ts="1297329699">
+    <transform xil_pn:end_ts="1297341510" xil_pn:in_ck="-94636564203133915" xil_pn:name="TRANEXT_bitFile_spartan6" xil_pn:prop_ck="396117104113915555" xil_pn:start_ts="1297341459">
       <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForPredecessor"/>
       <outfile xil_pn:name="_xmsgs/bitgen.xmsgs"/>
+      <outfile xil_pn:name="usage_statistics_webtalk.html"/>
       <outfile xil_pn:name="vme64xcore_top_reg.bgn"/>
       <outfile xil_pn:name="vme64xcore_top_reg.bit"/>
       <outfile xil_pn:name="vme64xcore_top_reg.drc"/>
@@ -299,10 +199,15 @@
       <outfile xil_pn:name="webtalk.log"/>
       <outfile xil_pn:name="webtalk_pn.xml"/>
     </transform>
-    <transform xil_pn:end_ts="1297329699" xil_pn:in_ck="-6179112853177871454" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="-1758799009971969896" xil_pn:start_ts="1297329687">
+    <transform xil_pn:end_ts="1297334438" xil_pn:in_ck="-94636564203146769" xil_pn:name="TRAN_configureTargetDevice" xil_pn:prop_ck="8482462020707587906" xil_pn:start_ts="1297334434">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="InputChanged"/>
+    </transform>
+    <transform xil_pn:end_ts="1297341459" xil_pn:in_ck="-2095089995491766726" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="-1758799009971969896" xil_pn:start_ts="1297341444">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
       <outfile xil_pn:name="_xmsgs/trce.xmsgs"/>
       <outfile xil_pn:name="vme64xcore_top_reg.twr"/>
       <outfile xil_pn:name="vme64xcore_top_reg.twx"/>

@@ -79,9 +79,9 @@ signal nxDADataIn :  std_logic_vector(dl - 1 downto 0);
 signal nxBCAdd :  std_logic_vector(Al-1 downto 0);
 signal nxDAAdd :  std_logic_vector(Al-1 downto 0);
 
-signal DADataOut :  std_logic_vector(dl - 1  downto 0);
+--signal DADataOut :  std_logic_vector(dl - 1  downto 0);
 --signal BCDataOut :  std_logic_vector(dl - 1  downto 0);
-signal doBC, idoBC :  std_logic_vector(dl - 1 downto 0);
+signal  idoBC :  std_logic_vector(dl - 1 downto 0);
 signal nxDAwe : std_logic;
 
 begin

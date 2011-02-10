@@ -35,46 +35,51 @@ architecture beh of vme64xcore_top_reg is
 	-- Component declaration of the tested unit
 	component vme64xcore_top
 		port(
-			clk_i : in STD_LOGIC;
-			VME_AS_n_i : in STD_LOGIC;
-			VME_RST_n_i : in STD_LOGIC;
-			VME_WRITE_n_i : in STD_LOGIC;
-			VME_AM_i : in STD_LOGIC_VECTOR(5 downto 0);
-			VME_DS_n_i : in STD_LOGIC_VECTOR(1 downto 0);
-			VME_GA_i : in STD_LOGIC_VECTOR(5 downto 0);
-			VME_BERR_o : out STD_LOGIC;
-			VME_DTACK_n_o : out STD_LOGIC;
-			VME_RETRY_n_o : out STD_LOGIC;
-			VME_LWORD_n_b : inout STD_LOGIC;
-			VME_ADDR_b : inout STD_LOGIC_VECTOR(31 downto 1); 
-			VME_DATA_b : inout STD_LOGIC_VECTOR(31 downto 0);
-			VME_BBSY_n_i : in STD_LOGIC; 
-			VME_IRQ_n_o : out STD_LOGIC_VECTOR(6 downto 0);
-			VME_IACKIN_n_i : in STD_LOGIC;
-			VME_IACKOUT_n_o : out STD_LOGIC; 
-			
-			VME_DTACK_OE_o:       out std_logic;
-        	VME_DATA_DIR_o:       out std_logic;
-        	VME_DATA_OE_o:        out std_logic;
-        	VME_ADDR_DIR_o:       out std_logic;
-        	VME_ADDR_OE_o:        out std_logic;
-			
-			RST_i : in STD_LOGIC;
-			DAT_i : in STD_LOGIC_VECTOR(63 downto 0);
-			DAT_o : out STD_LOGIC_VECTOR(63 downto 0);
-			ADR_o : out STD_LOGIC_VECTOR(63 downto 0);
-			--TGA_o : out STD_LOGIC_VECTOR(3 downto 0);
-			--TGC_o : out STD_LOGIC_VECTOR(3 downto 0);
-			CYC_o : out STD_LOGIC;
-			ERR_i : in STD_LOGIC;
-			LOCK_o : out STD_LOGIC;
-			RTY_i : in STD_LOGIC;
-			SEL_o : out STD_LOGIC_VECTOR(7 downto 0);
-			STB_o : out STD_LOGIC;
-			ACK_i : in STD_LOGIC;
-			WE_o : out STD_LOGIC;
-			STALL_i:            in std_logic;
-			IRQ_i : in STD_LOGIC);
+        clk_i :             in STD_LOGIC;			 -- 100 MHz clock input
+
+        -- VME                            
+        VME_AS_n_i :        in STD_LOGIC;
+        VME_RST_n_i :       in STD_LOGIC;
+        VME_WRITE_n_i :     in STD_LOGIC;
+        VME_AM_i :          in STD_LOGIC_VECTOR(5 downto 0);
+        VME_DS_n_i :        in STD_LOGIC_VECTOR(1 downto 0);
+        VME_GA_i :          in STD_LOGIC_VECTOR(5 downto 0);
+        VME_BERR_o :      out STD_LOGIC;
+        VME_DTACK_n_o :     out STD_LOGIC;
+        VME_RETRY_n_o :     out STD_LOGIC;
+		  VME_RETRY_OE_n_o :  out STD_LOGIC;
+        VME_LWORD_n_b :     inout STD_LOGIC;
+        VME_ADDR_b :        inout STD_LOGIC_VECTOR(31 downto 1);
+        VME_DATA_b :        inout STD_LOGIC_VECTOR(31 downto 0);
+        VME_BBSY_n_i :      in STD_LOGIC;
+        VME_IRQ_n_o :       out std_logic_vector(6 downto 0);
+        VME_IACKIN_n_i :    in std_logic;
+        VME_IACKOUT_n_o :   out std_logic;
+        
+        -- VME buffers
+        VME_DTACK_OE_o:     out std_logic;
+        VME_DATA_DIR_o:     out std_logic;
+        VME_DATA_OE_o:      out std_logic;  
+        VME_ADDR_DIR_o:     out std_logic;
+        VME_ADDR_OE_o:      out std_logic;
+        
+           -- WishBone
+        RST_i:              in std_logic;
+        DAT_i:              in std_logic_vector(63 downto 0);
+        DAT_o:              out std_logic_vector(63 downto 0);
+        ADR_o:              out std_logic_vector(63 downto 0);
+        CYC_o:              out std_logic;
+        ERR_i:              in std_logic;
+        LOCK_o:             out std_logic;
+        RTY_i:              in std_logic;
+        SEL_o:              out std_logic_vector(7 downto 0);
+        STB_o:              out std_logic;
+        ACK_i:              in std_logic;
+        WE_o:               out std_logic;
+        STALL_i:            in std_logic;
+        
+        -- IRQ
+        IRQ_i:              in std_logic);
 	end component;	
 	
 	-- Component declaration of the "sim_vme64master(sim_vme64master)" unit defined in
@@ -143,7 +148,7 @@ architecture beh of vme64xcore_top_reg is
 	signal DAT_i : STD_LOGIC_VECTOR(63 downto 0);
 	signal ERR_i : STD_LOGIC;
 	signal RTY_i : STD_LOGIC;
-	signal ACK_i, STB_i : STD_LOGIC;
+	signal ACK_i : STD_LOGIC;
 	signal IRQ_i : STD_LOGIC;
 	signal STALL_i : STD_LOGIC;
 --	signal VME_LWORD_n_b : STD_LOGIC;
@@ -157,8 +162,8 @@ architecture beh of vme64xcore_top_reg is
 --	signal VME_IACKOUT_n_o : STD_LOGIC;
 	signal DAT_o : STD_LOGIC_VECTOR(63 downto 0);
 	signal ADR_o : STD_LOGIC_VECTOR(63 downto 0);
-	signal TGA_o : STD_LOGIC_VECTOR(3 downto 0);
-	signal TGC_o : STD_LOGIC_VECTOR(3 downto 0);
+--	signal TGA_o : STD_LOGIC_VECTOR(3 downto 0);
+--	signal TGC_o : STD_LOGIC_VECTOR(3 downto 0);
 	signal CYC_o : STD_LOGIC;
 	signal LOCK_o : STD_LOGIC;
 	signal SEL_o : STD_LOGIC_VECTOR(7 downto 0);
@@ -177,7 +182,7 @@ architecture beh of vme64xcore_top_reg is
 	 signal counter : unsigned(26 downto 0) := (others => '0'); 
 begin
  
-
+VME_IACKIN_n_i <= '1';
 	VME_BBSY_n <= '1';
 	-- Unit Under Test port map
 	UUT : vme64xcore_top
@@ -196,6 +201,9 @@ begin
 		VME_ADDR_b => VME_ADDR_b,
 		VME_DATA_b => VME_DATA_b,
 		VME_BBSY_n_i => VME_BBSY_n,
+
+
+
 					
 		VME_DTACK_OE_o => VME_DTACK_OE_o,
         VME_DATA_DIR_o => VME_DATA_DIR_o,
@@ -223,7 +231,9 @@ begin
 		STALL_i => STALL_i,
 		IRQ_i => IRQ_i
 		);
-		
+					
+
+
 --	VME_BERR_n_o <= VME_BERR_o;
 --	s_VME_DTACK_n <= VME_DTACK_n_o when VME_DTACK_OE_o = '1' else '1';
 --	s_VME_ADDR_b <= VME_ADDR_b when 
@@ -321,5 +331,4 @@ FpLed_onb8_5 <= counter(counter'left);
 	 
 	
 end beh;
-
 
