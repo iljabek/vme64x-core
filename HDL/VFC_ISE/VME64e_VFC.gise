@@ -260,6 +260,8 @@
     <transform xil_pn:end_ts="1297329505" xil_pn:in_ck="-1091897851557040214" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="346394261158932323" xil_pn:start_ts="1297329434">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="_xmsgs/map.xmsgs"/>
       <outfile xil_pn:name="vme64xcore_top_reg.pcf"/>
       <outfile xil_pn:name="vme64xcore_top_reg_map.map"/>
@@ -273,6 +275,7 @@
     <transform xil_pn:end_ts="1297329699" xil_pn:in_ck="5444649263478042780" xil_pn:name="TRANEXT_par_spartan6" xil_pn:prop_ck="7718621589074559188" xil_pn:start_ts="1297329632">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForProperties"/>
       <outfile xil_pn:name="_xmsgs/par.xmsgs"/>
       <outfile xil_pn:name="vme64xcore_top_reg.ncd"/>
       <outfile xil_pn:name="vme64xcore_top_reg.pad"/>
@@ -287,6 +290,7 @@
     <transform xil_pn:end_ts="1297329722" xil_pn:in_ck="-6139244621610154419" xil_pn:name="TRANEXT_bitFile_spartan6" xil_pn:prop_ck="396117104113915555" xil_pn:start_ts="1297329699">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
       <outfile xil_pn:name="_xmsgs/bitgen.xmsgs"/>
       <outfile xil_pn:name="vme64xcore_top_reg.bgn"/>
       <outfile xil_pn:name="vme64xcore_top_reg.bit"/>
@@ -298,6 +302,7 @@
     <transform xil_pn:end_ts="1297329699" xil_pn:in_ck="-6179112853177871454" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="-1758799009971969896" xil_pn:start_ts="1297329687">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
       <outfile xil_pn:name="_xmsgs/trce.xmsgs"/>
       <outfile xil_pn:name="vme64xcore_top_reg.twr"/>
       <outfile xil_pn:name="vme64xcore_top_reg.twx"/>
