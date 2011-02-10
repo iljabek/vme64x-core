@@ -22,6 +22,8 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.numeric_std.all;
+
+use work.VME_CR_pack.all;
 use work.common_components.all;
 entity VME64xCore_Top is
     port(
@@ -49,7 +51,7 @@ entity VME64xCore_Top is
         -- VME buffers
         VME_DTACK_OE_o:     out std_logic;
         VME_DATA_DIR_o:     out std_logic;
-        VME_DATA_OE_o:      out std_logic;
+        VME_DATA_OE_o:      out std_logic;  
         VME_ADDR_DIR_o:     out std_logic;
         VME_ADDR_OE_o:      out std_logic;
         
@@ -96,25 +98,33 @@ component VME_bus
          -- VME signals
         VME_RST_n_i :         in STD_LOGIC;
         VME_AS_n_i :          in STD_LOGIC;
-        VME_LWORD_n_b :       inout STD_LOGIC;
+        VME_LWORD_n_b_o :       out STD_LOGIC;
+        VME_LWORD_n_b_i :       in STD_LOGIC;
+
         VME_RETRY_n_o :       out STD_LOGIC;
-		  VME_RETRY_OE_n_o :  out STD_LOGIC;
+		  VME_RETRY_OE_n_o :    out std_logic;
         VME_WRITE_n_i :       in STD_LOGIC;
         VME_DS_n_i :          in STD_LOGIC_VECTOR(1 downto 0);
-        VME_GA_i :            in STD_LOGIC_VECTOR(5 downto 0);
+        VME_GA_i :            in STD_LOGIC_VECTOR(5 downto 0);             -- Geographical Address and GA parity
         VME_DTACK_n_o :       out STD_LOGIC;
-        VME_BERR_o :        out STD_LOGIC;
-        VME_ADDR_b :          inout STD_LOGIC_VECTOR(31 downto 1);
-        VME_DATA_b :          inout STD_LOGIC_VECTOR(31 downto 0);
+        VME_DTACK_OE_o:       out std_logic;
+
+        VME_BERR_o :          out STD_LOGIC;
+		  
+        VME_ADDR_b_i :        in STD_LOGIC_VECTOR(31 downto 1);
+        VME_ADDR_b_o :        out STD_LOGIC_VECTOR(31 downto 1);
+        VME_ADDR_DIR_o:       out std_logic;
+        VME_ADDR_OE_o:        out std_logic;
+		  
+        VME_DATA_b_i :        in STD_LOGIC_VECTOR(31 downto 0);
+        VME_DATA_b_o :        out STD_LOGIC_VECTOR(31 downto 0);
+        VME_DATA_DIR_o:       out std_logic;
+        VME_DATA_OE_o:        out std_logic;
+		  
         VME_AM_i :            in std_logic_vector(5 downto 0);
         VME_BBSY_n_i :        in std_logic;
         VME_IACKIN_n_i:       in std_logic;
         
-        VME_DTACK_OE_o:       out std_logic;
-        VME_DATA_DIR_o:       out std_logic;
-        VME_DATA_OE_o:        out std_logic;
-        VME_ADDR_DIR_o:       out std_logic;
-        VME_ADDR_OE_o:        out std_logic;
         
         -- CROM
         CRaddr_o:             out std_logic_vector(18 downto 0);
@@ -153,7 +163,7 @@ component VME_bus
         FIFOdata_i:         in std_logic_vector(63 downto 0);
         TWOeInProgress_o:   out std_logic;
         WBbusy_i:           in std_logic;
-        readFIFOempty_i:    in std_logic
+        readFIFOempty_i:    in std_logic 
          );
 end component; 
 
@@ -266,6 +276,14 @@ signal s_FIFOreset: std_logic;
 signal s_TWOeInProgress: std_logic;
 signal s_WBbusy: std_logic;
 signal s_beatCount: std_logic_vector(7 downto 0);
+ 
+signal s_vme_addr_b_o : std_logic_vector(31 downto 1);
+signal s_VME_LWORD_n_b_o : std_logic;
+signal s_VME_ADDR_OE_o, s_VME_DATA_OE : std_logic;
+signal s_VME_DATA_b_o : std_logic_vector(31 downto 0);
+--signal s_vme_addr_b_i : std_logic_vector(31 downto 1);
+
+
 
 begin 
 	
@@ -292,18 +310,24 @@ VME_bus_1 : VME_bus
        VME_BERR_o =>         VME_BERR_o,
        VME_DTACK_n_o =>      VME_DTACK_n_o,
        VME_RETRY_n_o =>      VME_RETRY_n_o,
-       VME_RETRY_OE_n_o =>   VME_RETRY_OE_n_o,		 
-		 VME_ADDR_b =>         VME_ADDR_b,
-       VME_DATA_b =>         VME_DATA_b,
-       VME_LWORD_n_b =>      VME_LWORD_n_b,
+       VME_RETRY_OE_n_o =>   VME_RETRY_OE_n_o,
+		 
+		 VME_ADDR_b_o =>       s_VME_ADDR_b_o,
+		 VME_ADDR_b_i =>       VME_ADDR_b,
+       VME_LWORD_n_b_i =>    VME_LWORD_n_b,
+       VME_LWORD_n_b_o =>    s_VME_LWORD_n_b_o,
+       VME_ADDR_DIR_o =>     VME_ADDR_DIR_o,
+       VME_ADDR_OE_o =>      s_VME_ADDR_OE_o, 
+
+       VME_DATA_b_o =>       s_VME_DATA_b_o,
+       VME_DATA_b_i =>       VME_DATA_b,
+       VME_DATA_DIR_o =>     VME_DATA_DIR_o,
+       VME_DATA_OE_o =>      s_VME_DATA_OE, 
+		 
        VME_BBSY_n_i =>       VME_BBSY_n_i,
        VME_IACKIN_n_i =>     VME_IACKIN_n_i,
        
        VME_DTACK_OE_o =>     VME_DTACK_OE_o,
-       VME_DATA_DIR_o =>     VME_DATA_DIR_o,
-       VME_DATA_OE_o =>      VME_DATA_OE_o, 
-       VME_ADDR_DIR_o =>     VME_ADDR_DIR_o,
-       VME_ADDR_OE_o =>      VME_ADDR_OE_o, 
                             
        clk_i =>              clk_i,
        reset_o =>            s_reset,
@@ -342,7 +366,13 @@ VME_bus_1 : VME_bus
        readFIFOempty_i =>     s_FIFOreadEmpty 
        
   );
-  
+ 
+		 VME_ADDR_b  <= s_VME_ADDR_b_o when s_VME_ADDR_OE_o = '1' else (others => 'Z');
+		 VME_LWORD_n_b <= s_VME_LWORD_n_b_o when s_VME_ADDR_OE_o = '1' else 'Z';
+		 VME_DATA_b <= s_VME_DATA_b_o when s_VME_DATA_OE = '1' else (others => 'Z');
+		 VME_DATA_OE_o <= s_VME_DATA_OE;
+		 VME_ADDR_OE_o <= s_VME_ADDR_OE_o;
+		 
 WB_bus_1: WB_bus  
     port map(
         clk_i =>     clk_i,
@@ -385,23 +415,28 @@ WB_bus_1: WB_bus
         WBbusy_o =>         s_WBbusy
         );
         
-IRQ_controller_1: IRQ_controller
-     port map(
-         clk_i =>            clk_i,
-         reset_i =>          s_reset,
-        VME_IRQ_n_o =>       VME_IRQ_n_o,    
-        VME_IACKIN_n_i =>    VME_IACKIN_n_i,        
-        VME_IACKOUT_n_o =>   VME_IACKOUT_n_o,        
-        VME_AS_n_i =>        VME_AS_n_i,            
-        VME_DS_n_i =>        VME_DS_n_i,    
-        irqDTACK_o =>        s_irqDTACK,
-        IACKinProgress_o =>  s_IACKinProgress,
-        IRQ_i =>             IRQ_i,
-        locAddr_i =>         s_locAddr(3 downto 1),
-        IDtoData_o =>        s_IDtoData,
-        IRQlevelReg_i =>     s_IRQlevelReg
-        );
+--IRQ_controller_1: IRQ_controller
+--     port map(
+--         clk_i =>            clk_i,
+--         reset_i =>          s_reset,
+--        VME_IRQ_n_o =>       VME_IRQ_n_o,    
+--        VME_IACKIN_n_i =>    VME_IACKIN_n_i,        
+--        VME_IACKOUT_n_o =>   VME_IACKOUT_n_o,        
+--        VME_AS_n_i =>        VME_AS_n_i,            
+--        VME_DS_n_i =>        VME_DS_n_i,    
+--        irqDTACK_o =>        s_irqDTACK,
+--        IACKinProgress_o =>  s_IACKinProgress,
+--        IRQ_i =>             IRQ_i,
+--        locAddr_i =>         s_locAddr(3 downto 1),
+--        IDtoData_o =>        s_IDtoData,
+--        IRQlevelReg_i =>     s_IRQlevelReg
+--        );
 
+   s_irqDTACK <= '0';
+   s_IACKinProgress <= '0';
+   s_IDtoData <= '0';
+   s_IRQlevelReg <= (others => '0');
+       
 
 ---- Comment this component instance for use of external CR		
 --CR_1 : CR
@@ -429,7 +464,7 @@ IRQ_controller_1: IRQ_controller
 CRAM_1 : dpblockram 
  generic map(dl => 8, 		-- Length of the data word 
  			 al => 9,			-- Size of the addr map (10 = 1024 words)
-			 nw => 2**8)    -- Number of words
+			 nw => 2**9)    -- Number of words
 			 									-- 'nw' has to be coherent with 'al'
  port map(clk  => clk_i, 			-- Global Clock
  	we  => s_CRAMwea,				-- Write Enable
