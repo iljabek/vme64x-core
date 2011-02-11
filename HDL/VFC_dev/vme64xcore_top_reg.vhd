@@ -277,9 +277,12 @@ process(clk_i)
 begin
 if rising_edge(clk_i) then
 if VME_RST_n_i = '0' then 
---DAT_i <= (others => '0'); 
+FpLed_onb8_5 <= '0';
+FpLed_onb8_6 <= '0';
 ACK_i <= '0';
-else
+elsif we_ram = '1' then 
+FpLed_onb8_5 <= DAT_o(0);
+FpLed_onb8_6 <= DAT_o(1);
 
 ACK_i <= STB_o;
 end if;
@@ -304,8 +307,6 @@ Udpblockram : dpblockram
  	do  => DAT_i); 	 -- Data output
 
 
-FpLed_onb8_5 <= counter(counter'left);
-FpLed_onb8_6 <= DAT_i(0);
 		RST_i <= not VME_RST_n_i;
 --		DAT_i => DAT_i,
 --		DAT_o => DAT_o,
