@@ -1153,7 +1153,6 @@ begin
       wait for 100 ns;
 		writeGenericSingle;
 
-		readGenericSingle(false);		
 
 
 		s_address(31 downto 0) <= x"77f00009";--x"0003fffd"; 
@@ -1161,8 +1160,17 @@ begin
       wait for 100 ns;
 		writeGenericSingle;
 
+		s_address(31 downto 0) <= x"77f00004";--x"0003fffd"; 
+		s_dataToSend <= x"00001110";
+
 		readGenericSingle(false);		
-		
+	
+
+		s_address(31 downto 0) <= x"77f00009";--x"0003fffd"; 
+		s_dataToSend <= x"00001310";
+
+		readGenericSingle(false);		
+	
 --		readGenericBlock(5);
 --		
 --		readGenericSingle(false);		

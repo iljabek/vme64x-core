@@ -2,7 +2,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use IEEE.numeric_std.all;
 -- Add your library and packages declaration here ...
- 
+use work.common_components.all;
+
 entity vme64xcore_top_reg is
 port(
 			clk_i : in STD_LOGIC;
@@ -172,7 +173,7 @@ architecture beh of vme64xcore_top_reg is
 	signal STB_o : STD_LOGIC;
 	signal WE_o : STD_LOGIC;
 	signal VME_BBSY_n, VME_IACKIN_n_i, VME_IACKOUT_n_o : std_logic;
-	
+	signal we_ram : std_logic;
 --   signal FpLed_onb8_5 : std_logic;
 --	signal VME_DTACK_OE_o:std_logic;
 --    signal VME_DATA_DIR_o:std_logic;
@@ -276,18 +277,32 @@ process(clk_i)
 begin
 if rising_edge(clk_i) then
 if VME_RST_n_i = '0' then 
-DAT_i <= (others => '0'); 
+--DAT_i <= (others => '0'); 
 ACK_i <= '0';
 else
-if STB_o = '1' and  WE_o = '1' then 
-DAT_i <= DAT_o; 
-end if;
+
 ACK_i <= STB_o;
 end if;
 
 counter <= counter + 1;
 end if;
 end process;
+
+we_ram <= STB_o and WE_o;
+
+Udpblockram : dpblockram 
+ generic map(dl => 64, 		-- Length of the data word 
+ 			 al => 8,			-- Size of the addr map (10 = 1024 words)
+			 nw => 2**8)    -- Number of words
+			 									-- 'nw' has to be coherent with 'al'
+ port map(clk  => clk_i, 			-- Global Clock
+ 	we  => we_ram,				-- Write Enable
+ 	aw  => ADR_o(7 downto 0), -- Write Address 
+ 	ar  => ADR_o(7 downto 0), 	 -- Read Address
+ 	di  => DAT_o,   -- Data input
+ 	dw =>  open,-- Data write, normaly open
+ 	do  => DAT_i); 	 -- Data output
+
 
 FpLed_onb8_5 <= counter(counter'left);
 FpLed_onb8_6 <= DAT_i(0);
