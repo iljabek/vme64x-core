@@ -6,56 +6,56 @@ use work.VME_pack.all;
 package VME_CR_pack is
      constant c_cr_array : 	t_cr_array(2**12 downto 0) :=
 (
-16#03#  => (others => '0'),
+16#00#  => (others => '0'),
 -- Length of ROM
-16#07#  => x"01",
-16#0b#  => x"00",
-16#0f#  => x"00",
+16#01#  => x"01",
+16#02#  => x"00",
+16#03#  => x"00",
 --Configuration ROM data acces width
-16#13#  => x"00",
+16#04#  => x"00",
 --Configuration ROM data acces width
-16#1b#  => x"01",
+16#05#  => x"01",
 --Ascii "C"
-16#1F#  => x"01", 
+16#06#  => x"01", 
 --Ascii "R"
-16#23#  => x"43",
+16#07#  => x"43",
 --Manufacturer's ID
-16#27#  => x"52",
-16#2b#  => x"01",
-16#2f#  => x"02",
+16#08#  => x"52",
+16#09#  => x"01",
+16#0A#  => x"02",
 --board id
-16#33#  => x"03",
-16#37#  => x"03",
-16#3b#  => x"04",
-16#3f#  => x"04",
+16#0B#  => x"03",
+16#0C#  => x"03",
+16#0D#  => x"04",
+16#0E#  => x"04",
 --Rev id
-16#43#  => x"03",
-16#47#  => x"03",
-16#4b#  => x"04",
-16#4f#  => x"04",
+16#0F#  => x"03",
+16#10#  => x"03",
+16#11#  => x"04",
+16#12#  => x"04",
 --Point to ascii null terminatied
-16#53#  => x"03",
-16#57#  => x"03",
-16#5b#  => x"04",
+16#13#  => x"03",
+16#14#  => x"03",
+16#15#  => x"04",
 --Program Id code
-16#7f#  => x"12",
+16#1E#  => x"12",
 
 --Function data access width
-16#103#  => x"84", -- Fun 0 D32
+16#40#  => x"84", -- Fun 0 D32
 --16#107#  => x"12", -- Fun 1 
 --16#10b#  => x"12", -- Fun 2 
 --16#10f#  => x"12", -- Fun 3
 
 --Function AM code Mask
-16#123#  => x"00", -- Fun 0 
-16#127#  => x"00", -- Fun 0 
-16#12b#  => x"00", -- Fun 0 
-16#12f#  => x"80", -- Fun 0 AM=39
+16#48#  => x"02", -- Fun 0  x"02" AM=39
+16#49#  => x"00", -- Fun 0 
+16#4A#  => x"00", -- Fun 0 
+16#4B#  => x"01", -- Fun 0 0X"01" AM=20
 
-16#133#  => x"00", -- Fun 0 
-16#137#  => x"00", -- Fun 0 
-16#13b#  => x"00", -- Fun 0 
-16#13f#  => x"00", -- Fun 0
+16#4C#  => x"00", -- Fun 0 
+16#4D#  => x"00", -- Fun 0 
+16#4E#  => x"00", -- Fun 0 
+16#4F#  => x"00", -- Fun 0
 
 --16#143#  => x"12", -- Fun 1 
 --16#147#  => x"12", -- Fun 1 
@@ -86,14 +86,20 @@ package VME_CR_pack is
 --16#19b#  => x"12", -- Fun 3 
 --16#19f#  => x"12", -- Fun 3
 
-
-
+--XAMCAP
+16#88#  => x"00", -- Fun 0  XAMCAP MSB
+--......
+16#C5#  => x"02", -- Fun 0  XAMCAP=0x11
+16#C6#  => x"00", -- Fun 0  XAMCAP LSB
+16#C7#  => x"01", -- Fun 0  XAMCAP LSB
+--......
 
 -- Address Decoder Mask ADEM
-16#633#  => x"00", -- Fun 0 
-16#637#  => x"ff", -- Fun 0 
-16#63b#  => x"00", -- Fun 0 
-16#63f#  => x"80", -- Fun 0 Fixed decoder
+16#188#  => x"00", -- Fun 0 
+16#189#  => x"ff", -- Fun 0 
+16#18A#  => x"00", -- Fun 0 
+16#18B#  => x"80", -- Fun 0 Fixed decoder
+
 
 others => (others => '0'));
 

@@ -51,10 +51,6 @@
       <association xil_pn:name="BehavioralSimulation"/>
       <association xil_pn:name="Implementation"/>
     </file>
-    <file xil_pn:name="../noipcore_code/fifo/TriPortRamWr-RdRd.vhd" xil_pn:type="FILE_VHDL"/>
-    <file xil_pn:name="../noipcore_code/fifo/FifoTable.vhd" xil_pn:type="FILE_VHDL"/>
-    <file xil_pn:name="../noipcore_code/fifo/common_components.vhd" xil_pn:type="FILE_VHDL"/>
-    <file xil_pn:name="../noipcore_code/DpRam/DpBlockRam.vhd" xil_pn:type="FILE_VHDL"/>
     <file xil_pn:name="../NOIP_cores/fifo/TriPortRamWr-RdRd.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation"/>
       <association xil_pn:name="Implementation"/>

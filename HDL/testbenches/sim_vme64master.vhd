@@ -25,6 +25,7 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
+use IEEE.std_logic_arith.all;
 use IEEE.STD_logic_unsigned.all;
 
 
@@ -88,14 +89,14 @@ architecture sim_vme64master of sim_vme64master is
 	signal s_address 		: std_logic_vector(63 downto 0);
 	signal s_AM : std_logic_vector(5 downto 0);				 
 	
-	
-	
 	type t_dataToTransfer is array (0 to 255) of std_logic_vector(31 downto 0);
 	signal s_dataToTransfer : t_dataToTransfer;
 	
 	signal s_receivedData : std_logic_vector(63 downto 0);
 	--types of access
-	type t_dataTransferType is  (HIGH, D08E, D08O, D16, D32, D08_BLOCK1, D08_BLOCK2, D16_BLOCK, D32_BLOCK, D08_RMW, D16_RMW, D32_RMW, UA0_2, UA1_3, UA1_2, D64);
+	type t_dataTransferType is  (HIGH, D08E, D08O, D16, D32, D08_BLOCK1, D08_BLOCK2, D16_BLOCK,
+   D32_BLOCK, D08_RMW, D16_RMW, D32_RMW, UA0_2, UA1_3, UA1_2, D64);
+   
 	signal s_dataTransferTypeSelect : t_dataTransferType;
 	signal s_dataTransferType : std_logic_vector(3 downto 0);
 	--signal s_write : std_logic;
@@ -641,15 +642,19 @@ begin
 --			readGenericSingle(false);	
 			
 			-------CONFIG ADER 0 ------
-			s_address(31 downto 0) <= x"0007ff63";--ader 0-0
+			s_address(31 downto 0) <= x"0007ff63";--ader 0-3
 			s_dataToSend <= x"00000077";
 			writeGenericSingle;	  			
 			
-			s_address(31 downto 0) <= x"0007ff67";--ader 0-1
+			s_address(31 downto 0) <= x"0007ff67";--ader 0-2
 			s_dataToSend <= x"000000f0";
 			writeGenericSingle;	  			
+
+			s_address(31 downto 0) <= x"0007ff6B";--ader 0-1
+			s_dataToSend <= x"00000000";
+			writeGenericSingle;	  			
 			
-			s_address(31 downto 0) <= x"0007ff6f";--ader 0-3
+			s_address(31 downto 0) <= x"0007ff6f";--ader 0-0
 			--s_dataToSend <= x"000000e0";--a24 mblt
 			--s_dataToSend <= x"00000004";--a64
 			--s_dataToSend <= x"0000000C";--a64 blt
@@ -783,13 +788,13 @@ begin
 			ADDR(7 downto 1) <= s_address(7 downto 1);
 			LWORD <= s_address(1);
 			
-			ADDR(15 downto 8) <= x"05"; --beat count
+			ADDR(15 downto 8) <= conv_std_logic_vector(numberOf,8); --beat count
 			ADDR(31 downto 15) <= (others => '0');
 			
 			DATA <= (others => '0');
 			
 			DS(0) <= '1';
-			wait until DTACK = 'Z';
+			wait until DTACK = '1';
 			
 			
 			--end of phase 2
@@ -809,9 +814,9 @@ begin
 			wait for 10ns;
 			
 			
-			for I in 0 to numberOf-1 loop
+			for I in 0 to numberOf - 1 loop
 				DS(1) <= '0';
-				wait until DTACK <= 'Z';
+				wait until DTACK <= '1';
 				s_receivedData(63 downto 33) <= VME_ADDR_b(31 downto 1);
 				s_receivedData(32) <= VME_LWORD_n_b;
 				s_receivedData(31 downto 0) <= VME_DATA_b;
@@ -869,7 +874,7 @@ begin
 			DATA(3 downto 0) <= x"2";
 			
 			DS(0) <= '1';
-			wait until DTACK = 'Z';
+			wait until DTACK = '1';
 			
 			
 			--end of phase 2
@@ -891,7 +896,7 @@ begin
 			
 			
 			wait for 50 ns;
-			for I in 0 to 3 loop				
+			for I in 0 to (numberOf - 1) loop				
 				
 				DS(1) <= '0';
 				wait until DTACK /= '0';
@@ -907,10 +912,8 @@ begin
 				report "data:"  & hstr(dataToReceive);
 				
 			end loop;
-			
 			DS <= "11";
-			terminateCycle;
-			
+			terminateCycle;		
 		end procedure read2eSST;
 		
 		procedure write2e(numberOf:integer) is 
@@ -939,13 +942,13 @@ begin
 			ADDR(7 downto 1) <= s_address(7 downto 1);
 			LWORD <= s_address(1);
 			
-			ADDR(15 downto 8) <= x"05"; --beat count
+			ADDR(15 downto 8) <=  conv_std_logic_vector(numberOf,8); --beat count
 			ADDR(31 downto 15) <= (others => '0');
 			
 			DATA <= (others => '0');
 			
 			DS(0) <= '1';
-			wait until DTACK = 'Z';
+			wait until DTACK = '1';
 			
 			
 			--end of phase 2
@@ -967,7 +970,7 @@ begin
 			
 			dataToSend := x"0123456789ABC001";
 			
-			for I in 0 to numberOf loop				
+			for I in 0 to numberOf -1 loop				
 				
 				wait for 10ns;
 				ADDR <= dataToSend(63 downto 33);
@@ -975,7 +978,7 @@ begin
 				DATA <= dataToSend(31 downto 0);				
 				
 				DS(1) <= '0';
-				wait until DTACK <= 'Z'; --odd end
+				wait until DTACK <= '1'; --odd end
 				dataToSend := dataToSend +1;
 				
 				wait for 10ns;
@@ -1032,7 +1035,7 @@ begin
 			DATA(3 downto 0) <= x"2";
 			
 			DS(0) <= '1';
-			wait until DTACK = 'Z';
+			wait until DTACK = '1';
 			
 			
 			--end of phase 2
@@ -1096,34 +1099,33 @@ begin
 		wait for 200 ns;
 		--s_AM <= "111101"; --A24 data access blt
 		--s_AM <= "111111"; --A24 data access 
-		s_AM <= "111001";
+--		s_AM <= "111001";
 		--s_AM <= "000001"; --A64 data access 
 		--s_AM <= "000011"; --A64 data access blt
 		--s_AM <= "000000"; --A64 data access mblt
 		--s_AM <= "001101"; --A32 data access
-		--s_AM <= "001100"; --A32 data access	mblt
+		s_AM <= "001100"; --A32 data access	mblt
 		--s_AM <= "001000"; --A32 data access	mblt
 		s_dataTransferTypeSelect <= D32;
         
 		
 		s_address(63 downto 0) <= (others => '0');
-		wait for 10ns;
+		wait for 10 ns;
 		s_address(31 downto 0) <= x"77f00004";--x"0003fffd"; 
 		
 		--s_address <= x"00ff00ff77f00004";--x"0003fffd"; 
 		s_dataToSend <= x"00001110";
 		wait for 500 ns;
-                 
-         
-		                          --
---		-----2eVME test suite ----
---        write2e(5);  
---		wait for 200 ns;
---		read2e(5);   
---        wait;
+
+--
+		---2eVME test suite ----
+        write2e(5);  
+		wait for 200 ns;
+		read2e(5);   
+        wait;
 --		--------------------------
     		
- --       write2eSST(5);
+--        write2eSST(5);
 --		wait for 200ns;
 --		read2eSST(5);
 --		wait;  
@@ -1148,28 +1150,28 @@ begin
 --		wait;
 --		
 --		readGenericSingleAP(false);
-		s_address(31 downto 0) <= x"77f00004";--x"0003fffd"; 
-		s_dataToSend <= x"00001110";
-      wait for 100 ns;
-		writeGenericSingle;
-
-
-
-		s_address(31 downto 0) <= x"77f00009";--x"0003fffd"; 
-		s_dataToSend <= x"00001310";
-      wait for 100 ns;
-		writeGenericSingle;
-
-		s_address(31 downto 0) <= x"77f00004";--x"0003fffd"; 
-		s_dataToSend <= x"00001110";
-
-		readGenericSingle(false);		
-	
-
-		s_address(31 downto 0) <= x"77f00009";--x"0003fffd"; 
-		s_dataToSend <= x"00001310";
-
-		readGenericSingle(false);		
+--		s_address(31 downto 0) <= x"77f00004";--x"0003fffd"; 
+--		s_dataToSend <= x"00001110";
+--      wait for 100 ns;
+--		writeGenericSingle;
+--
+--
+--
+--		s_address(31 downto 0) <= x"77f00009";--x"0003fffd"; 
+--		s_dataToSend <= x"00001310";
+--      wait for 100 ns;
+--		writeGenericSingle;
+--
+--		s_address(31 downto 0) <= x"77f00004";--x"0003fffd"; 
+--		s_dataToSend <= x"00001110";
+--
+--		readGenericSingle(false);		
+--	
+--
+--		s_address(31 downto 0) <= x"77f00009";--x"0003fffd"; 
+--		s_dataToSend <= x"00001310";
+--
+--		readGenericSingle(false);		
 	
 --		readGenericBlock(5);
 --		

@@ -54,6 +54,27 @@ use IEEE.STD_LOGIC_1164.ALL;
  	do  : out std_logic_vector(dl - 1 downto 0)); 	 -- Data output
  end component dpblockram; 
 
+ component TrueDpblockram 
+ generic (dl : integer := 42; 		-- Length of the data word 
+ 			 al : integer := 10);			-- Size of the addr map (10 = 1024 words)
+
+			 									-- 'nw' has to be coherent with 'al'
+
+ port (clk_a_i  : in std_logic; 			-- Global Clock
+ 	we_a_i   : in std_logic; 				-- Write Enable
+ 	a_a_i    : in std_logic_vector(al - 1 downto 0); -- Write Address 
+ 	di_a_i   : in std_logic_vector(dl - 1 downto 0);  -- Data input
+ 	do_a_o  : out std_logic_vector(dl - 1 downto 0);  -- Data write, normaly open
+
+clk_b_i  : in std_logic; 			-- Global Clock
+ 	we_b_i   : in std_logic; 				-- Write Enable
+ 	a_b_i    : in std_logic_vector(al - 1 downto 0); -- Write Address 
+ 	di_b_i   : in std_logic_vector(dl - 1 downto 0);  -- Data input
+ 	do_b_o  : out std_logic_vector(dl - 1 downto 0));  -- Data write, normaly open
+           
+
+ end component TrueDpblockram; 
+ 
 
 component QuadPortRam
 generic(Al : integer := 8;
@@ -141,7 +162,54 @@ component Fifo
 			FifoOverFlow : out std_logic);
 end component Fifo;
 
+component wb_dma
+  generic(c_dl     : integer := 64;
+          c_al     : integer := 64;
+          c_sell   : integer := 8;
+          c_psizel : integer := 10);
 
+  port (
+    -- Common signals
+    clk_i           : in  std_logic;
+    reset_i         : in  std_logic;
+    transfer_done_o : out std_logic;
+
+    -- Slave WB with dma support        
+    sl_dat_i   : in  std_logic_vector(c_dl -1 downto 0);
+    sl_dat_o   : out std_logic_vector(c_dl -1 downto 0);
+    sl_adr_i   : in  std_logic_vector(c_al -1 downto 0);
+    sl_cyc_i   : in  std_logic;
+    sl_err_o   : out std_logic;
+    sl_lock_i  : in  std_logic;
+    sl_rty_o   : out std_logic;
+    sl_sel_i   : in  std_logic_vector(c_sell -1 downto 0);
+    sl_stb_i   : in  std_logic;
+    sl_ack_o   : out std_logic;
+    sl_we_i    : in  std_logic;
+    sl_stall_o : out std_logic;
+
+    -- This signals are not WB compatible. Should be connected to 0 if not
+    -- used. 
+    sl_psize_i       : in std_logic_vector(c_psizel -1 downto 0);
+--    sl_buff_access_i : in std_logic;
+
+    -- Master WB port to fabric
+    m_dat_i   : in  std_logic_vector(c_dl -1 downto 0);
+    m_dat_o   : out std_logic_vector(c_dl -1 downto 0);
+    m_adr_o   : out std_logic_vector(c_al -1 downto 0);
+    m_cyc_o   : out std_logic;
+    m_err_i   : in  std_logic;
+    m_lock_o  : out std_logic;
+    m_rty_i   : in  std_logic;
+    m_sel_o   : out std_logic_vector(c_sell -1 downto 0);
+    m_stb_o   : out std_logic;
+    m_ack_i   : in  std_logic;
+    m_we_o    : out std_logic;
+    m_stall_i : in  std_logic
+
+
+    );    
+end component wb_dma;
 
 function log2_f(n : in integer) return integer ;
 

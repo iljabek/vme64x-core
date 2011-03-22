@@ -284,8 +284,8 @@ elsif we_ram = '1' then
 FpLed_onb8_5 <= DAT_o(0);
 FpLed_onb8_6 <= DAT_o(1);
 
-ACK_i <= STB_o;
 end if;
+ACK_i <= STB_o;
 
 counter <= counter + 1;
 end if;
@@ -310,7 +310,7 @@ Udpblockram : dpblockram
 		RST_i <= not VME_RST_n_i;
 --		DAT_i => DAT_i,
 --		DAT_o => DAT_o,
---		ADR_o => ADR_o,
+--		ADR_o => ADR_o, 
 		--TGA_o => TGA_o,
 		--TGC_o => TGC_o,
 --		CYC_o => CYC_o,
