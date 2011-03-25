@@ -211,6 +211,149 @@ component wb_dma
     );    
 end component wb_dma;
 
+
+component ddr3_ctrl
+
+  generic(
+    --! Core's clock period in ps
+    g_MEMCLK_PERIOD      : integer := 3000;
+    --! Core's reset polarity (1=active low, 0=active high)
+    g_RST_ACT_LOW        : integer := 1;
+    --! Core's clock type (SINGLE_ENDED or DIFFERENTIAL)
+    g_INPUT_CLK_TYPE     : string  := "SINGLE_ENDED";
+    --! Set to TRUE for simulation
+    g_SIMULATION         : string  := "FALSE";
+    --! If TRUE, uses Xilinx calibration core (Input term, DQS centering)
+    g_CALIB_SOFT_IP      : string  := "TRUE";
+    --! User ports addresses maping (BANK_ROW_COLUMN or ROW_BANK_COLUMN)
+    g_MEM_ADDR_ORDER     : string  := "ROW_BANK_COLUMN";
+    --! DDR3 data port width
+    g_NUM_DQ_PINS        : integer := 16;
+    --! DDR3 address port width
+    g_MEM_ADDR_WIDTH     : integer := 14;
+    --! DDR3 bank address width
+    g_MEM_BANKADDR_WIDTH : integer := 3;
+    --! Wishbone port 0 data mask size (8-bit granularity)
+    g_P0_MASK_SIZE       : integer := 4;
+    --! Wishbone port 0 data width
+    g_P0_DATA_PORT_SIZE  : integer := 32;
+    --! Wishbone port 1 data mask size (8-bit granularity)
+    g_P1_MASK_SIZE       : integer := 4;
+    --! Wishbone port 1 data width
+    g_P1_DATA_PORT_SIZE  : integer := 32
+    );
+
+  port(
+    ----------------------------------------------------------------------------
+    -- Clocks and reset
+    ----------------------------------------------------------------------------
+    --! Core's differential clock input (pos)
+    --clk_p_i : in std_logic;
+    --! Core's differential clock input (neg)
+    --clk_n_i : in std_logic;
+    --! Core's clock input
+    clk_i   : in std_logic;
+    --! Core's reset input (active low)
+    rst_n_i : in std_logic;
+
+    ----------------------------------------------------------------------------
+    -- Status
+    ----------------------------------------------------------------------------
+    --! Indicates end of calibration sequence at startup
+    calib_done : out std_logic;
+
+    ----------------------------------------------------------------------------
+    -- DDR3 interface
+    ----------------------------------------------------------------------------
+    --! DDR3 data bus
+    ddr3_dq_b     : inout std_logic_vector(g_NUM_DQ_PINS-1 downto 0);
+    --! DDR3 address bus
+    ddr3_a_o      : out   std_logic_vector(g_MEM_ADDR_WIDTH-1 downto 0);
+    --! DDR3 bank address
+    ddr3_ba_o     : out   std_logic_vector(g_MEM_BANKADDR_WIDTH-1 downto 0);
+    --! DDR3 row address strobe
+    ddr3_ras_n_o  : out   std_logic;
+    --! DDR3 column address strobe
+    ddr3_cas_n_o  : out   std_logic;
+    --! DDR3 write enable
+    ddr3_we_n_o   : out   std_logic;
+    --! DDR3 on-die termination
+    ddr3_odt_o    : out   std_logic;
+    --! DDR3 reset
+    ddr3_rst_n_o  : out   std_logic;
+    --! DDR3 clock enable
+    ddr3_cke_o    : out   std_logic;
+    --! DDR3 lower byte data mask
+    ddr3_dm_o     : out   std_logic;
+    --! DDR3 upper byte data mask
+    ddr3_udm_o    : out   std_logic;
+    --! DDR3 lower byte data strobe (pos)
+    ddr3_dqs_p_b  : inout std_logic;
+    --! DDR3 lower byte data strobe (neg)
+    ddr3_dqs_n_b  : inout std_logic;
+    --! DDR3 upper byte data strobe (pos)
+    ddr3_udqs_p_b : inout std_logic;
+    --! DDR3 upper byte data strobe (pos)
+    ddr3_udqs_n_b : inout std_logic;
+    --! DDR3 clock (pos)
+    ddr3_clk_p_o  : out   std_logic;
+    --! DDR3 clock (neg)
+    ddr3_clk_n_o  : out   std_logic;
+    --! MCB internal termination calibration resistor
+    ddr3_rzq_b    : inout std_logic;
+    --! MCB internal termination calibration
+    ddr3_zio_b    : inout std_logic;
+
+    ----------------------------------------------------------------------------
+    -- Wishbone bus - Port 0
+    ----------------------------------------------------------------------------
+    --! Wishbone bus clock
+    wb0_clk_i   : in  std_logic;
+    --! Wishbone bus byte select
+    wb0_sel_i   : in  std_logic_vector(g_P0_MASK_SIZE - 1 downto 0);
+    --! Wishbone bus cycle select
+    wb0_cyc_i   : in  std_logic;
+    --! Wishbone bus cycle strobe
+    wb0_stb_i   : in  std_logic;
+    --! Wishbone bus write enable
+    wb0_we_i    : in  std_logic;
+    --! Wishbone bus address
+    wb0_addr_i  : in  std_logic_vector(29 downto 0);
+    --! Wishbone bus data input
+    wb0_data_i  : in  std_logic_vector(g_P0_DATA_PORT_SIZE - 1 downto 0);
+    --! Wishbone bus data output
+    wb0_data_o  : out std_logic_vector(g_P0_DATA_PORT_SIZE - 1 downto 0);
+    --! Wishbone bus acknowledge
+    wb0_ack_o   : out std_logic;
+    --! Wishbone bus stall (for pipelined mode)
+    wb0_stall_o : out std_logic;
+
+    ----------------------------------------------------------------------------
+    -- Wishbone bus - Port 1
+    ----------------------------------------------------------------------------
+    --! Wishbone bus clock
+    wb1_clk_i   : in  std_logic;
+    --! Wishbone bus byte select
+    wb1_sel_i   : in  std_logic_vector(g_P0_MASK_SIZE - 1 downto 0);
+    --! Wishbone bus cycle select
+    wb1_cyc_i   : in  std_logic;
+    --! Wishbone bus cycle strobe
+    wb1_stb_i   : in  std_logic;
+    --! Wishbone bus write enable
+    wb1_we_i    : in  std_logic;
+    --! Wishbone bus address
+    wb1_addr_i  : in  std_logic_vector(29 downto 0);
+    --! Wishbone bus data input
+    wb1_data_i  : in  std_logic_vector(g_P0_DATA_PORT_SIZE - 1 downto 0);
+    --! Wishbone bus data output
+    wb1_data_o  : out std_logic_vector(g_P0_DATA_PORT_SIZE - 1 downto 0);
+    --! Wishbone bus acknowledge
+    wb1_ack_o   : out std_logic;
+    --! Wishbone bus stall (for pipelined mode)
+    wb1_stall_o : out std_logic
+    );
+
+end component ddr3_ctrl;
 function log2_f(n : in integer) return integer ;
 
 end package common_components;

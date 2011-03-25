@@ -300,8 +300,10 @@ begin
 			
 			--present address
 			ADDR <= (others => '0');
-			ADDR(18 downto 1) <= s_address(18 downto 1); 
-			ADDR(23 downto 19) <= not VME_GA_i(4 downto 0);
+--			ADDR(18 downto 1) <= s_address(18 downto 1); 
+--			ADDR(23 downto 19) <= not VME_GA_i(4 downto 0);
+
+			ADDR <= s_address(ADDR'range); 
 			
 			DATA <= s_address(63 downto 32);
 			--present address modifier
@@ -559,6 +561,34 @@ begin
 			report "terminating";
 			terminateCycle;	
 		end writeGenericSingle;
+
+
+
+		--write single 8-32 bit value from bus. 
+		--avaible address modes A16,A24,A32
+		--
+		--make sure to set up --s_dataTransferTypeSelect <= D32;
+		--make sure to set up data to send s_dataTransferType (make sure it is aligned according to transfer type)
+		procedure writeGenericConfig is 
+		begin											
+			wait for 20ns; --addressing	
+			s_write := '0'; --it's a write op
+			s_address(23 downto 19) <= not VME_GA_i(4 downto 0);
+			addressPhase;			
+			DS <= s_dataTransferType(3 downto 2);			
+			DATA <= s_dataToSend;
+			
+			--assert DTACK = '1' report "DTACK should not be low here" severity error;
+			wait until DTACK = '0';	--wait for ack
+			wait for 20ns; --read time sim
+			report "terminating";
+			terminateCycle;	
+		end writeGenericConfig;
+		
+		
+		
+
+
 		
 		--read single 8-32 bit value from bus. 
 		--avaible address modes A16,A24,A32
@@ -589,6 +619,41 @@ begin
 			terminateCycle;	
 			
 		end readGenericSingle;	
+		
+		
+		--read single 8-32 bit value from bus. 
+		--avaible address modes A16,A24,A32
+		--
+		--make sure to set up --s_dataTransferTypeSelect <= D32;
+		--make sure to set up s_dataTransferType (make sure it is aligned according to transfer type)
+		--make sure to set up expected data (s_dataToReceive)
+		
+		procedure readGenericConfig(check:boolean ) is
+		begin
+			wait for 20ns; --addressing	
+			s_write := '1';	 -- read op
+		   s_address(23 downto 19) <= not VME_GA_i(4 downto 0);
+			s_address(31 downto 24) <= (others => '0');
+	
+
+			addressPhase;
+			--addressPhaseMultiplexed;
+			
+			
+			DS <= s_dataTransferType(3 downto 2);			
+			DATA <= (others => 'Z'); --input on data		
+			
+			wait until DTACK = '0';	--wait for data			 			
+			--read data
+			if check = true then 
+				assert s_dataToReceive = VME_DATA_b report "did not receive expected data" severity failure;
+			end if;
+			s_receivedData(31 downto 0) <= VME_DATA_b;
+			wait for 20ns;--simulate reading delay
+			
+			terminateCycle;	
+			
+		end readGenericConfig;	
 		
 		
 		
@@ -640,19 +705,22 @@ begin
 --			readGenericSingle(false);
 --			s_address(31 downto 0) <= x"0000062F";--adem 3
 --			readGenericSingle(false);	
+			s_address <= (others => '0');
+
 			
 			-------CONFIG ADER 0 ------
 			s_address(31 downto 0) <= x"0007ff63";--ader 0-3
+
 			s_dataToSend <= x"00000077";
-			writeGenericSingle;	  			
+			writeGenericConfig;	  			
 			
 			s_address(31 downto 0) <= x"0007ff67";--ader 0-2
 			s_dataToSend <= x"000000f0";
-			writeGenericSingle;	  			
+			writeGenericConfig;	  			
 
 			s_address(31 downto 0) <= x"0007ff6B";--ader 0-1
 			s_dataToSend <= x"00000000";
-			writeGenericSingle;	  			
+			writeGenericConfig;	  			
 			
 			s_address(31 downto 0) <= x"0007ff6f";--ader 0-0
 			--s_dataToSend <= x"000000e0";--a24 mblt
@@ -666,23 +734,84 @@ begin
 			--s_dataToSend <= x"00000005";--xam a32 xam:0x01 
 			--s_dataToSend <= x"00000009";--xam a64	xam:0x02
 			s_dataToSend <= x"00000045";--xam a32/d64 sst xam:0x11
-			--s_dataToSend <= x"00000049";--xam a64/d64 sst	xam:0x12   
+			--s_dataToSend <= x"00000049";--xam a64/d64 sst	xam:0x12   			
+			writeGenericConfig;
+
 			
-			writeGenericSingle;
+			-------CONFIG ADER 1 ------
+			s_address(31 downto 0) <= x"0007ff73";--ader 1-3
+			s_dataToSend <= x"00000077";
+			writeGenericConfig;	  			
+			
+			s_address(31 downto 0) <= x"0007ff77";--ader 1-2
+			s_dataToSend <= x"000000f0";
+			writeGenericConfig;	  			
+
+			s_address(31 downto 0) <= x"0007ff7B";--ader 1-1
+			s_dataToSend <= x"00000000";
+			writeGenericConfig;	  			
+			
+			s_address(31 downto 0) <= x"0007ff7f";--ader 1-0
+			--s_dataToSend <= x"000000e0";--a24 mblt
+			--s_dataToSend <= x"00000004";--a64
+			--s_dataToSend <= x"0000000C";--a64 blt
+			--s_dataToSend <= x"00000000";--a64 mblt
+			--s_dataToSend <= x"000000fc";--a24 blt
+			--s_dataToSend <= x"00000034";--a32
+	
+			s_dataToSend <= x"00000030";--a32 mblt 
+			--s_dataToSend <= x"00000020";--a32 mblt 
+			--s_dataToSend <= x"00000005";--xam a32 xam:0x01 
+			--s_dataToSend <= x"00000009";--xam a64	xam:0x02
+			--s_dataToSend <= x"00000045";--xam a32/d64 sst xam:0x11
+			--s_dataToSend <= x"00000049";--xam a64/d64 sst	xam:0x12   			
+			writeGenericConfig;
+			-------CONFIG ADER 2 ------
+			s_address(31 downto 0) <= x"0007ff83";--ader 2-3
+			s_dataToSend <= x"00000087";
+			writeGenericConfig;	  			
+			
+			s_address(31 downto 0) <= x"0007ff87";--ader 2-2
+			s_dataToSend <= x"000000f0";
+			writeGenericConfig;	  			
+
+			s_address(31 downto 0) <= x"0007ff8B";--ader 2-1
+			s_dataToSend <= x"00000000";
+			writeGenericConfig;	  			
+			
+			s_address(31 downto 0) <= x"0007ff8f";--ader 2-0
+			s_dataToSend <= x"000000e0";--a24 mblt
+			--s_dataToSend <= x"00000004";--a64
+			--s_dataToSend <= x"0000000C";--a64 blt
+			--s_dataToSend <= x"00000000";--a64 mblt
+			--s_dataToSend <= x"000000fc";--a24 blt
+			--s_dataToSend <= x"00000034";--a32
+			--s_dataToSend <= x"00000039";--a32
+			
+			--s_dataToSend <= x"00000030";--a32 mblt 
+			--s_dataToSend <= x"00000020";--a32 mblt 
+			--s_dataToSend <= x"00000005";--xam a32 xam:0x01 
+			--s_dataToSend <= x"00000009";--xam a64	xam:0x02
+			--s_dataToSend <= x"00000045";--xam a32/d64 sst xam:0x11
+			--s_dataToSend <= x"00000049";--xam a64/d64 sst	xam:0x12   			
+			writeGenericConfig;		
+			
+			
+			
 			----CONFIG IRQ REGISTERS----
 			s_address(31 downto 0) <= x"0007FBFB"; --set IRQ level
 			s_dataToSend <= x"00000002"; --set it to line 2
-			writeGenericSingle;	
+			writeGenericConfig;	
 			--readGenericSingle(false);
 			
 			s_address(31 downto 0) <= x"0007FBFF"; --set IRQ id
 			s_dataToSend <= x"000000AB"; --set it to 0xAB
-			writeGenericSingle;
+			writeGenericConfig;
 			
 			-----ENABLE MODULE----------------
 			s_address(31 downto 0) <= x"0007fffb";
 			s_dataToSend <= x"00000010"; --enable module
-			writeGenericSingle;
+			writeGenericConfig;
 			s_dataToReceive <= s_dataToSend;
 			s_dataToReceive(31 downto 8) <= (others => 'Z');
 			--readGenericSingle(true);
@@ -1111,18 +1240,18 @@ begin
 		
 		s_address(63 downto 0) <= (others => '0');
 		wait for 10 ns;
-		s_address(31 downto 0) <= x"77f00004";--x"0003fffd"; 
+		s_address(31 downto 0) <= x"87f00004";--x"0003fffd"; 
 		
 		--s_address <= x"00ff00ff77f00004";--x"0003fffd"; 
 		s_dataToSend <= x"00001110";
 		wait for 500 ns;
 
 --
-		---2eVME test suite ----
-        write2e(5);  
-		wait for 200 ns;
-		read2e(5);   
-        wait;
+--		---2eVME test suite ----
+--        write2e(5);  
+--		wait for 200 ns;
+--		read2e(5);   
+--        wait;
 --		--------------------------
     		
 --        write2eSST(5);
@@ -1131,8 +1260,10 @@ begin
 --		wait;  
 
  --     readGenericBlock(5);
---      readGenericBlockMBLT(5);
---        wait;
+      writeGenericBlock(5);
+      wait for 200ns;
+      readGenericBlockMBLT(5);
+      wait;
 
 --		writeGenericBlock(5);	
 --		

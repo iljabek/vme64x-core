@@ -1982,7 +1982,7 @@ end process;
               s_funcMatch(i) <= '0';
             end if;
           end loop;
-          
+           
         when "01" =>
           for i in s_funcMatch'range loop
             if (s_FUNC_ADER(i)(23 downto 8) and s_FUNC_ADEM(i)(23 downto 8)) = ((s_locAddr(23 downto 8)) and s_FUNC_ADEM(i)(23 downto 8)) then
