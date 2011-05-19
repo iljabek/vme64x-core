@@ -125,6 +125,7 @@ end component;
 	signal STB_o : STD_LOGIC;
 	signal WE_o : STD_LOGIC;
 	
+	signal my_VME_ADDR_b : STD_LOGIC_VECTOR(31 downto 0);
 	signal VME_DTACK_OE_o:std_logic;
     signal VME_DATA_DIR_o:std_logic;
    	signal VME_DATA_OE_o:std_logic;
@@ -134,7 +135,7 @@ end component;
 	-- Add your code here ...
 	
 begin
-	
+	my_VME_ADDR_b <= VME_ADDR_b&'0';
 	-- Unit Under Test port map
 	UUT : vme64xcore_top_reg
 	port map (
@@ -248,7 +249,7 @@ begin
 		wait for 5 ns;
 	end	process;
 	
-	VME_GA_i <= "111011";
+	VME_GA_i <= "011010";
 	
 	VME_RST_n_i <= '0', '1' after 200 ns;	 
 	RST_i <= '1', '0' after 200 ns;

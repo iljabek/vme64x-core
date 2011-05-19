@@ -693,6 +693,7 @@ begin
 		procedure configBus is
 		begin
 			s_dataTransferTypeSelect <= D08O;
+			
 			s_AM <= "101111"; --set AM to CR/CSR access
 			
 									
@@ -706,23 +707,24 @@ begin
 --			s_address(31 downto 0) <= x"0000062F";--adem 3
 --			readGenericSingle(false);	
 			s_address <= (others => '0');
+			s_address(23 downto 19) <= not VME_GA_i(4 downto 0);
 
 			
 			-------CONFIG ADER 0 ------
-			s_address(31 downto 0) <= x"0007ff63";--ader 0-3
+			s_address(18 downto 0) <= conv_std_logic_vector(16#0007ff63#,19); --ader 0-3
 
 			s_dataToSend <= x"00000077";
 			writeGenericConfig;	  			
 			
-			s_address(31 downto 0) <= x"0007ff67";--ader 0-2
+			s_address(18 downto 0) <= conv_std_logic_vector(16#0007ff67#,19);--ader 0-2
 			s_dataToSend <= x"000000f0";
 			writeGenericConfig;	  			
 
-			s_address(31 downto 0) <= x"0007ff6B";--ader 0-1
+			s_address(18 downto 0) <= conv_std_logic_vector(16#0007ff6B#,19);--ader 0-1
 			s_dataToSend <= x"00000000";
 			writeGenericConfig;	  			
 			
-			s_address(31 downto 0) <= x"0007ff6f";--ader 0-0
+			s_address(18 downto 0) <= conv_std_logic_vector(16#0007ff6f#,19);--ader 0-0
 			--s_dataToSend <= x"000000e0";--a24 mblt
 			--s_dataToSend <= x"00000004";--a64
 			--s_dataToSend <= x"0000000C";--a64 blt
@@ -739,19 +741,19 @@ begin
 
 			
 			-------CONFIG ADER 1 ------
-			s_address(31 downto 0) <= x"0007ff73";--ader 1-3
+			s_address(18 downto 0) <= conv_std_logic_vector(16#0007ff73#,19);--ader 1-3
 			s_dataToSend <= x"00000077";
 			writeGenericConfig;	  			
 			
-			s_address(31 downto 0) <= x"0007ff77";--ader 1-2
+			s_address(18 downto 0) <= conv_std_logic_vector(16#0007ff77#,19);--ader 1-2
 			s_dataToSend <= x"000000f0";
 			writeGenericConfig;	  			
 
-			s_address(31 downto 0) <= x"0007ff7B";--ader 1-1
+			s_address(18 downto 0) <= conv_std_logic_vector(16#0007ff7B#,19);--ader 1-1
 			s_dataToSend <= x"00000000";
 			writeGenericConfig;	  			
 			
-			s_address(31 downto 0) <= x"0007ff7f";--ader 1-0
+			s_address(18 downto 0) <= conv_std_logic_vector(16#0007ff7f#,19);--ader 1-0
 			--s_dataToSend <= x"000000e0";--a24 mblt
 			--s_dataToSend <= x"00000004";--a64
 			--s_dataToSend <= x"0000000C";--a64 blt
@@ -767,19 +769,19 @@ begin
 			--s_dataToSend <= x"00000049";--xam a64/d64 sst	xam:0x12   			
 			writeGenericConfig;
 			-------CONFIG ADER 2 ------
-			s_address(31 downto 0) <= x"0007ff83";--ader 2-3
+			s_address(18 downto 0) <= conv_std_logic_vector(16#0007ff83#,19);--ader 2-3
 			s_dataToSend <= x"00000087";
 			writeGenericConfig;	  			
 			
-			s_address(31 downto 0) <= x"0007ff87";--ader 2-2
+			s_address(18 downto 0) <= conv_std_logic_vector(16#0007ff87#,19);--ader 2-2
 			s_dataToSend <= x"000000f0";
 			writeGenericConfig;	  			
 
-			s_address(31 downto 0) <= x"0007ff8B";--ader 2-1
+			s_address(18 downto 0) <= conv_std_logic_vector(16#0007ff8B#,19);--ader 2-1
 			s_dataToSend <= x"00000000";
 			writeGenericConfig;	  			
 			
-			s_address(31 downto 0) <= x"0007ff8f";--ader 2-0
+			s_address(18 downto 0) <= conv_std_logic_vector(16#0007ff8f#,19);--ader 2-0
 			s_dataToSend <= x"000000e0";--a24 mblt
 			--s_dataToSend <= x"00000004";--a64
 			--s_dataToSend <= x"0000000C";--a64 blt
@@ -799,22 +801,28 @@ begin
 			
 			
 			----CONFIG IRQ REGISTERS----
-			s_address(31 downto 0) <= x"0007FBFB"; --set IRQ level
+			s_address(18 downto 0) <= conv_std_logic_vector(16#0007FBFB#,19); --set IRQ level
 			s_dataToSend <= x"00000002"; --set it to line 2
 			writeGenericConfig;	
 			--readGenericSingle(false);
 			
-			s_address(31 downto 0) <= x"0007FBFF"; --set IRQ id
+			s_address(18 downto 0) <= conv_std_logic_vector(16#0007FBFF#,19); --set IRQ id
 			s_dataToSend <= x"000000AB"; --set it to 0xAB
 			writeGenericConfig;
 			
 			-----ENABLE MODULE----------------
-			s_address(31 downto 0) <= x"0007fffb";
+			s_address(18 downto 0) <= conv_std_logic_vector(16#0007fffb#,19);
+
 			s_dataToSend <= x"00000010"; --enable module
 			writeGenericConfig;
 			s_dataToReceive <= s_dataToSend;
 			s_dataToReceive(31 downto 8) <= (others => 'Z');
-			--readGenericSingle(true);
+			
+			report "Read address 0 CSR";
+			
+			s_address(18 downto 0) <= conv_std_logic_vector(16#0007ff8f#,19);
+
+			readGenericSingle(true);
 			
 			report "end configuration";
 		end procedure;
