@@ -1,8 +1,9 @@
-   library IEEE;
+library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.numeric_std.all;
 
 package VME_pack is
+
   
 type t_reg52x8bit is array(51 downto 0) of unsigned(7 downto 0);
 type t_reg52x12bit is array(51 downto 0) of unsigned(11 downto 0);
@@ -117,9 +118,12 @@ type t_cr_add_table is array (Natural range <>) of t_rom_cell;
     constant BIT_CLR_REG_addr : integer := 16#7FFF7#;   
     constant CRAM_OWNER_addr : integer := 16#7FFF3#;    
     constant USR_BIT_SET_REG_addr : integer := 16#7FFEF#;   
-    constant USR_BIT_CLR_REG_addr : integer := 16#7FFEB#; 
+    constant USR_BIT_CLR_REG_addr : integer := 16#7FFEB#;
+	 
 --Reserved 16#7FFE7#;   
---Reserved 16#7FFE3#;   
+--Reserved 16#7FFE3#;  
+
+
     constant FUNC7_ADER_0_addr : integer := 16#7FFDF#;   
     constant FUNC7_ADER_1_addr : integer := 16#7FFDB#;   
     constant FUNC7_ADER_2_addr : integer := 16#7FFD7#;   
@@ -161,10 +165,9 @@ type t_cr_add_table is array (Natural range <>) of t_rom_cell;
     constant FUNC0_ADER_3_addr : integer := 16#7FF63#; 
 	 
     constant IRQ_ID_addr : integer := 16#7fbff#;   
-    constant IRQ_level_addr : integer := 16#7fbef#;   
+    constant IRQ_level_addr : integer := 16#7fbef#;
+	 
 ----------------------------------
- 
- 
 ---------------------------------------------------------------------------
     constant BEG_USER_CR: integer :=        1;
     constant END_USER_CR: integer :=        2;
@@ -206,23 +209,6 @@ constant c_board_id_po : integer :=7;
 constant c_rev_id_po : integer :=8;
 constant c_cus_ascii_po : integer :=9;
 constant c_last_CR_pointer_po : integer := 9;
--- 
---constant c_cr_struc: t_cr_struc(0 to c_last_CR_pointer_po) := (
---
---c_checksum_po => (16#03#, 1),
---c_length_of_rom_po =>	  (16#07#, 3),
---c_csr_data_acc_width_po => (16#1b#, 1),
---c_cr_space_specification_id_po => (16#1F#, 1),
---c_ascii_c_po => (, 1),
---c_ascii_r_po => (, 1),
---c_manu_id_po => (, 1),
---c_board_id_po => (, 4),
---c_rev_id_po => (, 3),
---c_cus_ascii_po => (, 3),
---others => (0,0));
-
-
-
 
 end VME_pack;                                                                
 

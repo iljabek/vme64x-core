@@ -25,7 +25,7 @@ use IEEE.STD_LOGIC_1164.all;
 use IEEE.numeric_std.all;
 
 --use IEEE.STD_LOGIC_unsigned.all;
-use work.vme_pack.all;
+use work.VME_pack.all;
 use work.VME_CR_pack.all;
 use work.VME_CSR_pack.all;
 entity VME_bus is
@@ -1916,24 +1916,25 @@ end process;
   process(clk_i)  --s_moduleEnable, s_funcMatch,s_AMmatch, s_addressingType, s_initInProgress, s_transferType, s_initInProgress )
   begin
     if rising_edge(clk_i) then
-      if s_moduleEnable = '1' and (s_addressingType /= CR_CSR) and (s_initInProgress = '0') then
+      if (s_moduleEnable = '1') and (s_addressingType /= CR_CSR) and (s_initInProgress = '0') then
         for I in s_funcMatch'range loop
           if s_funcMatch(I) = '1' and s_AMmatch(I) = '1' then
             s_cardSel <= '1';
-          else
-            s_cardSel <= '0';
+--          else
+--            s_cardSel <= '0';
           end if;
         end loop;
       else
         s_cardSel <= '0';
+
       end if;
 
-      if s_moduleEnable = '1' and (s_transferType = LCK) and (s_initInProgress = '0') then
+      if (s_moduleEnable = '1') and (s_transferType = LCK) and (s_initInProgress = '0') then
         for I in s_funcMatch'range loop
           if s_funcMatch(I) = '1' then
             s_lockSel <= '1';
-          else
-            s_lockSel <= '0';
+--          else
+--            s_lockSel <= '0';
           end if;
         end loop;
       else
@@ -1954,20 +1955,34 @@ end process;
         when "11" =>
           for i in s_funcMatch'range loop
             if s_addressingType = TWOedge and (s_XAMtype = A32_2eVME or s_XAMtype = A32_2eSST) then
+							 			  if s_FUNC_ADEM(i)(31 downto 10) /=0 then
+
               if (s_FUNC_ADER(i)(31 downto 10) and s_FUNC_ADEM(i)(31 downto 10)) = ((s_locAddr(31 downto 10)) and s_FUNC_ADEM(i)(31 downto 10)) then
                 s_funcMatch(i) <= '1';
               else
                 s_funcMatch(i) <= '0';
               end if;
+              else
+                s_funcMatch(i) <= '0';
+              end if;
             elsif s_addressingType = TWOedge and (s_XAMtype = A64_2eVME or s_XAMtype = A64_2eSST) then
+											 			  if s_FUNC_ADEM(i)(31 downto 10) /=0 then
+
               if (s_FUNC_ADER_64(i)(63 downto 10) and s_FUNC_ADEM_64(i)(63 downto 10)) = ((s_locAddr(63 downto 10)) and s_FUNC_ADEM_64(i)(63 downto 10)) then
                 s_funcMatch(i) <= '1';
               else
                 s_funcMatch(i) <= '0';
               end if;
+              else
+                s_funcMatch(i) <= '0';
+              end if;
             else
+				  if s_FUNC_ADEM(i)(31 downto 10) /=0 then
               if (s_FUNC_ADER_64(i)(63 downto 8) and s_FUNC_ADEM_64(i)(63 downto 8)) = ((s_locAddr(63 downto 8)) and s_FUNC_ADEM_64(i)(63 downto 8)) then
                 s_funcMatch(i) <= '1';
+              else
+                s_funcMatch(i) <= '0';
+              end if;
               else
                 s_funcMatch(i) <= '0';
               end if;
@@ -1976,28 +1991,45 @@ end process;
           
         when "10" =>
           for i in s_funcMatch'range loop
+			 			  if s_FUNC_ADEM(i)(31 downto 8) /=0 then
+
             if (s_FUNC_ADER(i)(31 downto 8) and s_FUNC_ADEM(i)(31 downto 8)) = ((s_locAddr(31 downto 8)) and s_FUNC_ADEM(i)(31 downto 8)) then
               s_funcMatch(i) <= '1';
             else
               s_funcMatch(i) <= '0';
             end if;
+				else
+              s_funcMatch(i) <= '0';
+            end if;
+
           end loop;
            
         when "01" =>
           for i in s_funcMatch'range loop
+			  if s_FUNC_ADEM(i)(23 downto 8) /=0 then
             if (s_FUNC_ADER(i)(23 downto 8) and s_FUNC_ADEM(i)(23 downto 8)) = ((s_locAddr(23 downto 8)) and s_FUNC_ADEM(i)(23 downto 8)) then
               s_funcMatch(i) <= '1';
             else
               s_funcMatch(i) <= '0';
+				end if;
+				else
+              s_funcMatch(i) <= '0';		
             end if;
           end loop;
+			 
+        when "00" =>
 
           for i in s_funcMatch'range loop
+			   			 if s_FUNC_ADEM(i)(15 downto 8) /=0 then
             if (s_FUNC_ADER(i)(15 downto 8) and s_FUNC_ADEM(i)(15 downto 8)) = ((s_locAddr(15 downto 8)) and s_FUNC_ADEM(i)(15 downto 8)) then
+				
               s_funcMatch(i) <= '1';
             else
               s_funcMatch(i) <= '0';
             end if;
+			  else 
+              s_funcMatch(i) <= '0';
+			  end if;
           end loop;
           
         when others =>
@@ -2125,9 +2157,9 @@ end process;
         s_UsrBitClrReg         <= (others => '0');
         s_UsrBitSetReg         <= (others => '0');
         s_CSRarray(CRAM_OWNER) <= (others => '0');
-        s_CSRarray(BAR)        <= (others => '0');
-        for i in CRAM_OWNER to IRQ_level loop
-          s_CSRarray(i) <= (others => '0');
+ --       s_CSRarray(BAR)        <= (others => '0');
+        for i in CRAM_OWNER downto IRQ_level loop
+          s_CSRarray(i) <= c_csr_array(i);
         end loop;
       elsif s_memReq = '1' and s_confAccess = '1' then
         
