@@ -1303,10 +1303,23 @@ begin
       wait for 100 ns;
 		writeGenericSingle;
 
+
+		s_address(31 downto 0) <= x"00800014";--x"0003fffd"; 
+		s_dataToSend <= x"00002220";
+      wait for 100 ns;
+		writeGenericSingle;
+
+
 		s_address(31 downto 0) <= x"00800010";--x"0003fffd"; 
 		s_dataToSend <= x"00001110";
 
+		readGenericSingle(false);
+		
+		s_address(31 downto 0) <= x"00800014";--x"0003fffd"; 
+		s_dataToSend <= x"00002220";
+
 		readGenericSingle(false);		
+
 --	
 --
 --		s_address(31 downto 0) <= x"77f00009";--x"0003fffd"; 
