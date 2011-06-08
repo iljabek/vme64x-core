@@ -686,13 +686,13 @@ begin
             s_berr            <= '0';
             if s_transferType = SINGLE or s_transferType = BLT then
               s_mainFSMstate <= MEMORY_REQ;
-                                        --s_WrRd           <= VME_WRITE_n_oversampled; 
+            s_memReq    <= '1';
             elsif s_transferType = MBLT and s_dataPhase = '0' then
               s_mainFSMstate <= DTACK_LOW;
-                                        --s_WrRd           <= '0'; 
+            s_memReq    <= '0';
             elsif s_transferType = MBLT and s_dataPhase = '1' then
               s_mainFSMstate <= MEMORY_REQ;
-                                        --s_WrRd           <= VME_WRITE_n_oversampled; 
+            s_memReq    <= '0';
             end if;
             
           when MEMORY_REQ =>
@@ -702,7 +702,7 @@ begin
             s_addrDir         <= VME_WRITE_n_oversampled;
             s_addrOE          <= '0';
             s_mainDTACK       <= '1';
-            s_memReq          <= '1';
+            s_memReq          <= '0';
             s_DSlatch         <= '0';
             s_incrementAddr   <= '0';
             s_resetAddrOffset <= '0';
@@ -1662,12 +1662,19 @@ end process;
 --s_beatCount      <= ((s_cycleCount)&'0') when s_XAMtype=A32_2eVME or s_XAMtype=A64_2eVME else
 --                    ('0'&(s_cycleCount));
 
-  s_beatCount <= (resize(s_cycleCount*2, s_beatCount'length)) when (s_XAMtype = A32_2eVME or s_XAMtype = A64_2eVME) else
-                       resize(s_cycleCount, s_beatCount'length);
+process(s_cycleCount,s_beatCount,s_XAMtype, s_transferType)
+begin
+if ((s_XAMtype = A32_2eVME) or (s_XAMtype = A64_2eVME))  then 
+  s_beatCount <= (resize(s_cycleCount*2, s_beatCount'length));
+elsif s_transferType = SINGLE then 
+  s_beatCount <= (to_unsigned(1, s_beatCount'length));
+else
+  s_beatCount <= ('0'&(s_cycleCount));
+end if;  
+end process;
 --
+
   psize_o <= std_logic_vector(s_beatCount(7 downto 0));
-
-
 -- Beat counter
 
 --  p_FIFObeatCounter : process(clk_i)
