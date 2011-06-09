@@ -104,7 +104,7 @@ begin
   end process;
 
 -----------------------------------------------------------------------------
-  process(trans_st, sl_sel_i, sl_stb_i, sl_we_i,nx_sl_ack,
+  process(trans_st, sl_sel_i, sl_stb_i, sl_psize_i, sl_we_i,nx_sl_ack,
   is_sl_index_top, is_m_stb_index_top, is_m_ack_index_top)
   begin
     nx_trans_st <= IDLE;
