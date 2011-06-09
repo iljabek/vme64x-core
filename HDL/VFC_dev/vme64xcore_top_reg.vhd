@@ -19,7 +19,9 @@ port(
 			VME_LWORD_n_b : inout STD_LOGIC;
 			VME_ADDR_b : inout STD_LOGIC_VECTOR(31 downto 1);
 			VME_DATA_b : inout STD_LOGIC_VECTOR(31 downto 0);
+			
 --			VME_BBSY_n_i : in STD_LOGIC; 
+
 			VME_IRQ_n_o : out STD_LOGIC_VECTOR(6 downto 0);
 --			VME_IACKIN_n_i : in STD_LOGIC;
 --			VME_IACKOUT_n_o : out STD_LOGIC; 

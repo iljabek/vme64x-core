@@ -984,8 +984,8 @@ begin
 			AS <='0';
 			wait for 25ns;
 			
-			xam := x"11"; --a32/d64
-			--xam := x"12"; --a64/d64
+			--xam := x"11"; --a32/d64
+			xam := x"12"; --a64/d64
 			--xam <= 0x21 --a32/d64 broadcast
 			--xam <= 0x22 --a32/d64 broadcast
 			
@@ -1145,8 +1145,8 @@ begin
 			AS <='0';
 			wait for 25ns;
 			
-			xam := x"11"; --a32/d64
-			--xam := x"12"; --a64/d64
+			--xam := x"11"; --a32/d64
+			xam := x"12"; --a64/d64
 			--xam <= 0x21 --a32/d64 broadcast
 			--xam <= 0x22 --a32/d64 broadcast
 			
@@ -1319,6 +1319,23 @@ begin
 		s_dataToSend <= x"00002220";
 
 		readGenericSingle(false);		
+
+
+      wait for 10us;
+		s_address <= x"1234000000000000";--x"0003fffd"; 
+		
+		
+		--read2eSST(10);
+		--write2eSST(10);
+		wait for 30 ns;
+		write2eSST(10);		
+		wait for 30 ns;
+		
+		read2eSST(10);
+
+--		read2e(100);
+		wait;
+
 
 --	
 --

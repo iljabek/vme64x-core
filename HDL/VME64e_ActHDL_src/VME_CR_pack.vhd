@@ -90,21 +90,23 @@ package VME_CR_pack is
 
 --XAMCAP
 16#88#  => x"00", -- Fun 0  XAMCAP MSB
---......
-16#C5#  => x"02", -- Fun 0  XAMCAP=0x11
-16#C6#  => x"00", -- Fun 0  XAMCAP LSB
-16#C7#  => x"01", -- Fun 0  XAMCAP LSB
+16#a5#  => x"06", -- Fun 0  XAMCAP=0x11
+16#A7# => x"00",
+--...
+
+--16#C6#  => x"00", -- Fun 0  XAMCAP LSB
+--16#C7#  => x"01", -- Fun 0  XAMCAP LSB
 --......
 
 -- Address Decoder Mask ADEM
 16#188#  => x"00", -- Fun 0 
-16#189#  => x"ff", -- Fun 0 
+16#189#  => x"00", -- Fun 0 
 16#18A#  => x"00", -- Fun 0 
-16#18B#  => x"04", -- Fun 0 
+16#18B#  => x"05", -- Fun 0 
 
-16#18c#  => x"00", -- Fun 1 
+16#18c#  => x"ff", -- Fun 1 
 16#18d#  => x"ff", -- Fun 1 
-16#18e#  => x"ff", -- Fun 1 
+16#18e#  => x"00", -- Fun 1 
 16#18f#  => x"00", -- Fun 1 
 
 16#190#  => x"00", -- Fun 2 

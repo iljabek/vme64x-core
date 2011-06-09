@@ -84,12 +84,13 @@ architecture RTL of wb_dma is
   signal m_we, nx_m_we        : std_logic;
   signal nx_sl_stall : std_logic;
   signal latch_psize : std_logic;
-  signal psize : unsigned(c_psizel -1 downto 0);
+  signal psize : unsigned(c_psizel downto 0);
   signal nx_m_adr, m_adr : unsigned(c_al -1 downto 0);
   signal m_latch : std_logic;
   signal nx_sl_dat_o : std_logic_vector(c_dl -1 downto 0);
   signal sl_sel_we, m_sel_we, m_sel : std_logic_vector(c_sell -1 downto 0);
   signal advance_m_adr, inc_m_adr : std_logic;
+  signal is_m_ack_index_top_m1 : std_logic;
 begin
 -------------------------------------------------------------------------------
   process(clk_i)
@@ -105,7 +106,7 @@ begin
 
 -----------------------------------------------------------------------------
   process(trans_st, sl_sel_i, sl_stb_i, sl_psize_i, sl_we_i,nx_sl_ack,
-  is_sl_index_top, is_m_stb_index_top, is_m_ack_index_top)
+  is_sl_index_top, is_m_stb_index_top, is_m_ack_index_top, is_sl_index_top_m1)
   begin
     nx_trans_st <= IDLE;
     case trans_st is
@@ -140,13 +141,13 @@ begin
       when M_TO_S_DONE_1 =>
           nx_trans_st <= M_TO_S_DONE_2;
       when M_TO_S_DONE_2 =>
-        if is_sl_index_top = '1' then
+        if is_sl_index_top_m1 = '1' then
           nx_trans_st <= M_TO_S_WAIT_LAST_ACK;
         else
           nx_trans_st <= M_TO_S_DONE_2;
         end if;
       when M_TO_S_WAIT_LAST_ACK =>
-		   if ((sl_stb_i= '1') and (is_m_ack_index_top = '1')) or (unsigned(sl_psize_i) = 1) then 
+		   if ((sl_stb_i= '1') and (is_m_ack_index_top = '1')) or (psize = 1) then 
           nx_trans_st <= IDLE;
          else
           nx_trans_st <= M_TO_S_WAIT_LAST_ACK;
@@ -157,12 +158,13 @@ begin
 -----------------------------------------------------------------------------
   fifo_stb_empty      <= '1' when m_stb_index = s_index              else '0';
   is_sl_index_top <= '1' when s_index >= psize else '0';
-  is_sl_index_top_m1 <= '1' when s_index >= (psize - 1) else '0';
+  is_sl_index_top_m1 <= '1' when signed(s_index) >= signed((psize - 1)) else '0';
   is_m_stb_index_top  <= '1' when m_stb_index >= psize else '0';
   is_m_ack_index_top  <= '1' when m_ack_index >= psize else '0';
+  is_m_ack_index_top_m1  <= '1' when signed(s_index) >= signed((psize - 1)) else '0';
 
 -----------------------------------------------------------------------------
-  process(m_ack_i,inc_m_stb_index,  m_ack_index, m_stb_index, m_stall_i,m_stb, sl_we_i, sl_stb_i, fifo_stb_empty,
+  process(m_ack_i,inc_m_stb_index, is_m_ack_index_top_m1, m_ack_index, m_stb_index, m_stall_i,m_stb, sl_we_i, sl_stb_i, fifo_stb_empty,
   is_sl_index_top, nx_trans_st, trans_st, is_m_stb_index_top, is_m_ack_index_top, is_sl_index_top_m1)
   begin
     inc_s_index    <= '0';
@@ -210,7 +212,7 @@ begin
 		  m_latch <= m_ack_i;
 		  advance_m_adr <= '0';
       when M_TO_S_DONE_1 =>
-        nx_transfer_done <= is_sl_index_top and is_m_ack_index_top;
+        nx_transfer_done <= is_sl_index_top_m1 and is_m_ack_index_top;
 		  nx_sl_stall <= '0'; 
         nx_sl_ack      <= '1';--sl_stb_i and is_m_index_top and (not is_sl_index_top);
         inc_s_index    <= '1';
@@ -218,7 +220,7 @@ begin
 		  m_index <= m_ack_index; --  case when the master is reading from the wb slave (s to m)
         inc_m_adr <= inc_m_stb_index;
       when M_TO_S_DONE_2 | M_TO_S_WAIT_LAST_ACK =>
-        nx_transfer_done <= sl_stb_i and is_m_ack_index_top and is_sl_index_top;
+        nx_transfer_done <= sl_stb_i and is_m_ack_index_top_m1 and is_sl_index_top_m1;
 		  nx_sl_stall <= '0'; 
         nx_sl_ack      <= sl_stb_i and is_m_ack_index_top; --and (not is_sl_index_top);
         inc_s_index    <= sl_stb_i and is_m_ack_index_top;-- and (not is_sl_index_top);
@@ -271,7 +273,7 @@ begin
   begin
     if rising_edge(clk_i) then
 	   if latch_psize = '1' then
-		   psize <= unsigned(sl_psize_i);
+		   psize <= unsigned('0'&sl_psize_i);
          m_sel <= sl_sel_i;
 		end if;
 		m_adr <= nx_m_adr;

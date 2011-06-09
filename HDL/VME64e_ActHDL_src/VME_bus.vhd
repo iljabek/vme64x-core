@@ -431,7 +431,7 @@ begin
  -- added by pablo for testing. it was:'1' when IACKinProgress_i='1' else s_dtackOE;
   VME_DATA_DIR_o <= s_dataDir;  -- added by pablo for testing. it was:'1' when IACKinProgress_i='1' else s_dataDir;
   VME_DATA_OE_o  <= '0';  -- added by pablo for testing. it was: '1' when IACKinProgress_i='1' else s_dataOE;
-  VME_ADDR_DIR_o <= '0';  -- added by pablo for testing. it was:s_addrDir;
+  VME_ADDR_DIR_o <= s_addrDir;  -- added by pablo for testing. it was:s_addrDir;
   VME_ADDR_OE_o  <= '0';  -- added by pablo for testing. it was:s_addrOE;
 
 
@@ -921,7 +921,7 @@ begin
             s_transferActive  <= '0';
             s_setLock         <= '0';
             s_cyc             <= '0';
-            s_2eLatchAddr     <= "00";
+            s_2eLatchAddr     <= "01";
             s_TWOeInProgress  <= '0';
             --s_readFIFO        <= '0';
             s_retry           <= '0';
@@ -949,7 +949,7 @@ begin
             s_transferActive  <= '0';
             s_setLock         <= '0';
             s_cyc             <= '0';
-            s_2eLatchAddr     <= "01";
+            s_2eLatchAddr     <= "00";
             s_TWOeInProgress  <= '0';
             --s_readFIFO        <= '0';
             s_retry           <= '0';
@@ -992,8 +992,8 @@ begin
             --s_dtackOE            <= '1';
             s_dataDir   <= '0';
             s_dataOE    <= '1';
-            s_addrDir   <= '0';
             s_addrOE    <= '1';
+            s_addrDir   <= '0';
             s_mainDTACK <= '0';
             --s_WrRd               <= '0'; 
 
@@ -1208,17 +1208,19 @@ begin
             s_berr            <= '0';
 --				IF s_2eType = TWOe_SST
 
-            if s_RW = '0' then
+            if s_RW = '0' and  s_2eType = TWOe_SST then
               s_mainFSMstate <= TWOe_FIFO_WRITE;
+				  s_mainDTACK <= '0';
+				elsif s_RW = '1' and  s_2eType = TWOe_SST then
+              s_mainFSMstate <= TWOe_CHECK_BEAT;
 				  s_mainDTACK <= not s_mainDTACK;
-            elsif s_2eType = TWOe_SST then
-              s_mainFSMstate <= TWOe_CHECK_BEAT;	
-				  s_mainDTACK       <= s_mainDTACK; --not s_mainDTACK;  
+            elsif s_RW = '0' then
+              s_mainFSMstate <= TWOe_FIFO_WRITE;	
+				  s_mainDTACK       <= not s_mainDTACK;
 				else				
               s_mainFSMstate <= TWOe_WAIT_FOR_DS1;
 				  s_mainDTACK <= not s_mainDTACK;
             end if;
-
           when TWOe_WAIT_FOR_DS1 =>
             --s_dtackOE            <= '1';
             s_dataDir   <= s_dataDir;

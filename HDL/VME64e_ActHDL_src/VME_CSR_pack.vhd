@@ -19,9 +19,15 @@ FUNC2_ADER_1 =>x"00",
 FUNC2_ADER_2 =>x"80",
 FUNC2_ADER_3 =>x"00",
 
---FUNC2_ADER_3 => (x"00",x"E0",x"00",x"e4"), --User defined bit set register
---FUNC1_ADER_0 downto FUNC1_ADER_3 => x"00", --User defined bit set register
---FUNC0_ADER_0 downto FUNC0_ADER_3 => x"00", --User defined bit set register
+FUNC0_ADER_0 =>x"44",
+FUNC0_ADER_1 =>x"00",
+FUNC0_ADER_2 =>x"00",
+FUNC0_ADER_3 =>x"00",
+
+FUNC1_ADER_0 =>x"00",
+FUNC1_ADER_1 =>x"00",
+FUNC1_ADER_2 =>x"34",
+FUNC1_ADER_3 =>x"12",
 
 others => (others => '0'));
 
