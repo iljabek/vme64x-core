@@ -25,7 +25,7 @@ type t_cr_add_table is array (Natural range <>) of t_rom_cell;
    constant    c_CR_CSR : std_logic_vector(5 downto 0) :="101111";                        
    constant    c_A16 : std_logic_vector(5 downto 0) :="101101";
    constant    c_A16_LCK : std_logic_vector(5 downto 0) :="101100";
-   constant    c_A32 : std_logic_vector(5 downto 0) :="001101";
+   constant    c_A32 : std_logic_vector(5 downto 0) :="001001";
    constant    c_A32_BLT : std_logic_vector(5 downto 0) :="001111";
    constant    c_A32_MBLT : std_logic_vector(5 downto 0) :="001100";
    constant    c_A32_LCK : std_logic_vector(5 downto 0) :="000101";

@@ -268,6 +268,7 @@ architecture RTL of VME64xCore_Top is
   signal s_VME_DATA_b_o                                 : std_logic_vector(31 downto 0);
   signal s_transfer_done : std_logic;
   signal sel_we : std_logic;
+  signal s_VME_ADDR_DIR : std_logic;
 begin
 
 -- Uncomment this section for use of external CR and CRAM
@@ -349,8 +350,8 @@ begin
 
       );
 
-  VME_ADDR_b     <= s_VME_ADDR_b_o    when s_VME_ADDR_OE_o = '1' else (others => 'Z');
-  VME_LWORD_n_b  <= s_VME_LWORD_n_b_o when s_VME_ADDR_OE_o = '1' else 'Z';
+  VME_ADDR_b     <= s_VME_ADDR_b_o    when s_VME_ADDR_DIR = '1' else (others => 'Z');
+  VME_LWORD_n_b  <= s_VME_LWORD_n_b_o when s_VME_ADDR_DIR = '1' else 'Z';
   VME_DATA_b     <= s_VME_DATA_b_o    when s_VME_DATA_DIR = '1'  else (others => 'Z');
   VME_DATA_OE_o  <= s_VME_DATA_OE;
   VME_ADDR_OE_o  <= s_VME_ADDR_OE_o;

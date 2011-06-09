@@ -1236,11 +1236,11 @@ begin
 		wait for 200 ns;
 		--s_AM <= "111101"; --A24 data access blt
 	--	s_AM <= "111111"; --A24 data access 
-		s_AM <= "111001";
+	--	s_AM <= "111001";
 		--s_AM <= "000001"; --A64 data access 
 		--s_AM <= "000011"; --A64 data access blt
 		--s_AM <= "000000"; --A64 data access mblt
-		--s_AM <= "001101"; --A32 data access
+		s_AM <= "001001"; --A32 data access
 		--s_AM <= "001100"; --A32 data access	mblt
 		--s_AM <= "001000"; --A32 data access	mblt
 		s_dataTransferTypeSelect <= D32;
@@ -1298,24 +1298,24 @@ begin
 --
 --
 --
-		s_address(31 downto 0) <= x"00800010";--x"0003fffd"; 
+		s_address(31 downto 0) <= x"80000010";--x"0003fffd"; 
 		s_dataToSend <= x"00001310";
       wait for 100 ns;
 		writeGenericSingle;
 
 
-		s_address(31 downto 0) <= x"00800014";--x"0003fffd"; 
+		s_address(31 downto 0) <= x"80000014";--x"0003fffd"; 
 		s_dataToSend <= x"00002220";
       wait for 100 ns;
 		writeGenericSingle;
 
 
-		s_address(31 downto 0) <= x"00800010";--x"0003fffd"; 
+		s_address(31 downto 0) <= x"80000010";--x"0003fffd"; 
 		s_dataToSend <= x"00001110";
 
 		readGenericSingle(false);
 		
-		s_address(31 downto 0) <= x"00800014";--x"0003fffd"; 
+		s_address(31 downto 0) <= x"80000014";--x"0003fffd"; 
 		s_dataToSend <= x"00002220";
 
 		readGenericSingle(false);		
