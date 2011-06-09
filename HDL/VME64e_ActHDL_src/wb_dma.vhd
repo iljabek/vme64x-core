@@ -146,7 +146,7 @@ begin
           nx_trans_st <= M_TO_S_DONE_2;
         end if;
       when M_TO_S_WAIT_LAST_ACK =>
-		   if (nx_sl_ack = '1') or (unsigned(sl_psize_i) = 1) then 
+		   if ((sl_stb_i= '1') and (is_m_ack_index_top = '1')) or (unsigned(sl_psize_i) = 1) then 
           nx_trans_st <= IDLE;
          else
           nx_trans_st <= M_TO_S_WAIT_LAST_ACK;
