@@ -92,10 +92,25 @@ package VME_CR_pack is
 16#66#  => x"03", -- Fun 3 
 16#67#  => x"00", -- Fun 3
 
+--
+16#68#  => x"00", -- Fun 4
+16#69#  => x"00", -- Fun 4 
+16#6a#  => x"00", -- Fun 4 
+16#6b#  => x"00", -- Fun 4 
+16#6c#  => x"00", -- Fun 4 
+16#6d#  => x"00", -- Fun 4 
+16#6e#  => x"03", -- Fun 4 
+16#6f#  => x"00", -- Fun 4
+
 --XAMCAP
 16#88#  => x"00", -- Fun 0  XAMCAP MSB
 16#a5#  => x"06", -- Fun 0  XAMCAP=0x11
 16#A7# => x"00",
+
+16#108#  => x"00", -- Fun 4  XAMCAP MSB
+16#109#  => x"06", -- Fun 4  XAMCAP=0x11
+16#10a# => x"00", -- Fun 4  
+
 --...
 
 --16#C6#  => x"00", -- Fun 0  XAMCAP LSB

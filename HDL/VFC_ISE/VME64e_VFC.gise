@@ -217,6 +217,7 @@
     <transform xil_pn:end_ts="1307459498" xil_pn:in_ck="3804029562076404396" xil_pn:name="TRAN_regenerateCoresSim" xil_pn:prop_ck="3078483064561418152" xil_pn:start_ts="1307459498">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
       <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/ddr_controller_bank5/user_design/rtl/ddr_controller_bank5.vhd"/>
       <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/ddr_controller_bank5/user_design/rtl/iodrp_controller.vhd"/>
       <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/ddr_controller_bank5/user_design/rtl/iodrp_mcb_controller.vhd"/>
@@ -331,7 +332,7 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1307639108" xil_pn:in_ck="-1410375932754365536" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="7631510052154532617" xil_pn:start_ts="1307639064">
+    <transform xil_pn:end_ts="1307720222" xil_pn:in_ck="-1410375932754365536" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="7631510052154532617" xil_pn:start_ts="1307720151">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -351,6 +352,8 @@
     <transform xil_pn:end_ts="1307638853" xil_pn:in_ck="-1531458798615131670" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="4228032853562161068" xil_pn:start_ts="1307638853">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="InputRemoved"/>
     </transform>
   </transforms>
 
