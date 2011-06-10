@@ -298,7 +298,7 @@ begin
       VME_ADDR_b_i    => VME_ADDR_b,
       VME_LWORD_n_b_i => VME_LWORD_n_b,
       VME_LWORD_n_b_o => s_VME_LWORD_n_b_o,
-      VME_ADDR_DIR_o  => VME_ADDR_DIR_o,
+      VME_ADDR_DIR_o  => s_VME_ADDR_DIR,
       VME_ADDR_OE_o   => s_VME_ADDR_OE_o,
 
       VME_DATA_b_o   => s_VME_DATA_b_o,
@@ -356,7 +356,9 @@ begin
   VME_DATA_OE_o  <= s_VME_DATA_OE;
   VME_ADDR_OE_o  <= s_VME_ADDR_OE_o;
   VME_DATA_DIR_o <= s_VME_DATA_DIR;
-
+ 
+  VME_ADDR_DIR_o <= s_VME_ADDR_DIR;
+  
   sel_we <= not s_RW; 
 
   Uwb_dma : wb_dma
