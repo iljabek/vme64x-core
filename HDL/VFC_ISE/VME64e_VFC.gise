@@ -27,8 +27,6 @@
     <file xil_pn:fileType="FILE_LOG" xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/coregen.log"/>
     <file xil_pn:fileType="FILE_RESPONSE" xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/coregen.rsp"/>
     <file xil_pn:fileType="FILE_USERDOC" xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/ddr_controller_bank5_readme.txt"/>
-    <file xil_pn:fileType="FILE_COREGEN_PROJECT" xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/spec/ip_cores/coregen.cgp"/>
-    <file xil_pn:fileType="FILE_USERDOC" xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/spec/ip_cores/ddr_controller_bank3_readme.txt"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGR" xil_pn:name="Fifo.ngr"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_NGDBUILD_LOG" xil_pn:name="VME64xCore_Top.bld"/>
     <file xil_pn:fileType="FILE_CMD_LOG" xil_pn:name="VME64xCore_Top.cmd_log"/>
@@ -72,6 +70,7 @@
     <file xil_pn:fileType="FILE_SYNPLIFY_MISC" xil_pn:name="rpt_vme64xcore_top_reg.areasrr"/>
     <file xil_pn:fileType="FILE_HTML" xil_pn:name="rpt_vme64xcore_top_reg_areasrr.htm"/>
     <file xil_pn:fileType="FILE_USERDOC" xil_pn:name="run_options.txt"/>
+    <file xil_pn:branch="BehavioralSim" xil_pn:fileType="FILE_MODELSIM_CMD" xil_pn:name="sim_vme64master.fdo"/>
     <file xil_pn:fileType="FILE_LOG" xil_pn:name="stdout.log"/>
     <file xil_pn:branch="Implementation" xil_pn:fileType="FILE_UCF" xil_pn:name="synplicity.ucf"/>
     <file xil_pn:fileType="FILE_DIRECTORY" xil_pn:name="syntmp"/>
@@ -166,13 +165,9 @@
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1307460046" xil_pn:in_ck="5292202920342099773" xil_pn:name="TRAN_copyAbstractToPostAbstractSimulation" xil_pn:start_ts="1307460046">
+    <transform xil_pn:end_ts="1307723126" xil_pn:in_ck="5292202920342099773" xil_pn:name="TRAN_copyAbstractToPostAbstractSimulation" xil_pn:start_ts="1307723126">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForInputs"/>
-      <status xil_pn:value="OutOfDateForOutputs"/>
-      <status xil_pn:value="InputChanged"/>
-      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="../NOIP_cores/DpRam/DpBlockRam.vhd"/>
       <outfile xil_pn:name="../NOIP_cores/DpRam/TrueDpBlockRam.vhd"/>
       <outfile xil_pn:name="../NOIP_cores/fifo/Fifo.vhd"/>
@@ -206,43 +201,21 @@
       <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/rtl/core-gen/memc5_infrastructure.vhd"/>
       <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/rtl/core-gen/memc5_wrapper.vhd"/>
     </transform>
-    <transform xil_pn:end_ts="1297960356" xil_pn:name="TRAN_xawsToSimhdl" xil_pn:prop_ck="7790827019890879253" xil_pn:start_ts="1297960356">
+    <transform xil_pn:end_ts="1307723173" xil_pn:name="TRAN_xawsToSimhdl" xil_pn:prop_ck="7790827019890879253" xil_pn:start_ts="1307723173">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1297960356" xil_pn:name="TRAN_schematicsToHdlSim" xil_pn:prop_ck="2419440285402483091" xil_pn:start_ts="1297960356">
+    <transform xil_pn:end_ts="1307723173" xil_pn:name="TRAN_schematicsToHdlSim" xil_pn:prop_ck="2419440285402483091" xil_pn:start_ts="1307723173">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
     </transform>
-    <transform xil_pn:end_ts="1307459498" xil_pn:in_ck="3804029562076404396" xil_pn:name="TRAN_regenerateCoresSim" xil_pn:prop_ck="3078483064561418152" xil_pn:start_ts="1307459498">
+    <transform xil_pn:end_ts="1307723250" xil_pn:in_ck="-7503577955592167874" xil_pn:name="TRAN_regenerateCoresSim" xil_pn:prop_ck="3078483064561418152" xil_pn:start_ts="1307723250">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForInputs"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/ddr_controller_bank5/user_design/rtl/ddr_controller_bank5.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/ddr_controller_bank5/user_design/rtl/iodrp_controller.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/ddr_controller_bank5/user_design/rtl/iodrp_mcb_controller.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/ddr_controller_bank5/user_design/rtl/mcb_raw_wrapper.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/ddr_controller_bank5/user_design/rtl/mcb_soft_calibration.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/ddr_controller_bank5/user_design/rtl/mcb_soft_calibration_top.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/ddr_controller_bank5/user_design/rtl/memc5_infrastructure.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/ddr_controller_bank5/user_design/rtl/memc5_wrapper.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/spec/ip_cores/ddr_controller_bank3/user_design/rtl/ddr_controller_bank3.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/spec/ip_cores/ddr_controller_bank3/user_design/rtl/iodrp_controller.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/spec/ip_cores/ddr_controller_bank3/user_design/rtl/iodrp_mcb_controller.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/spec/ip_cores/ddr_controller_bank3/user_design/rtl/mcb_raw_wrapper.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/spec/ip_cores/ddr_controller_bank3/user_design/rtl/mcb_soft_calibration.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/spec/ip_cores/ddr_controller_bank3/user_design/rtl/mcb_soft_calibration_top.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/spec/ip_cores/ddr_controller_bank3/user_design/rtl/memc3_infrastructure.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/spec/ip_cores/ddr_controller_bank3/user_design/rtl/memc3_wrapper.vhd"/>
     </transform>
-    <transform xil_pn:end_ts="1307460046" xil_pn:in_ck="158276405499161581" xil_pn:name="TRAN_copyPostAbstractToPreSimulation" xil_pn:start_ts="1307460046">
+    <transform xil_pn:end_ts="1307723126" xil_pn:in_ck="5292202920342099773" xil_pn:name="TRAN_copyPostAbstractToPreSimulation" xil_pn:start_ts="1307723126">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForInputs"/>
-      <status xil_pn:value="OutOfDateForPredecessor"/>
-      <status xil_pn:value="OutOfDateForOutputs"/>
-      <status xil_pn:value="InputChanged"/>
-      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="../NOIP_cores/DpRam/DpBlockRam.vhd"/>
       <outfile xil_pn:name="../NOIP_cores/DpRam/TrueDpBlockRam.vhd"/>
       <outfile xil_pn:name="../NOIP_cores/fifo/Fifo.vhd"/>
@@ -263,14 +236,6 @@
       <outfile xil_pn:name="../testbenches/sim_wbSlave.vhd"/>
       <outfile xil_pn:name="../testbenches/vme64xcore_top_TB.vhd"/>
       <outfile xil_pn:name="../testbenches/vme64xcore_top_reg_TB.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/ddr_controller_bank5/user_design/rtl/ddr_controller_bank5.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/ddr_controller_bank5/user_design/rtl/iodrp_controller.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/ddr_controller_bank5/user_design/rtl/iodrp_mcb_controller.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/ddr_controller_bank5/user_design/rtl/mcb_raw_wrapper.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/ddr_controller_bank5/user_design/rtl/mcb_soft_calibration.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/ddr_controller_bank5/user_design/rtl/mcb_soft_calibration_top.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/ddr_controller_bank5/user_design/rtl/memc5_infrastructure.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/ddr_controller_bank5/user_design/rtl/memc5_wrapper.vhd"/>
       <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/rtl/ddr3_ctrl.vhd"/>
       <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/rtl/core-gen/ddr_controller.vhd"/>
       <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/rtl/core-gen/ddr_controller_sp605.vhd"/>
@@ -283,23 +248,10 @@
       <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/rtl/core-gen/memc3_wrapper.vhd"/>
       <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/rtl/core-gen/memc5_infrastructure.vhd"/>
       <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/rtl/core-gen/memc5_wrapper.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/spec/ip_cores/ddr_controller_bank3/user_design/rtl/ddr_controller_bank3.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/spec/ip_cores/ddr_controller_bank3/user_design/rtl/iodrp_controller.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/spec/ip_cores/ddr_controller_bank3/user_design/rtl/iodrp_mcb_controller.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/spec/ip_cores/ddr_controller_bank3/user_design/rtl/mcb_raw_wrapper.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/spec/ip_cores/ddr_controller_bank3/user_design/rtl/mcb_soft_calibration.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/spec/ip_cores/ddr_controller_bank3/user_design/rtl/mcb_soft_calibration_top.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/spec/ip_cores/ddr_controller_bank3/user_design/rtl/memc3_infrastructure.vhd"/>
-      <outfile xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/spec/ip_cores/ddr_controller_bank3/user_design/rtl/memc3_wrapper.vhd"/>
     </transform>
-    <transform xil_pn:end_ts="1307460048" xil_pn:in_ck="158276405499161581" xil_pn:name="TRAN_MSimulateBehavioralModel" xil_pn:prop_ck="889151390353550919" xil_pn:start_ts="1307460046">
+    <transform xil_pn:end_ts="1307723252" xil_pn:in_ck="5292202920342099773" xil_pn:name="TRAN_MSimulateBehavioralModel" xil_pn:prop_ck="889151390353550919" xil_pn:start_ts="1307723250">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForInputs"/>
-      <status xil_pn:value="OutOfDateForPredecessor"/>
-      <status xil_pn:value="OutOfDateForOutputs"/>
-      <status xil_pn:value="InputChanged"/>
-      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="vme64xcore_top_reg_tb.fdo"/>
       <outfile xil_pn:name="vsim.wlf"/>
       <outfile xil_pn:name="work"/>
@@ -315,6 +267,8 @@
     <transform xil_pn:end_ts="1307638849" xil_pn:in_ck="3804029562076404396" xil_pn:name="TRAN_regenerateCores" xil_pn:prop_ck="3078483064561418152" xil_pn:start_ts="1307638849">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="InputRemoved"/>
     </transform>
     <transform xil_pn:end_ts="1307638849" xil_pn:in_ck="-402536497016125078" xil_pn:name="TRAN_SubProjectAbstractToPreProxy" xil_pn:start_ts="1307638849">
       <status xil_pn:value="SuccessfullyRun"/>
@@ -327,32 +281,29 @@
     <transform xil_pn:end_ts="1307638849" xil_pn:in_ck="-402536497016125078" xil_pn:name="TRAN_SubProjectPreToStructuralProxy" xil_pn:prop_ck="-563469029221826088" xil_pn:start_ts="1307638849">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
     </transform>
     <transform xil_pn:end_ts="1307638849" xil_pn:name="TRAN_platgen" xil_pn:prop_ck="-4327245695312982926" xil_pn:start_ts="1307638849">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
     </transform>
     <transform xil_pn:end_ts="1307720222" xil_pn:in_ck="-1410375932754365536" xil_pn:name="TRANEXT_xstsynthesize_spartan6" xil_pn:prop_ck="7631510052154532617" xil_pn:start_ts="1307720151">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
-      <outfile xil_pn:name="_xmsgs/xst.xmsgs"/>
-      <outfile xil_pn:name="vme64xcore_top_reg.lso"/>
-      <outfile xil_pn:name="vme64xcore_top_reg.ngc"/>
-      <outfile xil_pn:name="vme64xcore_top_reg.ngr"/>
-      <outfile xil_pn:name="vme64xcore_top_reg.prj"/>
-      <outfile xil_pn:name="vme64xcore_top_reg.stx"/>
-      <outfile xil_pn:name="vme64xcore_top_reg.syr"/>
-      <outfile xil_pn:name="vme64xcore_top_reg.xst"/>
-      <outfile xil_pn:name="vme64xcore_top_reg_xst.xrpt"/>
-      <outfile xil_pn:name="wb_dma.ngr"/>
-      <outfile xil_pn:name="webtalk_pn.xml"/>
-      <outfile xil_pn:name="xst"/>
+      <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="InputChanged"/>
+      <status xil_pn:value="InputRemoved"/>
+      <status xil_pn:value="OutputRemoved"/>
     </transform>
     <transform xil_pn:end_ts="1307638853" xil_pn:in_ck="-1531458798615131670" xil_pn:name="TRAN_compileBCD2" xil_pn:prop_ck="4228032853562161068" xil_pn:start_ts="1307638853">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
       <status xil_pn:value="OutOfDateForInputs"/>
+      <status xil_pn:value="OutOfDateForPredecessor"/>
       <status xil_pn:value="InputRemoved"/>
     </transform>
   </transforms>

@@ -350,8 +350,8 @@ begin
 
       );
 
-  VME_ADDR_b     <= s_VME_ADDR_b_o    when s_VME_ADDR_DIR = '0' else (others => 'Z');
-  VME_LWORD_n_b  <= s_VME_LWORD_n_b_o when s_VME_ADDR_DIR = '0' else 'Z';
+  VME_ADDR_b     <= s_VME_ADDR_b_o    when s_VME_ADDR_DIR = '1' else (others => 'Z');
+  VME_LWORD_n_b  <= s_VME_LWORD_n_b_o when s_VME_ADDR_DIR = '1' else 'Z';
   VME_DATA_b     <= s_VME_DATA_b_o    when s_VME_DATA_DIR = '1'  else (others => 'Z');
   VME_DATA_OE_o  <= s_VME_DATA_OE;
   VME_ADDR_OE_o  <= s_VME_ADDR_OE_o;

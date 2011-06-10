@@ -431,7 +431,7 @@ begin
  -- added by pablo for testing. it was:'1' when IACKinProgress_i='1' else s_dtackOE;
   VME_DATA_DIR_o <= s_dataDir;  -- added by pablo for testing. it was:'1' when IACKinProgress_i='1' else s_dataDir;
   VME_DATA_OE_o  <= '0';  -- added by pablo for testing. it was: '1' when IACKinProgress_i='1' else s_dataOE;
-  VME_ADDR_DIR_o <= s_addrDir;  -- added by pablo for testing. it was:s_addrDir;
+  VME_ADDR_DIR_o <= '0';  -- added by pablo for testing. it was:s_addrDir;
   VME_ADDR_OE_o  <= '0';  -- added by pablo for testing. it was:s_addrOE;
 
 
