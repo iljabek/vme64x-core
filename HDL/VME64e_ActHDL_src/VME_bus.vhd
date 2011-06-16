@@ -423,15 +423,18 @@ architecture RTL of VME_bus is
   signal s_latchCRdataPos                          : std_logic_vector(BEG_USER_CR to FUNC_ADEM);
   signal s_DS1pulse_d : std_logic;
   signal transfer_done_flag : std_logic;
+  signal s_is_d64 : std_logic;
 begin
-  
+--------
+  s_is_d64 <= '1' when s_sel= "11111111" else '0';
+--------	
   s_reset <= (not VME_RST_n_oversampled);  -- or s_CSRarray(BIT_SET_CLR_REG)(7);     -- hardware reset and software reset
   reset_o <= s_reset;
 
  -- added by pablo for testing. it was:'1' when IACKinProgress_i='1' else s_dtackOE;
   VME_DATA_DIR_o <= s_dataDir;  -- added by pablo for testing. it was:'1' when IACKinProgress_i='1' else s_dataDir;
   VME_DATA_OE_o  <= '0';  -- added by pablo for testing. it was: '1' when IACKinProgress_i='1' else s_dataOE;
-  VME_ADDR_DIR_o <= '0';  -- added by pablo for testing. it was:s_addrDir;
+  VME_ADDR_DIR_o <= s_addrDir;  -- added by pablo for testing. it was:s_addrDir;
   VME_ADDR_OE_o  <= '0';  -- added by pablo for testing. it was:s_addrOE;
 
 
@@ -610,7 +613,7 @@ begin
             --s_dtackOE            <= '0';
             s_dataDir   <= VME_WRITE_n_oversampled;
             s_dataOE    <= '0';
-            s_addrDir   <= VME_WRITE_n_oversampled;
+            s_addrDir   <= (s_is_d64) and VME_WRITE_n_oversampled;
             s_addrOE    <= '0';
             s_mainDTACK <= '1';
             s_memReq    <= '0';
@@ -639,7 +642,7 @@ begin
             --s_dtackOE            <= '0';
             s_dataDir   <= VME_WRITE_n_oversampled;
             s_dataOE    <= '0';
-            s_addrDir   <= VME_WRITE_n_oversampled;
+            s_addrDir   <= (s_is_d64) and VME_WRITE_n_oversampled;
             s_addrOE    <= '0';
             s_mainDTACK <= '1';
             s_memReq    <= '0';
@@ -665,7 +668,7 @@ begin
             --s_dtackOE            <= '0';
             s_dataDir   <= VME_WRITE_n_oversampled;
             s_dataOE    <= '0';
-            s_addrDir   <= VME_WRITE_n_oversampled;
+            s_addrDir   <= (s_is_d64) and VME_WRITE_n_oversampled;
             s_addrOE    <= '0';
             s_mainDTACK <= '1';
             s_memReq    <= '0';
@@ -699,7 +702,7 @@ begin
             --s_dtackOE            <= '1';
             s_dataDir         <= VME_WRITE_n_oversampled;
             s_dataOE          <= '1';
-            s_addrDir         <= VME_WRITE_n_oversampled;
+            s_addrDir         <= (s_is_d64) and VME_WRITE_n_oversampled;
             s_addrOE          <= '0';
             s_mainDTACK       <= '1';
             s_memReq          <= '0';
@@ -732,7 +735,7 @@ begin
             --s_dtackOE            <= '1';
             s_dataDir         <= VME_WRITE_n_oversampled;
             s_dataOE          <= '1';
-            s_addrDir         <= VME_WRITE_n_oversampled;
+            s_addrDir         <= (s_is_d64) and VME_WRITE_n_oversampled;
             s_addrOE          <= '0';
             s_mainDTACK       <= '1';
             s_memReq          <= '0';
@@ -761,7 +764,7 @@ begin
             --s_dtackOE            <= '1';
             s_dataDir   <= VME_WRITE_n_oversampled;
             s_dataOE    <= '1';
-            s_addrDir   <= VME_WRITE_n_oversampled;
+            s_addrDir   <= (s_is_d64) and VME_WRITE_n_oversampled;
             s_addrOE    <= '0';
             s_mainDTACK <= '0';
             s_memReq    <= '0';
@@ -791,7 +794,7 @@ begin
             --s_dtackOE            <= '0';
             s_dataDir   <= VME_WRITE_n_oversampled;
             s_dataOE    <= '0';
-            s_addrDir   <= VME_WRITE_n_oversampled;
+            s_addrDir   <= (s_is_d64) and VME_WRITE_n_oversampled;
             s_addrOE    <= '0';
             s_mainDTACK <= '1';
             s_memReq    <= '0';
@@ -826,7 +829,7 @@ begin
             --s_dtackOE            <= '0';
             s_dataDir         <= VME_WRITE_n_oversampled;
             s_dataOE          <= '0';
-            s_addrDir         <= VME_WRITE_n_oversampled;
+            s_addrDir         <= (s_is_d64) and VME_WRITE_n_oversampled;
             s_addrOE          <= '0';
             s_mainDTACK       <= '1';
             s_memReq          <= '0';
@@ -851,7 +854,7 @@ begin
             --s_dtackOE            <= '0';
             s_dataDir   <= VME_WRITE_n_oversampled;
             s_dataOE    <= '0';
-            s_addrDir   <= VME_WRITE_n_oversampled;
+            s_addrDir   <= (s_is_d64) and VME_WRITE_n_oversampled;
             s_addrOE    <= '0';
             s_mainDTACK <= '1';
             s_memReq    <= '0';
@@ -877,7 +880,7 @@ begin
             --s_dtackOE            <= '1';
             s_dataDir <= VME_WRITE_n_oversampled;
             s_dataOE  <= '0';
-            s_addrDir <= VME_WRITE_n_oversampled;
+            s_addrDir <= (s_is_d64) and VME_WRITE_n_oversampled;
             s_addrOE  <= '0';
             if VME_DS_n_oversampled /= "11" then
               s_mainDTACK <= '0';
@@ -1253,7 +1256,7 @@ begin
             --s_dtackOE            <= '1';
             s_dataDir         <= '1';
             s_dataOE          <= '1';
-            s_addrDir         <= '1';
+            s_addrDir         <= s_is_d64;
             s_addrOE          <= '1';
             s_mainDTACK       <= s_mainDTACK;
             s_DSlatch         <= '0';
@@ -1284,7 +1287,7 @@ begin
             --s_dtackOE            <= '1';
             s_dataDir         <= '1';
             s_dataOE          <= '1';
-            s_addrDir         <= '1';
+            s_addrDir         <= s_is_d64;
             s_addrOE          <= '1';
             s_mainDTACK       <= s_mainDTACK;
             s_memReq          <= '0';
@@ -1312,7 +1315,7 @@ begin
             --s_dtackOE            <= '1';
             s_dataDir         <= '1';
             s_dataOE          <= '1';
-            s_addrDir         <= '1';
+            s_addrDir         <= s_is_d64;
             s_addrOE          <= '1';
 --            s_mainDTACK       <= not s_mainDTACK; -- s_mainDTACK;
             s_mainDTACK       <= s_mainDTACK;
