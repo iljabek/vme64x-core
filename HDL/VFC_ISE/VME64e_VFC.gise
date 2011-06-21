@@ -329,6 +329,8 @@
     <transform xil_pn:end_ts="1308660786" xil_pn:in_ck="-8441102077107081157" xil_pn:name="TRANEXT_map_spartan6" xil_pn:prop_ck="-1824173063049107586" xil_pn:start_ts="1308660631">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
+      <status xil_pn:value="OutOfDateForOutputs"/>
+      <status xil_pn:value="OutputChanged"/>
       <outfile xil_pn:name="_xmsgs/map.xmsgs"/>
       <outfile xil_pn:name="vme64xcore_top_reg.pcf"/>
       <outfile xil_pn:name="vme64xcore_top_reg_map.map"/>
@@ -353,7 +355,7 @@
       <outfile xil_pn:name="vme64xcore_top_reg_pad.txt"/>
       <outfile xil_pn:name="vme64xcore_top_reg_par.xrpt"/>
     </transform>
-    <transform xil_pn:end_ts="1308660963" xil_pn:in_ck="-6139244621610154419" xil_pn:name="TRANEXT_bitFile_spartan6" xil_pn:prop_ck="2321585675605421658" xil_pn:start_ts="1308660918">
+    <transform xil_pn:end_ts="1308662889" xil_pn:in_ck="-6139244621610154419" xil_pn:name="TRANEXT_bitFile_spartan6" xil_pn:prop_ck="2321585675605421658" xil_pn:start_ts="1308662845">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="WarningsGenerated"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -365,6 +367,12 @@
       <outfile xil_pn:name="webtalk.log"/>
       <outfile xil_pn:name="webtalk_pn.xml"/>
     </transform>
+    <transform xil_pn:end_ts="1308663170" xil_pn:in_ck="-94636564203146769" xil_pn:name="TRAN_impactProgrammingTool" xil_pn:prop_ck="2682241697568822907" xil_pn:start_ts="1308663170">
+      <status xil_pn:value="SuccessfullyRun"/>
+      <status xil_pn:value="ReadyToRun"/>
+      <outfile xil_pn:name="vme64xcore_top_reg.mcs"/>
+      <outfile xil_pn:name="vme64xcore_top_reg.prm"/>
+    </transform>
     <transform xil_pn:end_ts="1308124828" xil_pn:in_ck="-94636564203146769" xil_pn:name="TRAN_configureTargetDevice" xil_pn:prop_ck="8482462020707587906" xil_pn:start_ts="1308124827">
       <status xil_pn:value="AbortedRun"/>
       <status xil_pn:value="ReadyToRun"/>
@@ -373,14 +381,11 @@
       <status xil_pn:value="InputChanged"/>
       <status xil_pn:value="InputRemoved"/>
     </transform>
-    <transform xil_pn:end_ts="1308126426" xil_pn:in_ck="-94636564203146769" xil_pn:name="TRAN_genImpactFile" xil_pn:prop_ck="-7047989797201823252" xil_pn:start_ts="1308126425">
+    <transform xil_pn:end_ts="1308663177" xil_pn:in_ck="-94636564203146769" xil_pn:name="TRAN_genImpactFile" xil_pn:prop_ck="-7047989797201823252" xil_pn:start_ts="1308663176">
       <status xil_pn:value="SuccessfullyRun"/>
       <status xil_pn:value="ReadyToRun"/>
-      <status xil_pn:value="OutOfDateForInputs"/>
-      <status xil_pn:value="OutOfDateForOutputs"/>
-      <status xil_pn:value="InputChanged"/>
-      <status xil_pn:value="InputRemoved"/>
-      <status xil_pn:value="OutputRemoved"/>
+      <outfile xil_pn:name="vme64xcore_top_reg.mcs"/>
+      <outfile xil_pn:name="vme64xcore_top_reg.prm"/>
     </transform>
     <transform xil_pn:end_ts="1308660918" xil_pn:in_ck="-6179112853177871454" xil_pn:name="TRAN_postRouteTrce" xil_pn:prop_ck="5478904096812716945" xil_pn:start_ts="1308660899">
       <status xil_pn:value="SuccessfullyRun"/>
