@@ -424,6 +424,7 @@ architecture RTL of VME_bus is
   signal s_DS1pulse_d : std_logic;
   signal transfer_done_flag : std_logic;
   signal s_is_d64 : std_logic;
+  signal s_base_addr : unsigned(63 downto 0);
 begin
 --------
   s_is_d64 <= '1' when s_sel= "11111111" else '0';
@@ -1714,11 +1715,11 @@ end process;
   begin
     if rising_edge(clk_i) then
       if s_typeOfDataTransfer = UnAl1to2 then
-        s_locAddr <= s_locAddrBeforeOffset - 1 + s_addrOffset;
+        s_locAddr <= s_locAddrBeforeOffset - 1 + s_addrOffset- s_base_addr;
       elsif s_addressingType = TWOedge then
-        s_locAddr <= s_locAddr2e + s_addrOffset;
+        s_locAddr <= s_locAddr2e + s_addrOffset-s_base_addr;
       else
-        s_locAddr <= s_locAddrBeforeOffset + s_addrOffset;
+        s_locAddr <= s_locAddrBeforeOffset + s_addrOffset-s_base_addr;
       end if;
     end if;
   end process;
@@ -1971,6 +1972,9 @@ end process;
 
               if (s_FUNC_ADER(i)(31 downto 10) and s_FUNC_ADEM(i)(31 downto 10)) = ((s_locAddr(31 downto 10)) and s_FUNC_ADEM(i)(31 downto 10)) then
                 s_funcMatch(i) <= '1';
+					 s_base_addr(31 downto 10) <= s_FUNC_ADER(i)(31 downto 10);
+					 s_base_addr(63 downto 32) <= (others => '0');
+					 s_base_addr(9 downto 0) <= (others => '0');
               else
                 s_funcMatch(i) <= '0';
               end if;
@@ -1982,6 +1986,8 @@ end process;
 
               if (s_FUNC_ADER_64(i)(63 downto 10) and s_FUNC_ADEM_64(i)(63 downto 10)) = ((s_locAddr(63 downto 10)) and s_FUNC_ADEM_64(i)(63 downto 10)) then
                 s_funcMatch(i) <= '1';
+					 s_base_addr(63 downto 10) <= s_FUNC_ADER_64(i)(63 downto 10);
+					 s_base_addr(9 downto 0) <= (others => '0');
               else
                 s_funcMatch(i) <= '0';
               end if;
@@ -1992,6 +1998,9 @@ end process;
 				  if s_FUNC_ADEM(i)(31 downto 10) /=0 then
               if (s_FUNC_ADER_64(i)(63 downto 8) and s_FUNC_ADEM_64(i)(63 downto 8)) = ((s_locAddr(63 downto 8)) and s_FUNC_ADEM_64(i)(63 downto 8)) then
                 s_funcMatch(i) <= '1';
+					 s_base_addr(63 downto 8) <= s_FUNC_ADER_64(i)(63 downto 8);
+					 s_base_addr(7 downto 0) <= (others => '0');
+					 
               else
                 s_funcMatch(i) <= '0';
               end if;
@@ -2007,6 +2016,9 @@ end process;
 
             if (s_FUNC_ADER(i)(31 downto 8) and s_FUNC_ADEM(i)(31 downto 8)) = ((s_locAddr(31 downto 8)) and s_FUNC_ADEM(i)(31 downto 8)) then
               s_funcMatch(i) <= '1';
+				  s_base_addr(31 downto 8) <= s_FUNC_ADER(i)(31 downto 8);
+				  s_base_addr(63 downto 32) <= (others => '0');
+				  s_base_addr(7 downto 0) <= (others => '0');
             else
               s_funcMatch(i) <= '0';
             end if;
@@ -2021,6 +2033,9 @@ end process;
 			  if s_FUNC_ADEM(i)(23 downto 8) /=0 then
             if (s_FUNC_ADER(i)(23 downto 8) and s_FUNC_ADEM(i)(23 downto 8)) = ((s_locAddr(23 downto 8)) and s_FUNC_ADEM(i)(23 downto 8)) then
               s_funcMatch(i) <= '1';
+				  s_base_addr(23 downto 8) <= s_FUNC_ADER(i)(23 downto 8);
+				  s_base_addr(63 downto 24) <= (others => '0');
+				  s_base_addr(7 downto 0) <= (others => '0');
             else
               s_funcMatch(i) <= '0';
 				end if;
@@ -2034,8 +2049,10 @@ end process;
           for i in s_funcMatch'range loop
 			   			 if s_FUNC_ADEM(i)(15 downto 8) /=0 then
             if (s_FUNC_ADER(i)(15 downto 8) and s_FUNC_ADEM(i)(15 downto 8)) = ((s_locAddr(15 downto 8)) and s_FUNC_ADEM(i)(15 downto 8)) then
-				
               s_funcMatch(i) <= '1';
+				  s_base_addr(15 downto 8) <= s_FUNC_ADER(i)(15 downto 8);
+				  s_base_addr(63 downto 16) <= (others => '0');
+				  s_base_addr(7 downto 0) <= (others => '0');
             else
               s_funcMatch(i) <= '0';
             end if;

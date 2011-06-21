@@ -14,15 +14,16 @@ BIT_SET_CLR_REG  => x"00", --Bit set register
 USR_BIT_SET_CLR_REG  => x"00", --Bit clear register
 CRAM_OWNER  => x"00", --CRAM_OWNER
 
-FUNC0_ADER_0 =>x"44",
+FUNC0_ADER_0 =>x"45",
 FUNC0_ADER_1 =>x"00",
 FUNC0_ADER_2 =>x"00",
-FUNC0_ADER_3 =>x"00",
+FUNC0_ADER_3 =>x"80",
 
 FUNC1_ADER_0 =>x"00",
 FUNC1_ADER_1 =>x"00",
-FUNC1_ADER_2 =>x"34",
-FUNC1_ADER_3 =>x"12",
+
+--FUNC1_ADER_2 =>x"34",
+--FUNC1_ADER_3 =>x"12",     
 
 FUNC2_ADER_0 =>x"e4",
 FUNC2_ADER_1 =>x"00",
