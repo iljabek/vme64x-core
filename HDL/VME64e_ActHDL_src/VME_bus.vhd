@@ -100,7 +100,7 @@ entity VME_bus is
 --    FIFOdata_o       : out std_logic_vector(63 downto 0);
 --    FIFOrden_o       : out std_logic;
 --    FIFOdata_i       : in  std_logic_vector(63 downto 0);
-transfer_done_i : in std_logic;
+    transfer_done_i : in std_logic;
     TWOeInProgress_o : out std_logic
     );
 end VME_bus;
@@ -199,7 +199,7 @@ architecture RTL of VME_bus is
   signal s_locDataIn                                   : unsigned(63 downto 0);
   signal s_locDataOut                                  : unsigned(63 downto 0);
   signal s_locData                                     : unsigned(63 downto 0);  -- Local data
-  signal s_locAddr                                     : unsigned(63 downto 0);  -- Local address
+  signal s_locAddr, s_rel_locAddr                                   : unsigned(63 downto 0);  -- Local address
   signal s_locAddr2e                                   : unsigned(63 downto 0);  -- Local address for 2e transfers
   signal s_locAddrBeforeOffset                         : unsigned(63 downto 0);
   signal s_phase1addr                                  : unsigned(63 downto 0);  -- Stores received address in a certain address phase (for 2e transfers)
@@ -217,35 +217,36 @@ architecture RTL of VME_bus is
 
 -- Type of data transfer (depending on VME_DS_n, VME_LWORD_n and VME_ADDR(1))
   type t_typeOfDataTransfer is (D08,
-                                  D16,
-                                  D32,
-                                  UnAl0to2,
-                                  UnAl1to3,
-                                  UnAl1to2,
-                                  TypeError
-                                  );
+                                D16,
+                                D32,
+                                UnAl0to2,
+                                UnAl1to3,
+                                UnAl1to2,
+										  D64,
+                                TypeError
+                                );
   signal s_typeOfDataTransfer       : t_typeOfDataTransfer;
   signal s_typeOfDataTransferSelect : std_logic_vector(3 downto 0);
 
 -- Addressing type (depending on VME_AM)
   type t_addressingType is (A24,
-                               A24_BLT,
-                               A24_MBLT,
-                               A24_LCK,
-                               CR_CSR,
-                               A16,
-                               A16_LCK,
-                               A32,
-                               A32_BLT,
-                               A32_MBLT,
-                               A32_LCK,
-                               A64,
-                               A64_BLT,
-                               A64_MBLT,
-                               A64_LCK,
-                               TWOedge,
-                               AM_Error
-                               );
+                            A24_BLT,
+                            A24_MBLT,
+                            A24_LCK,
+                            CR_CSR,
+                            A16,
+                            A16_LCK,
+                            A32,
+                            A32_BLT,
+                            A32_MBLT,
+                            A32_LCK,
+                            A64,
+                            A64_BLT,
+                            A64_MBLT,
+                            A64_LCK,
+                            TWOedge,
+                            AM_Error
+                            );
   signal s_addressingType       : t_addressingType;
   signal s_addressingTypeSelect : std_logic_vector(5 downto 0);
 
@@ -258,18 +259,18 @@ architecture RTL of VME_bus is
   signal s_transferType : t_transferType;
 
   type t_XAMtype is (A32_2eVME,
-                      A64_2eVME,
-                      A32_2eSST,
-                      A64_2eSST,
-                      A32_2eSSTb,
-                      A64_2eSSTb,
-                      XAM_error
-                      );
+                     A64_2eVME,
+                     A32_2eSST,
+                     A64_2eSST,
+                     A32_2eSSTb,
+                     A64_2eSSTb,
+                     XAM_error
+                     );
   signal s_XAMtype : t_XAMtype;
 
   type t_2eType is (TWOe_VME,
-                     TWOe_SST
-                     );
+                    TWOe_SST
+                    );
   signal s_2eType : t_2eType;
 
 -- Main FSM signals 
@@ -345,7 +346,7 @@ architecture RTL of VME_bus is
   signal s_XAM : unsigned(7 downto 0);  -- Stores received XAM
 
 --  type t_funcMatch is array (0 to 7) of std_logic;            -- Indicates that a certain function has been sucesfully decoded
-  signal s_funcMatch : std_logic_vector(7 downto 0);
+  signal s_funcMatch, s_nx_funcMatch : std_logic_vector(7 downto 0);
 
 -- type t_AMmatch is array (0 to 7) of std_logic;              -- Indicates that received AM matches the one programmed in ADER
   signal s_AMmatch : std_logic_vector(7 downto 0);
@@ -424,7 +425,11 @@ architecture RTL of VME_bus is
   signal s_DS1pulse_d : std_logic;
   signal transfer_done_flag : std_logic;
   signal s_is_d64 : std_logic;
-  signal s_base_addr : unsigned(63 downto 0);
+  signal s_base_addr, s_nx_base_addr : unsigned(63 downto 0);
+  signal s_isprev_func64 : std_logic_vector(7 downto 0);
+  signal s_nx_cardSel, s_nx_lockSel : std_logic;
+  signal gointomycase : integer;
+  signal s_func_sel : std_logic_vector(7 downto 0);
 begin
 --------
   s_is_d64 <= '1' when s_sel= "11111111" else '0';
@@ -432,7 +437,7 @@ begin
   s_reset <= (not VME_RST_n_oversampled);  -- or s_CSRarray(BIT_SET_CLR_REG)(7);     -- hardware reset and software reset
   reset_o <= s_reset;
 
- -- added by pablo for testing. it was:'1' when IACKinProgress_i='1' else s_dtackOE;
+  -- added by pablo for testing. it was:'1' when IACKinProgress_i='1' else s_dtackOE;
   VME_DATA_DIR_o <= s_dataDir;  -- added by pablo for testing. it was:'1' when IACKinProgress_i='1' else s_dataDir;
   VME_DATA_OE_o  <= '0';  -- added by pablo for testing. it was: '1' when IACKinProgress_i='1' else s_dataOE;
   VME_ADDR_DIR_o <= s_addrDir;  -- added by pablo for testing. it was:s_addrDir;
@@ -445,21 +450,26 @@ begin
 
   process(clk_i)
   begin
-  if rising_edge(clk_i) then
-    case s_typeOfDataTransferSelect is
-      when "0101" => s_typeOfDataTransfer <= D08;
-      when "1001" => s_typeOfDataTransfer <= D08;
-      when "0111" => s_typeOfDataTransfer <= D08;
-      when "1011" => s_typeOfDataTransfer <= D08;
-      when "0001" => s_typeOfDataTransfer <= D16;
-      when "0011" => s_typeOfDataTransfer <= D16;
-      when "0000" => s_typeOfDataTransfer <= D32;
-      when "0100" => s_typeOfDataTransfer <= UnAl0to2;
-      when "1000" => s_typeOfDataTransfer <= UnAl1to3;
-      when "0010" => s_typeOfDataTransfer <= UnAl1to2;
-      when others => s_typeOfDataTransfer <= TypeError;
-    end case;
-	 end if;
+    if rising_edge(clk_i) then
+	 if (s_addressingType /= TWOedge) then
+	 
+      case s_typeOfDataTransferSelect is
+        when "0101" => s_typeOfDataTransfer <= D08;
+        when "1001" => s_typeOfDataTransfer <= D08;
+        when "0111" => s_typeOfDataTransfer <= D08;
+        when "1011" => s_typeOfDataTransfer <= D08;
+        when "0001" => s_typeOfDataTransfer <= D16;
+        when "0011" => s_typeOfDataTransfer <= D16;
+        when "0000" => s_typeOfDataTransfer <= D32;
+        when "0100" => s_typeOfDataTransfer <= UnAl0to2;
+        when "1000" => s_typeOfDataTransfer <= UnAl1to3;
+        when "0010" => s_typeOfDataTransfer <= UnAl1to2;
+        when others => s_typeOfDataTransfer <= TypeError;
+      end case;
+		else
+	 		s_typeOfDataTransfer <= D64;
+	end if;
+    end if;
   end process;
 
 -- Address modifier decoder    
@@ -487,15 +497,15 @@ begin
     AM_Error                when others;
 
   s_transferType <= SINGLE when s_addressingType = A24 or s_addressingType = CR_CSR or s_addressingType = A16 or s_addressingType = A32 or s_addressingType = A64 else
-                      BLT  when s_addressingType = A24_BLT or s_addressingType = A32_BLT or s_addressingType = A64_BLT else
-                      MBLT when s_addressingType = A24_MBLT or s_addressingType = A32_MBLT or s_addressingType = A64_MBLT else
-                      LCK  when s_addressingType = A16_LCK or s_addressingType = A24_LCK or s_addressingType = A32_LCK or s_addressingType = A64_LCK else
-                      error;
+                    BLT  when s_addressingType = A24_BLT or s_addressingType = A32_BLT or s_addressingType = A64_BLT else
+                    MBLT when s_addressingType = A24_MBLT or s_addressingType = A32_MBLT or s_addressingType = A64_MBLT else
+                    LCK  when s_addressingType = A16_LCK or s_addressingType = A24_LCK or s_addressingType = A32_LCK or s_addressingType = A64_LCK else
+                    error;
 
   s_addrWidth <= "00" when s_addressingType = A16 or s_addressingType = A16_LCK else
-                  "01" when s_addressingType = A24 or s_addressingType = A24_BLT or s_addressingType = A24_MBLT or s_addressingType = CR_CSR or s_addressingType = A24_LCK else
-                  "10" when s_addressingType = A32 or s_addressingType = A32_BLT or s_addressingType = A32_MBLT or s_addressingType = A32_LCK else
-                  "11";
+                 "01" when s_addressingType = A24 or s_addressingType = A24_BLT or s_addressingType = A24_MBLT or s_addressingType = CR_CSR or s_addressingType = A24_LCK else
+                 "10" when s_addressingType = A32 or s_addressingType = A32_BLT or s_addressingType = A32_MBLT or s_addressingType = A32_LCK else
+                 "11";
   
   with s_XAM select
     s_XAMtype <= A32_2eVME when x"01",
@@ -536,7 +546,7 @@ begin
         s_retry           <= '0';
         s_berr            <= '0';
         s_mainFSMstate    <= IDLE;
-		  				  transfer_done_flag <= '0';
+        transfer_done_flag <= '0';
 
       else
         case s_mainFSMstate is
@@ -568,7 +578,7 @@ begin
             --s_readFIFO        <= '0';
             s_retry           <= '0';
             s_berr            <= '0';
-				transfer_done_flag <= '0';
+            transfer_done_flag <= '0';
             if s_VMEaddrLatch = '1' then  -- If address strobe goes low, check if this slave is addressed
               s_mainFSMstate <= DECODE_ACCESS;
             else
@@ -598,7 +608,7 @@ begin
             --s_readFIFO        <= '0';
             s_retry           <= '0';
             s_berr            <= '0';
-				transfer_done_flag <= '0';
+            transfer_done_flag <= '0';
 
             if s_lockSel = '1' then     -- LOCK request
               s_mainFSMstate <= ACKNOWLEDGE_LOCK;
@@ -690,13 +700,13 @@ begin
             s_berr            <= '0';
             if s_transferType = SINGLE or s_transferType = BLT then
               s_mainFSMstate <= MEMORY_REQ;
-            s_memReq    <= '1';
+              s_memReq    <= '1';
             elsif s_transferType = MBLT and s_dataPhase = '0' then
               s_mainFSMstate <= DTACK_LOW;
-            s_memReq    <= '0';
+              s_memReq    <= '0';
             elsif s_transferType = MBLT and s_dataPhase = '1' then
               s_mainFSMstate <= MEMORY_REQ;
-            s_memReq    <= '0';
+              s_memReq    <= '0';
             end if;
             
           when MEMORY_REQ =>
@@ -1102,9 +1112,9 @@ begin
               s_retry <= '0';
             end if;
             s_berr <= '0';
-  --          if WBbusy_i = '0' then -- Removed by pablo 
-              s_mainFSMstate <= DTACK_PHASE_3;
-   --        end if;
+            --          if WBbusy_i = '0' then -- Removed by pablo 
+            s_mainFSMstate <= DTACK_PHASE_3;
+            --        end if;
             
           when DTACK_PHASE_3 =>
             --s_dtackOE            <= '1';
@@ -1127,27 +1137,27 @@ begin
             --s_readFIFO        <= '0';
             s_retry           <= s_retry;
             s_berr            <= '0';
-				
-				
+            
+            
             if s_RW = '0' and s_retry = '0' then
               s_mainFSMstate <= TWOe_FIFO_WRITE;
               s_memReq          <= '0';
             elsif s_RW = '1' and s_retry = '0' then
-				
-				if s_2eType = TWOe_VME then			
-              s_mainFSMstate <= TWOe_FIFO_WAIT_READ;
-              s_memReq          <= '0';
-				  else
-              s_mainFSMstate <= TWOe_FIFO_WAIT_READ;
-              s_memReq          <= '0';
-				  end if;
-				
+              
+              if s_2eType = TWOe_VME then			
+                s_mainFSMstate <= TWOe_FIFO_WAIT_READ;
+                s_memReq          <= '0';
+              else
+                s_mainFSMstate <= TWOe_FIFO_WAIT_READ;
+                s_memReq          <= '0';
+              end if;
+              
 
             --s_WrRd               <= VME_WRITE_n_oversampled;                                                                                           
             elsif VME_DS_n_oversampled(0) = '1' and s_retry = '1' then
               s_mainFSMstate <= TWOe_RELEASE_DTACK;
               s_memReq          <= '0';
-				else
+            else
               s_memReq          <= '0';				
             end if;
             
@@ -1173,15 +1183,15 @@ begin
             --s_readFIFO        <= '0';
             s_retry           <= '0';
             s_berr            <= '0';
-				
+            
             if s_DS1pulse = '1' and s_2eType = TWOe_VME then
-            s_memReq          <= '1';
+              s_memReq          <= '1';
             elsif s_DS1pulse = '1' then --VME_DS_n_oversampled(0) = '1' then
-            s_memReq          <= '1';
-				else
-            s_memReq          <= '0';
+              s_memReq          <= '1';
+            else
+              s_memReq          <= '0';
             end if;
-				
+            
             if s_DS1pulse = '1' and s_2eType = TWOe_VME  then
               s_mainFSMstate <= TWOe_TOGGLE_DTACK;
             elsif VME_DS_n_oversampled(0) = '1' then
@@ -1214,16 +1224,16 @@ begin
 
             if s_RW = '0' and  s_2eType = TWOe_SST then
               s_mainFSMstate <= TWOe_FIFO_WRITE;
-				  s_mainDTACK <= '0';
-				elsif s_RW = '1' and  s_2eType = TWOe_SST then
+              s_mainDTACK <= '0';
+            elsif s_RW = '1' and  s_2eType = TWOe_SST then
               s_mainFSMstate <= TWOe_CHECK_BEAT;
-				  s_mainDTACK <= not s_mainDTACK;
+              s_mainDTACK <= not s_mainDTACK;
             elsif s_RW = '0' then
               s_mainFSMstate <= TWOe_FIFO_WRITE;	
-				  s_mainDTACK       <= not s_mainDTACK;
-				else				
+              s_mainDTACK       <= not s_mainDTACK;
+            else				
               s_mainFSMstate <= TWOe_WAIT_FOR_DS1;
-				  s_mainDTACK <= not s_mainDTACK;
+              s_mainDTACK <= not s_mainDTACK;
             end if;
           when TWOe_WAIT_FOR_DS1 =>
             --s_dtackOE            <= '1';
@@ -1252,7 +1262,7 @@ begin
             if (s_DS1pulse = '1' and s_2eType = TWOe_VME) or s_2eType = TWOe_SST then
               s_mainFSMstate <= TWOe_CHECK_BEAT;
             end if;
-				
+            
           when TWOe_FIFO_WAIT_READ =>
             --s_dtackOE            <= '1';
             s_dataDir         <= '1';
@@ -1275,15 +1285,15 @@ begin
             --s_readFIFO        <= '0';
             s_retry           <= '0';
             s_berr            <= '0';
- --           if readFIFOempty_i = '0' then  --and s_2eType=TWOe_SST then
+            --           if readFIFOempty_i = '0' then  --and s_2eType=TWOe_SST then
 
             if stall_i = '0' then --and s_2eType=TWOe_SST then
-               s_mainFSMstate <= TWOe_FIFO_READ;
+              s_mainFSMstate <= TWOe_FIFO_READ;
             end if;
-				
-				s_memReq          <= not stall_i;  -- access to the wb_dma
+            
+            s_memReq          <= not stall_i;  -- access to the wb_dma
 
-				
+            
           when TWOe_FIFO_READ =>
             --s_dtackOE            <= '1';
             s_dataDir         <= '1';
@@ -1306,12 +1316,12 @@ begin
             --s_readFIFO        <= '1';
             s_retry           <= '0';
             s_berr            <= '0';
-				if memAckWB_i = '1' then 
-            s_mainFSMstate    <= TWOe_TOGGLE_DTACK;
+            if memAckWB_i = '1' then 
+              s_mainFSMstate    <= TWOe_TOGGLE_DTACK;
             end if;
-				if transfer_done_i = '1' then
-				transfer_done_flag <= '1';
-				end if;
+            if transfer_done_i = '1' then
+              transfer_done_flag <= '1';
+            end if;
           when TWOe_CHECK_BEAT =>
             --s_dtackOE            <= '1';
             s_dataDir         <= '1';
@@ -1337,12 +1347,12 @@ begin
             s_berr            <= '0';
             if transfer_done_flag = '0' then
               s_mainFSMstate <= TWOe_FIFO_WAIT_READ;
-				  transfer_done_flag <= '0';
+              transfer_done_flag <= '0';
             else
               s_mainFSMstate <= TWOe_END_1;
-				  transfer_done_flag <= '0';
+              transfer_done_flag <= '0';
             end if;
-				s_memReq          <= '0';--not stall_i;  -- access to the wb_dma
+            s_memReq          <= '0';--not stall_i;  -- access to the wb_dma
 
           when TWOe_RELEASE_DTACK =>
             --s_dtackOE            <= '0';
@@ -1442,7 +1452,7 @@ begin
             s_berr            <= '0';
             s_mainFSMstate    <= IDLE;
             transfer_done_flag <= '0';
-           
+            
         end case;
       end if;
     end if;
@@ -1457,34 +1467,34 @@ begin
 
 -- RETRY driver
 
-p_RETRYdriver: process(clk_i)
-begin
+  p_RETRYdriver: process(clk_i)
+  begin
     if rising_edge(clk_i) then
-        if rty_i='1' or s_retry='1' then
-            VME_RETRY_n_o <= '1';
-                              VME_RETRY_OE_n_o <= '1';
-        else
-  VME_RETRY_n_o    <= '0';
-  VME_RETRY_OE_n_o <= '0';
-        end if;
+      if rty_i='1' or s_retry='1' then
+        VME_RETRY_n_o <= '1';
+        VME_RETRY_OE_n_o <= '1';
+      else
+        VME_RETRY_n_o    <= '0';
+        VME_RETRY_OE_n_o <= '0';
+      end if;
     end if;
-end process;
+  end process;
 
 
 -- BERR driver 
 
-p_BERRdriver: process(clk_i)
-begin
+  p_BERRdriver: process(clk_i)
+  begin
     if rising_edge(clk_i) then
-        s_berr_1 <= s_berr;    
-        s_berr_2 <= s_berr and s_berr_1;
-        if (s_transferActive='1' and s_BERRcondition='1') or s_berr_2='1' then
-  VME_BERR_o <= '1';
-        else
-            VME_BERR_o <= '0';
-        end if;
+      s_berr_1 <= s_berr;    
+      s_berr_2 <= s_berr and s_berr_1;
+      if (s_transferActive='1' and s_BERRcondition='1') or s_berr_2='1' then
+        VME_BERR_o <= '1';
+      else
+        VME_BERR_o <= '0';
+      end if;
     end if;
-end process;
+  end process;
 
   process(clk_i)
   begin
@@ -1543,13 +1553,13 @@ end process;
 --      end if;
 --    end if;
 --  end process;
-process(clk_i)
-begin
-   if rising_edge(clk_i) then
+  process(clk_i)
+  begin
+    if rising_edge(clk_i) then
       VME_DTACK_n_o <= s_mainDTACK;
-		VME_DTACK_OE_o <= s_dataOE; 
-   end if;
-end process;
+      VME_DTACK_OE_o <= s_dataOE; 
+    end if;
+  end process;
 
 --s_dtackOE <= not s_mainDTACK;
 
@@ -1586,8 +1596,8 @@ end process;
         VME_DATA_b_o <= std_logic_vector(s_locData(31 downto 0));
       elsif IDtoData_i = '1' then
         VME_DATA_b_o <= "------------------------" & std_logic_vector(s_irqIDdata);
- --     else
- --      VME_DATA_b_o <= (others => '0');
+      --     else
+      --      VME_DATA_b_o <= (others => '0');
       end if;
     end if;
   end process;
@@ -1645,17 +1655,17 @@ end process;
       else
         case s_2eLatchAddr is
           when "01" => s_phase1addr <= s_VMEdataInput & s_VMEaddrInput & s_LWORDinput;
-                          s_phase2addr <= s_phase2addr;
-                          s_phase3addr <= s_phase3addr;
+                       s_phase2addr <= s_phase2addr;
+                       s_phase3addr <= s_phase3addr;
           when "10" => s_phase2addr <= s_VMEdataInput & s_VMEaddrInput & s_LWORDinput;
-                          s_phase1addr <= s_phase1addr;
-                          s_phase3addr <= s_phase3addr;
+                       s_phase1addr <= s_phase1addr;
+                       s_phase3addr <= s_phase3addr;
           when "11" => s_phase3addr <= s_VMEdataInput & s_VMEaddrInput & s_LWORDinput;
-                          s_phase1addr <= s_phase1addr;
-                          s_phase2addr <= s_phase2addr;
+                       s_phase1addr <= s_phase1addr;
+                       s_phase2addr <= s_phase2addr;
           when others => s_phase1addr <= s_phase1addr;
-                          s_phase2addr <= s_phase2addr;
-                          s_phase3addr <= s_phase3addr;
+                         s_phase2addr <= s_phase2addr;
+                         s_phase3addr <= s_phase3addr;
         end case;
       end if;
     end if;
@@ -1668,16 +1678,16 @@ end process;
 --s_beatCount      <= ((s_cycleCount)&'0') when s_XAMtype=A32_2eVME or s_XAMtype=A64_2eVME else
 --                    ('0'&(s_cycleCount));
 
-process(s_cycleCount,s_beatCount,s_XAMtype, s_transferType)
-begin
-if ((s_XAMtype = A32_2eVME) or (s_XAMtype = A64_2eVME))  then 
-  s_beatCount <= (resize(s_cycleCount*2, s_beatCount'length));
-elsif s_transferType = SINGLE then 
-  s_beatCount <= (to_unsigned(1, s_beatCount'length));
-else
-  s_beatCount <= ('0'&(s_cycleCount));
-end if;  
-end process;
+  process(s_cycleCount,s_beatCount,s_XAMtype, s_transferType)
+  begin
+    if ((s_XAMtype = A32_2eVME) or (s_XAMtype = A64_2eVME))  then 
+      s_beatCount <= (resize(s_cycleCount*2, s_beatCount'length));
+    elsif s_transferType = SINGLE then 
+      s_beatCount <= (to_unsigned(1, s_beatCount'length));
+    else
+      s_beatCount <= ('0'&(s_cycleCount));
+    end if;  
+  end process;
 --
 
   psize_o <= std_logic_vector(s_beatCount(7 downto 0));
@@ -1696,15 +1706,15 @@ end process;
 --    end if;
 --  end process;
 
- -- s_beatCountEnd <= '0' when s_runningBeatCount < s_beatCount else '1';
+  -- s_beatCountEnd <= '0' when s_runningBeatCount < s_beatCount else '1';
 
 
 -- Local address mapping
 
   s_locAddrBeforeOffset(63 downto 1) <= x"000000000000" & s_VMEaddrLatched(15 downto 1) when s_addrWidth = "00" else
-                                          x"0000000000" & s_VMEaddrLatched(23 downto 1) when s_addrWidth = "01" else
-                                          x"00000000" & s_VMEaddrLatched(31 downto 1)   when s_addrWidth = "10" else
-                                          s_VMEaddrLatched(63 downto 1);
+                                        x"0000000000" & s_VMEaddrLatched(23 downto 1) when s_addrWidth = "01" else
+                                        x"00000000" & s_VMEaddrLatched(31 downto 1)   when s_addrWidth = "10" else
+                                        s_VMEaddrLatched(63 downto 1);
   
   s_locAddrBeforeOffset(0) <= '0' when (s_DSlatched(1) = '0' and s_DSlatched(0) = '1') else
                               '1' when (s_DSlatched(1) = '1' and s_DSlatched(0) = '0') else
@@ -1715,19 +1725,28 @@ end process;
   begin
     if rising_edge(clk_i) then
       if s_typeOfDataTransfer = UnAl1to2 then
-        s_locAddr <= s_locAddrBeforeOffset - 1 + s_addrOffset- s_base_addr;
+        s_locAddr <= s_locAddrBeforeOffset - 1 + s_addrOffset;
       elsif s_addressingType = TWOedge then
-        s_locAddr <= s_locAddr2e + s_addrOffset-s_base_addr;
+        s_locAddr <= s_locAddr2e + s_addrOffset;
       else
-        s_locAddr <= s_locAddrBeforeOffset + s_addrOffset-s_base_addr;
+        s_locAddr <= s_locAddrBeforeOffset + s_addrOffset;
       end if;
+      if s_typeOfDataTransfer = UnAl1to2 then
+        s_rel_locAddr <= s_locAddrBeforeOffset - 1 + s_addrOffset- s_base_addr;
+      elsif s_addressingType = TWOedge then
+        s_rel_locAddr <= s_locAddr2e + s_addrOffset-s_base_addr;
+      else
+        s_rel_locAddr <= s_locAddrBeforeOffset + s_addrOffset-s_base_addr;
+      end if;
+      
+      
     end if;
   end process;
 --  s_locAddr <=    s_locAddrBeforeOffset - 1 + s_addrOffset when s_typeOfDataTransfer=UnAl1to2 else        -- exception for UnAl1to2
 --                  s_locAddr2e + s_addrOffset when s_addressingType=TWOedge else
 --                  s_locAddrBeforeOffset + s_addrOffset;
 
-  locAddr_o <= std_logic_vector(s_locAddr);
+  locAddr_o <= std_logic_vector(s_rel_locAddr);
 
 
 -- Local address incrementing 
@@ -1780,6 +1799,7 @@ end process;
   p_memoryMapping : process(clk_i)
   begin
     if rising_edge(clk_i) then
+	 
       case s_RW is
         -- Read cycles
         when '1' =>
@@ -1806,6 +1826,8 @@ end process;
               s_sel                   <= "00000111";
             when UnAl1to2 =>            -- Unaligned transfer byte(1-2)
               s_sel                   <= "00000011";
+				when D64 => 
+              s_sel                  <= "11111111";
             when others =>
               s_sel                  <= "11111111";
           end case;
@@ -1844,6 +1866,11 @@ end process;
             when UnAl1to2 =>            -- Unaligned transfer byte(1-2)
               s_locDataIn(15 downto 0) <= s_VMEdataInput(23 downto 8);
               s_sel                    <= "00000011";
+				when D64 => 
+              s_sel                  <= "11111111";
+              s_locDataIn(31 downto 0)  <= s_VMEdataInput(31 downto 0);
+              s_locDataIn(63 downto 32) <= s_VMEaddrInput(31 downto 1) & s_LWORDinput;
+
             when others =>
               s_locDataIn(31 downto 0)  <= s_VMEdataInput(31 downto 0);
               s_locDataIn(63 downto 32) <= s_VMEaddrInput(31 downto 1) & s_LWORDinput;
@@ -1857,44 +1884,44 @@ end process;
   P_dout_byte_swap : process(clk_i)-- s_locDataOut, s_typeOfDataTransfer, s_DSlatched, s_transferType)
   begin
     if rising_edge(clk_i) then
-  --   s_locData <= s_locDataOut;
+      --   s_locData <= s_locDataOut;
 
-          case s_typeOfDataTransfer is
-            when D08 =>
-              case s_DSlatched(1) is
-                when '0' =>             -- D08(E)
-                  s_locData(15 downto 8)  <= s_locDataOut(7 downto 0);
-                  s_locData(63 downto 16) <= (others => '0');
-                  s_locData(7 downto 0)   <= (others => '0');
-                when others =>          -- D08(O)
-                  s_locData(7 downto 0)  <= s_locDataOut(7 downto 0);
-                  s_locData(63 downto 8) <= (others => '0');
-              end case;
-            when D16 =>                 -- D16
-              s_locData(15 downto 0)  <= s_locDataOut(15 downto 0);
+      case s_typeOfDataTransfer is
+        when D08 =>
+          case s_DSlatched(1) is
+            when '0' =>             -- D08(E)
+              s_locData(15 downto 8)  <= s_locDataOut(7 downto 0);
               s_locData(63 downto 16) <= (others => '0');
-            when D32 =>
-              case s_transferType is
-                when MBLT =>            -- D64
-                  s_locData(63 downto 0) <= s_locDataOut(63 downto 0);
-                when others =>          -- D32
-                  s_locData(31 downto 0)  <= s_locDataOut(31 downto 0);
-                  s_locData(63 downto 32) <= (others => '0');
-              end case;
-            when UnAl0to2 =>            -- Unaligned transfer byte(0-2)
-              s_locData(31 downto 8)  <= s_locDataOut(23 downto 0);
-              s_locData(63 downto 32) <= (others => '0');
               s_locData(7 downto 0)   <= (others => '0');
-            when UnAl1to3 =>            -- Unaligned transfer byte(1-3)
-              s_locData(23 downto 0)  <= s_locDataOut(23 downto 0);
-              s_locData(63 downto 24) <= (others => '0');
-            when UnAl1to2 =>            -- Unaligned transfer byte(1-2)
-              s_locData(23 downto 8)  <= s_locDataOut(15 downto 0);
-              s_locData(63 downto 24) <= (others => '0');
-              s_locData(7 downto 0)   <= (others => '0');
-            when others =>
-              s_locData(63 downto 0) <= s_locDataOut(63 downto 0);
+            when others =>          -- D08(O)
+              s_locData(7 downto 0)  <= s_locDataOut(7 downto 0);
+              s_locData(63 downto 8) <= (others => '0');
           end case;
+        when D16 =>                 -- D16
+          s_locData(15 downto 0)  <= s_locDataOut(15 downto 0);
+          s_locData(63 downto 16) <= (others => '0');
+        when D32 =>
+          case s_transferType is
+            when MBLT =>            -- D64
+              s_locData(63 downto 0) <= s_locDataOut(63 downto 0);
+            when others =>          -- D32
+              s_locData(31 downto 0)  <= s_locDataOut(31 downto 0);
+              s_locData(63 downto 32) <= (others => '0');
+          end case;
+        when UnAl0to2 =>            -- Unaligned transfer byte(0-2)
+          s_locData(31 downto 8)  <= s_locDataOut(23 downto 0);
+          s_locData(63 downto 32) <= (others => '0');
+          s_locData(7 downto 0)   <= (others => '0');
+        when UnAl1to3 =>            -- Unaligned transfer byte(1-3)
+          s_locData(23 downto 0)  <= s_locDataOut(23 downto 0);
+          s_locData(63 downto 24) <= (others => '0');
+        when UnAl1to2 =>            -- Unaligned transfer byte(1-2)
+          s_locData(23 downto 8)  <= s_locDataOut(15 downto 0);
+          s_locData(63 downto 24) <= (others => '0');
+          s_locData(7 downto 0)   <= (others => '0');
+        when others =>
+          s_locData(63 downto 0) <= s_locDataOut(63 downto 0);
+      end case;
     end if;
   end process;
 
@@ -1926,149 +1953,160 @@ end process;
 
 
 -- Access decode (NOTE: since A64 is supported, there are 4 64-bit FUNC_ADERs, because two consecutive 32-bit FUNC_ADERs are needed to decode a 64 bit address)
-  process(clk_i)  --s_moduleEnable, s_funcMatch,s_AMmatch, s_addressingType, s_initInProgress, s_transferType, s_initInProgress )
+  process(s_moduleEnable, s_funcMatch,s_AMmatch, s_addressingType, s_initInProgress, s_transferType, s_initInProgress )
+  begin
+    s_nx_cardSel <= '0';
+    s_nx_lockSel <= '0';
+    if (s_moduleEnable = '1') and (s_addressingType /= CR_CSR) and (s_initInProgress = '0') then
+      for I in 0 to 7 loop
+        if s_funcMatch(I) = '1' and s_AMmatch(I) = '1' then
+          s_nx_cardSel <= '1';
+          exit;
+        end if;
+      end loop;
+    end if;
+
+    if (s_moduleEnable = '1') and (s_transferType = LCK) and (s_initInProgress = '0') then
+      for I in 0 to 7 loop
+        if s_funcMatch(I) = '1' then
+          s_nx_lockSel <= '1';
+          exit;
+        end if;
+      end loop;
+    end if;
+
+  end process;
+  s_func_sel <=  s_funcMatch and s_AMmatch; 
+
+  process(clk_i)
   begin
     if rising_edge(clk_i) then
-      if (s_moduleEnable = '1') and (s_addressingType /= CR_CSR) and (s_initInProgress = '0') then
-        for I in s_funcMatch'range loop
-          if s_funcMatch(I) = '1' and s_AMmatch(I) = '1' then
-            s_cardSel <= '1';
---          else
---            s_cardSel <= '0';
-          end if;
-        end loop;
-      else
-        s_cardSel <= '0';
-
-      end if;
-
-      if (s_moduleEnable = '1') and (s_transferType = LCK) and (s_initInProgress = '0') then
-        for I in s_funcMatch'range loop
-          if s_funcMatch(I) = '1' then
-            s_lockSel <= '1';
---          else
---            s_lockSel <= '0';
-          end if;
-        end loop;
-      else
-        s_lockSel <= '0';
-      end if;
+      s_cardSel <= s_nx_cardSel;
+      s_lockSel <= s_nx_lockSel;
     end if;
   end process;
+  
   s_confAccess <= '1' when unsigned(s_CSRarray(BAR)(7 downto 3)) = s_locAddr(23 downto 19) and s_addressingType = CR_CSR and s_initInProgress = '0' else '0';  -- CR/CSR decode
 
   s_locAddr_eq_bar        <= '1' when unsigned(s_CSRarray(BAR)(7 downto 3)) = s_locAddr(23 downto 19) else '0';  -- added by pablo to check simulation
   s_addressingType_CR_CSR <= '1' when s_addressingType = CR_CSR                                       else '0';
 
-  p_functMatch : process(clk_i)  -- NOTE: interface will respond to different addressing types and will attempt to decode only the address width that it is given, even though the ADEM and ADER registers may contain a mask, that is greater than the current address width
+  p_functMatch : process(s_FUNC_ADEM_64,s_locAddr, s_FUNC_ADER, s_addrWidth, s_addressingType, s_XAMtype, s_FUNC_ADEM, s_isprev_func64 )  -- NOTE: interface will respond to different addressing types and will attempt to decode only the address width that it is given, even though the ADEM and ADER registers may contain a mask, that is greater than the current address width
   begin
-    if rising_edge(clk_i) then  -- Added by pablo. Guess it should be clocked as the only signal in the
-      -- sensitivity list was clk
-      case s_addrWidth is
-        when "11" =>
-          for i in s_funcMatch'range loop
-            if s_addressingType = TWOedge and (s_XAMtype = A32_2eVME or s_XAMtype = A32_2eSST) then
-							 			  if s_FUNC_ADEM(i)(31 downto 10) /=0 then
+    s_nx_funcMatch <= (others => '0');
+    s_nx_base_addr <= (others => '0');
+    gointomycase <= 0;
+        for i in s_nx_funcMatch'range loop
+
+    case s_addrWidth is
+      when "11" => -- Two edge
+          if (s_addressingType = TWOedge) and (s_XAMtype = A32_2eVME or s_XAMtype = A32_2eSST) then
+            gointomycase <= 1;
+
+            if (s_FUNC_ADEM(i)(31 downto 10) /=0)  and (s_isprev_func64(i) = '0') then
+              gointomycase <= 2;
 
               if (s_FUNC_ADER(i)(31 downto 10) and s_FUNC_ADEM(i)(31 downto 10)) = ((s_locAddr(31 downto 10)) and s_FUNC_ADEM(i)(31 downto 10)) then
-                s_funcMatch(i) <= '1';
-					 s_base_addr(31 downto 10) <= s_FUNC_ADER(i)(31 downto 10);
-					 s_base_addr(63 downto 32) <= (others => '0');
-					 s_base_addr(9 downto 0) <= (others => '0');
-              else
-                s_funcMatch(i) <= '0';
+                gointomycase <= 3;
+                
+                s_nx_funcMatch(i) <= '1';
+                s_nx_base_addr(31 downto 10) <= s_FUNC_ADER(i)(31 downto 10);
+                s_nx_base_addr(63 downto 32) <= (others => '0');
+                s_nx_base_addr(9 downto 0) <= (others => '0');
+--                exit;
               end if;
-              else
-                s_funcMatch(i) <= '0';
-              end if;
-            elsif s_addressingType = TWOedge and (s_XAMtype = A64_2eVME or s_XAMtype = A64_2eSST) then
-											 			  if s_FUNC_ADEM(i)(31 downto 10) /=0 then
+            end if;
+          elsif (s_addressingType = TWOedge) and (s_XAMtype = A64_2eVME or s_XAMtype = A64_2eSST) then
+            if (s_FUNC_ADEM(i)(31 downto 10) /=0)  and (s_isprev_func64(i) = '0') then
+                gointomycase <= 4;
 
               if (s_FUNC_ADER_64(i)(63 downto 10) and s_FUNC_ADEM_64(i)(63 downto 10)) = ((s_locAddr(63 downto 10)) and s_FUNC_ADEM_64(i)(63 downto 10)) then
-                s_funcMatch(i) <= '1';
-					 s_base_addr(63 downto 10) <= s_FUNC_ADER_64(i)(63 downto 10);
-					 s_base_addr(9 downto 0) <= (others => '0');
-              else
-                s_funcMatch(i) <= '0';
-              end if;
-              else
-                s_funcMatch(i) <= '0';
-              end if;
-            else
-				  if s_FUNC_ADEM(i)(31 downto 10) /=0 then
-              if (s_FUNC_ADER_64(i)(63 downto 8) and s_FUNC_ADEM_64(i)(63 downto 8)) = ((s_locAddr(63 downto 8)) and s_FUNC_ADEM_64(i)(63 downto 8)) then
-                s_funcMatch(i) <= '1';
-					 s_base_addr(63 downto 8) <= s_FUNC_ADER_64(i)(63 downto 8);
-					 s_base_addr(7 downto 0) <= (others => '0');
-					 
-              else
-                s_funcMatch(i) <= '0';
-              end if;
-              else
-                s_funcMatch(i) <= '0';
+                gointomycase <= 5;
+
+                s_nx_funcMatch(i) <= not s_isprev_func64(i);--'1';
+                s_nx_base_addr(63 downto 10) <= s_FUNC_ADER_64(i)(63 downto 10);
+                s_nx_base_addr(9 downto 0) <= (others => '0');
+ --               exit;
               end if;
             end if;
-          end loop;
-          
-        when "10" =>
-          for i in s_funcMatch'range loop
-			 			  if s_FUNC_ADEM(i)(31 downto 8) /=0 then
+          else
+                gointomycase <= 6;
+			 
+            if (s_FUNC_ADEM(i)(31 downto 10) /=0)  and (s_isprev_func64(i) = '0') then
+                gointomycase <= 7;
+				
+              if (s_FUNC_ADER_64(i)(63 downto 8) and s_FUNC_ADEM_64(i)(63 downto 8)) = ((s_locAddr(63 downto 8)) and s_FUNC_ADEM_64(i)(63 downto 8)) then
+                gointomycase <= 8;
+ 
+					 s_nx_funcMatch(i) <= '1';
+                s_nx_base_addr(63 downto 8) <= s_FUNC_ADER_64(i)(63 downto 8);
+                s_nx_base_addr(7 downto 0) <= (others => '0');
+ --               exit;
+                
+              end if;
+            end if;
+          end if;
+ --       end loop;
+        
+      when "10" =>
+--        for i in s_funcMatch'range loop
+          if (s_FUNC_ADEM(i)(31 downto 8) /=0)  and (s_isprev_func64(i) = '0') then
 
             if (s_FUNC_ADER(i)(31 downto 8) and s_FUNC_ADEM(i)(31 downto 8)) = ((s_locAddr(31 downto 8)) and s_FUNC_ADEM(i)(31 downto 8)) then
-              s_funcMatch(i) <= '1';
-				  s_base_addr(31 downto 8) <= s_FUNC_ADER(i)(31 downto 8);
-				  s_base_addr(63 downto 32) <= (others => '0');
-				  s_base_addr(7 downto 0) <= (others => '0');
-            else
-              s_funcMatch(i) <= '0';
+              s_nx_funcMatch(i) <= '1';
+              s_nx_base_addr(31 downto 8) <= s_FUNC_ADER(i)(31 downto 8);
+              s_nx_base_addr(63 downto 32) <= (others => '0');
+              s_nx_base_addr(7 downto 0) <= (others => '0');
+ --             exit;
             end if;
-				else
-              s_funcMatch(i) <= '0';
-            end if;
+          end if;
 
-          end loop;
-           
-        when "01" =>
-          for i in s_funcMatch'range loop
-			  if s_FUNC_ADEM(i)(23 downto 8) /=0 then
+--        end loop;
+        
+      when "01" =>
+--        for i in s_funcMatch'range loop
+          if (s_FUNC_ADEM(i)(23 downto 8) /=0)  and (s_isprev_func64(i) = '0') then
             if (s_FUNC_ADER(i)(23 downto 8) and s_FUNC_ADEM(i)(23 downto 8)) = ((s_locAddr(23 downto 8)) and s_FUNC_ADEM(i)(23 downto 8)) then
-              s_funcMatch(i) <= '1';
-				  s_base_addr(23 downto 8) <= s_FUNC_ADER(i)(23 downto 8);
-				  s_base_addr(63 downto 24) <= (others => '0');
-				  s_base_addr(7 downto 0) <= (others => '0');
-            else
-              s_funcMatch(i) <= '0';
-				end if;
-				else
-              s_funcMatch(i) <= '0';		
+              s_nx_funcMatch(i) <= '1';
+              s_nx_base_addr(23 downto 8) <= s_FUNC_ADER(i)(23 downto 8);
+              s_nx_base_addr(63 downto 24) <= (others => '0');
+              s_nx_base_addr(7 downto 0) <= (others => '0');
+--              exit;
             end if;
-          end loop;
-			 
-        when "00" =>
+          end if;
+--        end loop;
+        
+      when "00" =>
 
-          for i in s_funcMatch'range loop
-			   			 if s_FUNC_ADEM(i)(15 downto 8) /=0 then
+--        for i in s_funcMatch'range loop
+          if (s_FUNC_ADEM(i)(15 downto 8) /=0)  and (s_isprev_func64(i) = '0') then
             if (s_FUNC_ADER(i)(15 downto 8) and s_FUNC_ADEM(i)(15 downto 8)) = ((s_locAddr(15 downto 8)) and s_FUNC_ADEM(i)(15 downto 8)) then
-              s_funcMatch(i) <= '1';
-				  s_base_addr(15 downto 8) <= s_FUNC_ADER(i)(15 downto 8);
-				  s_base_addr(63 downto 16) <= (others => '0');
-				  s_base_addr(7 downto 0) <= (others => '0');
-            else
-              s_funcMatch(i) <= '0';
+              s_nx_funcMatch(i) <= '1';
+              s_nx_base_addr(15 downto 8) <= s_FUNC_ADER(i)(15 downto 8);
+              s_nx_base_addr(63 downto 16) <= (others => '0');
+              s_nx_base_addr(7 downto 0) <= (others => '0');
+--              exit;
             end if;
-			  else 
-              s_funcMatch(i) <= '0';
-			  end if;
-          end loop;
-          
-        when others =>
-          for i in s_funcMatch'range loop
-            s_funcMatch(i) <= '0';
-          end loop;
-      end case;
+          end if;
+ --       end loop;
+        
+      when others =>
+    end case;
+	 end loop;
+  end process;
+------------------------------------------------------
+  process(clk_i)
+  begin
+    if rising_edge(clk_i) then
+      s_funcMatch <= s_nx_funcMatch;
+		for I in 0 to 7 loop
+        if s_func_sel(I) = '1' then
+            s_base_addr <= s_nx_base_addr;
+          exit;
+        end if;
+      end loop;
     end if;
   end process;
-
 ------------------------------------------------------
   process(s_FUNC_AMCAP, VME_AM_oversampled)
   begin
@@ -2186,7 +2224,7 @@ end process;
         s_UsrBitClrReg         <= (others => '0');
         s_UsrBitSetReg         <= (others => '0');
         s_CSRarray(CRAM_OWNER) <= (others => '0');
- --       s_CSRarray(BAR)        <= (others => '0');
+        --       s_CSRarray(BAR)        <= (others => '0');
         for i in CRAM_OWNER downto IRQ_level loop
           s_CSRarray(i) <= c_csr_array(i);
         end loop;
@@ -2476,19 +2514,22 @@ end process;
   GAD_64 : for i in 0 to 6 generate
     s_FUNC_ADER_64(i) <= s_FUNC_ADER(i+1)&s_FUNC_ADER(i);
     s_FUNC_ADEM_64(I) <= s_FUNC_ADEM(i+1)&s_FUNC_ADEM(i);
+    s_isprev_func64(i+1) <= s_FUNC_ADEM(i)(1);
   end generate GAD_64;
-      s_FUNC_ADER_64(7) <= (others => '0');
-      s_FUNC_ADEM_64(7) <= (others => '0');
+  s_isprev_func64(0) <= '0';
+
+  s_FUNC_ADER_64(7) <= (others => '0');
+  s_FUNC_ADEM_64(7) <= (others => '0');
 
 
 ------------------------------------------------------
 -- Input oversampling & edge detection
-process(clk_i)
-begin
-if rising_edge(clk_i) then
-s_DS1pulse_d <= s_DS1pulse; 
-end if;
-end process;
+  process(clk_i)
+  begin
+    if rising_edge(clk_i) then
+      s_DS1pulse_d <= s_DS1pulse; 
+    end if;
+  end process;
   ASfallingEdge : FallingEdgeDetection
     port map (
       sig_i      => VME_AS_n_oversampled,

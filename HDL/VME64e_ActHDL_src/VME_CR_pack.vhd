@@ -131,7 +131,7 @@ package VME_CR_pack is
 16#188#  => x"f0", -- Fun 0 
 16#189#  => x"00", -- Fun 0 
 16#18A#  => x"00", -- Fun 0 
-16#18B#  => x"00", -- Fun 0 
+16#18B#  => x"02", -- Fun 0 
 
 16#18c#  => x"ff", -- Fun 1 
 16#18d#  => x"ff", -- Fun 1 

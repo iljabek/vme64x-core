@@ -984,8 +984,8 @@ begin
 			AS <='0';
 			wait for 25ns;
 			
-			--xam := x"11"; --a32/d64
-			xam := x"12"; --a64/d64
+			xam := x"11"; --a32/d64
+			--xam := x"12"; --a64/d64
 			--xam <= 0x21 --a32/d64 broadcast
 			--xam <= 0x22 --a32/d64 broadcast
 			
@@ -1143,10 +1143,10 @@ begin
 			WRITE <= '0'; --write!
 			AM <= "100000"; --0x20 xam
 			AS <='0';
-			wait for 25ns;
+		--	wait for 25ns;
 			
-			--xam := x"11"; --a32/d64
-			xam := x"12"; --a64/d64
+			xam := x"11"; --a32/d64
+			--xam := x"12"; --a64/d64
 			--xam <= 0x21 --a32/d64 broadcast
 			--xam <= 0x22 --a32/d64 broadcast
 			
@@ -1322,9 +1322,22 @@ begin
 
 
       wait for 10us;
-		s_address <= x"1234000000000000";--x"0003fffd"; 
 		
 		
+				s_address <= (others => '0');--x"0003fffd"; 
+		s_address(31 downto 0) <= x"80000000";--x"0003fffd"; 	
+		--read2eSST(10);
+		--write2eSST(10);
+		wait for 30 ns;
+		write2eSST(10);		
+		wait for 30 ns;
+		
+		read2eSST(10);
+
+      wait for 10us;
+		
+		s_address <= (others => '0');--x"0003fffd"; 
+		s_address(31 downto 0) <= x"30000000";--x"0003fffd"; 	
 		--read2eSST(10);
 		--write2eSST(10);
 		wait for 30 ns;
