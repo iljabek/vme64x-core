@@ -176,6 +176,7 @@ architecture beh of vme64xcore_top_reg is
 	signal WE_o : STD_LOGIC;
 	signal VME_BBSY_n, VME_IACKIN_n_i, VME_IACKOUT_n_o : std_logic;
 	signal we_ram : std_logic;
+	
 --   signal FpLed_onb8_5 : std_logic;
 --	signal VME_DTACK_OE_o:std_logic;
 --    signal VME_DATA_DIR_o:std_logic;
@@ -184,6 +185,7 @@ architecture beh of vme64xcore_top_reg is
 --    signal VME_ADDR_OE_o:std_logic;
 --	 signal s_VME_DTACK_n : std_logic;
 	-- Add your code here ...
+
 	 signal counter : unsigned(26 downto 0) := (others => '0'); 
 begin
  
