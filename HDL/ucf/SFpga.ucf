@@ -238,4 +238,4 @@ NET "VME_IRQ_n_o[6]" IOSTANDARD = LVCMOS33;
 NET "FpLed_onb8_6" IOSTANDARD = LVCMOS33;
 #Created by Constraints Editor (xc6slx150t-fgg676-3) - 2011/02/21
 NET "clk_i" TNM_NET = clk_i;
-TIMESPEC TS_clk_i = PERIOD "clk_i" 10 ns HIGH 50%;
+#TIMESPEC TS_clk_i = PERIOD "clk_i" 50 ns HIGH 50%;

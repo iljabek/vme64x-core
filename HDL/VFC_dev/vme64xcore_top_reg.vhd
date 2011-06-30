@@ -3,7 +3,8 @@ use ieee.std_logic_1164.all;
 use IEEE.numeric_std.all;
 -- Add your library and packages declaration here ...
 use work.common_components.all;
-
+Library UNISIM;
+use UNISIM.vcomponents.all;
 entity vme64xcore_top_reg is
 port(
 			clk_i : in STD_LOGIC;
@@ -176,7 +177,7 @@ architecture beh of vme64xcore_top_reg is
 	signal WE_o : STD_LOGIC;
 	signal VME_BBSY_n, VME_IACKIN_n_i, VME_IACKOUT_n_o : std_logic;
 	signal we_ram : std_logic;
-	
+	signal s_clk : std_logic;
 --   signal FpLed_onb8_5 : std_logic;
 --	signal VME_DTACK_OE_o:std_logic;
 --    signal VME_DATA_DIR_o:std_logic;
@@ -187,14 +188,43 @@ architecture beh of vme64xcore_top_reg is
 	-- Add your code here ...
 
 	 signal counter : unsigned(26 downto 0) := (others => '0'); 
+	 signal zero : std_logic;
 begin
+ zero <= '0';
  
+    DCM_CLKGEN_inst : DCM_CLKGEN
+   generic map (
+      CLKFXDV_DIVIDE => 2,       -- CLKFXDV divide value (2, 4, 8, 16, 32)
+      CLKFX_DIVIDE => 1,         -- Divide value - D - (1-256)
+      CLKFX_MD_MAX => 5.0,       -- Specify maximum M/D ratio for timing anlysis
+      CLKFX_MULTIPLY => 5,       -- Multiply value - M - (2-256)
+      CLKIN_PERIOD => 50.0,       -- Input clock period specified in nS
+      SPREAD_SPECTRUM => "NONE", -- Spread Spectrum mode "NONE", "CENTER_LOW_SPREAD", "CENTER_HIGH_SPREAD",
+                                 -- "VIDEO_LINK_M0", "VIDEO_LINK_M1" or "VIDEO_LINK_M2" 
+      STARTUP_WAIT => FALSE      -- Delay config DONE until DCM_CLKGEN LOCKED (TRUE/FALSE)
+   )
+   port map (
+      CLKFX => s_clk,         -- 1-bit output Generated clock output
+      CLKFX180 => open,   -- 1-bit output Generated clock output 180 degree out of phase from CLKFX.
+      CLKFXDV => open,     -- 1-bit output Divided clock output
+      LOCKED => open,       -- 1-bit output Locked output
+      PROGDONE => open,   -- 1-bit output Active high output to indicate the successful re-programming
+      STATUS => open,       -- 2-bit output DCM_CLKGEN status
+      CLKIN => clk_i,         -- 1-bit input Input clock
+      FREEZEDCM => zero, -- 1-bit input Prevents frequency adjustments to input clock
+      PROGCLK => zero,     -- 1-bit input Clock input for M/D reconfiguration
+      PROGDATA => zero,   -- 1-bit input Serial data input for M/D reconfiguration
+      PROGEN => zero,       -- 1-bit input Active high program enable
+      RST => zero              -- 1-bit input Reset input pin
+   );
+	
+	
 VME_IACKIN_n_i <= '1';
 	VME_BBSY_n <= '1';
 	-- Unit Under Test port map
 	UUT : vme64xcore_top
 	port map (
-		clk_i => clk_i,
+		clk_i => s_clk,
 		VME_AS_n_i => VME_AS_n_i,
 		VME_RST_n_i => VME_RST_n_i,
 		VME_WRITE_n_i => VME_WRITE_n_i,
@@ -277,9 +307,9 @@ VME_IACKIN_n_i <= '1';
 --		);
 
 
-process(clk_i)
+process(s_clk)
 begin
-if rising_edge(clk_i) then
+if rising_edge(s_clk) then
 if VME_RST_n_i = '0' then 
 FpLed_onb8_5 <= '0';
 FpLed_onb8_6 <= '0';
@@ -302,7 +332,7 @@ Udpblockram : dpblockram
  			 al => 8,			-- Size of the addr map (10 = 1024 words)
 			 nw => 2**8)    -- Number of words
 			 									-- 'nw' has to be coherent with 'al'
- port map(clk  => clk_i, 			-- Global Clock
+ port map(clk  => s_clk, 			-- Global Clock
  	we  => we_ram,				-- Write Enable
  	aw  => ADR_o(7 downto 0), -- Write Address 
  	ar  => ADR_o(7 downto 0), 	 -- Read Address
