@@ -149,7 +149,7 @@ architecture RTL of VME64xCore_Top is
       err_i       : in  std_logic;
       rty_i       : in  std_logic;
       stall_i     : in std_logic;
-      psize_o : out std_logic_vector(7 downto 0);
+      psize_o : out std_logic_vector(8 downto 0);
 
       -- IRQ controller signals
       irqDTACK_i       : in  std_logic;
@@ -260,7 +260,7 @@ architecture RTL of VME64xCore_Top is
   signal s_TWOeInProgress : std_logic;
 --  signal s_WBbusy         : std_logic;
   signal s_stall : std_logic;
-  signal s_psize      : std_logic_vector(7 downto 0);
+  signal s_psize      : std_logic_vector(8 downto 0);
 
   signal s_vme_addr_b_o                                 : std_logic_vector(31 downto 1);
   signal s_VME_LWORD_n_b_o                              : std_logic;

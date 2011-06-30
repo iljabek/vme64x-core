@@ -87,7 +87,7 @@ entity VME_bus is
     err_i       : in  std_logic;
     rty_i       : in  std_logic;
     stall_i     : in std_logic;
-    psize_o : out std_logic_vector(7 downto 0);
+    psize_o : out std_logic_vector(8 downto 0);
 
     -- IRQ controller signals
     irqDTACK_i       : in  std_logic;
@@ -1680,7 +1680,7 @@ begin
 
   process(s_cycleCount,s_beatCount,s_XAMtype, s_transferType)
   begin
-    if ((s_XAMtype = A32_2eVME) or (s_XAMtype = A64_2eVME))  then 
+    if ((s_XAMtype = A32_2eVME) or (s_XAMtype = A64_2eVME) or (s_XAMtype = A32_2eSST) or (s_XAMtype = A64_2eSST))  then 
       s_beatCount <= (resize(s_cycleCount*2, s_beatCount'length));
     elsif s_transferType = SINGLE then 
       s_beatCount <= (to_unsigned(1, s_beatCount'length));
@@ -1690,7 +1690,7 @@ begin
   end process;
 --
 
-  psize_o <= std_logic_vector(s_beatCount(7 downto 0));
+  psize_o <= std_logic_vector(s_beatCount);
 -- Beat counter
 
 --  p_FIFObeatCounter : process(clk_i)
