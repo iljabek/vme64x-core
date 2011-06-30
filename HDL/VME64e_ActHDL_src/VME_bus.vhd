@@ -1261,7 +1261,7 @@ begin
             s_berr            <= '0';
             if (s_DS1pulse = '1' and s_2eType = TWOe_VME) or s_2eType = TWOe_SST then
               s_mainFSMstate <= TWOe_CHECK_BEAT;
-            end if;
+            end if; 
             
           when TWOe_FIFO_WAIT_READ =>
             --s_dtackOE            <= '1';
