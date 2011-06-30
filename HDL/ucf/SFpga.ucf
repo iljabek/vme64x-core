@@ -61,8 +61,6 @@ NET "VME_DATA_b[31]" LOC = W14;
 #NET "VmeP0LvdsBunchClkIn_i" LOC = AE15;
 #NET "VmeP0LvdsBunchClkOut_o" LOC = AF15;
 #NET "VmeSysClk_ik" LOC = L8;
-
-
 NET "VME_ADDR_b[1]" LOC = M24;
 NET "VME_ADDR_b[2]" LOC = M21;
 NET "VME_ADDR_b[3]" LOC = L21;
@@ -132,7 +130,6 @@ NET "clk_i" LOC = AF14;
 
 #NET "Si57x_ik" LOC = B12;
 #NET "Si57x_ikn" LOC = A12;
-
 # PlanAhead Generated IO constraints 
 NET "FpLed_onb8_5" IOSTANDARD = LVCMOS33;
 NET "VME_ADDR_DIR_o" IOSTANDARD = LVCMOS33;
@@ -239,3 +236,5 @@ NET "FpLed_onb8_6" IOSTANDARD = LVCMOS33;
 #Created by Constraints Editor (xc6slx150t-fgg676-3) - 2011/02/21
 NET "clk_i" TNM_NET = clk_i;
 #TIMESPEC TS_clk_i = PERIOD "clk_i" 50 ns HIGH 50%;
+#Created by Constraints Editor (xc6slx150t-fgg676-3) - 2011/06/30
+TIMESPEC TS_clk_i = PERIOD "clk_i" 50 ns HIGH 50%;
