@@ -91,6 +91,7 @@ architecture RTL of wb_dma is
   signal sl_sel_we, m_sel_we, m_sel : std_logic_vector(c_sell -1 downto 0);
   signal advance_m_adr, inc_m_adr : std_logic;
   signal is_m_ack_index_top_m1 : std_logic;
+  signal s_adr_step : unsigned(7 downto 0);
 begin
 -------------------------------------------------------------------------------
   process(clk_i)
@@ -258,12 +259,22 @@ begin
     end if;
   end process;
 -------------------------------------------------------------------------------
+process()
+begin
+s_adr_step <= to_unsigned(1, s_adr_step'length);
+if sl_sel_i = "11111111" then 
+s_adr_step <= to_unsigned(1, s_adr_step'length);
+
+
+end process;
+
+
   process(m_adr, sl_adr_i, latch_psize, inc_m_adr)
   begin
   	   if latch_psize = '1' then
       nx_m_adr         <= unsigned(sl_adr_i);
 		elsif inc_m_adr = '1' then
-		nx_m_adr <= m_adr + 1;
+		nx_m_adr <= m_adr + s_adr_step;
 		else
 		nx_m_adr <= m_adr;
 		end if;

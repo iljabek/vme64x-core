@@ -1721,6 +1721,7 @@ begin
                               '0';
   
   s_locAddr2e <= s_phase1addr(63 downto 8) & s_phase2addr(7 downto 0);
+  
   process(clk_i)
   begin
     if rising_edge(clk_i) then
