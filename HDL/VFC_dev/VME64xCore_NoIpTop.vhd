@@ -269,6 +269,7 @@ architecture RTL of VME64xCore_Top is
   signal s_transfer_done : std_logic;
   signal sel_we : std_logic;
   signal s_VME_ADDR_DIR : std_logic;
+  signal s_locAddr64 : std_logic_vector(63 downto 0);
 begin
 
 -- Uncomment this section for use of external CR and CRAM
@@ -360,10 +361,10 @@ begin
   VME_ADDR_DIR_o <= s_VME_ADDR_DIR;
   
   sel_we <= not s_RW; 
-
+  s_locAddr64 <= "000"&s_locAddr(63 downto 3);
   Uwb_dma : wb_dma
     generic map(c_dl     => s_WBdataIn'length,
-                c_al     => s_locAddr'length,
+                c_al     => s_locAddr64'length,
                 c_sell   => s_WBsel'length,
                 c_psizel => s_psize'length)
 
@@ -376,7 +377,7 @@ begin
       -- Slave WB with dma support        
       sl_dat_i   => s_WBdataIn,
       sl_dat_o   => s_WBdataOut,
-      sl_adr_i   => s_locAddr,
+      sl_adr_i   => s_locAddr64,
       sl_cyc_i   => s_cyc,
       sl_err_o   => s_err,
       sl_lock_i => s_lock,

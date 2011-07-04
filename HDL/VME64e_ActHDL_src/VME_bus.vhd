@@ -1,4 +1,4 @@
--------------------------------------------------------------------------------
+		-------------------------------------------------------------------------------
 --
 -- Title       : VME_bus
 -- Design      : VME64xCore
@@ -219,9 +219,9 @@ architecture RTL of VME_bus is
   type t_typeOfDataTransfer is (D08,
                                 D16,
                                 D32,
-                                UnAl0to2,
-                                UnAl1to3,
-                                UnAl1to2,
+--                                UnAl0to2,
+--                                UnAl1to3,
+--                                UnAl1to2,
 										  D64,
                                 TypeError
                                 );
@@ -352,7 +352,7 @@ architecture RTL of VME_bus is
   signal s_AMmatch : std_logic_vector(7 downto 0);
 
 -- WishBone signals
-  signal s_sel  : std_logic_vector(7 downto 0);  -- SEL WB signal
+  signal s_sel  : unsigned(7 downto 0);  -- SEL WB signal
   signal s_RW   : std_logic;            -- RW WB signal
   signal s_lock : std_logic;            -- LOCK WB signal
   signal s_cyc  : std_logic;  -- CYC WB signal                         
@@ -430,6 +430,9 @@ architecture RTL of VME_bus is
   signal s_nx_cardSel, s_nx_lockSel : std_logic;
   signal gointomycase : integer;
   signal s_func_sel : std_logic_vector(7 downto 0);
+  signal s_VMEaddr32 : std_logic_vector(31 downto 0); 
+  signal s_nx_sel : std_logic_vector(7 downto 0);
+  signal s_VMEdata64In : unsigned(63 downto 0);
 begin
 --------
   s_is_d64 <= '1' when s_sel= "11111111" else '0';
@@ -461,9 +464,9 @@ begin
         when "0001" => s_typeOfDataTransfer <= D16;
         when "0011" => s_typeOfDataTransfer <= D16;
         when "0000" => s_typeOfDataTransfer <= D32;
-        when "0100" => s_typeOfDataTransfer <= UnAl0to2;
-        when "1000" => s_typeOfDataTransfer <= UnAl1to3;
-        when "0010" => s_typeOfDataTransfer <= UnAl1to2;
+--        when "0100" => s_typeOfDataTransfer <= UnAl0to2;
+--        when "1000" => s_typeOfDataTransfer <= UnAl1to3;
+--        when "0010" => s_typeOfDataTransfer <= UnAl1to2;
         when others => s_typeOfDataTransfer <= TypeError;
       end case;
 		else
@@ -1725,16 +1728,18 @@ begin
   process(clk_i)
   begin
     if rising_edge(clk_i) then
-      if s_typeOfDataTransfer = UnAl1to2 then
-        s_locAddr <= s_locAddrBeforeOffset - 1 + s_addrOffset;
-      elsif s_addressingType = TWOedge then
+--      if s_typeOfDataTransfer = UnAl1to2 then
+--        s_locAddr <= s_locAddrBeforeOffset - 1 + s_addrOffset;
+--      els
+		if s_addressingType = TWOedge then
         s_locAddr <= s_locAddr2e + s_addrOffset;
       else
         s_locAddr <= s_locAddrBeforeOffset + s_addrOffset;
       end if;
-      if s_typeOfDataTransfer = UnAl1to2 then
-        s_rel_locAddr <= s_locAddrBeforeOffset - 1 + s_addrOffset- s_base_addr;
-      elsif s_addressingType = TWOedge then
+--      if s_typeOfDataTransfer = UnAl1to2 then
+--        s_rel_locAddr <= s_locAddrBeforeOffset - 1 + s_addrOffset- s_base_addr;
+--      els
+		if s_addressingType = TWOedge then
         s_rel_locAddr <= s_locAddr2e + s_addrOffset-s_base_addr;
       else
         s_rel_locAddr <= s_locAddrBeforeOffset + s_addrOffset-s_base_addr;
@@ -1800,132 +1805,115 @@ begin
   p_memoryMapping : process(clk_i)
   begin
     if rising_edge(clk_i) then
-	 
-      case s_RW is
-        -- Read cycles
-        when '1' =>
+
           case s_typeOfDataTransfer is
             when D08 =>
               case s_DSlatched(1) is
                 when '0' =>             -- D08(E)
-                  s_sel                   <= "00000001";
+                  s_nx_sel                   <= "00000001";
                 when others =>          -- D08(O)
-                  s_sel                  <= "00000001";
+                  s_nx_sel                  <= "00000001";
               end case;
             when D16 =>                 -- D16
-              s_sel                   <= "00000011";
+              s_nx_sel                   <= "00000011";
             when D32 =>
               case s_transferType is
                 when MBLT =>            -- D64
-                  s_sel                  <= "11111111";
+                  s_nx_sel                  <= "11111111";
                 when others =>          -- D32
-                  s_sel                   <= "00001111";
+                  s_nx_sel                   <= "00001111";
               end case;
-            when UnAl0to2 =>            -- Unaligned transfer byte(0-2)
-              s_sel                   <= "00000111";
-            when UnAl1to3 =>            -- Unaligned transfer byte(1-3)
-              s_sel                   <= "00000111";
-            when UnAl1to2 =>            -- Unaligned transfer byte(1-2)
-              s_sel                   <= "00000011";
+--            when UnAl0to2 =>            -- Unaligned transfer byte(0-2)
+--              s_nx_sel                   <= "00000111";
+--            when UnAl1to3 =>            -- Unaligned transfer byte(1-3)
+--              s_nx_sel                   <= "00000111";
+--            when UnAl1to2 =>            -- Unaligned transfer byte(1-2)
+--              s_nx_sel                   <= "00000011";
 				when D64 => 
-              s_sel                  <= "11111111";
+              s_nx_sel                  <= "11111111";
             when others =>
-              s_sel                  <= "11111111";
+              s_nx_sel                  <= "11111111";
           end case;
-
-        -- Write cycles
-        when others =>
-          case s_typeOfDataTransfer is
-            when D08 =>
-              case s_DSlatched(1) is
-                when '0' =>             -- D08(E)
-                  s_locDataIn(7 downto 0) <= s_VMEdataInput(15 downto 8);
-                  s_sel                   <= "00000001";
-                when others =>          -- D08(O)
-                  s_locDataIn(7 downto 0) <= s_VMEdataInput(7 downto 0);
-                  s_sel                   <= "00000001";
-              end case;
-            when D16 =>                 -- D16
-              s_locDataIn(15 downto 0) <= s_VMEdataInput(15 downto 0);
-              s_sel                    <= "00000011";
-            when D32 =>
-              case s_transferType is
-                when MBLT =>            -- D64
-                  s_locDataIn(31 downto 0)  <= s_VMEdataInput(31 downto 0);
-                  s_locDataIn(63 downto 32) <= s_VMEaddrInput(31 downto 1) & s_LWORDinput;
-                  s_sel                     <= "11111111";
-                when others =>          -- D32
-                  s_locDataIn(31 downto 0) <= s_VMEdataInput(31 downto 0);
-                  s_sel                    <= "00001111";
-              end case;
-            when UnAl0to2 =>            -- Unaligned transfer byte(0-2)
-              s_locDataIn(23 downto 0) <= s_VMEdataInput(31 downto 8);
-              s_sel                    <= "00000111";
-            when UnAl1to3 =>            -- Unaligned transfer byte(1-3)
-              s_locDataIn(23 downto 0) <= s_VMEdataInput(23 downto 0);
-              s_sel                    <= "00000111";
-            when UnAl1to2 =>            -- Unaligned transfer byte(1-2)
-              s_locDataIn(15 downto 0) <= s_VMEdataInput(23 downto 8);
-              s_sel                    <= "00000011";
-				when D64 => 
-              s_sel                  <= "11111111";
-              s_locDataIn(31 downto 0)  <= s_VMEdataInput(31 downto 0);
-              s_locDataIn(63 downto 32) <= s_VMEaddrInput(31 downto 1) & s_LWORDinput;
-
-            when others =>
-              s_locDataIn(31 downto 0)  <= s_VMEdataInput(31 downto 0);
-              s_locDataIn(63 downto 32) <= s_VMEaddrInput(31 downto 1) & s_LWORDinput;
-              s_sel                     <= "11111111";
-          end case;
-          
-      end case;
     end if;
   end process;
 
-  P_dout_byte_swap : process(clk_i)-- s_locDataOut, s_typeOfDataTransfer, s_DSlatched, s_transferType)
+  process(clk_i) 
   begin
-    if rising_edge(clk_i) then
-      --   s_locData <= s_locDataOut;
-
-      case s_typeOfDataTransfer is
-        when D08 =>
-          case s_DSlatched(1) is
-            when '0' =>             -- D08(E)
-              s_locData(15 downto 8)  <= s_locDataOut(7 downto 0);
-              s_locData(63 downto 16) <= (others => '0');
-              s_locData(7 downto 0)   <= (others => '0');
-            when others =>          -- D08(O)
-              s_locData(7 downto 0)  <= s_locDataOut(7 downto 0);
-              s_locData(63 downto 8) <= (others => '0');
-          end case;
-        when D16 =>                 -- D16
-          s_locData(15 downto 0)  <= s_locDataOut(15 downto 0);
-          s_locData(63 downto 16) <= (others => '0');
-        when D32 =>
-          case s_transferType is
-            when MBLT =>            -- D64
-              s_locData(63 downto 0) <= s_locDataOut(63 downto 0);
-            when others =>          -- D32
-              s_locData(31 downto 0)  <= s_locDataOut(31 downto 0);
-              s_locData(63 downto 32) <= (others => '0');
-          end case;
-        when UnAl0to2 =>            -- Unaligned transfer byte(0-2)
-          s_locData(31 downto 8)  <= s_locDataOut(23 downto 0);
-          s_locData(63 downto 32) <= (others => '0');
-          s_locData(7 downto 0)   <= (others => '0');
-        when UnAl1to3 =>            -- Unaligned transfer byte(1-3)
-          s_locData(23 downto 0)  <= s_locDataOut(23 downto 0);
-          s_locData(63 downto 24) <= (others => '0');
-        when UnAl1to2 =>            -- Unaligned transfer byte(1-2)
-          s_locData(23 downto 8)  <= s_locDataOut(15 downto 0);
-          s_locData(63 downto 24) <= (others => '0');
-          s_locData(7 downto 0)   <= (others => '0');
-        when others =>
-          s_locData(63 downto 0) <= s_locDataOut(63 downto 0);
-      end case;
-    end if;
+  if rising_edge(clk_i) then
+--      case s_VMEaddr32(2 downto 0) is
+--         when "000" => s_sel <= unsigned(s_nx_sel) ;
+--         when "001" => s_sel <= unsigned(s_nx_sel) sll 1;
+--         when "010" => s_sel <= unsigned(s_nx_sel) sll 2;
+--         when "011" => s_sel <= unsigned(s_nx_sel) sll 3;
+--         when "100" => s_sel <= unsigned(s_nx_sel) sll 4;
+--         when "101" => s_sel <= unsigned(s_nx_sel) sll 5;
+--         when "110" => s_sel <= unsigned(s_nx_sel) sll 6;
+--         when "111" => s_sel <= unsigned(s_nx_sel) sll 7;
+--         when others => s_sel <= unsigned(s_nx_sel) ;
+--      end case;
+s_sel <= unsigned(s_nx_sel) sll to_integer(unsigned(s_VMEaddr32(2 downto 0))) ; 
+  end if;
   end process;
+  
+--  
+--  P_dout_byte_swap : process(clk_i)-- s_locDataOut, s_typeOfDataTransfer, s_DSlatched, s_transferType)
+--  begin
+--    if rising_edge(clk_i) then
+--      --   s_locData <= s_locDataOut;
+--
+--      case s_typeOfDataTransfer is
+--        when D08 =>
+--          case s_DSlatched(1) is
+--            when '0' =>             -- D08(E)
+--              s_locData(15 downto 8)  <= s_locDataOut(7 downto 0);
+--              s_locData(63 downto 16) <= (others => '0');
+--              s_locData(7 downto 0)   <= (others => '0');
+--            when others =>          -- D08(O)
+--              s_locData(7 downto 0)  <= s_locDataOut(7 downto 0);
+--              s_locData(63 downto 8) <= (others => '0');
+--          end case;
+--        when D16 =>                 -- D16
+--          s_locData(15 downto 0)  <= s_locDataOut(15 downto 0);
+--          s_locData(63 downto 16) <= (others => '0');
+--        when D32 =>
+--          case s_transferType is
+--            when MBLT =>            -- D64
+--              s_locData(63 downto 0) <= s_locDataOut(63 downto 0);
+--            when others =>          -- D32
+--              s_locData(31 downto 0)  <= s_locDataOut(31 downto 0);
+--              s_locData(63 downto 32) <= (others => '0');
+--          end case;
+----        when UnAl0to2 =>            -- Unaligned transfer byte(0-2)
+----          s_locData(31 downto 8)  <= s_locDataOut(23 downto 0);
+----          s_locData(63 downto 32) <= (others => '0');
+----          s_locData(7 downto 0)   <= (others => '0');
+----        when UnAl1to3 =>            -- Unaligned transfer byte(1-3)
+----          s_locData(23 downto 0)  <= s_locDataOut(23 downto 0);
+----          s_locData(63 downto 24) <= (others => '0');
+----        when UnAl1to2 =>            -- Unaligned transfer byte(1-2)
+----          s_locData(23 downto 8)  <= s_locDataOut(15 downto 0);
+----          s_locData(63 downto 24) <= (others => '0');
+----          s_locData(7 downto 0)   <= (others => '0');
+--        when others =>
+--          s_locData(63 downto 0) <= s_locDataOut(63 downto 0);
+--      end case;
+--    end if;
+--  end process;
+s_VMEdata64In(63 downto 33) <= s_VMEaddrInput(31 downto 1) ;
+s_VMEdata64In(32) <= (s_LWORDinput) ;
 
+s_VMEdata64In(31 downto 0) <=  s_VMEdataInput(31 downto 0);
+process(clk_i)
+begin
+if rising_edge(clk_i) then
+--s_sel <= unsigned(s_nx_sel) sll to_integer(unsigned(s_VMEaddr32(2 downto 0))) ; 
+s_locDataIn  <= unsigned(s_VMEdata64In) sll to_integer(unsigned(s_VMEaddr32(2 downto 0))) ; 
+s_locData(63 downto 0) <= unsigned(s_locDataOut(63 downto 0)) srl to_integer(unsigned(s_VMEaddr32(2 downto 0))) ;  
+--s_locDataIn(31 downto 0)  <= s_VMEdataInput(31 downto 0);
+--s_locDataIn(63 downto 32) <= s_VMEaddrInput(31 downto 1) & s_LWORDinput;
+--s_locData(63 downto 0) <= s_locDataOut(63 downto 0);
+end if;
+end process;
 
 
 --  FIFOdata_o <= std_logic_vector(s_VMEaddrInput) & s_LWORDinput & std_logic_vector(s_VMEdataInput);
@@ -1941,9 +1929,11 @@ begin
       WBdata_o <= std_logic_vector(s_locDataIn);
       RW_o     <= s_RW;
       memReq_o <= s_memReq and s_cardSel;  -- memory request to WB only if it is selected with s_cardSel
-      wbSel_o  <= s_sel;
+      wbSel_o  <= std_logic_vector(s_sel);
     end if;
   end process;
+
+
   CRAMdata_o <= std_logic_vector(s_locDataIn(7 downto 0));
   CRAMwea_o  <= '1' when s_confAccess = '1' and s_CRAMaddressed = '1' and s_memReq = '1' and s_RW = '0' else '0';
 
