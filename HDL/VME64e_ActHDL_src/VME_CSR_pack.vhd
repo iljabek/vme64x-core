@@ -45,6 +45,11 @@ FUNC5_ADER_1 =>x"00",
 FUNC5_ADER_2 =>x"34",
 FUNC5_ADER_3 =>x"11",
 
+FUNC6_ADER_0 =>x"00",
+FUNC6_ADER_1 =>x"00",
+FUNC6_ADER_2 =>x"00",
+FUNC6_ADER_3 =>x"80",
+
 others => (others => '0'));
 
 
