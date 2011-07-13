@@ -8,4 +8,5 @@ files = [
 "NOIP_cores/DpRam/DpBlockRam.vhd",
 "NOIP_cores/DpRam/TrueDpBlockRam.vhd",
 "NOIP_cores/fifo/common_components.vhd",
-"VFC_dev/VME64xCore_NoIpTop.vhd" ];
+"VFC_dev/VME64xCore_NoIpTop.vhd",
+"VFC_dev/vme64xcore_top_reg.vhd"];

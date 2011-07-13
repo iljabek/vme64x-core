@@ -1240,9 +1240,9 @@ begin
 		--s_AM <= "000001"; --A64 data access 
 		--s_AM <= "000011"; --A64 data access blt
 		--s_AM <= "000000"; --A64 data access mblt
-		s_AM <= "001001"; --A32 data access
+		--s_AM <= "001001"; --A32 data access
 		--s_AM <= "001100"; --A32 data access	mblt
-		--s_AM <= "001000"; --A32 data access	mblt
+		s_AM <= "001000"; --A32 data access	mblt
 		s_dataTransferTypeSelect <= D32;
         
 		

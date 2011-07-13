@@ -96,7 +96,7 @@ begin
   process(clk_i)
   begin
     if rising_edge(clk_i) then
-    if reset_i = '1' or m_err_i = '1' then
+    if reset_i = '1' or m_err_i = '1' or sl_cyc_i = '0' then
       trans_st <= IDLE;
     else 
       trans_st <= nx_trans_st;

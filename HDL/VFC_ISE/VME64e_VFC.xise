@@ -162,6 +162,12 @@
     </file>
     <file xil_pn:name="../verilog_tb/main.sv" xil_pn:type="FILE_USERDOC"/>
     <file xil_pn:name="../verilog_tb/vme_master.sv" xil_pn:type="FILE_USERDOC"/>
+    <file xil_pn:name="dfsf.v" xil_pn:type="FILE_VERILOG">
+      <association xil_pn:name="BehavioralSimulation"/>
+      <association xil_pn:name="PostMapSimulation"/>
+      <association xil_pn:name="PostRouteSimulation"/>
+      <association xil_pn:name="PostTranslateSimulation"/>
+    </file>
     <file xil_pn:name="/ohr/ddr3-sp6-core/trunk/hdl/pfc/ip_cores/ddr_controller_bank5.xise" xil_pn:type="FILE_COREGENISE">
       <association xil_pn:name="Implementation"/>
     </file>
