@@ -17,11 +17,11 @@ class CVmeCrPos:
             self.value[i] = map.read(offset=self.add+i*4, width=8)[0];
             if self.debug == 1: 
                 print self.readone
-            self.readdone++;
+            self.readdone=1+self.readdone;
     def write(self, map, data):
         for i in range[self.nbytes]:
             map.write(offset=self.add+i*4, width=8, values=data[i])
-        self.writedone++;
+        self.writedone=1+self.writedone;
 
 
 class CVmeCrList:
