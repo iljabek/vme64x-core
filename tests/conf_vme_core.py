@@ -12,23 +12,22 @@ class CVmeCrPos:
         self.debug = 0;
 
 
-    def read(self, map)
-    for i in range[self.nbytes]
-    self.value[i] = map.read(offset=self.add+i*4, width=8)[0];
-    if self.debug == 1: 
-        print
-        self.readdone++
-    def write(self, map, data)
-    for i in range[self.nbytes]
-    map.write(offset=self.add+i*4, width=8, values=data[i])
-    self.writedone++;
-    
-    
+    def read(self, map):
+        for i in range[self.nbytes]:
+            self.value[i] = map.read(offset=self.add+i*4, width=8)[0];
+            if self.debug == 1: 
+                print self.readdone++;
+    def write(self, map, data):
+        for i in range[self.nbytes]:
+            map.write(offset=self.add+i*4, width=8, values=data[i])
+        self.writedone++;
+
+
 class CVmeCrList:
     def __init__(self,ga):
         par = self.parityOf(ga);
-        self.gad = (ga <<23) + (par << 26)
-        self.size = 0x10000
+        self.gad = (ga <<23) + (par << 26);
+        self.size = 0x10000;
         self.data_width = 8;
         self.am = 0x2f;
         self.map = pyvmelib.Mapping(am=0x2f, base_address=self.gad, data_width=self.data_width, size=self.size);
@@ -51,20 +50,20 @@ class CVmeCrList:
                    "FDAW5": CVMeCrPos(0x107,1,"FDAW5"),
                    "FDAW6":  CVMeCrPos(0x10B,1,"FDAW6"),
                    "FDAW7": CVMeCrPos(0x10F,1,"FDAW7")]
-    
-        def parityOf(int_type):
-            parity = 0
-            while (int_type):
-                parity = ~parity
-                int_type = int_type & (int_type - 1)
-                return(parity)
+
+    def parityOf(int_type):
+        parity = 0;
+        while (int_type):
+            parity = ~parity
+            int_type = int_type & (int_type - 1)
+            return(parity)
 
 
 
 
 
 for i in range(16):
-    map = pyvmelib.Mapping(am=0x2f, base_address=0x280000, data_width=32, size=0x10000)
+    map = pyvmelib.Mapping(am=0x2f, base_address=0x280000, data_width=32, size=0x10000);
 
 value = map.read(offset=0x3, width=32)[0]
 print hex(value)
