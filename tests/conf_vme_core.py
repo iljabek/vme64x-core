@@ -32,7 +32,7 @@ class CVmeCrList:
         self.data_width = 8;
         self.am = 0x2f;
         self.map = pyvmelib.Mapping(am=0x2f, base_address=self.gad, data_width=self.data_width, size=self.size);
-        self.cr = ["CHKSUMP": CVMeCrPos(0x03,1,"CHKSUM"), 
+        self.cr = {"CHKSUMP": CVMeCrPos(0x03,1,"CHKSUM"), 
                    "CRDW":  CVMeCrPos(0x13,3,"CRDW"), 
                    "ACSRDW": CVMeCrPos(0x17,1,"ACSRDW"), 
                    "SPACEID": CVMeCrPos(0x1B,1,"SPACEID"),
@@ -50,7 +50,7 @@ class CVmeCrList:
                    "FDAW4": CVMeCrPos(0x103,1,"FDAW4"),
                    "FDAW5": CVMeCrPos(0x107,1,"FDAW5"),
                    "FDAW6":  CVMeCrPos(0x10B,1,"FDAW6"),
-                   "FDAW7": CVMeCrPos(0x10F,1,"FDAW7")]
+                   "FDAW7": CVMeCrPos(0x10F,1,"FDAW7")}
 
     def parityOf(int_type):
         parity = 0;
