@@ -31,6 +31,7 @@ wire    VmeTdi;
 wire    VmeTms;
  -----/\----- EXCLUDED -----/\----- */
 
+ 
    pullup i_DtAckPU(vm.master.DtAck_i);
    pullup i_RetryPU(vm.master.Retry_i);
    pullup i_BerrPU(vm.master.Berr_i);
@@ -54,9 +55,12 @@ wire    VmeTms;
    // VFC board in SLOT 4
    //####################################
 
-   wire GapSlot4_n    = ^(5'd4);    
+   wire GapSlot4_n    = ^(5'd4);  
+   parameter c_CR_BASE = 24'h200000;
+   
+
    wire [4:0] GaSlot4_nb5 = ~(5'd4);
-   wire [5:0] Ga = {GaSlot4_nb5,GapSlot4_n};
+   wire [5:0] Ga = {GapSlot4_n,GaSlot4_nb5};
     //  wire VmeIackInSlot4_n = VmeIack_n;
    wire VmeIackOutSlot4_n;
    wire [4:1] FpGpIo_b4 = 'hz;
@@ -132,16 +136,27 @@ initial begin
  -----/\----- EXCLUDED -----/\----- */
 
    #(300ns);
+/* -----\/----- EXCLUDED -----\/-----
    for (i = 0; i < 256; i = i +1) begin
-    	  	d[i]=i;	 
-        $display("Data in main.sv:d[%d]= %d",i,d[i]);
-    	end
-   #1;
-   
-    vm.SSTwr(4, 'h80000000,40,8,1,d,q);
-#300
-   vm.SSTrd(4,'h80000000,40,8,1,dr,q);
+    	  	d[i]=i;
+       vm.read(c_CR_BASE+i*4,AM_CR, c_4B, dr[i],q); 
+        $display("Data in main.sv:dr[%d]= %h",i,dr[i]);
+   end
 
+ 
+   #1;
+ -----/\----- EXCLUDED -----/\----- */
+ vm.VmePrompt();
+   
+//   vm.read(c_CR_BASE,AM_CR, c_1B, dr[1],q);
+
+ //    vm.SSTwr(4, 'h80000000,40,8,1,d,q);
+
+//   vm.SSTrd(4,'h80000000,40,8,1,dr,q);
+   
+// vm.MBLTwr('h80000000,AM_MBLT32,8,d,q);
+// vm.MBLTrd('h80000000,AM_MBLT32,8,dr,q);
+   
 end
    
    

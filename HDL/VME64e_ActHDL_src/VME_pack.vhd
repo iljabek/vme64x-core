@@ -5,88 +5,88 @@ use IEEE.numeric_std.all;
 package VME_pack is
 
   
-type t_reg52x8bit is array(51 downto 0) of unsigned(7 downto 0);
-type t_reg52x12bit is array(51 downto 0) of unsigned(11 downto 0);
-type t_cr_array is array (Natural range <>) of std_logic_vector(7 downto 0);
+  type t_reg52x8bit is array(51 downto 0) of unsigned(7 downto 0);
+  type t_reg52x12bit is array(51 downto 0) of unsigned(11 downto 0);
+  type t_cr_array is array (natural range <>) of std_logic_vector(7 downto 0);
 
-type t_rom_cell is 
-record
-add : integer;
-len : integer;
-end record;
+  type t_rom_cell is
+  record
+    add : integer;
+    len : integer;
+  end record;
 
-type t_cr_add_table is array (Natural range <>) of t_rom_cell;
-     
-   constant    c_A24 : std_logic_vector(5 downto 0) :="111001";	     
-   constant    c_A24_S  :    std_logic_vector(5 downto 0) :="111101";	 
-   constant    c_A24_BLT : std_logic_vector(5 downto 0) :="111111";
-   constant    c_A24_MBLT : std_logic_vector(5 downto 0) :="111100";
-   constant    c_A24_LCK : std_logic_vector(5 downto 0) :="110010";
-   constant    c_CR_CSR : std_logic_vector(5 downto 0) :="101111";                        
-   constant    c_A16 : std_logic_vector(5 downto 0) :="101101";
-   constant    c_A16_LCK : std_logic_vector(5 downto 0) :="101100";
-   constant    c_A32 : std_logic_vector(5 downto 0) :="001001";
-   constant    c_A32_BLT : std_logic_vector(5 downto 0) :="001111";
-   constant    c_A32_MBLT : std_logic_vector(5 downto 0) :="001100";
-   constant    c_A32_LCK : std_logic_vector(5 downto 0) :="000101";
-   constant    c_A64 : std_logic_vector(5 downto 0) :="000001";
-   constant    c_A64_BLT : std_logic_vector(5 downto 0) :="000011";
-   constant    c_A64_MBLT : std_logic_vector(5 downto 0) :="000000";
-   constant    c_A64_LCK : std_logic_vector(5 downto 0) :="000100";
-   constant    c_TWOedge : std_logic_vector(5 downto 0) :="100000";
-    
-    
-    
-	 constant c_cr_step : integer := 4;
-    constant BAR : integer := 255;
-    constant BIT_SET_CLR_REG : integer := 254;
-    constant USR_BIT_SET_CLR_REG : integer := 253;
-    constant CRAM_OWNER : integer := 252;
+  type t_cr_add_table is array (natural range <>) of t_rom_cell;
 
-    constant FUNC7_ADER_0 : integer := 251;
-    constant FUNC7_ADER_1 : integer := FUNC7_ADER_0 - 1;
-    constant FUNC7_ADER_2 : integer := FUNC7_ADER_0 - 2;
-    constant FUNC7_ADER_3 : integer := FUNC7_ADER_0 - 3;
-    constant FUNC6_ADER_0 : integer := FUNC7_ADER_0 - 4;
-    constant FUNC6_ADER_1 : integer := FUNC7_ADER_0 - 5;
-    constant FUNC6_ADER_2 : integer := FUNC7_ADER_0 - 6;
-    constant FUNC6_ADER_3 : integer := FUNC7_ADER_0 - 7;
-    constant FUNC5_ADER_0 : integer := FUNC7_ADER_0 - 8;
-    constant FUNC5_ADER_1 : integer := FUNC7_ADER_0 - 9;
-    constant FUNC5_ADER_2 : integer := FUNC7_ADER_0 - 10;
-    constant FUNC5_ADER_3 : integer := FUNC7_ADER_0 - 11;
-    constant FUNC4_ADER_0 : integer := FUNC7_ADER_0 - 12;
-    constant FUNC4_ADER_1 : integer := FUNC7_ADER_0 - 13;
-    constant FUNC4_ADER_2 : integer := FUNC7_ADER_0 - 14;
-    constant FUNC4_ADER_3 : integer := FUNC7_ADER_0 - 15;
-    constant FUNC3_ADER_0 : integer := FUNC7_ADER_0 - 16;
-    constant FUNC3_ADER_1 : integer := FUNC7_ADER_0 - 17;
-    constant FUNC3_ADER_2 : integer := FUNC7_ADER_0 - 18;
-    constant FUNC3_ADER_3 : integer := FUNC7_ADER_0 - 19;
-    constant FUNC2_ADER_0 : integer := FUNC7_ADER_0 - 20;
-    constant FUNC2_ADER_1 : integer := FUNC7_ADER_0 - 21;
-    constant FUNC2_ADER_2 : integer := FUNC7_ADER_0 - 22;
-    constant FUNC2_ADER_3 : integer := FUNC7_ADER_0 - 23;
-    constant FUNC1_ADER_0 : integer := FUNC7_ADER_0 - 24;
-    constant FUNC1_ADER_1 : integer := FUNC7_ADER_0 - 25;
-    constant FUNC1_ADER_2 : integer := FUNC7_ADER_0 - 26;
-    constant FUNC1_ADER_3 : integer := FUNC7_ADER_0 - 27;
-    constant FUNC0_ADER_0 : integer := FUNC7_ADER_0 - 28;
-    constant FUNC0_ADER_1 : integer := FUNC7_ADER_0 - 29;
-    constant FUNC0_ADER_2 : integer := FUNC7_ADER_0 - 30;
-    constant FUNC0_ADER_3 : integer := FUNC7_ADER_0 - 31;
-    
-    constant IRQ_ID : integer := FUNC0_ADER_3 -1;
-    constant IRQ_level : integer := FUNC0_ADER_3 -2;
- 
- type t_CSRarray is array(BAR downto IRQ_level) of unsigned(7 downto 0);
-
- ----------------------------------
- --Bit accronyms
-    constant DFS : integer := 2;
+  constant c_A24      : std_logic_vector(5 downto 0) := "111001";
+  constant c_A24_S    : std_logic_vector(5 downto 0) := "111101";
+  constant c_A24_BLT  : std_logic_vector(5 downto 0) := "111111";
+  constant c_A24_MBLT : std_logic_vector(5 downto 0) := "111100";
+  constant c_A24_LCK  : std_logic_vector(5 downto 0) := "110010";
+  constant c_CR_CSR   : std_logic_vector(5 downto 0) := "101111";
+  constant c_A16      : std_logic_vector(5 downto 0) := "101101";
+  constant c_A16_LCK  : std_logic_vector(5 downto 0) := "101100";
+  constant c_A32      : std_logic_vector(5 downto 0) := "001001";
+  constant c_A32_BLT  : std_logic_vector(5 downto 0) := "001111";
+  constant c_A32_MBLT : std_logic_vector(5 downto 0) := "001100";
+  constant c_A32_LCK  : std_logic_vector(5 downto 0) := "000101";
+  constant c_A64      : std_logic_vector(5 downto 0) := "000001";
+  constant c_A64_BLT  : std_logic_vector(5 downto 0) := "000011";
+  constant c_A64_MBLT : std_logic_vector(5 downto 0) := "000000";
+  constant c_A64_LCK  : std_logic_vector(5 downto 0) := "000100";
+  constant c_TWOedge  : std_logic_vector(5 downto 0) := "100000";
 
 
-    constant XAM_MODE : integer := 0;
+
+  constant c_cr_step           : integer := 4;
+  constant BAR                 : integer := 255;
+  constant BIT_SET_CLR_REG     : integer := 254;
+  constant USR_BIT_SET_CLR_REG : integer := 253;
+  constant CRAM_OWNER          : integer := 252;
+
+  constant FUNC7_ADER_0 : integer := 251;
+  constant FUNC7_ADER_1 : integer := FUNC7_ADER_0 - 1;
+  constant FUNC7_ADER_2 : integer := FUNC7_ADER_0 - 2;
+  constant FUNC7_ADER_3 : integer := FUNC7_ADER_0 - 3;
+  constant FUNC6_ADER_0 : integer := FUNC7_ADER_0 - 4;
+  constant FUNC6_ADER_1 : integer := FUNC7_ADER_0 - 5;
+  constant FUNC6_ADER_2 : integer := FUNC7_ADER_0 - 6;
+  constant FUNC6_ADER_3 : integer := FUNC7_ADER_0 - 7;
+  constant FUNC5_ADER_0 : integer := FUNC7_ADER_0 - 8;
+  constant FUNC5_ADER_1 : integer := FUNC7_ADER_0 - 9;
+  constant FUNC5_ADER_2 : integer := FUNC7_ADER_0 - 10;
+  constant FUNC5_ADER_3 : integer := FUNC7_ADER_0 - 11;
+  constant FUNC4_ADER_0 : integer := FUNC7_ADER_0 - 12;
+  constant FUNC4_ADER_1 : integer := FUNC7_ADER_0 - 13;
+  constant FUNC4_ADER_2 : integer := FUNC7_ADER_0 - 14;
+  constant FUNC4_ADER_3 : integer := FUNC7_ADER_0 - 15;
+  constant FUNC3_ADER_0 : integer := FUNC7_ADER_0 - 16;
+  constant FUNC3_ADER_1 : integer := FUNC7_ADER_0 - 17;
+  constant FUNC3_ADER_2 : integer := FUNC7_ADER_0 - 18;
+  constant FUNC3_ADER_3 : integer := FUNC7_ADER_0 - 19;
+  constant FUNC2_ADER_0 : integer := FUNC7_ADER_0 - 20;
+  constant FUNC2_ADER_1 : integer := FUNC7_ADER_0 - 21;
+  constant FUNC2_ADER_2 : integer := FUNC7_ADER_0 - 22;
+  constant FUNC2_ADER_3 : integer := FUNC7_ADER_0 - 23;
+  constant FUNC1_ADER_0 : integer := FUNC7_ADER_0 - 24;
+  constant FUNC1_ADER_1 : integer := FUNC7_ADER_0 - 25;
+  constant FUNC1_ADER_2 : integer := FUNC7_ADER_0 - 26;
+  constant FUNC1_ADER_3 : integer := FUNC7_ADER_0 - 27;
+  constant FUNC0_ADER_0 : integer := FUNC7_ADER_0 - 28;
+  constant FUNC0_ADER_1 : integer := FUNC7_ADER_0 - 29;
+  constant FUNC0_ADER_2 : integer := FUNC7_ADER_0 - 30;
+  constant FUNC0_ADER_3 : integer := FUNC7_ADER_0 - 31;
+
+  constant IRQ_ID    : integer := FUNC0_ADER_3 -1;
+  constant IRQ_level : integer := FUNC0_ADER_3 -2;
+
+  type t_CSRarray is array(BAR downto IRQ_level) of unsigned(7 downto 0);
+
+  ----------------------------------
+  --Bit accronyms
+  constant DFS : integer := 2;
+
+
+  constant XAM_MODE : integer := 0;
 
 
 --0x7FFFF CR/CSR (BAR) 1 byte VME64
@@ -113,104 +113,104 @@ type t_cr_add_table is array (Natural range <>) of t_rom_cell;
 --0x7FC00 ... 0x7FF5F RESERVED 216 bytes VME64x
 --
 -------------------
-    constant BAR_addr : integer := 16#7FFFF#;        
-    constant BIT_SET_REG_addr : integer := 16#7FFFB#;   
-    constant BIT_CLR_REG_addr : integer := 16#7FFF7#;   
-    constant CRAM_OWNER_addr : integer := 16#7FFF3#;    
-    constant USR_BIT_SET_REG_addr : integer := 16#7FFEF#;   
-    constant USR_BIT_CLR_REG_addr : integer := 16#7FFEB#;
-	 
+  constant BAR_addr             : integer := 16#7FFFF#;
+  constant BIT_SET_REG_addr     : integer := 16#7FFFB#;
+  constant BIT_CLR_REG_addr     : integer := 16#7FFF7#;
+  constant CRAM_OWNER_addr      : integer := 16#7FFF3#;
+  constant USR_BIT_SET_REG_addr : integer := 16#7FFEF#;
+  constant USR_BIT_CLR_REG_addr : integer := 16#7FFEB#;
+
 --Reserved 16#7FFE7#;   
 --Reserved 16#7FFE3#;  
 
 
-    constant FUNC7_ADER_0_addr : integer := 16#7FFDF#;   
-    constant FUNC7_ADER_1_addr : integer := 16#7FFDB#;   
-    constant FUNC7_ADER_2_addr : integer := 16#7FFD7#;   
-    constant FUNC7_ADER_3_addr : integer := 16#7FFD3#;
-	 
-    constant FUNC6_ADER_0_addr : integer := 16#7FFCF#;   
-    constant FUNC6_ADER_1_addr : integer := 16#7FFCB#;      
-    constant FUNC6_ADER_2_addr : integer := 16#7FFC7#;      
-    constant FUNC6_ADER_3_addr : integer := 16#7FFC3#; 
-	 
-    constant FUNC5_ADER_0_addr : integer := 16#7FFBF#;      
-    constant FUNC5_ADER_1_addr : integer := 16#7FFBB#;      
-    constant FUNC5_ADER_2_addr : integer := 16#7FFB7#;      
-    constant FUNC5_ADER_3_addr : integer := 16#7FFB3#;
-	 
-    constant FUNC4_ADER_0_addr : integer := 16#7FFAF#;      
-    constant FUNC4_ADER_1_addr : integer := 16#7FFAB#;      
-    constant FUNC4_ADER_2_addr : integer := 16#7FFA7#;      
-    constant FUNC4_ADER_3_addr : integer := 16#7FFA3#;
-	 
-    constant FUNC3_ADER_0_addr : integer := 16#7FF9F#;      
-    constant FUNC3_ADER_1_addr : integer := 16#7FF9B#;      
-    constant FUNC3_ADER_2_addr : integer := 16#7FF97#;      
-    constant FUNC3_ADER_3_addr : integer := 16#7FF93#;
-	 
-    constant FUNC2_ADER_0_addr : integer := 16#7FF8F#;      
-    constant FUNC2_ADER_1_addr : integer := 16#7FF8B#;      
-    constant FUNC2_ADER_2_addr : integer := 16#7FF87#;     
-    constant FUNC2_ADER_3_addr : integer := 16#7FF83#;
-	 
-    constant FUNC1_ADER_0_addr : integer := 16#7FF7F#;      
-    constant FUNC1_ADER_1_addr : integer := 16#7FF7B#;      
-    constant FUNC1_ADER_2_addr : integer := 16#7FF77#;      
-    constant FUNC1_ADER_3_addr : integer := 16#7FF73#;
-	 
-    constant FUNC0_ADER_0_addr : integer := 16#7FF6F#;      
-    constant FUNC0_ADER_1_addr : integer := 16#7FF6B#;      
-    constant FUNC0_ADER_2_addr : integer := 16#7FF67#;     
-    constant FUNC0_ADER_3_addr : integer := 16#7FF63#; 
-	 
-    constant IRQ_ID_addr : integer := 16#7fbff#;   
-    constant IRQ_level_addr : integer := 16#7fbef#;
-	 
+  constant FUNC7_ADER_0_addr : integer := 16#7FFDF#;
+  constant FUNC7_ADER_1_addr : integer := 16#7FFDB#;
+  constant FUNC7_ADER_2_addr : integer := 16#7FFD7#;
+  constant FUNC7_ADER_3_addr : integer := 16#7FFD3#;
+
+  constant FUNC6_ADER_0_addr : integer := 16#7FFCF#;
+  constant FUNC6_ADER_1_addr : integer := 16#7FFCB#;
+  constant FUNC6_ADER_2_addr : integer := 16#7FFC7#;
+  constant FUNC6_ADER_3_addr : integer := 16#7FFC3#;
+
+  constant FUNC5_ADER_0_addr : integer := 16#7FFBF#;
+  constant FUNC5_ADER_1_addr : integer := 16#7FFBB#;
+  constant FUNC5_ADER_2_addr : integer := 16#7FFB7#;
+  constant FUNC5_ADER_3_addr : integer := 16#7FFB3#;
+
+  constant FUNC4_ADER_0_addr : integer := 16#7FFAF#;
+  constant FUNC4_ADER_1_addr : integer := 16#7FFAB#;
+  constant FUNC4_ADER_2_addr : integer := 16#7FFA7#;
+  constant FUNC4_ADER_3_addr : integer := 16#7FFA3#;
+
+  constant FUNC3_ADER_0_addr : integer := 16#7FF9F#;
+  constant FUNC3_ADER_1_addr : integer := 16#7FF9B#;
+  constant FUNC3_ADER_2_addr : integer := 16#7FF97#;
+  constant FUNC3_ADER_3_addr : integer := 16#7FF93#;
+
+  constant FUNC2_ADER_0_addr : integer := 16#7FF8F#;
+  constant FUNC2_ADER_1_addr : integer := 16#7FF8B#;
+  constant FUNC2_ADER_2_addr : integer := 16#7FF87#;
+  constant FUNC2_ADER_3_addr : integer := 16#7FF83#;
+
+  constant FUNC1_ADER_0_addr : integer := 16#7FF7F#;
+  constant FUNC1_ADER_1_addr : integer := 16#7FF7B#;
+  constant FUNC1_ADER_2_addr : integer := 16#7FF77#;
+  constant FUNC1_ADER_3_addr : integer := 16#7FF73#;
+
+  constant FUNC0_ADER_0_addr : integer := 16#7FF6F#;
+  constant FUNC0_ADER_1_addr : integer := 16#7FF6B#;
+  constant FUNC0_ADER_2_addr : integer := 16#7FF67#;
+  constant FUNC0_ADER_3_addr : integer := 16#7FF63#;
+
+  constant IRQ_ID_addr    : integer := 16#7fbff#;
+  constant IRQ_level_addr : integer := 16#7fbef#;
+
 ----------------------------------
 ---------------------------------------------------------------------------
-    constant BEG_USER_CR: integer :=        1;
-    constant END_USER_CR: integer :=        2;
-    constant BEG_CRAM: integer :=           3;
-    constant END_CRAM: integer :=           4;
-    constant BEG_USER_CSR: integer :=       5;
-    constant END_USER_CSR: integer :=       6;
-    constant FUNC_AMCAP : integer :=        7;
-    constant FUNC_XAMCAP : integer :=      8; 
-    constant FUNC_ADEM: integer :=        9; -- 340
+  constant BEG_USER_CR  : integer := 1;
+  constant END_USER_CR  : integer := 2;
+  constant BEG_CRAM     : integer := 3;
+  constant END_CRAM     : integer := 4;
+  constant BEG_USER_CSR : integer := 5;
+  constant END_USER_CSR : integer := 6;
+  constant FUNC_AMCAP   : integer := 7;
+  constant FUNC_XAMCAP  : integer := 8;
+  constant FUNC_ADEM    : integer := 9;  -- 340
 
 
-    
-                                                                            
+  
+  
 
-constant c_CRinitAddr: t_cr_add_table(BEG_USER_CR to FUNC_ADEM) := (
-BEG_USER_CR => (add => 16#020#, len => 3),
-END_USER_CR => (add => 16#023#, len => 3),
+  constant c_CRinitAddr : t_cr_add_table(BEG_USER_CR to FUNC_ADEM) := (
+    BEG_USER_CR => (add => 16#020#, len => 3),
+    END_USER_CR => (add => 16#023#, len => 3),
 
-BEG_CRAM => (add => 16#26#, len => 3),
-END_CRAM => (add => 16#29#, len => 3),
+    BEG_CRAM => (add => 16#26#, len => 3),
+    END_CRAM => (add => 16#29#, len => 3),
 
-BEG_USER_CSR => (add => 16#02C#, len => 3),
-END_USER_CSR => (add => 16#2F#, len => 3),
+    BEG_USER_CSR => (add => 16#02C#, len => 3),
+    END_USER_CSR => (add => 16#2F#, len => 3),
 
-FUNC_AMCAP => (add => 16#048#, len => 64),
-FUNC_XAMCAP => (add => 16#088#, len => 256),
-FUNC_ADEM => (add => 16#188#, len => 32));
+    FUNC_AMCAP  => (add => 16#048#, len => 64),
+    FUNC_XAMCAP => (add => 16#088#, len => 256),
+    FUNC_ADEM   => (add => 16#188#, len => 32));
 
 
-constant c_checksum_po : integer :=0;
-constant c_length_of_rom_po : integer :=1;
-constant c_csr_data_acc_width_po : integer :=2;
-constant c_cr_space_specification_id_po : integer :=3;
-constant c_ascii_c_po  : integer :=4;
-constant c_ascii_r_po : integer :=5;
-constant c_manu_id_po  : integer :=6;
-constant c_board_id_po : integer :=7;
-constant c_rev_id_po : integer :=8;
-constant c_cus_ascii_po : integer :=9;
-constant c_last_CR_pointer_po : integer := 9;
+  constant c_checksum_po                  : integer := 0;
+  constant c_length_of_rom_po             : integer := 1;
+  constant c_csr_data_acc_width_po        : integer := 2;
+  constant c_cr_space_specification_id_po : integer := 3;
+  constant c_ascii_c_po                   : integer := 4;
+  constant c_ascii_r_po                   : integer := 5;
+  constant c_manu_id_po                   : integer := 6;
+  constant c_board_id_po                  : integer := 7;
+  constant c_rev_id_po                    : integer := 8;
+  constant c_cus_ascii_po                 : integer := 9;
+  constant c_last_CR_pointer_po           : integer := 9;
 
-end VME_pack;                                                                
+end VME_pack;
 
 
 

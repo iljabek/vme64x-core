@@ -627,7 +627,10 @@ begin
             --s_dtackOE            <= '0';
             s_dataDir   <= VME_WRITE_n_oversampled;
             s_dataOE    <= '0';
-            s_addrDir   <= (s_is_d64) and VME_WRITE_n_oversampled;
+            s_addrDir   <= '0';--(s_is_d64) and VME_WRITE_n_oversampled;
+                               --(s_is_d64 is not ready at this moment, in any
+                               --case there is no need to assert the right
+                               --direction at this moment. 
             s_addrOE    <= '0';
             s_mainDTACK <= '1';
             s_memReq    <= '0';
@@ -2147,7 +2150,7 @@ end process;
 
 -- CR/CSR addressing (NOTE: only D08 access is supported)
 
-  s_CrCsrOffsetAddr <= s_locAddr(18 downto 0);
+  s_CrCsrOffsetAddr <= "00"&s_locAddr(18 downto 2);
 
   s_CRaddr <= (s_CrCsrOffsetAddr) when s_initInProgress = '0' else
               (resize(s_initReadCounter, CRaddr_o'length));  -- when s_initInProgress='1' the initialization procedure will hijack this address bus
