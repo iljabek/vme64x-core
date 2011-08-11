@@ -1,4 +1,5 @@
 import pyvmelib
+import sys
 
 class CVMeCrPos:
     def __init__(self, add, nbytes, name):
@@ -19,15 +20,14 @@ class CVMeCrPos:
         print "I am going to check debug mode"
         if self.debug == 1:
             print self.name;
-            print self.readone;
-            print hex(self.value)
+            print self.readdone;
+            print [ hex(x) for x in self.value ]
             print "I should have printed name and value"
-            
+
     def write(self, map, data): 
         for i in range(0,self.nbytes):
             map.write(offset=self.add-3+i*4, width=32, values=data[i])
         self.writedone=1+self.writedone;
-
 
 class CVmeCrList:
     def __init__(self,ga):
@@ -36,7 +36,11 @@ class CVmeCrList:
         self.size = 0x10000;
         self.data_width = 32;
         self.am = 0x2f;
+	print '%x' % self.gad
         self.map = pyvmelib.Mapping(am=0x2f, base_address=self.gad, data_width=self.data_width, size=self.size);
+	if self.map.vaddr is None:
+		print "mapping failed!"
+		sys.exit()
         self.cr = {"CHKSUMP": CVMeCrPos(0x03,1,"CHKSUM"), 
                    "CRDW":  CVMeCrPos(0x13,3,"CRDW"), 
                    "ACSRDW": CVMeCrPos(0x17,1,"ACSRDW"), 
@@ -50,12 +54,13 @@ class CVmeCrList:
                    "PID": CVMeCrPos(0x7F,8,"PID"),
                    "FDAW0": CVMeCrPos(0x103,1,"FDAW0"),
                    "FDAW1": CVMeCrPos(0x107,1,"FDAW1"),
-                   "FDAW2": CVMeCrPos(0x10B,1,"FDAW2"),
+                   # "FDAW2": CVMeCrPos(0x10B,1,"FDAW2"),
                    "FDAW3": CVMeCrPos(0x10F,1,"FDAW3"),                  
                    "FDAW4": CVMeCrPos(0x103,1,"FDAW4"),
                    "FDAW5": CVMeCrPos(0x107,1,"FDAW5"),
-                   "FDAW6":  CVMeCrPos(0x10B,1,"FDAW6"),
-                   "FDAW7": CVMeCrPos(0x10F,1,"FDAW7")}
+                   # "FDAW6":  CVMeCrPos(0x10B,1,"FDAW6"),
+                   "FDAW7": CVMeCrPos(0x10F,1,"FDAW7"), 
+		   }
 
 #    def parityOf(int_type):
 #        parity = 0;
@@ -64,9 +69,10 @@ class CVmeCrList:
 #            int_type = int_type & (int_type - 1)
 #            return(parity);
         
-    def readCR():
+    def readCR(self):
         for s in self.cr:
-            s.read(self.map);
+	    print s
+            self.cr[s].read(self.map);
 
 
 
@@ -76,7 +82,7 @@ class CVmeCrList:
 print "I am going to create modcr= CVmeCrList(6)"
 modcr= CVmeCrList(6)
 print "I am going to read modcr.readCR"
-modcr.readCR
+modcr.readCR()
 
 ##map = pyvmelib.Mapping(am=0x2f, base_address=0x300000, data_width=32, size=0x10000);
 
