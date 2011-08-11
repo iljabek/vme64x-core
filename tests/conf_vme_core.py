@@ -31,7 +31,7 @@ class CVmeCrPos:
 
 class CVmeCrList:
     def __init__(self,ga):
-        par = self.parityOf(ga);
+   #     par = self.parityOf(ga);
         self.gad = (ga <<23);
         self.size = 0x10000;
         self.data_width = 32;
@@ -57,12 +57,13 @@ class CVmeCrList:
                    "FDAW6":  CVMeCrPos(0x10B,1,"FDAW6"),
                    "FDAW7": CVMeCrPos(0x10F,1,"FDAW7")}
 
-    def parityOf(int_type):
-        parity = 0;
-        while (int_type):
-            parity = ~parity
-            int_type = int_type & (int_type - 1)
-            return(parity)
+#    def parityOf(int_type):
+#        parity = 0;
+#        while (int_type):
+#            parity = ~parity
+#            int_type = int_type & (int_type - 1)
+#            return(parity);
+        
     def readCR():
         for s in self.cr:
             s.read(self.map);
