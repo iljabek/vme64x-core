@@ -15,12 +15,13 @@ class CVMeCrPos:
         for i in range(0,self.nbytes):
             vtemp= map.read(offset=self.add-3+i*4, width=32)[0];
             self.value[i] =vtemp;
-            self.readdone=1+self.readdone;          
+            self.readdone=1+self.readdone;
+        print "I am going to check debug mode"
         if self.debug == 1:
             print self.name;
             print self.readone;
             print hex(self.value)
-            
+            print "I should have printed name and value"
             
     def write(self, map, data): 
         for i in range(0,self.nbytes):
@@ -72,7 +73,9 @@ class CVmeCrList:
 
 
 ##for i in range(16):
+print "I am going to create modcr= CVmeCrList(6)"
 modcr= CVmeCrList(6)
+print "I am going to read modcr.readCR"
 modcr.readCR
 
 ##map = pyvmelib.Mapping(am=0x2f, base_address=0x300000, data_width=32, size=0x10000);
