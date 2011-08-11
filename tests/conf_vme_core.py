@@ -72,8 +72,9 @@ class CVmeCrList:
 
 
 ##for i in range(16):
-modcr= CVmeCrList(6);
-modcr.readCR;
+modcr= CVmeCrList(6)
+modcr.readCR
+
 ##map = pyvmelib.Mapping(am=0x2f, base_address=0x300000, data_width=32, size=0x10000);
 
 
