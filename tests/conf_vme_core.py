@@ -14,22 +14,27 @@ class CVmeCrPos:
 
     def read(self, map):
         for i in range[self.nbytes]:
-            self.value[i] = map.read(offset=self.add+i*4, width=8)[0];
-            if self.debug == 1: 
-                print self.readone
-            self.readdone=1+self.readdone;
-    def write(self, map, data):
+            vtemp= map.read(offset=self.add-3+i*4, width=32)[0];
+            self.value[i] =vtemp;
+            self.readdone=1+self.readdone;          
+        if self.debug == 1:
+            print self.name;
+            print self.readone;
+            print hex(self.value)
+            
+            
+    def write(self, map, data): 
         for i in range[self.nbytes]:
-            map.write(offset=self.add+i*4, width=8, values=data[i])
+            map.write(offset=self.add-3+i*4, width=32, values=data[i])
         self.writedone=1+self.writedone;
 
 
 class CVmeCrList:
     def __init__(self,ga):
         par = self.parityOf(ga);
-        self.gad = (ga <<23) + (par << 26);
+        self.gad = (ga <<23);
         self.size = 0x10000;
-        self.data_width = 8;
+        self.data_width = 32;
         self.am = 0x2f;
         self.map = pyvmelib.Mapping(am=0x2f, base_address=self.gad, data_width=self.data_width, size=self.size);
         self.cr = {"CHKSUMP": CVMeCrPos(0x03,1,"CHKSUM"), 
@@ -58,16 +63,23 @@ class CVmeCrList:
             parity = ~parity
             int_type = int_type & (int_type - 1)
             return(parity)
+    def readCR():
+        for s in self.cr:
+            s.read(self.map);
 
 
 
 
 
-for i in range(16):
-    map = pyvmelib.Mapping(am=0x2f, base_address=0x280000, data_width=32, size=0x10000);
+##for i in range(16):
+modcr= CVmeCrList(6);
+modcr.readCR();
+##map = pyvmelib.Mapping(am=0x2f, base_address=0x300000, data_width=32, size=0x10000);
 
-value = map.read(offset=0x3, num=1, width=32)[0]
-print hex(value)
 
-map.write(offset=0x3, width=8, values=0xa5)
-map.write(offset=0x3, width=8, values=[0xa5, 0xff])
+#for s in  
+#value = modcr.map.read(offset=0x4, num=1, width=32)[0]
+#print hex(value)
+
+#map.write(offset=0x3, width=8, values=0xa5)
+#map.write(offset=0x3, width=8, values=[0xa5, 0xff])
