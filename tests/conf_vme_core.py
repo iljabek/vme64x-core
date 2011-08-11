@@ -66,7 +66,7 @@ class CVmeCrList:
 for i in range(16):
     map = pyvmelib.Mapping(am=0x2f, base_address=0x280000, data_width=32, size=0x10000);
 
-value = map.read(offset=0x3, width=32)[0]
+value = map.read(offset=0x3, num=1, width=32)[0]
 print hex(value)
 
 map.write(offset=0x3, width=8, values=0xa5)
