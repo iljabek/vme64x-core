@@ -32,7 +32,7 @@ class CVMeCrPos:
 class CVmeCrList:
     def __init__(self,ga):
    #     par = self.parityOf(ga);
-        self.gad = (ga <<23);
+        self.gad = (ga <<19);
         self.size = 0x10000;
         self.data_width = 32;
         self.am = 0x2f;
