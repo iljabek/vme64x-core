@@ -1,6 +1,6 @@
 import pyvmelib
 
-class CVmeCrPos:
+class CVMeCrPos:
     def __init__(self, add, nbytes, name):
         self.name = name;
         self.nbytes = nbytes;
