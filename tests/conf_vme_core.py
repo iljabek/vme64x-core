@@ -5,15 +5,14 @@ class CVMeCrPos:
         self.name = name;
         self.nbytes = nbytes;
         self.add = add;
-        for i in range(nbytes):
-            self.value[i] = 0;
+        self.value = [0] * nbytes;
         self.readdone = 0;
         self.writedone = 0;
         self.debug = 1;
 
 
     def read(self, map):
-        for i in range(self.nbytes):
+        for i in range(0,self.nbytes):
             vtemp= map.read(offset=self.add-3+i*4, width=32)[0];
             self.value[i] =vtemp;
             self.readdone=1+self.readdone;          
@@ -24,7 +23,7 @@ class CVMeCrPos:
             
             
     def write(self, map, data): 
-        for i in range(self.nbytes):
+        for i in range(0,self.nbytes):
             map.write(offset=self.add-3+i*4, width=32, values=data[i])
         self.writedone=1+self.writedone;
 
