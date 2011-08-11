@@ -2,7 +2,7 @@ import pyvmelib
 import sys
 
 class CVMeCrPos:
-    def __init__(self, add, nbytes, name):
+    def __init__(self, add, nbytes, ptype, name):
         self.name = name;
         self.nbytes = nbytes;
         self.add = add;
@@ -10,12 +10,13 @@ class CVMeCrPos:
         self.readdone = 0;
         self.writedone = 0;
         self.debug = 1;
+        self.ptype = ptype;
 
 
     def read(self, map):
         for i in range(0,self.nbytes):
             vtemp= map.read(offset=self.add-3+i*4, width=32)[0];
-            self.value[i] =vtemp;
+            self.value[i] =vtemp >> 24;
             self.readdone=1+self.readdone;
         print "I am going to check debug mode"
         if self.debug == 1:
@@ -41,26 +42,39 @@ class CVmeCrList:
 	if self.map.vaddr is None:
 		print "mapping failed!"
 		sys.exit()
-        self.cr = {"CHKSUMP": CVMeCrPos(0x03,1,"CHKSUM"), 
-                   "CRDW":  CVMeCrPos(0x13,3,"CRDW"), 
-                   "ACSRDW": CVMeCrPos(0x17,1,"ACSRDW"), 
-                   "SPACEID": CVMeCrPos(0x1B,1,"SPACEID"),
-                   "CASCII": CVMeCrPos(0x1F,1,"CASCII"),
-                   "RASCII": CVMeCrPos(0x23,1,"RASCII"),
-                   "MID": CVMeCrPos(0x27,3,"MID"),
-                   "BID": CVMeCrPos(0x33,4,"BID"),
-                   "RID": CVMeCrPos(0x43,4,"RID"),
-                   "STRP": CVMeCrPos(0x53,3,"STRP"),
-                   "PID": CVMeCrPos(0x7F,8,"PID"),
-                   "FDAW0": CVMeCrPos(0x103,1,"FDAW0"),
-                   "FDAW1": CVMeCrPos(0x107,1,"FDAW1"),
-                   # "FDAW2": CVMeCrPos(0x10B,1,"FDAW2"),
-                   "FDAW3": CVMeCrPos(0x10F,1,"FDAW3"),                  
-                   "FDAW4": CVMeCrPos(0x103,1,"FDAW4"),
-                   "FDAW5": CVMeCrPos(0x107,1,"FDAW5"),
-                   # "FDAW6":  CVMeCrPos(0x10B,1,"FDAW6"),
-                   "FDAW7": CVMeCrPos(0x10F,1,"FDAW7"), 
-		   }
+        self.cr = {
+                   #CR Start
+                   "CHKSUM": CVMeCrPos(0x03,1,1,"CR","CHKSUM"), 
+                   "CRDW":  CVMeCrPos(0x13,3,1,"CR","CRDW"), 
+                   "ACSRDW": CVMeCrPos(0x17,1,1,"CR","ACSRDW"), 
+                   "SPACEID": CVMeCrPos(0x1B,1,1,"CR","SPACEID"),
+                   "CASCII": CVMeCrPos(0x1F,1,1,"CR","CASCII"),
+                   "RASCII": CVMeCrPos(0x23,1,1,"CR","RASCII"),
+                   "MID": CVMeCrPos(0x27,3,1,"CR","MID"),
+                   "BID": CVMeCrPos(0x33,4,1,"CR","BID"),
+                   "RID": CVMeCrPos(0x43,4,1,"CR","RID"),
+                   "STRP": CVMeCrPos(0x53,3,1,"CR","STRP"),
+                   "PID": CVMeCrPos(0x7F,8,1,"CR","PID"),
+                   "FDAW": CVMeCrPos(0x103,1,8,"CR","FDAW"),
+                   "AMCAP": CVMeCrPos(0x123,8,8,"CR","AMCAP"),   
+                   "XAMCAP": CVMeCrPos(0x223,32,8,"CR","XAMCAP"),
+                   "ADEM": CVMeCrPos(0x623,4,8,"CR","ADEM"),
+                   "MDAWPR": CVMeCrPos(0x6AF,1,1,"CR","MDAWPR"),
+                   "MAMCAP": CVMeCrPos(0x6B3,8,1,"CR","MAMCAP"),
+                   "MXAMCAP": CVMeCrPos(0x6D3,32,1,"CR","MXAMCAP"),
+                   #CSR Start
+                   "CSCSRBAR":  CVMeCrPos(0x7ffff,1,1,"CSR","CSCSRBAR"),
+                   "BSR": CVMeCrPos(0x7FFFB,1,1,"CSR","BSR"),
+                   "BCR": CVMeCrPos(0x7FFF7,1,1,"CSR","BCR"),
+                   "CRAM_OWNER": CVMeCrPos(0x7FFF3,1,1,"CSR","CRAM_OWNER"),
+                   "UDBS": CVMeCrPos(0x7FFEF,1,1,"CSR","UDBS"),
+                   "UDBC": CVMeCrPos(0x7FEB,1,1,"CSR","UDBC"),
+                   "ADER": CVMeCrPos(0x,4,8,"CSR","ADER"),                 
+                   }
+        
+            
+        
+        
 
 #    def parityOf(int_type):
 #        parity = 0;
