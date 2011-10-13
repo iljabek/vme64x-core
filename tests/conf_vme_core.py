@@ -2,7 +2,7 @@ import pyvmelib
 import sys
 
 class CVMeCrPos:
-    def __init__(self, add, nbytes, ptype, name):
+    def __init__(self, add, nbytes, nfunc, ptype, name):
         self.name = name;
         self.nbytes = nbytes;
         self.add = add;
@@ -11,10 +11,10 @@ class CVMeCrPos:
         self.writedone = 0;
         self.debug = 1;
         self.ptype = ptype;
-
+        self.nfunc = nfunc;
 
     def read(self, map):
-        for i in range(0,self.nbytes):
+        for i in range(0,self.nbytes*self.nfunc):
             vtemp= map.read(offset=self.add-3+i*4, width=32)[0];
             self.value[i] =vtemp >> 24;
             self.readdone=1+self.readdone;
@@ -26,7 +26,7 @@ class CVMeCrPos:
             print "I should have printed name and value"
 
     def write(self, map, data): 
-        for i in range(0,self.nbytes):
+        for i in range(data):
             map.write(offset=self.add-3+i*4, width=32, values=data[i])
         self.writedone=1+self.writedone;
 

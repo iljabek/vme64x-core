@@ -289,10 +289,7 @@ output [7:0] ExitCode); // 0=Done, 1=Timeout, 2=BusError, 3=Retry
 	 a_Ds2       = 1'b1;
 	 
       end
-      
-      
-      
-
+    
       else begin
 
 	 // If Dtack arrived I start Phase 2
