@@ -13,23 +13,25 @@ Matthieu Cattin
 |   |-- specifications
 |   `-- user_guides
 |-- hdl
-|   |-- boards
-|   |   |-- svec
-|   |   |   |-- ip_cores
-|   |   |   |-- rtl
-|   |   |   |-- sim
-|   |   |   `-- syn
-|   |   `-- vfc
-|   |       |-- ip_cores
-|   |       |-- rtl
-|   |       |-- sim
-|   |       `-- syn
-|   `-- vme64x-core
-|       |-- ip_cores
-|       |-- rtl
-|       |-- sim
-|       `-- wb_gen
-`-- sw
-    `-- vfc
-        `-- python
+|   |-- boards               -> Board specific stuff
+|   |   |-- svec             -> Board's directory, put the .ucf here
+|   |   |   |-- ip_cores     -> Board specific generated IP cores (e.g. FIFO, RAM, etc...)
+|   |   |   |-- rtl          -> Board specific RTL HDL sources (top level, specific blocks, etc..)
+|   |   |   |-- sim          -> Board level simulation (testbenches, simulation scripts, etc...)
+|   |   |   |-- syn          -> Synthesis directory (ISE project, chipscope files)
+|   |   |   `-- wb_gen       -> Wishbone generator source files
+|   |   `-- vfc              -> Board specific stuff
+|   |       |-- ip_cores     -> Board's directory, put the .ucf here
+|   |       |-- rtl          -> Board specific RTL HDL sources (top level, specific blocks, etc..)
+|   |       |-- sim          -> Board level simulation (testbenches, simulation scripts, etc...)
+|   |       |-- syn          -> Synthesis directory (ISE project, chipscope files)
+|   |       `-- wb_gen       -> Wishbone generator source files
+|   `-- vme64x-core          -> Core's dircetory
+|       |-- ip_cores         -> Core generated IP cores (e.g. FIFO, RAM, etc...)
+|       |-- rtl              -> Core RTL HDL sources (core top level, core sub-blocks, packages, etc...)
+|       |-- sim              -> Core simulation (testbenches, simulation scripts, etc...)
+|       `-- wb_gen           -> Wishbone generator source files
+`-- sw                       -> Software directory
+    `-- vfc                  -> Board specific software
+        `-- python           -> Python programs
 
