@@ -65,7 +65,7 @@ entity VME_bus is
     VME_AM_i       : in std_logic_vector(5 downto 0);
     VME_BBSY_n_i   : in std_logic;
     VME_IACKIN_n_i : in std_logic;
-
+    VME_IACK_n_i : in std_logic;
 
     -- CROM
     CRaddr_o : out std_logic_vector(18 downto 0);
@@ -96,12 +96,14 @@ entity VME_bus is
     WBtoVME  : out std_logic;
 	 FifoMux  : out std_logic;
 	 
-	 
-    -- IRQ controller signals
-    irqDTACK_i       : in  std_logic;
-    IACKinProgress_i : in  std_logic;
-    IDtoData_i       : in  std_logic;
-    IRQlevelReg_o    : out std_logic_vector(7 downto 0);
+	-- IRQ controller signals
+	 --Int_CounttoData : out std_logic;
+	 INT_Level        : out std_logic_vector(7 downto 0);
+	 INT_Vector       : out std_logic_vector(7 downto 0);
+    --irqDTACK_i       : in  std_logic;
+   -- IACKinProgress_i : in  std_logic;
+    --IDtoData_i       : in  std_logic;
+   -- IRQlevelReg_o    : out std_logic_vector(7 downto 0);
     -- Debug Davide
 	 leds    : out std_logic_vector(7 downto 0);
 	 data_non_sampled : in std_logic_vector(63 downto 0);
@@ -205,7 +207,7 @@ architecture RTL of VME_bus is
   signal VME_DATA_oversampled                         : std_logic_vector(31 downto 0);
   signal VME_AM_oversampled                           : std_logic_vector(5 downto 0);
   signal VME_BBSY_n_oversampled                       : std_logic;
-  signal VME_IACKIN_n_oversampled                     : std_logic;
+  signal VME_IACK_n_oversampled                     : std_logic;
 
 -- Bidirectional signals
   signal s_VMEaddrInput : unsigned(31 downto 1);
@@ -472,6 +474,7 @@ architecture RTL of VME_bus is
   signal s_transfer_done_i : std_logic;
   -- added by Davide for test:
   signal s_counter : unsigned(31 downto 0); 
+  signal s_countcyc : unsigned(9 downto 0); 
   signal s_error_CRCSR : std_logic;
   signal s_BERR_out : std_logic;  -- added by Davide --> for drive the VME_BERR_o when the VME_DTACK_o_n
   signal s_errorflag : std_logic;
@@ -490,6 +493,7 @@ architecture RTL of VME_bus is
   signal s_memReqFlag : std_logic;
   signal s_locDataSwap : std_logic_vector(63 downto 0);
   signal s_locDataInSwap : std_logic_vector(63 downto 0);
+  signal s_numcyc : std_logic;
   --signal s_AckIn : std_logic;
   --signal s_wbData_sampled : std_logic_vector(63 downto 0);
 begin
@@ -600,14 +604,14 @@ begin
   p_VMEmainFSM : process(clk_i)
   begin
     if rising_edge(clk_i) then
-      if s_reset = '1' or s_mainFSMreset = '1' or VME_IACKIN_n_oversampled = '0' then  -- FSM is also reset on rising edge of address strobe (which indicates end of transfer) and on rising edge of block transfer limit signal
+      if s_reset = '1' or s_mainFSMreset = '1' or VME_IACK_n_oversampled = '0' then  -- FSM is also reset on rising edge of address strobe (which indicates end of transfer) and on rising edge of block transfer limit signal
         s_memReqFlag      <= '0';
 		  s_dtackOE         <= '0';
-        s_dataDir         <= '0';
+        s_dataDir         <= '0';   
 		  --s_locAddr <= (others => '0');      --Added by Davide for read and write consecutively the same register in CSR
-        s_dataOE          <= '1';       -- it was '0' changed by Davide
-        s_addrDir         <= '0';
-        s_addrOE          <= '1';       -- it was '0' changed by Davide
+        s_dataOE          <= '0';       
+        s_addrDir         <= '0';       -- during IACK cycle the ADDR lines are input
+        s_addrOE          <= '0';       
         s_mainDTACK       <= '1';       -- it was 'Z'
         s_memReq          <= '0';
         s_DSlatch         <= '0';       
@@ -664,7 +668,7 @@ begin
             s_berr            <= '0';
             transfer_done_flag <= '0';
 				s_BERR_out <= '0';
-            if s_VMEaddrLatch = '1' and VME_IACKIN_n_i = '1' then  -- If address strobe goes low, check if this slave is addressed
+            if s_VMEaddrLatch = '1' and VME_IACK_n_i = '1' then  -- If address strobe goes low, check if this slave is addressed
               s_mainFSMstate <= DECODE_ACCESS;                     -- it was s_VMEaddrLatch = '1'; modified by Davide
             else
               s_mainFSMstate <= IDLE;
@@ -1846,7 +1850,7 @@ begin
 		  else	  
            VME_DATA_b_o <=  s_locDataSwap(31 downto 0);                        --std_logic_vector(s_locDataSwap(31 downto 0));
         end if;
-		elsif IDtoData_i = '1' then
+		--elsif IDtoData_i = '1' then
        -- VME_DATA_b_o <= "------------------------" & std_logic_vector(s_irqIDdata); --commented by Davide
       --     else
       --      VME_DATA_b_o <= (others => '0');
@@ -2050,8 +2054,8 @@ begin
       if s_resetAddrOffset = '1' or s_reset = '1' or s_mainFSMreset = '1' then
         s_addrOffset <= (others => '0');
       elsif s_incrementAddr = '1' then  -- changed by Davide, it was s_incrementAddrPulse
-        if s_addressingType = TWOedge then
-           s_addrOffset <= s_addrOffset + 8;
+        --if s_addressingType = TWOedge then
+         --  s_addrOffset <= s_addrOffset + 8;
 		-- it was: 	 
        -- elsif s_typeOfDataTransfer = D08_0  then
        --   if s_locAddrBeforeOffset(0) = '1' then
@@ -2059,7 +2063,7 @@ begin
        --   else
        --     s_addrOffset <= s_addrOffset;
        --   end if;
-		  elsif s_typeOfDataTransfer = D08_0 or s_typeOfDataTransfer = D08_1 or s_typeOfDataTransfer = D08_2 or s_typeOfDataTransfer = D08_3 then    
+		     if s_typeOfDataTransfer = D08_0 or s_typeOfDataTransfer = D08_1 or s_typeOfDataTransfer = D08_2 or s_typeOfDataTransfer = D08_3 then    
                s_addrOffset <= s_addrOffset + 1;
         -- it was:    
         --elsif s_typeOfDataTransfer = D16 then
@@ -2874,7 +2878,9 @@ s_locData(63 downto 0) <= s_locDataOut(63 downto 0) sll  to_integer(unsigned(s_D
 -----------------------------------------------
   end process;
   -- modified by Davide:
-  IRQlevelReg_o <= (others => '0');
+  INT_Level <= std_logic_vector(s_CSRarray(IRQ_level));
+  INT_Vector <= std_logic_vector(s_CSRarray(IRQ_Vector));
+  --IRQlevelReg_o <= (others => '0');
   --IRQlevelReg_o <= std_logic_vector(s_CSRarray(IRQ_level));
 
 -- Initialization procedure                
@@ -3176,10 +3182,10 @@ s_locData(63 downto 0) <= s_locDataOut(63 downto 0) sll  to_integer(unsigned(s_D
  --     clk_i => clk_i
   --    ); 
 
-  IACKINinputSample : SigInputSample
+  IACKinputSample : SigInputSample
     port map(
-      sig_i => VME_IACKIN_n_i,
-      sig_o => VME_IACKIN_n_oversampled,
+      sig_i => VME_IACK_n_i,
+      sig_o => VME_IACK_n_oversampled,
       clk_i => clk_i
       ); 
 --  ACKinputSample : FlipFlopD		
@@ -3232,7 +3238,7 @@ swapper_read: swapper PORT MAP(
   leds(2) <= '0' when s_CSRarray(BIT_SET_CLR_REG)(3) = '1' else '1';
   leds(7) <= s_counter(25);
   leds(5) <= s_error_CRCSR;
-  leds(0) <= not s_debug1;
+  leds(0) <= not s_transferActive;
   leds(1) <= not(s_func_sel(1));
   leds(3) <= not s_debug3; --not(s_errorflagout);
   leds(4) <= '1'; --s_errorflagout;
@@ -3246,6 +3252,17 @@ swapper_read: swapper PORT MAP(
       if VME_RST_n_oversampled = '0' then s_counter <= (others => '0');
       else 
       s_counter <= s_counter + 1;
+		end if;	
+	end if;
+	end process;
+-- Counter for debugging the MBLT mode
+	
+	process(clk_i)
+	begin
+	if rising_edge(clk_i) then
+      if s_reset = '1' or s_mainFSMreset = '1' then s_countcyc <= (others => '0');
+      elsif s_numcyc = '1' then
+      s_countcyc <= s_countcyc + 1;
 		end if;	
 	end if;
 	end process;
@@ -3287,10 +3304,17 @@ s_rty2 <= not s_rty1;
 -------------------------------------------
 s_transfer_done_i <= transfer_done_i when s_FIFO = '1' else '1';
 
-
-
-
-
+-- This process detect the access at the INT_COUNT register; location 0x00 in the WB RAM
+--process(clk_i)
+--	begin
+--	if rising_edge(clk_i) then
+--     if (b"000" & std_logic_vector(s_rel_locAddr(63 downto 3))) = (others => '0') and s_transferType = SINGLE and s_typeOfDataTransfer=D64 and s_mainDTACK = '0' and s_RW = '1' then
+--		    Int_CounttoData <= '1';
+--		else
+--		    Int_CounttoData <= '0';
+--      end if;
+--   end if;
+--end process;
 --process added by Davide for Debug:
 
 process(clk_i)
@@ -3298,7 +3322,7 @@ process(clk_i)
 	if rising_edge(clk_i) then
       if s_reset = '1' then s_debug1 <= '0';
       elsif s_debug2 = '1' then
-		   if(s_rel_locAddr = x"0000000000000000" and s_dataPhase = '1' and s_transferType = MBLT and VME_WRITE_n_oversampled = '1' and memAckWB_i = '1' and data_non_sampled = x"3132333435363730") then
+		   if(s_dataPhase = '1' and s_transferType = MBLT and VME_WRITE_n_oversampled = '0' and s_mainDTACK = '0' and data_non_sampled /= s_locDataInSwap) then
             s_debug1 <= '1';
 		   end if;	
 	   end if;
@@ -3311,13 +3335,21 @@ process(clk_i)
 	if rising_edge(clk_i) then
       if s_reset = '1' then s_debug3 <= '0';
       elsif s_debug4 = '1' then
-		   if(s_rel_locAddr = x"0000000000000000" and s_dataPhase = '1' and s_transferType = MBLT and VME_WRITE_n_oversampled = '1' and s_mainDTACK = '0' and wbData_i = x"0000000000000000") then
+		     if s_countcyc = 32 then
+		   --if(s_dataPhase = '1' and s_transferType = MBLT and VME_WRITE_n_oversampled = '1' and s_mainDTACK = '0' and unsigned(data_non_sampled) /= s_locData) then  --and s_rel_locAddr < 248) then
             s_debug3 <= '1';
 		   end if;	
 	   end if;
 	end if;	
 end process;
 s_debug4 <= not s_debug3;
+
+DTACKfallingEdge : FallingEdgeDetection
+    port map (
+      sig_i      => s_mainDTACK,
+      clk_i      => clk_i,
+      FallEdge_o => s_numcyc
+      );
 
 
 	

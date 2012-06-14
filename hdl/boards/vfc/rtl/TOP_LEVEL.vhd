@@ -68,13 +68,15 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.numeric_std.all;
 use work.wishbone_pkg.all;
-
+--Library UNISIM;
+--use UNISIM.vcomponents.all;
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
 --use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx primitives in this code.
+
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
@@ -100,7 +102,7 @@ port(
     VME_IRQ_n_o      : out   std_logic_vector(6 downto 0);
     VME_IACKIN_n_i   : in    std_logic;
     VME_IACKOUT_n_o  : out   std_logic;
-
+    VME_IACK_n_i   : in    std_logic;  --Added by Davide
     -- VME buffers
 	 VME_RETRY_OE_o : out   std_logic;
     VME_DTACK_OE_o : out std_logic;
@@ -130,13 +132,15 @@ COMPONENT VME64xCore_Top
 		VME_GA_i : IN std_logic_vector(5 downto 0);
 		VME_BBSY_n_i : IN std_logic;
 		VME_IACKIN_n_i : IN std_logic;
+		VME_IACK_n_i   : in    std_logic;
 		RST_i : IN std_logic;
 		DAT_i : IN std_logic_vector(63 downto 0);
 		ERR_i : IN std_logic;
 		RTY_i : IN std_logic;
 		ACK_i : IN std_logic;
 		STALL_i : IN std_logic;
-		IRQ_i : IN std_logic;    
+		IRQ_i : IN std_logic;  
+      INT_ack : OUT std_logic;		
 		VME_LWORD_n_b : INOUT std_logic;
 		VME_ADDR_b : INOUT std_logic_vector(31 downto 1);
 		VME_DATA_b : INOUT std_logic_vector(31 downto 0);      
@@ -174,6 +178,7 @@ COMPONENT xwb_dpram
 	PORT(
 		clk_sys_i : IN std_logic;
 		rst_n_i : IN std_logic;
+		INT_ack : IN std_logic;
 		slave1_i : IN t_wishbone_slave_in;          
 		slave1_o : OUT t_wishbone_slave_out
 		);
@@ -193,17 +198,20 @@ signal WbWe_o : std_logic;
 signal WbStall_i : std_logic;		
 signal WbIrq_i : std_logic;		
 signal Rst : std_logic;				
-signal clk_40MHz : std_logic;		
+--signal clk_40MHz : std_logic;		
 signal clk_fb : std_logic;			
 --signal clk_2 : std_logic;
 --signal status : std_logic_vector(1 downto 0);
 signal locked : std_logic;
 --signal clk_180 : std_logic;
-
+signal clk_in : std_logic;
+signal s_locked : std_logic;
+signal s_fb : std_logic;
+signal s_INT_ack : std_logic;
 begin
 
 Inst_VME64xCore_Top: VME64xCore_Top PORT MAP(
-		clk_i => clk_i,
+		clk_i => clk_in,
 		VME_AS_n_i => VME_AS_n_i,
 		VME_RST_n_i => Rst,
 		VME_WRITE_n_i => VME_WRITE_n_i,
@@ -220,6 +228,7 @@ Inst_VME64xCore_Top: VME64xCore_Top PORT MAP(
 		VME_BBSY_n_i => VME_BBSY_n_i,
 		VME_IRQ_n_o => VME_IRQ_n_o,
 		VME_IACKIN_n_i => VME_IACKIN_n_i,
+		VME_IACK_n_i => VME_IACK_n_i,
 		VME_IACKOUT_n_o => VME_IACKOUT_n_o,
 		VME_DTACK_OE_o => VME_DTACK_OE_o,
 		VME_DATA_DIR_o => VME_DATA_DIR_o,
@@ -240,6 +249,7 @@ Inst_VME64xCore_Top: VME64xCore_Top PORT MAP(
 		WE_o => WbWe_o,  --
 		STALL_i => WbStall_i, --
 		IRQ_i => WbIrq_i,  --
+		INT_ack => s_INT_ack,
 		-- Add by Davide for debug:
 	   leds   => leds
 	);
@@ -254,8 +264,9 @@ Inst_xwb_dpram: xwb_dpram
                   g_slave1_granularity     => BYTE
 						)
     		port map(
-		            clk_sys_i => clk_i,
-		            rst_n_i => Reset,
+		            clk_sys_i => clk_in,
+		            rst_n_i => Rst,
+						INT_ack => s_INT_ack,
 						slave1_i.cyc => WbCyc_o,
                   slave1_i.stb => WbStb_o,
                   slave1_i.adr => WbAdr_o,
@@ -274,7 +285,55 @@ Inst_xwb_dpram: xwb_dpram
 	
 Rst <= VME_RST_n_i and Reset;
 	
- 
-	
+-- PLL_BASE_inst : PLL_BASE
+--   generic map (
+--      BANDWIDTH => "OPTIMIZED",             -- "HIGH", "LOW" or "OPTIMIZED" 
+--      CLKFBOUT_MULT => 30,                   -- Multiply value for all CLKOUT clock outputs (1-64)
+--      CLKFBOUT_PHASE => 0.000,                -- Phase offset in degrees of the clock feedback output
+--                                            -- (0.0-360.0).
+--      CLKIN_PERIOD => 50.000,                  -- Input clock period in ns to ps resolution (i.e. 33.333 is 30
+--                                            -- MHz).
+--      -- CLKOUT0_DIVIDE - CLKOUT5_DIVIDE: Divide amount for CLKOUT# clock output (1-128)
+--      CLKOUT0_DIVIDE => 30,
+--      CLKOUT1_DIVIDE => 1,
+--      CLKOUT2_DIVIDE => 1,
+--      CLKOUT3_DIVIDE => 1,
+--      CLKOUT4_DIVIDE => 1,
+--      CLKOUT5_DIVIDE => 1,
+--      -- CLKOUT0_DUTY_CYCLE - CLKOUT5_DUTY_CYCLE: Duty cycle for CLKOUT# clock output (0.01-0.99).
+--      CLKOUT0_DUTY_CYCLE => 0.500,
+--      CLKOUT1_DUTY_CYCLE => 0.500,
+--      CLKOUT2_DUTY_CYCLE => 0.500,
+--      CLKOUT3_DUTY_CYCLE => 0.500,
+--      CLKOUT4_DUTY_CYCLE => 0.500,
+--      CLKOUT5_DUTY_CYCLE => 0.500,
+--      -- CLKOUT0_PHASE - CLKOUT5_PHASE: Output phase relationship for CLKOUT# clock output (-360.0-360.0).
+--      CLKOUT0_PHASE => 0.000,
+--      CLKOUT1_PHASE => 0.000,
+--      CLKOUT2_PHASE => 0.000,
+--      CLKOUT3_PHASE => 0.000,
+--      CLKOUT4_PHASE => 0.000,
+--      CLKOUT5_PHASE => 0.000,
+--      CLK_FEEDBACK => "CLKFBOUT",           -- Clock source to drive CLKFBIN ("CLKFBOUT" or "CLKOUT0")
+--      COMPENSATION => "SYSTEM_SYNCHRONOUS", -- "SYSTEM_SYNCHRONOUS", "SOURCE_SYNCHRONOUS", "EXTERNAL" 
+--      DIVCLK_DIVIDE => 1,                   -- Division value for all output clocks (1-52)
+--      REF_JITTER => 0.1,                    -- Reference Clock Jitter in UI (0.000-0.999).
+--      RESET_ON_LOSS_OF_LOCK => FALSE        -- Must be set to FALSE
+--   )
+--   port map (
+--      CLKFBOUT => s_fb, -- 1-bit output: PLL_BASE feedback output
+--      -- CLKOUT0 - CLKOUT5: 1-bit (each) output: Clock outputs
+--      CLKOUT0 => clk_in,  --clk 50 MHz
+--      CLKOUT1 => open,
+--      CLKOUT2 => open,
+--      CLKOUT3 => open,
+--      CLKOUT4 => open,
+--      CLKOUT5 => open,
+--      LOCKED => s_locked,     -- 1-bit output: PLL_BASE lock status output
+--      CLKFBIN => s_fb,   -- 1-bit input: Feedback clock input
+--      CLKIN => clk_i,       -- 1-bit input: Clock input
+--      RST => '0'            -- 1-bit input: Reset input
+--   );	
+	clk_in <= clk_i;
 end Behavioral;
 

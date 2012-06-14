@@ -264,9 +264,9 @@ package VME_pack is
   constant c_FUNC0_ADER_1_addr : unsigned(19 downto 0) := x"7FF6B";
   constant c_FUNC0_ADER_2_addr : unsigned(19 downto 0) := x"7FF67";
   constant c_FUNC0_ADER_3_addr : unsigned(19 downto 0) := x"7FF63";
-  constant c_IRQ_Vector_addr   : unsigned(19 downto 0) := x"7FBFB";
-  constant c_IRQ_level_addr    : unsigned(19 downto 0) := x"7FBF7";
-  constant c_MBLT_Endian_addr  : unsigned(19 downto 0) := x"7FBF3";
+  constant c_IRQ_Vector_addr   : unsigned(19 downto 0) := x"7FF5F";
+  constant c_IRQ_level_addr    : unsigned(19 downto 0) := x"7FF5B";
+  constant c_MBLT_Endian_addr  : unsigned(19 downto 0) := x"7FF53";
 
 
 

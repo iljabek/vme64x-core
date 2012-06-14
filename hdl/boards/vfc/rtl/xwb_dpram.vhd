@@ -45,6 +45,7 @@ entity xwb_dpram is
   port(
     clk_sys_i : in std_logic;
     rst_n_i   : in std_logic;
+	 INT_ack   : in std_logic;
     slave1_i : in  t_wishbone_slave_in;
     slave1_o : out t_wishbone_slave_out
     --slave2_i : in  t_wishbone_slave_in;
@@ -70,43 +71,69 @@ architecture struct of xwb_dpram is
   signal slave1_out : t_wishbone_slave_out;
   --signal slave2_in  : t_wishbone_slave_in;
   --signal slave2_out : t_wishbone_slave_out;
-  
-  
+  signal s_cyc  : std_logic;
+  signal s_stb  : std_logic;
 
-  
+COMPONENT IRQ_generator
+	PORT(
+		clk_i : IN std_logic;
+		reset : IN std_logic;
+		Freq : IN std_logic_vector(31 downto 0);
+		Int_Count_i : IN std_logic_vector(31 downto 0);
+		Read_Int_Count : IN std_logic;
+		INT_ack : IN std_logic;          
+		IRQ_o : OUT std_logic;
+		Int_Count_o : OUT std_logic_vector(31 downto 0)
+		);
+END COMPONENT;
+
+signal s_INT_COUNT : std_logic_vector(31 downto 0);
+signal s_FREQ : std_logic_vector(31 downto 0); 
+signal s_q_o : std_logic_vector(63 downto 0);
+signal s_q_o1 : std_logic_vector(63 downto 0);
+signal s_en_Freq : std_logic;
+signal s_sel_IntCount : std_logic;
+--signal s_IRQ : std_logic;
+signal s_Int_Count_o : std_logic_vector(31 downto 0);
+signal s_Int_Count_o1 : std_logic_vector(31 downto 0);
+signal s_Read_IntCount : std_logic;
+
 begin
- -- U_Adapter1 : wb_slave_adapter
- --   generic map (
- --     g_master_use_struct  => true,
- --     g_master_mode        => g_slave1_interface_mode,
- --     g_master_granularity => BYTE,
- --     g_slave_use_struct   => true,
- --     g_slave_mode         => g_slave1_interface_mode,
-  --    g_slave_granularity  => g_slave1_granularity)
- --   port map (
- --     clk_sys_i => clk_sys_i,
- --     rst_n_i   => rst_n_i,
- --     slave_i   => slave1_i,
- --     slave_o   => slave1_o);
-    --  master_i  => slave1_out,
-    --  master_o  => slave1_in);
+s_q_o1 <= s_INT_COUNT & s_FREQ;
+s_en_Freq <= '1' when (unsigned(slave1_i.adr(f_log2_size(g_size)-1 downto 0)) = 0 and s_bwea = "00001111") else '0';
+s_Int_Count_o1 <= slave1_i.dat(63 downto 32) when (s_bwea = "11110000" and (unsigned(slave1_i.adr(f_log2_size(g_size)-1 downto 0))) = 0) else s_Int_Count_o;
+s_Read_IntCount <= '1' when (slave1_i.we = '0' and slave1_i.sel = "11110000" and (unsigned(slave1_i.adr(f_log2_size(g_size)-1 downto 0))) = 0 and slave1_out.ack = '1') else '0';
+-- Reg INT_COUNT
+INT_COUNT : entity work.Reg32bit
+    port map(
+      reset => rst_n_i,
+		enable => '1',
+		di => s_Int_Count_o1,
+      do => s_INT_COUNT,
+      clk_i => clk_sys_i
+      );			
+-- Reg FREQ
+FREQ : entity work.Reg32bit
+    port map(
+      reset => rst_n_i,
+		enable => s_en_Freq,
+		di => slave1_i.dat(31 downto 0),
+      do => s_FREQ,
+      clk_i => clk_sys_i
+      );	
 		
+Inst_IRQ_generator: IRQ_generator PORT MAP(
+		clk_i => clk_sys_i,
+		reset => rst_n_i,
+		Freq => s_FREQ,
+		Int_Count_i => s_INT_COUNT,
+		Read_Int_Count => s_Read_IntCount,
+		INT_ack => INT_ack,
+		IRQ_o => slave1_o.int,
+		Int_Count_o => s_Int_Count_o
+	);
 
-  --U_Adapter2 : wb_slave_adapter
-  --  generic map (
-  --    g_master_use_struct  => true,
-  --    g_master_mode        => g_slave2_interface_mode,
-   --   g_master_granularity => BYTE,
-  --    g_slave_use_struct   => true,
-  --    g_slave_mode         => g_slave2_interface_mode,
-  --    g_slave_granularity  => g_slave2_granularity)
-  --  port map (
-  --    clk_sys_i => clk_sys_i,
-  --    rst_n_i   => rst_n_i,
-  --    slave_i   => slave2_i,
-  --    slave_o   => slave2_o,
-   --   master_i  => slave2_out,
-  --    master_o  => slave2_in);
+
 
   U_DPRAM : entity work.spram
     generic map(
@@ -125,7 +152,7 @@ begin
      -- we_i    => s_wea,
       a_i     => slave1_i.adr(f_log2_size(g_size)-1 downto 0),                                 -- it was slave1_in.adr
       d_i     => slave1_i.dat,                                  -- it was slave1_in.adr
-      q_o     => slave1_o.dat	                                  -- it was slave1_out.dat
+      q_o     => s_q_o	                                  -- it was slave1_out.dat
 	 );
 	 
 	 
@@ -153,7 +180,7 @@ begin
   s_bwea <= slave1_i.sel when s_wea = '1' else f_zeros(c_wishbone_data_width/8);    --it was slave1_in.sel
  -- s_bweb <= slave2_in.sel when s_web = '1' else f_zeros(c_wishbone_data_width/8);
 
-  s_wea <= slave1_i.we and slave1_i.stb and slave1_i.cyc;                          -- it was slave1_in.we and slave1_in.stb and slave1_in.cyc;
+  s_wea <= slave1_i.we and slave1_i.cyc and slave1_i.stb;               -- it was slave1_in.we and slave1_in.stb and slave1_in.cyc;
   --s_web <= slave2_in.we and slave2_in.stb and slave2_in.cyc;
 
   process(clk_sys_i)
@@ -178,6 +205,7 @@ begin
     end if;
   end process;
 
+  slave1_o.dat <= s_q_o1 when  unsigned(slave1_i.adr(f_log2_size(g_size)-1 downto 0)) = 0 else s_q_o;
   slave1_o.stall <= '0';
  -- slave2_out.stall <= '0';
   slave1_o.err <= '0';

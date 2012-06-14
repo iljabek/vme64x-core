@@ -73,6 +73,31 @@ begin
 		end if;	
 	end process;
 end RTL;
+--Register 32 bits
+library IEEE;
+use IEEE.STD_LOGIC_1164.all;
+entity Reg32bit is
+	port (
+		reset, clk_i, enable: in std_logic;
+		di : in std_logic_vector(31 downto 0);
+		do: out std_logic_vector(31 downto 0)
+		);
+end Reg32bit;
+architecture RTL of Reg32bit is
+signal s_reg : std_logic_vector(31 downto 0);
+begin
+	process(clk_i)
+	begin
+		if rising_edge(clk_i) then
+		   if reset = '0' then s_reg <= (others => '0');
+			elsif enable = '1' then	
+			s_reg     <= di;
+			end if;
+			do <= s_reg;
+		end if;	
+	end process;
+end RTL;
+
 --
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;

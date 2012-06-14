@@ -14,10 +14,10 @@ BIT_SET_CLR_REG  => x"10", --Bit set register -- 0x10=module enable
 USR_BIT_SET_CLR_REG  => x"00", --Bit clear register
 CRAM_OWNER  => x"00", --CRAM_OWNER
 
-FUNC0_ADER_0 =>x"A4",  -- it was x"45"
-FUNC0_ADER_1 =>x"c0",
+FUNC0_ADER_0 =>x"08",  -- it was x"45"
+FUNC0_ADER_1 =>x"00",
 FUNC0_ADER_2 =>x"00",
-FUNC0_ADER_3 =>x"00",   -- it was x"80"
+FUNC0_ADER_3 =>x"c0",   -- it was x"80"
 
 FUNC1_ADER_0 =>x"00",
 FUNC1_ADER_1 =>x"00",

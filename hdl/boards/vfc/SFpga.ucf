@@ -41,7 +41,7 @@ NET "VME_DATA_b[29]" LOC = Y16;
 NET "VME_DATA_b[30]" LOC = Y15;
 NET "VME_DATA_b[31]" LOC = W14;
 
-#NET "VME_IACK_i" LOC = F18;  not used becouse my core is in the slot 8
+NET "VME_IACK_n_i" LOC = F18;  
 NET "VME_RETRY_OE_o" LOC = F17;
 NET "VME_RETRY_n_o" LOC = G17;
 NET "VME_RST_n_i" LOC = J16;

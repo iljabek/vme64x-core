@@ -68,6 +68,7 @@ entity VME64xCore_Top is
     VME_BBSY_n_i     : in    std_logic;
     VME_IRQ_n_o      : out   std_logic_vector(6 downto 0);
     VME_IACKIN_n_i   : in    std_logic;
+	 VME_IACK_n_i   : in    std_logic;
     VME_IACKOUT_n_o  : out   std_logic;
 
     -- VME buffers
@@ -93,6 +94,7 @@ entity VME64xCore_Top is
     STALL_i : in  std_logic;
 
     -- IRQ
+	 INT_ack : out std_logic;
     IRQ_i : in std_logic;
     -- Add by Davide for debug:
 	 leds    : out std_logic_vector(7 downto 0)
@@ -147,6 +149,7 @@ architecture RTL of VME64xCore_Top is
       VME_AM_i       : in std_logic_vector(5 downto 0);
       VME_BBSY_n_i   : in std_logic;
       VME_IACKIN_n_i : in std_logic;
+		VME_IACK_n_i : in std_logic;
 
 
       -- CROM
@@ -175,10 +178,13 @@ architecture RTL of VME64xCore_Top is
       psize_o : out std_logic_vector(8 downto 0);
       
       -- IRQ controller signals
-      irqDTACK_i       : in  std_logic;
-      IACKinProgress_i : in  std_logic;
-      IDtoData_i       : in  std_logic;
-      IRQlevelReg_o    : out std_logic_vector(7 downto 0);
+      --irqDTACK_i       : in  std_logic;
+      --IACKinProgress_i : in  std_logic;
+      INT_Level : out std_logic_vector(7 downto 0);
+		INT_Vector : out std_logic_vector(7 downto 0);
+		--Int_CounttoData : out std_logic;
+		--IDtoData_i       : in  std_logic;
+      --IRQlevelReg_o    : out std_logic_vector(7 downto 0);
       
 		-- Add by Davide for debug:
 	   leds    : out std_logic_vector(7 downto 0);
@@ -202,68 +208,27 @@ architecture RTL of VME64xCore_Top is
 --		);
 --	end component;
 	
---  component WB_bus is
---    port (
---      clk_i   : in std_logic;
---      reset_i : in std_logic;
 
---      RST_i   : in  std_logic;
---      DAT_i   : in  std_logic_vector(63 downto 0);
---      DAT_o   : out std_logic_vector(63 downto 0);
---      ADR_o   : out std_logic_vector(63 downto 0);
---      CYC_o   : out std_logic;
---      ERR_i   : in  std_logic;
---      LOCK_o  : out std_logic;
---      RTY_i   : in  std_logic;
---      SEL_o   : out std_logic_vector(7 downto 0);
---      STB_o   : out std_logic;
---      ACK_i   : in  std_logic;
---      WE_o    : out std_logic;
---      STALL_i : in  std_logic;
-
---      memReq_i  : in  std_logic;
---      memAck_o  : out std_logic;
---      locData_o : out std_logic_vector(63 downto 0);
---      locData_i : in  std_logic_vector(63 downto 0);
---      locAddr_i : in  std_logic_vector(63 downto 0);
---      sel_i     : in  std_logic_vector(7 downto 0);
---      RW_i      : in  std_logic;
---      lock_i    : in  std_logic;
---      err_o     : out std_logic;
---      rty_o     : out std_logic;
---      cyc_i     : in  std_logic;
-
---      psize_o : in std_logic_vector(7 downto 0);
-
---      FIFOrden_o       : out std_logic;
---      FIFOwren_o       : out std_logic;
---      FIFOdata_i       : in  std_logic_vector(63 downto 0);
---      FIFOdata_o       : out std_logic_vector(63 downto 0);
---      FIFOreset_o      : out std_logic;
---      writeFIFOempty_i : in  std_logic;
---      TWOeInProgress_i : in  std_logic;
---      WBbusy_o         : out std_logic
-
---      );    
---  end component;
-
-  component IRQ_controller is
-    port(
-      clk_i            : in  std_logic;
-      reset_i          : in  std_logic;
-      VME_IRQ_n_o      : out std_logic_vector(6 downto 0);
-      VME_IACKIN_n_i   : in  std_logic;
-      VME_IACKOUT_n_o  : out std_logic;
-      VME_AS_n_i       : in  std_logic;
-      VME_DS_n_i       : in  std_logic_vector(1 downto 0);
-      irqDTACK_o       : out std_logic;
-      IACKinProgress_o : out std_logic;
-      IRQ_i            : in  std_logic;
-      locAddr_i        : in  std_logic_vector(3 downto 1);
-      IDtoData_o       : out std_logic;
-      IRQlevelReg_i    : in  std_logic_vector(7 downto 0)
-      );
-  end component;
+  COMPONENT IRQ_Controller
+	PORT(
+		clk_i : IN std_logic;
+		reset : IN std_logic;
+		VME_IACKIN_n_i : IN std_logic;
+		VME_AS_n_i : IN std_logic;
+		VME_DS_n_i : IN std_logic_vector(1 downto 0);
+		VME_LWORD_n_i : IN std_logic;
+		VME_ADDR_123 : IN std_logic_vector(2 downto 0);
+		INT_Level : IN std_logic_vector(7 downto 0);
+		INT_Vector : IN std_logic_vector(7 downto 0);
+		INT_Req : IN std_logic;
+		--Read_Int_Source : IN std_logic;          
+		VME_IRQ_n_o : OUT std_logic_vector(6 downto 0);
+		VME_IACKOUT_n_o : OUT std_logic;
+		VME_DTACK_n_o : OUT std_logic;
+		VME_DATA_o : OUT std_logic_vector(31 downto 0);
+		DataDir : OUT std_logic
+		);
+	END COMPONENT;
 
 
   constant c_zeros : std_logic_vector(31 downto 0) := (others => '0');
@@ -305,7 +270,10 @@ architecture RTL of VME64xCore_Top is
   signal s_VME_LWORD_n_b_o                              : std_logic;
   signal s_VME_ADDR_OE_o, s_VME_DATA_OE, s_VME_DATA_DIR : std_logic;
   signal s_VME_DATA_b_o                                 : std_logic_vector(31 downto 0);
-  signal s_VME_DATA_b                                 : std_logic_vector(31 downto 0);
+ signal s_VME_DATA_IRQ                                 : std_logic_vector(31 downto 0);
+ signal s_VME_DATA_VMEbus                                 : std_logic_vector(31 downto 0);
+ 
+ signal s_VME_DATA_b                                 : std_logic_vector(31 downto 0);
   signal s_transfer_done : std_logic;
   
   signal sel_we : std_logic;
@@ -335,6 +303,14 @@ architecture RTL of VME64xCore_Top is
   signal wbtovme : std_logic;
   signal s_wbtovme : std_logic;
   signal s_fifo : std_logic;
+  signal VME_DTACK_VMEbus : std_logic;
+  signal VME_DTACK_IRQ : std_logic;
+  signal s_VME_DATA_DIR_VMEbus : std_logic;
+  signal s_VME_DATA_DIR_IRQ : std_logic;
+  signal s_INT_Level : std_logic_vector(7 downto 0);
+  signal s_INT_Vector : std_logic_vector(7 downto 0);
+  signal s_VME_IRQ_n_o : std_logic_vector(6 downto 0);
+  --signal s_Read_Int_Source : std_logic;
   
   begin
 
@@ -357,7 +333,7 @@ architecture RTL of VME64xCore_Top is
       VME_RST_n_i      => VME_RST_n_i,
       VME_WRITE_n_i    => VME_WRITE_n_i,
       VME_BERR_o       => VME_BERR_o,
-      VME_DTACK_n_o    => VME_DTACK_n_o,
+      VME_DTACK_n_o    => VME_DTACK_VMEbus,
       VME_RETRY_n_o    => VME_RETRY_n_o,
       VME_RETRY_OE_o => VME_RETRY_OE_o,
 
@@ -368,14 +344,14 @@ architecture RTL of VME64xCore_Top is
       VME_ADDR_DIR_o  => s_VME_ADDR_DIR,
       VME_ADDR_OE_N_o   => s_VME_ADDR_OE_o,
 
-      VME_DATA_b_o   => s_VME_DATA_b_o,
+      VME_DATA_b_o   => s_VME_DATA_VMEbus,
       VME_DATA_b_i   => VME_DATA_b,
-      VME_DATA_DIR_o => s_VME_DATA_DIR,
+      VME_DATA_DIR_o => s_VME_DATA_DIR_VMEbus,
       VME_DATA_OE_N_o  => s_VME_DATA_OE,
 
       VME_BBSY_n_i   => VME_BBSY_n_i,
       VME_IACKIN_n_i => VME_IACKIN_n_i,
-
+      VME_IACK_n_i => VME_IACK_n_i,
       VME_DTACK_OE_o => VME_DTACK_OE_o,
 
       clk_i   => clk_i,
@@ -401,10 +377,13 @@ architecture RTL of VME64xCore_Top is
       rty_i       => s_WbRty_o,
       psize_o => s_psize,
 
-      irqDTACK_i       => s_irqDTACK,
-      IACKinProgress_i => s_IACKinProgress,
-      IDtoData_i       => s_IDtoData,
-      IRQlevelReg_o    => s_IRQlevelReg,
+      --irqDTACK_i       => s_irqDTACK,
+      --IACKinProgress_i => s_IACKinProgress,
+      INT_Level        => s_INT_Level,
+		INT_Vector       => s_INT_Vector,
+		--Int_CounttoData => s_Read_Int_Source,
+		--IDtoData_i       => s_IDtoData,
+     -- IRQlevelReg_o    => s_IRQlevelReg,
       -- Add by Davide for debug:
 	   leds             => leds,
 		data_non_sampled     => DAT_i,  
@@ -492,8 +471,8 @@ architecture RTL of VME64xCore_Top is
       );    
 
 -------------------------------------------------------------------------------
-VME_IACKOUT_n_o <= VME_IACKIN_n_i;  --add by Davide for test
-VME_IRQ_n_o     <= (others => '0'); --add by Davide for test..in this way the outputs on the backplane are 'Z'.
+--VME_IACKOUT_n_o <= VME_IACKIN_n_i;  --add by Davide for test
+VME_IRQ_n_o     <= not s_VME_IRQ_n_o; --The buffers will invert again the logic level
 
 DAT_o  <= s_WBdataIn when s_fifo = '0' else s_DAT_o;  --to_integer(unsigned(s_psize)) = 1
 ADR_o  <= s_locAddr when s_fifo = '0' else s_ADR_o;
@@ -512,30 +491,39 @@ s_WbData_o <= s_DATi_sample when s_fifo = '0' else s_WBdataOut;
 s_WbAck_o <= ACK_i when s_fifo = '0' else s_memAckWB;
 vmetowb <= '0' when s_fifo = '0' else s_vmetowb;
 wbtovme <= '0' when s_fifo = '0' else s_wbtovme;
-
+s_VME_DATA_b_o <= s_VME_DATA_VMEbus WHEN  VME_IACK_n_i ='1' ELSE 
+            s_VME_DATA_IRQ;
+VME_DTACK_n_o  <= VME_DTACK_VMEbus WHEN  VME_IACK_n_i ='1' ELSE 
+            VME_DTACK_IRQ;				
+s_VME_DATA_DIR	<= s_VME_DATA_DIR_VMEbus WHEN  VME_IACK_n_i ='1' ELSE 
+            s_VME_DATA_DIR_IRQ;				
+				
 -------------------------------------------------------------------------------
 
---IRQ_controller_1: IRQ_controller
---     port map(
---         clk_i =>            clk_i,
---         reset_i =>          s_reset,
---        VME_IRQ_n_o =>       VME_IRQ_n_o,    
---        VME_IACKIN_n_i =>    VME_IACKIN_n_i,        
---        VME_IACKOUT_n_o =>   VME_IACKOUT_n_o,        
---        VME_AS_n_i =>        VME_AS_n_i,            
---        VME_DS_n_i =>        VME_DS_n_i,    
---        irqDTACK_o =>        s_irqDTACK,
---        IACKinProgress_o =>  s_IACKinProgress,
---        IRQ_i =>             IRQ_i,
---        locAddr_i =>         s_locAddr(3 downto 1),
---        IDtoData_o =>        s_IDtoData,
---        IRQlevelReg_i =>     s_IRQlevelReg
---        );
+Inst_IRQ_Controller: IRQ_Controller PORT MAP(
+		clk_i => clk_i,
+		reset => VME_RST_n_i,
+		VME_IACKIN_n_i => VME_IACKIN_n_i,
+		VME_AS_n_i => VME_AS_n_i,
+		VME_DS_n_i => VME_DS_n_i,
+		VME_LWORD_n_i => VME_LWORD_n_b,
+		VME_ADDR_123 => VME_ADDR_b(3 downto 1),
+		INT_Level => s_INT_Level,
+		INT_Vector => s_INT_Vector ,
+		INT_Req => IRQ_i,
+		--Read_Int_Source => s_Read_Int_Source,
+		VME_IRQ_n_o => s_VME_IRQ_n_o,
+		VME_IACKOUT_n_o => VME_IACKOUT_n_o,
+		VME_DTACK_n_o => VME_DTACK_IRQ,
+		VME_DATA_o => s_VME_DATA_IRQ,
+		DataDir => s_VME_DATA_DIR_IRQ
+	);
 
 -------------------------------------------------------------------------------
 s_irqDTACK       <= '0';
 s_IACKinProgress <= '0';
 s_IDtoData       <= '0';
+INT_ack          <= VME_DTACK_IRQ;
 --s_IRQlevelReg    <= (others => '0');
 -------------------------------------------------------------------------------
 process(clk_i)
