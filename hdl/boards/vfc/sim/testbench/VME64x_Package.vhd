@@ -33,6 +33,8 @@ package VME64x is
 			Vme64xDs1N			: std_logic;
 			Vme64xDs0N			: std_logic;
 			Vme64xLWORDN		: std_logic;
+			Vme64xIACK		   : std_logic;
+			Vme64xIACKIN		: std_logic;
 			Vme64xWRITEN		: std_logic;
 			Vme64xAM				: Vme64xAddressModType;
 			Vme64xADDR			: Vme64xAddressType;
@@ -50,7 +52,8 @@ package VME64x is
 			Vme64xADDR			: Vme64xAddressType;
 			Vme64xDATA			: Vme64xDataType;
 			Vme64xLWORDN		: std_logic;
-			
+			Vme64xIACKOUT		: std_logic;
+			Vme64xIRQ		: std_logic_vector(6 downto 0);
     end record; 
 	 
 	 
@@ -61,7 +64,7 @@ type t_Buffer_BLT is array (0 to 66) of std_logic_vector(31 downto 0);      -- f
 type t_Buffer_MBLT is array (0 to 258) of std_logic_vector(63 downto 0);      -- for MBLT transfer
 --The buffer has 258 positions, not 256; the last position is for test the error if i transfer more of 256 bytes.
 
-type t_dataTransferType is  (D08Byte0, D08Byte1, D08Byte2, D08Byte3, D16Byte01, D16Byte23, D32);	
+type t_dataTransferType is  (D08Byte0, D08Byte1, D08Byte2, D08Byte3, D16Byte01, D16Byte23, D32);	-- for D64 use dataTransferType D32!
 type t_AddressingType is  (A24, A24_BLT, A24_MBLT, A24_LCK, CR_CSR, A16, A16_LCK, A32, A32_BLT, A32_MBLT, A32_LCK,
       A64, A64_BLT, A64_MBLT, A64_LCK, A32_2eVME, A64_2eVME, A32_2eSST, A64_2eSST, error);	
 
@@ -84,7 +87,7 @@ constant ADER1_A64 : std_logic_vector(31 downto 0) := "000000000000000000000000"
 constant ADER1_A64_BLT : std_logic_vector(31 downto 0) := "000000000000000000000000" & c_A64_BLT &"00";
 constant ADER1_A64_MBLT : std_logic_vector(31 downto 0) := "000000000000000000000000" & c_A64_MBLT &"00";
 constant ADER1_A64_b : std_logic_vector(31 downto 0) := BA(7 downto 3) & "000000000000000000000000000";
-constant ADER2_A32_2eVME : std_logic_vector(31 downto 0) := "0000000000000000000000" & x"01" &"01";
+constant ADER2_A32_2eVME : std_logic_vector(31 downto 0) := BA(7 downto 3) & "00000000000000000" & x"01" &"01";
 constant ADER2_A64_2eVME : std_logic_vector(31 downto 0) := "0000000000000000000000" & x"02" &"01";
 constant ADER2_A32_2eSST : std_logic_vector(31 downto 0) := "0000000000000000000000" & x"11" &"01";
 constant ADER2_A64_2eSST : std_logic_vector(31 downto 0) := "0000000000000000000000" & x"12" &"01";
@@ -138,7 +141,9 @@ constant ADER2_2e_b : std_logic_vector(31 downto 0) := BA(7 downto 3) & "0000000
   constant c_FUNC0_ADER_2 : std_logic_vector := x"7FF67";
   constant c_FUNC0_ADER_3 : std_logic_vector := x"7FF63"; 
   
-  constant c_MBLT_Endian : std_logic_vector := x"7Fbf0";
+  constant c_MBLT_Endian : std_logic_vector := x"7Ff53";
+  constant c_IRQ_Vector : std_logic_vector := x"7FF5F";
+  constant c_IRQ_level : std_logic_vector := x"7FF5B";
   -- CR constant
   constant c_StartDefinedCR : std_logic_vector := x"00000";
   constant c_EndDefinedCR : std_logic_vector := x"00FFF";

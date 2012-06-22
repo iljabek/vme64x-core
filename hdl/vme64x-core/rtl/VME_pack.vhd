@@ -40,8 +40,10 @@ package VME_pack is
   constant c_A64_MBLT     : std_logic_vector(5 downto 0) := "000000";
   constant c_A64_LCK      : std_logic_vector(5 downto 0) := "000100";
   constant c_TWOedge      : std_logic_vector(5 downto 0) := "100000";
-
-
+  constant c_A32_2eVME      : std_logic_vector(7 downto 0) := "00000001";
+  constant c_A64_2eVME      : std_logic_vector(7 downto 0) := "00000010";
+  constant c_A32_2eSST      : std_logic_vector(7 downto 0) := "00010001";
+  constant c_A64_2eSST      : std_logic_vector(7 downto 0) := "00010010";
 
   constant c_cr_step           : integer := 4;
   constant BAR                 : integer := 255;

@@ -97,8 +97,8 @@ entity VME64xCore_Top is
 	 INT_ack : out std_logic;
     IRQ_i : in std_logic;
     -- Add by Davide for debug:
-	 leds    : out std_logic_vector(7 downto 0)
-
+	 leds    : out std_logic_vector(7 downto 0);
+    reset_o : out std_logic
 -- Uncomment this for use of external CR and CRAM               
 --        -- CROM
 --        CRaddr_o:             out std_logic_vector(18 downto 0);
@@ -225,6 +225,7 @@ architecture RTL of VME64xCore_Top is
 		VME_IRQ_n_o : OUT std_logic_vector(6 downto 0);
 		VME_IACKOUT_n_o : OUT std_logic;
 		VME_DTACK_n_o : OUT std_logic;
+		VME_DTACK_OE_o : OUT std_logic;
 		VME_DATA_o : OUT std_logic_vector(31 downto 0);
 		DataDir : OUT std_logic
 		);
@@ -305,11 +306,14 @@ architecture RTL of VME64xCore_Top is
   signal s_fifo : std_logic;
   signal VME_DTACK_VMEbus : std_logic;
   signal VME_DTACK_IRQ : std_logic;
+  signal VME_DTACK_OE_VMEbus : std_logic;
+  signal VME_DTACK_OE_IRQ : std_logic;
   signal s_VME_DATA_DIR_VMEbus : std_logic;
   signal s_VME_DATA_DIR_IRQ : std_logic;
   signal s_INT_Level : std_logic_vector(7 downto 0);
   signal s_INT_Vector : std_logic_vector(7 downto 0);
   signal s_VME_IRQ_n_o : std_logic_vector(6 downto 0);
+  signal s_reset_IRQ : std_logic;
   --signal s_Read_Int_Source : std_logic;
   
   begin
@@ -352,7 +356,7 @@ architecture RTL of VME64xCore_Top is
       VME_BBSY_n_i   => VME_BBSY_n_i,
       VME_IACKIN_n_i => VME_IACKIN_n_i,
       VME_IACK_n_i => VME_IACK_n_i,
-      VME_DTACK_OE_o => VME_DTACK_OE_o,
+      VME_DTACK_OE_o => VME_DTACK_OE_VMEbus,
 
       clk_i   => clk_i,
       reset_o => s_reset,
@@ -494,7 +498,9 @@ wbtovme <= '0' when s_fifo = '0' else s_wbtovme;
 s_VME_DATA_b_o <= s_VME_DATA_VMEbus WHEN  VME_IACK_n_i ='1' ELSE 
             s_VME_DATA_IRQ;
 VME_DTACK_n_o  <= VME_DTACK_VMEbus WHEN  VME_IACK_n_i ='1' ELSE 
-            VME_DTACK_IRQ;				
+            VME_DTACK_IRQ;		
+VME_DTACK_OE_o  <= VME_DTACK_OE_VMEbus WHEN  VME_IACK_n_i ='1' ELSE 
+            VME_DTACK_OE_IRQ;					
 s_VME_DATA_DIR	<= s_VME_DATA_DIR_VMEbus WHEN  VME_IACK_n_i ='1' ELSE 
             s_VME_DATA_DIR_IRQ;				
 				
@@ -502,7 +508,7 @@ s_VME_DATA_DIR	<= s_VME_DATA_DIR_VMEbus WHEN  VME_IACK_n_i ='1' ELSE
 
 Inst_IRQ_Controller: IRQ_Controller PORT MAP(
 		clk_i => clk_i,
-		reset => VME_RST_n_i,
+		reset => s_reset_IRQ,  -- asserted when low
 		VME_IACKIN_n_i => VME_IACKIN_n_i,
 		VME_AS_n_i => VME_AS_n_i,
 		VME_DS_n_i => VME_DS_n_i,
@@ -515,6 +521,7 @@ Inst_IRQ_Controller: IRQ_Controller PORT MAP(
 		VME_IRQ_n_o => s_VME_IRQ_n_o,
 		VME_IACKOUT_n_o => VME_IACKOUT_n_o,
 		VME_DTACK_n_o => VME_DTACK_IRQ,
+		VME_DTACK_OE_o => VME_DTACK_OE_IRQ,
 		VME_DATA_o => s_VME_DATA_IRQ,
 		DataDir => s_VME_DATA_DIR_IRQ
 	);
@@ -524,6 +531,8 @@ s_irqDTACK       <= '0';
 s_IACKinProgress <= '0';
 s_IDtoData       <= '0';
 INT_ack          <= VME_DTACK_IRQ;
+reset_o <= s_reset;
+s_reset_IRQ <= not(s_reset);
 --s_IRQlevelReg    <= (others => '0');
 -------------------------------------------------------------------------------
 process(clk_i)

@@ -36,6 +36,7 @@ entity IRQ_Controller is
            VME_IRQ_n_o : out  STD_LOGIC_VECTOR (6 downto 0);
            VME_IACKOUT_n_o : out  STD_LOGIC;
            VME_DTACK_n_o : out  STD_LOGIC;
+			  VME_DTACK_OE_o : out  STD_LOGIC;
 			  VME_DATA_o : out  STD_LOGIC_VECTOR (31 downto 0);
            DataDir : out  STD_LOGIC);
 end IRQ_Controller;
@@ -52,6 +53,7 @@ signal INT_Req_sample : std_logic;
 --signal Read_Int_Source_sample : std_logic;
 --output signals
 signal s_DTACK : std_logic;
+signal s_DTACK_OE : std_logic;
 signal s_DataDir : std_logic;
 signal s_IACKOUT : std_logic;
 signal s_IRQ : std_logic_vector(6 downto 0);
@@ -261,7 +263,7 @@ begin
 			  s_enableIRQ <= '0';
 			  s_resetIRQ <= '1';
 			  DSlatch <= '0';
-			  
+			  s_DTACK_OE <= '0';
 		 when IRQ => 
 		     s_IACKOUT <= '1';
 	        s_DataDir <= '0'; 
@@ -269,7 +271,8 @@ begin
 			  s_enableIRQ <= '1';
 			  s_resetIRQ <= '0';
 			  DSlatch <= '0';
-
+           s_DTACK_OE <= '0';
+			  
        when WAIT_AS =>
 		     s_IACKOUT <= '1';
 	        s_DataDir <= '0'; 
@@ -277,6 +280,7 @@ begin
 			  s_enableIRQ <= '0';
 			  s_resetIRQ <= '0';
 			  DSlatch <= '0';
+			  s_DTACK_OE <= '0';
 			  
        when WAIT_DS =>
 			  s_IACKOUT <= '1';
@@ -285,6 +289,7 @@ begin
 			  s_enableIRQ <= '0';
 			  s_resetIRQ <= '0';
 			  DSlatch <= '0';
+			  s_DTACK_OE <= '0';
 			  
 		 when LATCH_DS =>	  
 			  s_IACKOUT <= '1';
@@ -293,6 +298,7 @@ begin
 			  s_enableIRQ <= '0';
 			  s_resetIRQ <= '0';
 			  DSlatch <= '1';
+			  s_DTACK_OE <= '0';
 			  
 		 when ACK_INT =>	  
 		     s_IACKOUT <= '1';
@@ -301,6 +307,7 @@ begin
 			  s_enableIRQ <= '0';
 			  s_resetIRQ <= '0';
 			  DSlatch <= '0';
+			  s_DTACK_OE <= '0';
 			  
 		 when  IACKOUT =>
            s_IACKOUT <= '0';
@@ -309,7 +316,8 @@ begin
 			  s_enableIRQ <= '0';
 			  s_resetIRQ <= '0';
 			  DSlatch <= '0';
-		 
+		     s_DTACK_OE <= '0';
+			  
 		 when  DATA_OUT=>	  
 		     	s_IACKOUT <= '1';
 	         s_DataDir <= '1'; 
@@ -317,14 +325,16 @@ begin
 			   s_enableIRQ <= '0';
 			   s_resetIRQ <= '0';
 			   DSlatch <= '0'; 
-     
+            s_DTACK_OE <= '1';
+	  
        when  DTACK=>	
            	s_IACKOUT <= '1';
 	         s_DataDir <= '1'; 
 			   s_DTACK <= '0';
 			   s_enableIRQ <= '0';
 			   s_resetIRQ <= '1';
-			   DSlatch <= '0'; 	    
+			   DSlatch <= '0'; 	
+            s_DTACK_OE <= '1';				
 							 
 	end case;
 
@@ -379,7 +389,8 @@ begin
       end if;	
   end if;
 end process;	
-s_ack_int <= (not(VME_DS_latched(0))) and (not(VME_DS_latched(1))) and  (not(VME_LWORD_latched)) and ADDRmatch;
+s_ack_int <= (not(VME_DS_latched(0)))  and ADDRmatch;  --and  (not(VME_LWORD_latched)) and (not(VME_DS_latched(1)))
 s_Data <= x"000000" & INT_Vector;
+VME_DTACK_OE_o <= s_DTACK_OE;
 end Behavioral;
 

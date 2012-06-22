@@ -14,42 +14,44 @@ BIT_SET_CLR_REG  => x"10", --Bit set register -- 0x10=module enable
 USR_BIT_SET_CLR_REG  => x"00", --Bit clear register
 CRAM_OWNER  => x"00", --CRAM_OWNER
 
-FUNC0_ADER_0 =>x"08",  -- it was x"45"
+FUNC0_ADER_0 =>x"09",  -- it was x"45"
 FUNC0_ADER_1 =>x"00",
 FUNC0_ADER_2 =>x"00",
 FUNC0_ADER_3 =>x"c0",   -- it was x"80"
 
-FUNC1_ADER_0 =>x"00",
+FUNC1_ADER_0 =>x"39",
 FUNC1_ADER_1 =>x"00",
 
-FUNC1_ADER_2 =>x"00",   -- it was x"34"
+FUNC1_ADER_2 =>x"c0",   -- it was x"34"
 FUNC1_ADER_3 =>x"00",   -- it was x"12"  
 
-FUNC2_ADER_0 =>x"00",    -- it was x"e4"
+FUNC2_ADER_0 =>x"08",    -- it was x"e4"
 FUNC2_ADER_1 =>x"00",
 FUNC2_ADER_2 =>x"00",   -- it was x"80"
-FUNC2_ADER_3 =>x"00",
+FUNC2_ADER_3 =>x"c0",
 
-FUNC3_ADER_0 =>x"24",
+FUNC3_ADER_0 =>x"04",   -- A64_S
 FUNC3_ADER_1 =>x"00",
 FUNC3_ADER_2 =>x"00",
-FUNC3_ADER_3 =>x"80",
+FUNC3_ADER_3 =>x"00",
 
-FUNC4_ADER_0 =>x"44",
-FUNC4_ADER_1 =>x"00",
-FUNC4_ADER_2 =>x"00",
-FUNC4_ADER_3 =>x"00",
+FUNC4_ADER_0 =>x"00",   --used for decoding the FUNC3
+FUNC4_ADER_1 =>x"00",   --used for decoding the FUNC3
+FUNC4_ADER_2 =>x"00",   --used for decoding the FUNC3
+FUNC4_ADER_3 =>x"c0",   --used for decoding the FUNC3
 
-FUNC5_ADER_0 =>x"00",
+FUNC5_ADER_0 =>x"01",
 FUNC5_ADER_1 =>x"00",
-FUNC5_ADER_2 =>x"34",
-FUNC5_ADER_3 =>x"11",
+FUNC5_ADER_2 =>x"00",
+FUNC5_ADER_3 =>x"c0",
 
 FUNC6_ADER_0 =>x"00",
 FUNC6_ADER_1 =>x"00",
 FUNC6_ADER_2 =>x"00",
-FUNC6_ADER_3 =>x"80",
+FUNC6_ADER_3 =>x"00",
 
+IRQ_Vector   =>x"86",
+IRQ_level    =>x"02",
 others => (others => '0'));
 
 

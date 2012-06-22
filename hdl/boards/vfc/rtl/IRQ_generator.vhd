@@ -44,7 +44,6 @@ architecture Behavioral of IRQ_generator is
 signal s_en_int : std_logic;
 type t_FSM is (IDLE, CHECK, INCR, IRQ, WAIT_INT_ACK, WAIT_RD);
 signal currs, nexts : t_FSM;
-signal RST_n_oversampled : std_logic;
 signal s_IRQ_o : std_logic;
 signal s_count : unsigned(31 downto 0);
 signal s_Rd_Int_Count_delayed : std_logic;
@@ -53,14 +52,10 @@ signal s_count_int : unsigned(31 downto 0);
 signal s_count_req : unsigned(31 downto 0);
 signal s_incr : std_logic;
 signal s_gen_irq : std_logic;
+signal s_count0 : std_logic;
+signal s_Freq : std_logic_vector(31 downto 0);
 begin
--- RST oversampled...The reset input is asincronous so is better to sample it
-RSTinputSample : entity work.DoubleSigInputSample
-    port map(
-      sig_i => reset,
-      sig_o => RST_n_oversampled,
-      clk_i => clk_i
-      );			
+	
 RDinputSample : entity work.DoubleSigInputSample
     port map(
       sig_i => Read_Int_Count,
@@ -75,14 +70,36 @@ IRQOutputSample : entity work.FlipFlopD
 		reset => '0',
 		enable => '1'
       );		
+process(clk_i)
+  begin
+    if rising_edge(clk_i) then
+	    if reset = '0' then s_Freq <= (others => '0');
+	    elsif s_count0 = '1' then
+		       s_Freq <= Freq; 
+       end if;
+			 
+	 end if;	 
+  end process;				
+	
+process(clk_i)
+  begin
+    if rising_edge(clk_i) then
+	   if s_count = 0 then
+		   s_count0 <= '1';
+		else 
+         s_count0 <= '0';
+      end if;			
+    end if;
+end process;			
 		
 process(clk_i)
   begin
     if rising_edge(clk_i) then
-	   if unsigned(Freq) = 0 then
-		   s_en_int <= '0';
+	   if reset = '0' then s_en_int <= '0';
+	   elsif unsigned(s_Freq) = 0 then
+		      s_en_int <= '0';
 		else 
-         s_en_int <= '1';
+            s_en_int <= '1';
       end if;			
     end if;
 end process;		
@@ -90,7 +107,7 @@ end process;
 process(clk_i)
 	begin
 	if rising_edge(clk_i) then
-      if RST_n_oversampled = '0' then s_count <= (others => '0');
+      if reset = '0' or s_pulse = '1' then s_count <= (others => '0');
       elsif s_en_int = '1' then
       s_count <= s_count + 1;
 		end if;	
@@ -100,7 +117,7 @@ end process;
 process(clk_i)
 	begin
 	if rising_edge(clk_i) then
-      if s_en_int = '1' and unsigned(Freq) = s_count then 
+      if s_en_int = '1' and unsigned(s_Freq) = s_count then 
          s_pulse <= '1';
 		else
          s_pulse <= '0';			
@@ -111,8 +128,8 @@ end process;
 process(clk_i)
 	begin
 	if rising_edge(clk_i) then
-      if RST_n_oversampled = '0' then s_count_int <= (others => '0');
-      elsif s_en_int = '1' then
+      if reset = '0' then s_count_int <= (others => '0');
+      elsif s_en_int = '1' and s_pulse = '1' then
       s_count_int <= s_count_int + 1;
 		end if;	
 	end if;
@@ -121,7 +138,7 @@ end process;
 process(clk_i)
 	begin
 	if rising_edge(clk_i) then
-      if RST_n_oversampled = '0' then s_count_req <= (others => '0');
+      if reset = '0' then s_count_req <= (others => '0');
       elsif s_incr = '1' then
             s_count_req <= s_count_req + 1;
 		end if;	
@@ -142,7 +159,7 @@ end process;
 process(clk_i)
 begin
   if rising_edge(clk_i) then
-      if RST_n_oversampled = '0' then currs <= IDLE;
+      if reset = '0' then currs <= IDLE;
       else currs <= nexts;
       end if;	
   end if;
@@ -168,7 +185,7 @@ begin
 		     nexts <= WAIT_INT_ACK;
 			    
 		  when WAIT_INT_ACK =>
-		     if INT_ack = '1' then
+		     if INT_ack = '0' then
 		        nexts <= WAIT_RD;	  
 			  else
 			     nexts <= WAIT_INT_ACK;

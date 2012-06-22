@@ -10,6 +10,8 @@ add wave -noupdate -expand -group VME_signals /vme64x_tb/VME_AM_i
 add wave -noupdate -expand -group VME_signals /vme64x_tb/VME_DS_n_i
 add wave -noupdate -expand -group VME_signals /vme64x_tb/VME_GA_i
 add wave -noupdate -expand -group VME_signals /vme64x_tb/VME_BBSY_n_i
+add wave -noupdate -expand -group VME_signals /vme64x_tb/VME_IACK_n_i
+add wave -noupdate -expand -group VME_signals /vme64x_tb/VME_IACKOUT_n_o
 add wave -noupdate -expand -group VME_signals /vme64x_tb/VME_IACKIN_n_i
 add wave -noupdate -expand -group VME_signals /vme64x_tb/VME_LWORD_n_b
 add wave -noupdate -expand -group VME_signals -radix hexadecimal /vme64x_tb/VME_ADDR_b
@@ -39,8 +41,8 @@ add wave -noupdate -group {Don't care} /vme64x_tb/WriteInProgress
 add wave -noupdate -group {Don't care} /vme64x_tb/rst_n_i
 add wave -noupdate -group {Don't care} /vme64x_tb/localAddress
 add wave -noupdate -group {Don't care} /vme64x_tb/s_dataToSendOut
-add wave -noupdate -expand -group WB_SLAVE_IN_OUT -childformat {{/vme64x_tb/uut/Inst_xwb_dpram/slave1_i.adr -radix hexadecimal} {/vme64x_tb/uut/Inst_xwb_dpram/slave1_i.dat -radix hexadecimal}} -expand -subitemconfig {/vme64x_tb/uut/Inst_xwb_dpram/slave1_i.adr {-height 16 -radix hexadecimal} /vme64x_tb/uut/Inst_xwb_dpram/slave1_i.dat {-radix hexadecimal}} /vme64x_tb/uut/Inst_xwb_dpram/slave1_i
-add wave -noupdate -expand -group WB_SLAVE_IN_OUT -childformat {{/vme64x_tb/uut/Inst_xwb_dpram/slave1_o.dat -radix hexadecimal}} -expand -subitemconfig {/vme64x_tb/uut/Inst_xwb_dpram/slave1_o.dat {-radix hexadecimal}} /vme64x_tb/uut/Inst_xwb_dpram/slave1_o
+add wave -noupdate -expand -group WB_SLAVE_IN_OUT -childformat {{/vme64x_tb/uut/Inst_xwb_dpram/slave1_i.adr -radix hexadecimal} {/vme64x_tb/uut/Inst_xwb_dpram/slave1_i.dat -radix hexadecimal}} -expand -subitemconfig {/vme64x_tb/uut/Inst_xwb_dpram/slave1_i.adr {-height 16 -radix hexadecimal} /vme64x_tb/uut/Inst_xwb_dpram/slave1_i.dat {-height 16 -radix hexadecimal}} /vme64x_tb/uut/Inst_xwb_dpram/slave1_i
+add wave -noupdate -expand -group WB_SLAVE_IN_OUT -childformat {{/vme64x_tb/uut/Inst_xwb_dpram/slave1_o.dat -radix hexadecimal}} -expand -subitemconfig {/vme64x_tb/uut/Inst_xwb_dpram/slave1_o.dat {-height 16 -radix hexadecimal}} /vme64x_tb/uut/Inst_xwb_dpram/slave1_o
 add wave -noupdate /vme64x_tb/uut/Inst_VME64xCore_Top/VME_bus_1/s_CSRarray
 add wave -noupdate -group FIFO /vme64x_tb/uut/Inst_VME64xCore_Top/Fifo/currs
 add wave -noupdate -group FIFO /vme64x_tb/uut/Inst_VME64xCore_Top/Fifo/sl_cyc_i
@@ -69,12 +71,35 @@ add wave -noupdate -group FIFO /vme64x_tb/uut/Inst_VME64xCore_Top/Fifo/m_sel_o
 add wave -noupdate -group FIFO /vme64x_tb/uut/Inst_VME64xCore_Top/Fifo/m_we_o
 add wave -noupdate -group FIFO /vme64x_tb/uut/Inst_VME64xCore_Top/Fifo/m_stall_i
 add wave -noupdate -group FIFO /vme64x_tb/uut/Inst_VME64xCore_Top/Fifo/transfer_done_i
-add wave -noupdate /vme64x_tb/uut/Inst_VME64xCore_Top/Fifo/VMEtoWB
-add wave -noupdate /vme64x_tb/uut/Inst_VME64xCore_Top/Fifo/WBtoVME
-add wave -noupdate /vme64x_tb/uut/Inst_VME64xCore_Top/Fifo/s_VMEWriteInFifo
-add wave -noupdate -radix unsigned /vme64x_tb/uut/Inst_VME64xCore_Top/Fifo/s_addr
+add wave -noupdate -expand -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_IRQ_Controller/VME_IACKIN_n_i
+add wave -noupdate -expand -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_IRQ_Controller/VME_AS_n_i
+add wave -noupdate -expand -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_IRQ_Controller/VME_DS_n_i
+add wave -noupdate -expand -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_IRQ_Controller/VME_LWORD_n_i
+add wave -noupdate -expand -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_IRQ_Controller/VME_ADDR_123
+add wave -noupdate -expand -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_IRQ_Controller/INT_Level
+add wave -noupdate -expand -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_IRQ_Controller/INT_Vector
+add wave -noupdate -expand -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_IRQ_Controller/INT_Req
+add wave -noupdate -expand -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_IRQ_Controller/VME_IRQ_n_o
+add wave -noupdate -expand -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_IRQ_Controller/VME_IACKOUT_n_o
+add wave -noupdate -expand -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_IRQ_Controller/VME_DTACK_n_o
+add wave -noupdate -expand -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_IRQ_Controller/VME_DATA_o
+add wave -noupdate -expand -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_IRQ_Controller/currs
+add wave -noupdate -expand -group IRQ_Generator /vme64x_tb/uut/Inst_xwb_dpram/Inst_IRQ_generator/Freq
+add wave -noupdate -expand -group IRQ_Generator -radix decimal /vme64x_tb/uut/Inst_xwb_dpram/Inst_IRQ_generator/Int_Count_i
+add wave -noupdate -expand -group IRQ_Generator /vme64x_tb/uut/Inst_xwb_dpram/Inst_IRQ_generator/Read_Int_Count
+add wave -noupdate -expand -group IRQ_Generator /vme64x_tb/uut/Inst_xwb_dpram/Inst_IRQ_generator/INT_ack
+add wave -noupdate -expand -group IRQ_Generator /vme64x_tb/uut/Inst_xwb_dpram/Inst_IRQ_generator/IRQ_o
+add wave -noupdate -expand -group IRQ_Generator -radix decimal /vme64x_tb/uut/Inst_xwb_dpram/Inst_IRQ_generator/Int_Count_o
+add wave -noupdate -expand -group IRQ_Generator /vme64x_tb/uut/Inst_xwb_dpram/Inst_IRQ_generator/currs
+add wave -noupdate /vme64x_tb/uut/Inst_VME64xCore_Top/VME_bus_1/s_cardSel
+add wave -noupdate /vme64x_tb/uut/Inst_VME64xCore_Top/VME_bus_1/s_funcMatch
+add wave -noupdate -radix hexadecimal /vme64x_tb/uut/Inst_VME64xCore_Top/VME_bus_1/s_phase1addr
+add wave -noupdate /vme64x_tb/uut/Inst_VME64xCore_Top/VME_bus_1/s_XAMtype
+add wave -noupdate /vme64x_tb/uut/Inst_VME64xCore_Top/VME_bus_1/s_addrWidth
+add wave -noupdate /vme64x_tb/uut/Inst_VME64xCore_Top/VME_bus_1/s_AMmatch
+add wave -noupdate /vme64x_tb/uut/Inst_VME64xCore_Top/VME_bus_1/s_FUNC_ADER
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {36265000 ps} 0}
+WaveRestoreCursors {{Cursor 1} {91591032 ps} 0}
 configure wave -namecolwidth 184
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -89,4 +114,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {36160167 ps} {36521200 ps}
+WaveRestoreZoom {89690733 ps} {95279436 ps}

@@ -97,16 +97,19 @@ signal s_sel_IntCount : std_logic;
 signal s_Int_Count_o : std_logic_vector(31 downto 0);
 signal s_Int_Count_o1 : std_logic_vector(31 downto 0);
 signal s_Read_IntCount : std_logic;
-
+signal s_rst : std_logic;
 begin
+s_rst <= not(rst_n_i);
 s_q_o1 <= s_INT_COUNT & s_FREQ;
 s_en_Freq <= '1' when (unsigned(slave1_i.adr(f_log2_size(g_size)-1 downto 0)) = 0 and s_bwea = "00001111") else '0';
 s_Int_Count_o1 <= slave1_i.dat(63 downto 32) when (s_bwea = "11110000" and (unsigned(slave1_i.adr(f_log2_size(g_size)-1 downto 0))) = 0) else s_Int_Count_o;
 s_Read_IntCount <= '1' when (slave1_i.we = '0' and slave1_i.sel = "11110000" and (unsigned(slave1_i.adr(f_log2_size(g_size)-1 downto 0))) = 0 and slave1_out.ack = '1') else '0';
+
+
 -- Reg INT_COUNT
 INT_COUNT : entity work.Reg32bit
     port map(
-      reset => rst_n_i,
+      reset => s_rst,
 		enable => '1',
 		di => s_Int_Count_o1,
       do => s_INT_COUNT,
@@ -115,7 +118,7 @@ INT_COUNT : entity work.Reg32bit
 -- Reg FREQ
 FREQ : entity work.Reg32bit
     port map(
-      reset => rst_n_i,
+      reset => s_rst,
 		enable => s_en_Freq,
 		di => slave1_i.dat(31 downto 0),
       do => s_FREQ,
@@ -124,7 +127,7 @@ FREQ : entity work.Reg32bit
 		
 Inst_IRQ_generator: IRQ_generator PORT MAP(
 		clk_i => clk_sys_i,
-		reset => rst_n_i,
+		reset => s_rst,
 		Freq => s_FREQ,
 		Int_Count_i => s_INT_COUNT,
 		Read_Int_Count => s_Read_IntCount,
@@ -186,7 +189,7 @@ Inst_IRQ_generator: IRQ_generator PORT MAP(
   process(clk_sys_i)
   begin
     if(rising_edge(clk_sys_i)) then
-      if(rst_n_i = '0') then
+      if(s_rst = '0') then
         slave1_out.ack <= '0';      -- it was slave1_out.ack and slave1_in in all the process
       --  slave2_out.ack <= '0';
       else

@@ -8,7 +8,7 @@ package VME_CR_pack is
   constant c_amcap : std_logic_vector(63 downto 0) :=
     "1111111100000000001100100000000000000000000100001111111100001011";
   constant c_amcap0 : std_logic_vector(63 downto 0) :=
-    "1011101100000000101000100000000100000000000000001011101100001011";   -- added by Davide	 
+    "1011101100000000101000100000000100000000000000001011101100000000";   -- added by Davide	 
    -- the function 0 support the modalities: A24, A24S, A24_BLT, A24_MBLT, A16, A32, A32_BLT, A32_MBLT, A64, A64_BLT, A64_MBLT, Two Edge 
   constant c_amcap1 : std_logic_vector(63 downto 0) :=
     "0000000000000000000000000000000000000000000000000000000000001011"; -- added by Davide for modalities A64, A64_BLT, A64_MBLT
@@ -18,8 +18,6 @@ package VME_CR_pack is
   constant c_xamcap0 : std_logic_vector(255 downto 0) :=
     (others => '0');   -- added by Davide	 	 
 	 
-  constant c_xamcap1 : std_logic_vector(255 downto 0) :=
-    (others => '0');   -- added by Davide
 	 
   constant c_xamcap2 : std_logic_vector(255 downto 0) :=
     x"0000000000000000000000000000000000000000000000000000000000060006";   -- added by Davide
@@ -57,23 +55,12 @@ package VME_CR_pack is
 				c_xamcap0(167 downto 160), c_xamcap0(175 downto 168), c_xamcap0(183 downto 176), c_xamcap0(191 downto 184),
 				c_xamcap0(199 downto 192), c_xamcap0(207 downto 200), c_xamcap0(215 downto 208), c_xamcap0(223 downto 216),
 				c_xamcap0(231 downto 224), c_xamcap0(239 downto 232), c_xamcap0(247 downto 240), c_xamcap0(255 downto 248));
-				
-				
-	constant c_xam1 : t_cr_array(0 to 31) :=(               -- Added by Davide
-            c_xamcap1(7 downto 0), c_xamcap1(15 downto 8),c_xamcap1(23 downto 16), c_xamcap1(31 downto 24),
-            c_xamcap1(39 downto 32), c_xamcap1(47 downto 40), c_xamcap1(55 downto 48), c_xamcap1(63 downto 56), 
-				c_xamcap1(71 downto 64), c_xamcap1(79 downto 72), c_xamcap1(87 downto 80), c_xamcap1(95 downto 88),
-				c_xamcap1(103 downto 96), c_xamcap1(111 downto 104), c_xamcap1(119 downto 112),c_xamcap1(127 downto 120),
-				c_xamcap1(135 downto 128), c_xamcap1(143 downto 136), c_xamcap1(151 downto 144), c_xamcap1(159 downto 152),
-				c_xamcap1(167 downto 160), c_xamcap1(175 downto 168), c_xamcap1(183 downto 176), c_xamcap1(191 downto 184),
-				c_xamcap1(199 downto 192), c_xamcap1(207 downto 200), c_xamcap1(215 downto 208), c_xamcap1(223 downto 216),
-				c_xamcap1(231 downto 224), c_xamcap1(239 downto 232), c_xamcap1(247 downto 240), c_xamcap1(255 downto 248));	
 
 
    constant c_xam2 : t_cr_array(0 to 31) :=(               -- Added by Davide
             c_xamcap2(7 downto 0), c_xamcap2(15 downto 8),c_xamcap2(23 downto 16), c_xamcap2(31 downto 24),
-            c_xamcap2(39 downto 32), c_xamcap2(47 downto 40), c_xamcap2(55 downto 48), c_xamcap1(63 downto 56), 
-				c_xamcap2(71 downto 64), c_xamcap2(79 downto 72), c_xamcap2(87 downto 80), c_xamcap1(95 downto 88),
+            c_xamcap2(39 downto 32), c_xamcap2(47 downto 40), c_xamcap2(55 downto 48), c_xamcap2(63 downto 56), 
+				c_xamcap2(71 downto 64), c_xamcap2(79 downto 72), c_xamcap2(87 downto 80), c_xamcap2(95 downto 88),
 				c_xamcap2(103 downto 96), c_xamcap2(111 downto 104), c_xamcap2(119 downto 112),c_xamcap2(127 downto 120),
 				c_xamcap2(135 downto 128), c_xamcap2(143 downto 136), c_xamcap2(151 downto 144), c_xamcap2(159 downto 152),
 				c_xamcap2(167 downto 160), c_xamcap2(175 downto 168), c_xamcap2(183 downto 176), c_xamcap2(191 downto 184),
@@ -167,62 +154,62 @@ package VME_CR_pack is
       16#4E#  => c_amb0(1), -- Fun 0  
       16#4F#  => c_amb0(0), -- Fun 0
 
-      16#50#  => c_amb1(7), -- Fun 1    --modified by Davide   
-      16#51#  => c_amb1(6), -- Fun 1 
-      16#52#  => c_amb1(5), -- Fun 1 
-      16#53#  => c_amb1(4), -- Fun 1 
-      16#54#  => c_amb1(3), -- Fun 1 
-      16#55#  => c_amb1(2), -- Fun 1 
-      16#56#  => c_amb1(1), -- Fun 1  
-      16#57#  => c_amb1(0), -- Fun 1
+      16#50#  => c_amb0(7), -- Fun 1    --modified by Davide   
+      16#51#  => c_amb0(6), -- Fun 1 
+      16#52#  => c_amb0(5), -- Fun 1 
+      16#53#  => c_amb0(4), -- Fun 1 
+      16#54#  => c_amb0(3), -- Fun 1 
+      16#55#  => c_amb0(2), -- Fun 1 
+      16#56#  => c_amb0(1), -- Fun 1  
+      16#57#  => c_amb0(0), -- Fun 1
 
 
-      16#58#  => x"00", -- Fun 1_b     --modified by Davide
-      16#59#  => x"00", -- Fun 1_b  
-      16#5A#  => x"00", -- Fun 1_b
-      16#5B#  => x"00", -- Fun 1_b 
-      16#5C#  => x"00", -- Fun 1_b 
-      16#5D#  => x"00", -- Fun 1_b 
-      16#5E#  => x"00", -- Fun 1_b 
-      16#5F#  => x"00", -- Fun 1_b
+      16#58#  => c_amb0(7), -- Fun 2     --modified by Davide
+      16#59#  => c_amb0(6), -- Fun 2  
+      16#5A#  => c_amb0(5), -- Fun 2
+      16#5B#  => c_amb0(4), -- Fun 2 
+      16#5C#  => c_amb0(3), -- Fun 2 
+      16#5D#  => c_amb0(2), -- Fun 2 
+      16#5E#  => c_amb0(1), -- Fun 2 
+      16#5F#  => c_amb0(0), -- Fun 2
 
 
-      16#60#  => c_amb2(7), -- Fun 2 
-      16#61#  => c_amb2(6), -- Fun 2 
-      16#62#  => c_amb2(5), -- Fun 2 
-      16#63#  => c_amb2(4), -- Fun 2 
-      16#64#  => c_amb2(3), -- Fun 2 
-      16#65#  => c_amb2(2), -- Fun 2 
-      16#66#  => c_amb2(1), -- Fun 2 
-      16#67#  => c_amb2(0), -- Fun 2
+      16#60#  => c_amb1(7), -- Fun 3 
+      16#61#  => c_amb1(6), -- Fun 3 
+      16#62#  => c_amb1(5), -- Fun 3 
+      16#63#  => c_amb1(4), -- Fun 3 
+      16#64#  => c_amb1(3), -- Fun 3 
+      16#65#  => c_amb1(2), -- Fun 3 
+      16#66#  => c_amb1(1), -- Fun 3 
+      16#67#  => c_amb1(0), -- Fun 3
 
 
-      16#68#  => x"00", -- Fun 2_b
-      16#69#  => x"00", -- Fun 2_b 
-      16#6A#  => x"00", -- Fun 2_b 
-      16#6B#  => x"00", -- Fun 2_b 
-      16#6C#  => x"00", -- Fun 2_b 
-      16#6D#  => x"00", -- Fun 2_b 
-      16#6E#  => x"00", -- Fun 2_b 
-      16#6F#  => x"00", -- Fun 2_b
+      16#68#  => x"00", -- Fun 3_b   --These are not used because the FUNC 3 decode the access mode: A64 --> 2 ADER, 2 ADEM
+      16#69#  => x"00", -- Fun 3_b 
+      16#6A#  => x"00", -- Fun 3_b 
+      16#6B#  => x"00", -- Fun 3_b 
+      16#6C#  => x"00", -- Fun 3_b 
+      16#6D#  => x"00", -- Fun 3_b 
+      16#6E#  => x"00", -- Fun 3_b 
+      16#6F#  => x"00", -- Fun 3_b
 
-      16#70#  => x"00", -- Fun 3 
-      16#71#  => x"00", -- Fun 3 
-      16#72#  => x"00", -- Fun 3 
-      16#73#  => x"01", -- Fun 3
-      16#74#  => x"00", -- Fun 3 
-      16#75#  => x"00", -- Fun 3 
-      16#76#  => x"00", -- Fun 3 
-      16#77#  => x"00", -- Fun 3
+      16#70#  => c_amb2(7), -- Fun 4 
+      16#71#  => c_amb2(6), -- Fun 4 
+      16#72#  => c_amb2(5), -- Fun 4 
+      16#73#  => c_amb2(4), -- Fun 4
+      16#74#  => c_amb2(3), -- Fun 4 
+      16#75#  => c_amb2(2), -- Fun 4 
+      16#76#  => c_amb2(1), -- Fun 4 
+      16#77#  => c_amb2(0), -- Fun 4
 
-      16#78#  => x"00", -- Fun 4 
-      16#79#  => x"00", -- Fun 4 
-      16#7A#  => x"00", -- Fun 4 
-      16#7B#  => x"00", -- Fun 4
-      16#7C#  => x"00", -- Fun 4 
-      16#7D#  => x"00", -- Fun 4 
-      16#7E#  => x"0b", -- Fun 4 
-      16#7F#  => x"00", -- Fun 4
+      16#78#  => x"00", -- Fun 4_b 
+      16#79#  => x"00", -- Fun 4_b 
+      16#7A#  => x"00", -- Fun 4_b 
+      16#7B#  => x"00", -- Fun 4_b
+      16#7C#  => x"00", -- Fun 4_b 
+      16#7D#  => x"00", -- Fun 4_b 
+      16#7E#  => x"00", -- Fun 4_b 
+      16#7F#  => x"00", -- Fun 4_b
 
 
 --Xamcap
@@ -260,108 +247,236 @@ package VME_CR_pack is
 		16#A7#  => c_xam0(0),
 		
  
-      16#A8#  => c_xam1(31),         -- Fun 1  XAMCAP MSB
-		16#A9#  => c_xam1(30),
-		16#AA#  => c_xam1(29),
-		16#AB#  => c_xam1(28),
-		16#AC#  => c_xam1(27),
-		16#AD#  => c_xam1(26),
-		16#AE#  => c_xam1(25),
-		16#AF#  => c_xam1(24),
-		16#B0#  => c_xam1(23),
-		16#B1#  => c_xam1(22),
-		16#B2#  => c_xam1(21),
-		16#B3#  => c_xam1(20),
-		16#B4#  => c_xam1(19),
-		16#B5#  => c_xam1(18),
-		16#B6#  => c_xam1(17),
-		16#B7#  => c_xam1(16),
-		16#B8#  => c_xam1(15),
-		16#B9#  => c_xam1(14),
-		16#BA#  => c_xam1(13),
-		16#BB#  => c_xam1(12),
-		16#BC#  => c_xam1(11),
-		16#BD#  => c_xam1(10),
-		16#BE#  => c_xam1(9),
-		16#BF#  => c_xam1(8),
-		16#C0#  => c_xam1(7),
-		16#C1#  => c_xam1(6),
-		16#C2#  => c_xam1(5),
-		16#C3#  => c_xam1(4),
-		16#C4#  => c_xam1(3),
-		16#C5#  => c_xam1(2),
-		16#C6#  => c_xam1(1),
-		16#C7#  => c_xam1(0),
+      16#A8#  => c_xam0(31),         -- Fun 1  XAMCAP MSB
+		16#A9#  => c_xam0(30),
+		16#AA#  => c_xam0(29),
+		16#AB#  => c_xam0(28),
+		16#AC#  => c_xam0(27),
+		16#AD#  => c_xam0(26),
+		16#AE#  => c_xam0(25),
+		16#AF#  => c_xam0(24),
+		16#B0#  => c_xam0(23),
+		16#B1#  => c_xam0(22),
+		16#B2#  => c_xam0(21),
+		16#B3#  => c_xam0(20),
+		16#B4#  => c_xam0(19),
+		16#B5#  => c_xam0(18),
+		16#B6#  => c_xam0(17),
+		16#B7#  => c_xam0(16),
+		16#B8#  => c_xam0(15),
+		16#B9#  => c_xam0(14),
+		16#BA#  => c_xam0(13),
+		16#BB#  => c_xam0(12),
+		16#BC#  => c_xam0(11),
+		16#BD#  => c_xam0(10),
+		16#BE#  => c_xam0(9),
+		16#BF#  => c_xam0(8),
+		16#C0#  => c_xam0(7),
+		16#C1#  => c_xam0(6),
+		16#C2#  => c_xam0(5),
+		16#C3#  => c_xam0(4),
+		16#C4#  => c_xam0(3),
+		16#C5#  => c_xam0(2),
+		16#C6#  => c_xam0(1),
+		16#C7#  => c_xam0(0),
 		
-		16#C8#  => x"00",         -- Fun 1_b  XAMCAP MSB
-		16#C9#  => x"00",
-		16#CA#  => x"00",
-		16#CB#  => x"00",
-		16#CC#  => x"00",
-		16#CD#  => x"00",
-		16#CE#  => x"00",
-		16#CF#  => x"00",
-		16#D0#  => x"00",
-		16#D1#  => x"00",
-		16#D2#  => x"00",
-		16#D3#  => x"00",
-		16#D4#  => x"00",
-		16#D5#  => x"00",
-		16#D6#  => x"00",
-		16#D7#  => x"00",
-		16#D8#  => x"00",
-		16#D9#  => x"00",
-		16#DA#  => x"00",
-		16#DB#  => x"00",
-		16#DC#  => x"00",
-		16#DD#  => x"00",
-		16#DE#  => x"00",
-		16#DF#  => x"00",
-		16#E0#  => x"00",
-		16#E1#  => x"00",
-		16#E2#  => x"00",
-		16#E3#  => x"00",
-		16#E4#  => x"00",
-		16#E5#  => x"00",
-		16#E6#  => x"00",
-		16#E7#  => x"00",
+		16#C8#  => c_xam0(31),         -- Fun 2  XAMCAP MSB
+		16#C9#  => c_xam0(30),
+		16#CA#  => c_xam0(29),
+		16#CB#  => c_xam0(28),
+		16#CC#  => c_xam0(27),
+		16#CD#  => c_xam0(26),
+		16#CE#  => c_xam0(25),
+		16#CF#  => c_xam0(24),
+		16#D0#  => c_xam0(23),
+		16#D1#  => c_xam0(22),
+		16#D2#  => c_xam0(21),
+		16#D3#  => c_xam0(20),
+		16#D4#  => c_xam0(19),
+		16#D5#  => c_xam0(18),
+		16#D6#  => c_xam0(17),
+		16#D7#  => c_xam0(16),
+		16#D8#  => c_xam0(15),
+		16#D9#  => c_xam0(14),
+		16#DA#  => c_xam0(13),
+		16#DB#  => c_xam0(12),
+		16#DC#  => c_xam0(11),
+		16#DD#  => c_xam0(10),
+		16#DE#  => c_xam0(9),
+		16#DF#  => c_xam0(8),
+		16#E0#  => c_xam0(7),
+		16#E1#  => c_xam0(6),
+		16#E2#  => c_xam0(5),
+		16#E3#  => c_xam0(4),
+		16#E4#  => c_xam0(3),
+		16#E5#  => c_xam0(2),
+		16#E6#  => c_xam0(1),
+		16#E7#  => c_xam0(0),
 		
-      16#E8#  => c_xam2(31),         -- Fun 2  XAMCAP MSB
-		16#E9#  => c_xam2(30),
-		16#EA#  => c_xam2(29),
-		16#EB#  => c_xam2(28),
-		16#EC#  => c_xam2(27),
-		16#ED#  => c_xam2(26),
-		16#EE#  => c_xam2(25),
-		16#EF#  => c_xam2(24),
-		16#F0#  => c_xam2(23),
-		16#F1#  => c_xam2(22),
-		16#F2#  => c_xam2(21),
-		16#F3#  => c_xam2(20),
-		16#F4#  => c_xam2(19),
-		16#F5#  => c_xam2(18),
-		16#F6#  => c_xam2(17),
-		16#F7#  => c_xam2(16),
-		16#F8#  => c_xam2(15),
-		16#F9#  => c_xam2(14),
-		16#FA#  => c_xam2(13),
-		16#FB#  => c_xam2(12),
-		16#FC#  => c_xam2(11),
-		16#FD#  => c_xam2(10),
-		16#FE#  => c_xam2(9),
-		16#FF#  => c_xam2(8),
-		16#100#  => c_xam2(7),
-		16#101#  => c_xam2(6),
-		16#102#  => c_xam2(5),
-		16#103#  => c_xam2(4),
-		16#104#  => c_xam2(3),
-		16#105#  => c_xam2(2),
-		16#106#  => c_xam2(1),
-		16#107#  => c_xam2(0),
+      16#E8#  => c_xam0(31),         -- Fun 3  XAMCAP MSB
+		16#E9#  => c_xam0(30),
+		16#EA#  => c_xam0(29),
+		16#EB#  => c_xam0(28),
+		16#EC#  => c_xam0(27),
+		16#ED#  => c_xam0(26),
+		16#EE#  => c_xam0(25),
+		16#EF#  => c_xam0(24),
+		16#F0#  => c_xam0(23),
+		16#F1#  => c_xam0(22),
+		16#F2#  => c_xam0(21),
+		16#F3#  => c_xam0(20),
+		16#F4#  => c_xam0(19),
+		16#F5#  => c_xam0(18),
+		16#F6#  => c_xam0(17),
+		16#F7#  => c_xam0(16),
+		16#F8#  => c_xam0(15),
+		16#F9#  => c_xam0(14),
+		16#FA#  => c_xam0(13),
+		16#FB#  => c_xam0(12),
+		16#FC#  => c_xam0(11),
+		16#FD#  => c_xam0(10),
+		16#FE#  => c_xam0(9),
+		16#FF#  => c_xam0(8),
+		16#100#  => c_xam0(7),
+		16#101#  => c_xam0(6),
+		16#102#  => c_xam0(5),
+		16#103#  => c_xam0(4),
+		16#104#  => c_xam0(3),
+		16#105#  => c_xam0(2),
+		16#106#  => c_xam0(1),
+		16#107#  => c_xam0(0),
 		
-      16#108#  => x"00", -- Fun 2_b  XAMCAP MSB
-      16#109#  => x"00", -- Fun 2_b  XAMCAP=0x11
-      16#10a#  => x"00",  -- Fun 2_b  
+		16#108#  => c_xam0(31),         -- Fun 3_b  XAMCAP MSB
+		16#109#  => c_xam0(30),
+		16#10A#  => c_xam0(29),
+		16#10B#  => c_xam0(28),
+		16#10C#  => c_xam0(27),
+		16#10D#  => c_xam0(26),
+		16#10E#  => c_xam0(25),
+		16#10F#  => c_xam0(24),
+		16#110#  => c_xam0(23),
+		16#111#  => c_xam0(22),
+		16#112#  => c_xam0(21),
+		16#113#  => c_xam0(20),
+		16#114#  => c_xam0(19),
+		16#115#  => c_xam0(18),
+		16#116#  => c_xam0(17),
+		16#117#  => c_xam0(16),
+		16#118#  => c_xam0(15),
+		16#119#  => c_xam0(14),
+		16#11A#  => c_xam0(13),
+		16#11B#  => c_xam0(12),
+		16#11C#  => c_xam0(11),
+		16#11D#  => c_xam0(10),
+		16#11E#  => c_xam0(9),
+		16#11F#  => c_xam0(8),
+		16#120#  => c_xam0(7),
+		16#121#  => c_xam0(6),
+		16#122#  => c_xam0(5),
+		16#123#  => c_xam0(4),
+		16#124#  => c_xam0(3),
+		16#125#  => c_xam0(2),
+		16#126#  => c_xam0(1),
+		16#127#  => c_xam0(0),
+	
+      16#128#  => c_xam2(31),         -- Fun 4  XAMCAP MSB
+		16#129#  => c_xam2(30),
+		16#12A#  => c_xam2(29),
+		16#12B#  => c_xam2(28),
+		16#12C#  => c_xam2(27),
+		16#12D#  => c_xam2(26),
+		16#12E#  => c_xam2(25),
+		16#12F#  => c_xam2(24),
+		16#130#  => c_xam2(23),
+		16#131#  => c_xam2(22),
+		16#132#  => c_xam2(21),
+		16#133#  => c_xam2(20),
+		16#134#  => c_xam2(19),
+		16#135#  => c_xam2(18),
+		16#136#  => c_xam2(17),
+		16#137#  => c_xam2(16),
+		16#138#  => c_xam2(15),
+		16#139#  => c_xam2(14),
+		16#13A#  => c_xam2(13),
+		16#13B#  => c_xam2(12),
+		16#13C#  => c_xam2(11),
+		16#13D#  => c_xam2(10),
+		16#13E#  => c_xam2(9),
+		16#13F#  => c_xam2(8),
+		16#140#  => c_xam2(7),
+		16#141#  => c_xam2(6),
+		16#142#  => c_xam2(5),
+		16#143#  => c_xam2(4),
+		16#144#  => c_xam2(3),
+		16#145#  => c_xam2(2),
+		16#146#  => c_xam2(1),
+		16#147#  => c_xam2(0),
+
+      16#148#  => c_xam0(31),         -- Fun 4_b  XAMCAP MSB
+		16#149#  => c_xam0(30),
+		16#14A#  => c_xam0(29),
+		16#14B#  => c_xam0(28),
+		16#14C#  => c_xam0(27),
+		16#14D#  => c_xam0(26),
+		16#14E#  => c_xam0(25),
+		16#14F#  => c_xam0(24),
+		16#150#  => c_xam0(23),
+		16#151#  => c_xam0(22),
+		16#152#  => c_xam0(21),
+		16#153#  => c_xam0(20),
+		16#154#  => c_xam0(19),
+		16#155#  => c_xam0(18),
+		16#156#  => c_xam0(17),
+		16#157#  => c_xam0(16),
+		16#158#  => c_xam0(15),
+		16#159#  => c_xam0(14),
+		16#15A#  => c_xam0(13),
+		16#15B#  => c_xam0(12),
+		16#15C#  => c_xam0(11),
+		16#15D#  => c_xam0(10),
+		16#15E#  => c_xam0(9),
+		16#15F#  => c_xam0(8),
+		16#160#  => c_xam0(7),
+		16#161#  => c_xam0(6),
+		16#162#  => c_xam0(5),
+		16#163#  => c_xam0(4),
+		16#164#  => c_xam0(3),
+		16#165#  => c_xam0(2),
+		16#166#  => c_xam0(1),
+		16#167#  => c_xam0(0),
+
+      16#168#  => c_xam0(31),         -- Fun 5  XAMCAP MSB
+		16#169#  => c_xam0(30),
+		16#16A#  => c_xam0(29),
+		16#16B#  => c_xam0(28),
+		16#16C#  => c_xam0(27),
+		16#16D#  => c_xam0(26),
+		16#16E#  => c_xam0(25),
+		16#16F#  => c_xam0(24),
+		16#170#  => c_xam0(23),
+		16#171#  => c_xam0(22),
+		16#172#  => c_xam0(21),
+		16#173#  => c_xam0(20),
+		16#174#  => c_xam0(19),
+		16#175#  => c_xam0(18),
+		16#176#  => c_xam0(17),
+		16#177#  => c_xam0(16),
+		16#178#  => c_xam0(15),
+		16#179#  => c_xam0(14),
+		16#17A#  => c_xam0(13),
+		16#17B#  => c_xam0(12),
+		16#17C#  => c_xam0(11),
+		16#17D#  => c_xam0(10),
+		16#17E#  => c_xam0(9),
+		16#17F#  => c_xam0(8),
+		16#180#  => c_xam0(7),
+		16#181#  => c_xam0(6),
+		16#182#  => c_xam0(5),
+		16#183#  => c_xam0(4),
+		16#184#  => c_xam0(3),
+		16#185#  => c_xam0(2),
+		16#186#  => c_xam0(1),
+		16#187#  => c_xam0(0),
 
 --...
 
@@ -376,32 +491,32 @@ package VME_CR_pack is
       16#18B#  => x"00", -- Fun 0 
 
       16#18c#  => x"00", -- Fun 1 
-      16#18d#  => x"00", -- Fun 1 
+      16#18d#  => x"ff", -- Fun 1 
       16#18e#  => x"00", -- Fun 1 
-      16#18f#  => x"01", -- Fun 1 
+      16#18f#  => x"00", -- Fun 1 
 
-      16#190#  => x"ff", -- Fun 1_b 
-      16#191#  => x"00", -- Fun 1_b
-      16#192#  => x"00", -- Fun 1_b 
-      16#193#  => x"00", -- Fun 1_b
+      16#190#  => x"ff", -- Fun 2 
+      16#191#  => x"00", -- Fun 2
+      16#192#  => x"00", -- Fun 2 
+      16#193#  => x"00", -- Fun 2
 
-      16#194#  => x"00", -- Fun 2 
-      16#195#  => x"00", -- Fun 2 
-      16#196#  => x"00", -- Fun 2 
-      16#197#  => x"01", -- Fun 2
+      16#194#  => x"00", -- Fun 3 
+      16#195#  => x"00", -- Fun 3 
+      16#196#  => x"00", -- Fun 3 
+      16#197#  => x"01", -- Fun 3
 
-      16#198#  => x"ff", -- Fun 2_b 
-      16#199#  => x"ff", -- Fun 2_b 
-      16#19a#  => x"ff", -- Fun 2_b 
-      16#19b#  => x"f0", -- Fun 2_b
+      16#198#  => x"ff", -- Fun 4 (used for decoding FUNC3) 
+      16#199#  => x"ff", -- Fun 4 (used for decoding FUNC3)
+      16#19a#  => x"00", -- Fun 4 (used for decoding FUNC3)
+      16#19b#  => x"00", -- Fun 4 (used for decoding FUNC3)
 
 
       16#19c#  => x"ff", -- Fun 5 
       16#19d#  => x"00", -- Fun 5 
       16#19e#  => x"00", -- Fun 5 
-      16#19f#  => x"00", -- Fun 5
+      16#19f#  => x"01", -- Fun 5
 
-      16#1a0#  => x"ff", -- Fun 6 
+      16#1a0#  => x"00", -- Fun 6 
       16#1a1#  => x"00", -- Fun 6 
       16#1a2#  => x"00", -- Fun 6 
       16#1a3#  => x"00", -- Fun 6

@@ -163,6 +163,7 @@ COMPONENT VME64xCore_Top
 		STB_o : OUT std_logic;
 		-- Add by Davide for debug:
 	   leds    : out std_logic_vector(7 downto 0);
+		reset_o : out std_logic;
 		WE_o : OUT std_logic
 		);
 END COMPONENT;
@@ -208,6 +209,8 @@ signal clk_in : std_logic;
 signal s_locked : std_logic;
 signal s_fb : std_logic;
 signal s_INT_ack : std_logic;
+signal s_rst : std_logic;
+
 begin
 
 Inst_VME64xCore_Top: VME64xCore_Top PORT MAP(
@@ -250,6 +253,7 @@ Inst_VME64xCore_Top: VME64xCore_Top PORT MAP(
 		STALL_i => WbStall_i, --
 		IRQ_i => WbIrq_i,  --
 		INT_ack => s_INT_ack,
+		reset_o => s_rst,
 		-- Add by Davide for debug:
 	   leds   => leds
 	);
@@ -265,7 +269,7 @@ Inst_xwb_dpram: xwb_dpram
 						)
     		port map(
 		            clk_sys_i => clk_in,
-		            rst_n_i => Rst,
+		            rst_n_i => s_rst,
 						INT_ack => s_INT_ack,
 						slave1_i.cyc => WbCyc_o,
                   slave1_i.stb => WbStb_o,
@@ -284,7 +288,7 @@ Inst_xwb_dpram: xwb_dpram
 	
 	
 Rst <= VME_RST_n_i and Reset;
-	
+
 -- PLL_BASE_inst : PLL_BASE
 --   generic map (
 --      BANDWIDTH => "OPTIMIZED",             -- "HIGH", "LOW" or "OPTIMIZED" 

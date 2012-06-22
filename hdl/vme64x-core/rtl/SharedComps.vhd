@@ -84,17 +84,20 @@ entity Reg32bit is
 		);
 end Reg32bit;
 architecture RTL of Reg32bit is
-signal s_reg : std_logic_vector(31 downto 0);
+--signal s_reg : std_logic_vector(31 downto 0);
 begin
 	process(clk_i)
 	begin
 		if rising_edge(clk_i) then
-		   if reset = '0' then s_reg <= (others => '0');
+		   if reset = '0' then 
+			     do <= (others => '0');
+				  --s_reg <= (others => '0');
 			elsif enable = '1' then	
-			s_reg     <= di;
+			     do <= di;
+			--s_reg <= di;
 			end if;
-			do <= s_reg;
 		end if;	
+		--do <= s_reg;
 	end process;
 end RTL;
 
