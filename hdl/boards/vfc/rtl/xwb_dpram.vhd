@@ -98,6 +98,7 @@ signal s_Int_Count_o : std_logic_vector(31 downto 0);
 signal s_Int_Count_o1 : std_logic_vector(31 downto 0);
 signal s_Read_IntCount : std_logic;
 signal s_rst : std_logic;
+signal s_stall : std_logic;
 begin
 s_rst <= not(rst_n_i);
 s_q_o1 <= s_INT_COUNT & s_FREQ;
@@ -183,7 +184,7 @@ Inst_IRQ_generator: IRQ_generator PORT MAP(
   s_bwea <= slave1_i.sel when s_wea = '1' else f_zeros(c_wishbone_data_width/8);    --it was slave1_in.sel
  -- s_bweb <= slave2_in.sel when s_web = '1' else f_zeros(c_wishbone_data_width/8);
 
-  s_wea <= slave1_i.we and slave1_i.cyc and slave1_i.stb;               -- it was slave1_in.we and slave1_in.stb and slave1_in.cyc;
+  s_wea <= slave1_i.we and slave1_i.cyc and slave1_i.stb and (not s_stall);               -- it was slave1_in.we and slave1_in.stb and slave1_in.cyc;
   --s_web <= slave2_in.we and slave2_in.stb and slave2_in.cyc;
 
   process(clk_sys_i)
@@ -196,7 +197,7 @@ Inst_IRQ_generator: IRQ_generator PORT MAP(
         if(slave1_out.ack = '1' and g_slave1_interface_mode = CLASSIC) then
           slave1_out.ack <= '0';
         else
-          slave1_out.ack <= slave1_i.cyc and slave1_i.stb;
+          slave1_out.ack <= slave1_i.cyc and slave1_i.stb and (not s_stall) ;
         end if;
 
        -- if(slave2_out.ack = '1' and g_slave2_interface_mode = CLASSIC) then
@@ -207,9 +208,19 @@ Inst_IRQ_generator: IRQ_generator PORT MAP(
       end if;
     end if;
   end process;
-
+  process(clk_sys_i)
+  begin
+   if(rising_edge(clk_sys_i)) then
+      if(s_rst = '0') or slave1_out.ack = '1' then
+           s_stall <= '1';
+      elsif slave1_i.cyc = '1' then
+		     s_stall <= '0';  
+		end if; 
+   end if;       		
+  end process;
+  
   slave1_o.dat <= s_q_o1 when  unsigned(slave1_i.adr(f_log2_size(g_size)-1 downto 0)) = 0 else s_q_o;
-  slave1_o.stall <= '0';
+  slave1_o.stall <= s_stall;
  -- slave2_out.stall <= '0';
   slave1_o.err <= '0';
   --slave2_out.err <= '0';

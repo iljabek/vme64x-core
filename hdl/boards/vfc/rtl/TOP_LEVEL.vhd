@@ -298,7 +298,7 @@ Rst <= VME_RST_n_i and Reset;
 --      CLKIN_PERIOD => 50.000,                  -- Input clock period in ns to ps resolution (i.e. 33.333 is 30
 --                                            -- MHz).
 --      -- CLKOUT0_DIVIDE - CLKOUT5_DIVIDE: Divide amount for CLKOUT# clock output (1-128)
---      CLKOUT0_DIVIDE => 30,
+--      CLKOUT0_DIVIDE => 12,
 --      CLKOUT1_DIVIDE => 1,
 --      CLKOUT2_DIVIDE => 1,
 --      CLKOUT3_DIVIDE => 1,
