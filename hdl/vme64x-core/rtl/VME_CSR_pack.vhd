@@ -1,36 +1,60 @@
+--________________________________________________________________________________________________
+--                             VME TO WB INTERFACE
+--
+--                                CERN,BE/CO-HT 
+--________________________________________________________________________________________________
+-- File:                         VME_CSR_pack.vhd
+--________________________________________________________________________________________________
+-- Description: This file defines the default configuration of the CSR space after power-up or software reset.
+--______________________________________________________________________________
+-- Authors:      Erik Van der Bij      (Erik.Van.der.Bij@cern.ch)                                  
+--               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
+--               Davide Pedretti       (Davide.Pedretti@cern.ch)  
+-- Date         06/2012                                                                           
+-- Version      v0.01  
+--______________________________________________________________________________
+--                               GNU LESSER GENERAL PUBLIC LICENSE                                
+--                              ------------------------------------                              
+-- This source file is free software; you can redistribute it and/or modify it under the terms of 
+-- the GNU Lesser General Public License as published by the Free Software Foundation; either     
+-- version 2.1 of the License, or (at your option) any later version.                             
+-- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       
+-- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     
+-- See the GNU Lesser General Public License for more details.                                    
+-- You should have received a copy of the GNU Lesser General Public License along with this       
+-- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     
+---------------------------------------------------------------------------------------
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.numeric_std.all;
 
---type  is array(BAR downto IRQ_level) of unsigned(7 downto 0);
-
-use work.VME_pack.all;
+use work.vme64x_pack.all;
 package VME_CSR_pack is
 
-     constant c_csr_array : 	t_CSRarray :=
+constant c_csr_array : 	t_CSRarray :=
 (
 BAR  => x"00", --CR/CSR BAR
 BIT_SET_CLR_REG  => x"10", --Bit set register -- 0x10=module enable
 USR_BIT_SET_CLR_REG  => x"00", --Bit clear register
 CRAM_OWNER  => x"00", --CRAM_OWNER
 
-FUNC0_ADER_0 =>x"09",  -- it was x"45"
-FUNC0_ADER_1 =>x"00",
-FUNC0_ADER_2 =>x"00",
-FUNC0_ADER_3 =>x"c0",   -- it was x"80"
+FUNC0_ADER_0 =>x"00",  --A32_S   "24"
+FUNC0_ADER_1 =>x"00",  --        "00"
+FUNC0_ADER_2 =>x"00",  --        "00"
+FUNC0_ADER_3 =>x"00",  --        "c0"
 
-FUNC1_ADER_0 =>x"39",
-FUNC1_ADER_1 =>x"00",
+FUNC1_ADER_0 =>x"00",  --A24_S   "e4"
+FUNC1_ADER_1 =>x"00",  --        "00"
+FUNC1_ADER_2 =>x"00",  --        "c0" 
+FUNC1_ADER_3 =>x"00",  --        "00"  
 
-FUNC1_ADER_2 =>x"c0",   -- it was x"34"
-FUNC1_ADER_3 =>x"00",   -- it was x"12"  
+FUNC2_ADER_0 =>x"00",   --A16_S  "a4"
+FUNC2_ADER_1 =>x"00",  --        "c0"
+FUNC2_ADER_2 =>x"00",  --        "00"
+FUNC2_ADER_3 =>x"00",  --        "00"
 
-FUNC2_ADER_0 =>x"08",    -- it was x"e4"
-FUNC2_ADER_1 =>x"00",
-FUNC2_ADER_2 =>x"00",   -- it was x"80"
-FUNC2_ADER_3 =>x"c0",
-
-FUNC3_ADER_0 =>x"04",   -- A64_S
+FUNC3_ADER_0 =>x"00",   --A64_S  "04"
 FUNC3_ADER_1 =>x"00",
 FUNC3_ADER_2 =>x"00",
 FUNC3_ADER_3 =>x"00",
@@ -38,60 +62,22 @@ FUNC3_ADER_3 =>x"00",
 FUNC4_ADER_0 =>x"00",   --used for decoding the FUNC3
 FUNC4_ADER_1 =>x"00",   --used for decoding the FUNC3
 FUNC4_ADER_2 =>x"00",   --used for decoding the FUNC3
-FUNC4_ADER_3 =>x"c0",   --used for decoding the FUNC3
+FUNC4_ADER_3 =>x"00",   --used for decoding the FUNC3 "c0"
 
-FUNC5_ADER_0 =>x"01",
+FUNC5_ADER_0 =>x"00",
 FUNC5_ADER_1 =>x"00",
 FUNC5_ADER_2 =>x"00",
-FUNC5_ADER_3 =>x"c0",
+FUNC5_ADER_3 =>x"00",
 
 FUNC6_ADER_0 =>x"00",
 FUNC6_ADER_1 =>x"00",
 FUNC6_ADER_2 =>x"00",
 FUNC6_ADER_3 =>x"00",
 
-IRQ_Vector   =>x"86",
+IRQ_Vector   =>x"00",  --"00" because each Slot has a different IRQ Vector
+                       -- and the VME Master should set this value
 IRQ_level    =>x"02",
 others => (others => '0'));
-
-
---    constant BAR : integer := 255;
---    constant BIT_SET_CLR_REG : integer := 254;
---    constant USR_BIT_SET_CLR_REG : integer := 253;
---    constant CRAM_OWNER : integer := 252;
---
---    constant FUNC7_ADER_0 : integer := 251;
---    constant FUNC7_ADER_1 : integer := FUNC7_ADER_0 - 1;
---    constant FUNC7_ADER_2 : integer := FUNC7_ADER_0 - 2;
---    constant FUNC7_ADER_3 : integer := FUNC7_ADER_0 - 3;
---    constant FUNC6_ADER_0 : integer := FUNC7_ADER_0 - 4;
---    constant FUNC6_ADER_1 : integer := FUNC7_ADER_0 - 5;
---    constant FUNC6_ADER_2 : integer := FUNC7_ADER_0 - 6;
---    constant FUNC6_ADER_3 : integer := FUNC7_ADER_0 - 7;
---    constant FUNC5_ADER_0 : integer := FUNC7_ADER_0 - 8;
---    constant FUNC5_ADER_1 : integer := FUNC7_ADER_0 - 9;
---    constant FUNC5_ADER_2 : integer := FUNC7_ADER_0 - 10;
---    constant FUNC5_ADER_3 : integer := FUNC7_ADER_0 - 11;
---    constant FUNC4_ADER_0 : integer := FUNC7_ADER_0 - 12;
---    constant FUNC4_ADER_1 : integer := FUNC7_ADER_0 - 13;
---    constant FUNC4_ADER_2 : integer := FUNC7_ADER_0 - 14;
---    constant FUNC4_ADER_3 : integer := FUNC7_ADER_0 - 15;
---    constant FUNC3_ADER_0 : integer := FUNC7_ADER_0 - 16;
---    constant FUNC3_ADER_1 : integer := FUNC7_ADER_0 - 17;
---    constant FUNC3_ADER_2 : integer := FUNC7_ADER_0 - 18;
---    constant FUNC3_ADER_3 : integer := FUNC7_ADER_0 - 19;
---    constant FUNC2_ADER_0 : integer := FUNC7_ADER_0 - 20;
---    constant FUNC2_ADER_1 : integer := FUNC7_ADER_0 - 21;
---    constant FUNC2_ADER_2 : integer := FUNC7_ADER_0 - 22;
---    constant FUNC2_ADER_3 : integer := FUNC7_ADER_0 - 23;
---    constant FUNC1_ADER_0 : integer := FUNC7_ADER_0 - 24;
---    constant FUNC1_ADER_1 : integer := FUNC7_ADER_0 - 25;
---    constant FUNC1_ADER_2 : integer := FUNC7_ADER_0 - 26;
---    constant FUNC1_ADER_3 : integer := FUNC7_ADER_0 - 27;
---    constant FUNC0_ADER_0 : integer := FUNC7_ADER_0 - 28;
---    constant FUNC0_ADER_1 : integer := FUNC7_ADER_0 - 29;
---    constant FUNC0_ADER_2 : integer := FUNC7_ADER_0 - 30;
---    constant FUNC0_ADER_3 : integer := FUNC7_ADER_0 - 31;
 end VME_CSR_pack;                                                                
 
 

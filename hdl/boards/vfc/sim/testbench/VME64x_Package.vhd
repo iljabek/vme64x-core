@@ -18,7 +18,7 @@ use IEEE.STD_LOGIC_1164.all;
 use IEEE.std_logic_arith.all;
 use IEEE.std_logic_unsigned.all;
 use work.all;
-use work.VME_pack.all;
+use work.vme64x_pack.all;
 
 
 package VME64x is
@@ -65,7 +65,7 @@ type t_Buffer_MBLT is array (0 to 258) of std_logic_vector(63 downto 0);      --
 --The buffer has 258 positions, not 256; the last position is for test the error if i transfer more of 256 bytes.
 
 type t_dataTransferType is  (D08Byte0, D08Byte1, D08Byte2, D08Byte3, D16Byte01, D16Byte23, D32);	-- for D64 use dataTransferType D32!
-type t_AddressingType is  (A24, A24_BLT, A24_MBLT, A24_LCK, CR_CSR, A16, A16_LCK, A32, A32_BLT, A32_MBLT, A32_LCK,
+type t_Addressing_Type is  (A24, A24_BLT, A24_MBLT, A24_LCK, CR_CSR, A16, A16_LCK, A32, A32_BLT, A32_MBLT, A32_LCK,
       A64, A64_BLT, A64_MBLT, A64_LCK, A32_2eVME, A64_2eVME, A32_2eSST, A64_2eSST, error);	
 
 	
@@ -140,7 +140,7 @@ constant ADER2_2e_b : std_logic_vector(31 downto 0) := BA(7 downto 3) & "0000000
   constant c_FUNC0_ADER_1 : std_logic_vector := x"7FF6B";
   constant c_FUNC0_ADER_2 : std_logic_vector := x"7FF67";
   constant c_FUNC0_ADER_3 : std_logic_vector := x"7FF63"; 
-  
+  constant c_BYTES0    : std_logic_vector := x"7FF3b";
   constant c_MBLT_Endian : std_logic_vector := x"7Ff53";
   constant c_IRQ_Vector : std_logic_vector := x"7FF5F";
   constant c_IRQ_level : std_logic_vector := x"7FF5B";

@@ -18,8 +18,8 @@ use IEEE.std_logic_arith.all;
 use IEEE.std_logic_unsigned.all;
 use IEEE.numeric_std.all;
 use IEEE.numeric_std.unsigned;
-use work.all;
-use work.VME_pack.all;
+
+use work.vme64x_pack.all;
 use work.VME64x.all;
 use work.VME_CR_pack.all;
 use std.textio.all;
@@ -30,87 +30,87 @@ package VME64xSim is
    
    -- function <function_name>  (signal <signal_name> : in <type_declaration>) return <type_declaration>;
    procedure WriteCSR	(c_address	: in std_logic_vector(19 downto 0); signal s_dataToSend : in std_logic_vector(31 downto 0);
-   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; 
+   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; 
    signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record);
 
    procedure S_Write	(v_address	: in std_logic_vector(63 downto 0); signal s_dataToSend : in std_logic_vector(31 downto 0);  -- this procedure is for A16, A24, A32 address type
-   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; 
+   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; 
    signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record);
 	
 	procedure A64S_Write	(v_address	: in std_logic_vector(63 downto 0); signal s_dataToSend : in std_logic_vector(31 downto 0);  -- this procedure is for A16, A24, A32 address type
-   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; 
+   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; 
    signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record);
 	
 	procedure A64S_Read (v_address	: in std_logic_vector(63 downto 0); signal s_dataToReceive : in std_logic_vector(31 downto 0);  -- this procedure is for A16, A24, A32 address type
-   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; 
+   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; 
    signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record);
 
    procedure S_Read (v_address	: in std_logic_vector(63 downto 0); signal s_dataToReceive : in std_logic_vector(31 downto 0);  -- this procedure is for A16, A24, A32 address type
-   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; 
+   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; 
    signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record);
 
    procedure Blt_Read(v_address	: in std_logic_vector(63 downto 0); signal s_Buffer_BLT : in t_Buffer_BLT;  -- this procedure is for A16, A24, A32 address type
-   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; num : in std_logic_vector(8 downto 0); 
+   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; num : in std_logic_vector(8 downto 0); 
    signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record);
 
    procedure Blt_write(v_address	: in std_logic_vector(63 downto 0); signal s_Buffer_BLT : in t_Buffer_BLT;  -- this procedure is for A16, A24, A32 address type
-   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; num : in std_logic_vector(8 downto 0); 
+   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; num : in std_logic_vector(8 downto 0); 
    signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record);
    
    procedure A64Blt_write(v_address	: in std_logic_vector(63 downto 0); signal s_Buffer_BLT : in t_Buffer_BLT;  -- this procedure is for A16, A24, A32 address type
-   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; num : in std_logic_vector(8 downto 0); 
+   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; num : in std_logic_vector(8 downto 0); 
    signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record);
 	
 	procedure A64Blt_Read(v_address	: in std_logic_vector(63 downto 0); signal s_Buffer_BLT : in t_Buffer_BLT;  -- this procedure is for A16, A24, A32 address type
-   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; num : in std_logic_vector(8 downto 0); 
+   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; num : in std_logic_vector(8 downto 0); 
    signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record);
 
    procedure Mblt_write(v_address	: in std_logic_vector(63 downto 0); signal s_Buffer_MBLT : in t_Buffer_MBLT;  -- this procedure is for A16, A24, A32 address type
-   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; num : in std_logic_vector(8 downto 0); 
+   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; num : in std_logic_vector(8 downto 0); 
    signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record);
 
    procedure A64Mblt_write(v_address	: in std_logic_vector(63 downto 0); signal s_Buffer_MBLT : in t_Buffer_MBLT;  -- this procedure is for A16, A24, A32 address type
-   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; num : in std_logic_vector(8 downto 0); 
+   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; num : in std_logic_vector(8 downto 0); 
    signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record);
 
    procedure Mblt_Read(v_address	: in std_logic_vector(63 downto 0); signal s_Buffer_MBLT : in t_Buffer_MBLT;  -- this procedure is for A16, A24, A32 address type
-   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; num : in std_logic_vector(8 downto 0); 
+   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; num : in std_logic_vector(8 downto 0); 
    signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record);
 
    procedure A64Mblt_Read(v_address	: in std_logic_vector(63 downto 0); signal s_Buffer_MBLT : in t_Buffer_MBLT;  -- this procedure is for A16, A24, A32 address type
-   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; num : in std_logic_vector(8 downto 0); 
+   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; num : in std_logic_vector(8 downto 0); 
    signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record);
 
    procedure Interrupt_Handler(signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record; signal s_dataToReceive : in std_logic_vector(31 downto 0);
-	                            signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType);
+	                            signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type);
 
 
 
 
    procedure ReadCR_CSR(c_address	: in std_logic_vector(19 downto 0); signal s_dataToReceive : in std_logic_vector(31 downto 0);
-   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; 
+   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; 
    signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record);
 
    procedure SetAmAddress	(signal s_dataTransferType : in t_dataTransferType;
-   signal s_AddressingType : in t_AddressingType; Vme64xAM : out std_logic_vector(5 downto 0);
+   signal s_AddressingType : in t_Addressing_Type; Vme64xAM : out std_logic_vector(5 downto 0);
    DataType : out std_logic_vector(3 downto 0));
 	
-	procedure SetXAmAddress(signal s_AddressingType : in t_AddressingType; v_XAm : out std_logic_vector(7 downto 0));
+	procedure SetXAmAddress(signal s_AddressingType : in t_Addressing_Type; v_XAm : out std_logic_vector(7 downto 0));
 	
-	procedure A64SetAddress	(c_address : in std_logic_vector(63 downto 0); signal s_AddressingType : in t_AddressingType; v_address : out std_logic_vector(63 downto 0));
+	procedure A64SetAddress	(c_address : in std_logic_vector(63 downto 0); signal s_AddressingType : in t_Addressing_Type; v_address : out std_logic_vector(63 downto 0));
 
    procedure ShiftData	(write_n : in std_logic; signal s_dataTransferType : in t_dataTransferType; signal s_dataToShift : in std_logic_vector(31 downto 0); v_dataToShiftOut : out std_logic_vector(31 downto 0));							 
    procedure SetCrCsrAddress	(c_address : in std_logic_vector(19 downto 0); v_address : out std_logic_vector(31 downto 0));
-   procedure SetAddress	(c_address : in std_logic_vector(63 downto 0); signal s_AddressingType : in t_AddressingType; v_address : out std_logic_vector(31 downto 0));
-   procedure ControlCR (signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; signal VME64xBus_In : in VME64xBusIn_Record; 
+   procedure SetAddress	(c_address : in std_logic_vector(63 downto 0); signal s_AddressingType : in t_Addressing_Type; v_address : out std_logic_vector(31 downto 0));
+   procedure ControlCR (signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; signal VME64xBus_In : in VME64xBusIn_Record; 
    signal s_dataToReceive : inout std_logic_vector(31 downto 0); signal VME64xBus_Out : out VME64xBusOut_Record);
    
 	procedure TWOeVME_write(v_address	: in std_logic_vector(63 downto 0); signal s_Buffer_MBLT : in t_Buffer_MBLT;  -- this procedure is for A16, A24, A32 address type
-   signal s_AddressingType : in t_AddressingType; v_beat_count : in std_logic_vector(7 downto 0); 
+   signal s_AddressingType : in t_Addressing_Type; v_beat_count : in std_logic_vector(7 downto 0); 
    signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record);
    
 	procedure TWOeVME_read(v_address	: in std_logic_vector(63 downto 0); signal s_Buffer_MBLT : in t_Buffer_MBLT;  -- this procedure is for A16, A24, A32 address type
-   signal s_AddressingType : in t_AddressingType; v_beat_count : in std_logic_vector(7 downto 0); 
+   signal s_AddressingType : in t_Addressing_Type; v_beat_count : in std_logic_vector(7 downto 0); 
    signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record);
 	
 end VME64xSim;
@@ -119,7 +119,7 @@ end VME64xSim;
 package body VME64xSim is
    
    procedure WriteCSR  (c_address : in std_logic_vector(19 downto 0); signal s_dataToSend	: in std_logic_vector(31 downto 0);
-   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType;
+   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type;
    signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record) is
 
    variable  Vme64xAM : std_logic_vector(5 downto 0);
@@ -183,7 +183,7 @@ begin
 end ;
 
 procedure ReadCR_CSR	(c_address	: in std_logic_vector(19 downto 0); signal s_dataToReceive : in std_logic_vector(31 downto 0);
-signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; 
+signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; 
 signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record) is
 
    variable  Vme64xAM : std_logic_vector(5 downto 0);
@@ -254,7 +254,7 @@ begin
 end ReadCR_CSR;
 
 procedure SetAmAddress	(signal s_dataTransferType : in t_dataTransferType;
-signal s_AddressingType : in t_AddressingType; Vme64xAM : out std_logic_vector (5 downto 0);
+signal s_AddressingType : in t_Addressing_Type; Vme64xAM : out std_logic_vector (5 downto 0);
 DataType : out std_logic_vector (3 downto 0)) is
 
   begin
@@ -327,7 +327,7 @@ DataType : out std_logic_vector (3 downto 0)) is
      v_address := x"00" & not VME_GA(4 downto 0) & c_address(18 downto 0);
   end  SetCrCsrAddress;
 
-  procedure ControlCR (signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; signal VME64xBus_In : in VME64xBusIn_Record;
+  procedure ControlCR (signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; signal VME64xBus_In : in VME64xBusIn_Record;
   signal s_dataToReceive : inout std_logic_vector(31 downto 0); signal VME64xBus_Out : out VME64xBusOut_Record) is
 
 
@@ -358,7 +358,7 @@ DataType : out std_logic_vector (3 downto 0)) is
      end;  
 
      procedure S_Write (v_address	: in std_logic_vector(63 downto 0); signal s_dataToSend : in std_logic_vector(31 downto 0);  -- this procedure is for A16, A24, A32 address type
-     signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; 
+     signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; 
      signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record) is
 
         variable  Vme64xAM : std_logic_vector(5 downto 0);
@@ -417,7 +417,7 @@ DataType : out std_logic_vector (3 downto 0)) is
      end ;	 
 	  
 	  procedure S_Read (v_address	: in std_logic_vector(63 downto 0); signal s_dataToReceive : in std_logic_vector(31 downto 0);  -- this procedure is for A16, A24, A32 address type
-     signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; 
+     signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; 
      signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record) is
 	  
 	  variable  Vme64xAM : std_logic_vector(5 downto 0);
@@ -482,7 +482,7 @@ DataType : out std_logic_vector (3 downto 0)) is
 	  end;
 --------------------------------------------------------------------------	  
 	 procedure Blt_Read(v_address	: in std_logic_vector(63 downto 0); signal s_Buffer_BLT : in t_Buffer_BLT;  -- this procedure is for A16, A24, A32 address type
-   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; num : in std_logic_vector(8 downto 0); 
+   signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; num : in std_logic_vector(8 downto 0); 
    signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record) is
     variable n : integer;
 	 variable  Vme64xAM : std_logic_vector(5 downto 0);
@@ -546,7 +546,7 @@ DataType : out std_logic_vector (3 downto 0)) is
 	 end; 
 	  
 	  procedure Blt_write(v_address	: in std_logic_vector(63 downto 0); signal s_Buffer_BLT : in t_Buffer_BLT;  -- this procedure is for A16, A24, A32 address type
-              signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; num : in std_logic_vector(8 downto 0); 
+              signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; num : in std_logic_vector(8 downto 0); 
               signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record) is
      variable n : integer;
 	  variable  Vme64xAM : std_logic_vector(5 downto 0);
@@ -606,7 +606,7 @@ DataType : out std_logic_vector (3 downto 0)) is
 	 end; 
 	  
 	 procedure Mblt_write(v_address	: in std_logic_vector(63 downto 0); signal s_Buffer_MBLT : in t_Buffer_MBLT;  -- this procedure is for A16, A24, A32 address type
-    signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; num : in std_logic_vector(8 downto 0); 
+    signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; num : in std_logic_vector(8 downto 0); 
     signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record) is
     
 	  variable n : integer;
@@ -680,7 +680,7 @@ DataType : out std_logic_vector (3 downto 0)) is
 	 end;
 
      procedure Mblt_Read(v_address	: in std_logic_vector(63 downto 0); signal s_Buffer_MBLT : in t_Buffer_MBLT;  -- this procedure is for A16, A24, A32 address type
-      signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; num : in std_logic_vector(8 downto 0); 
+      signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; num : in std_logic_vector(8 downto 0); 
       signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record) is
 	   variable  n : integer;
 	   variable  Vme64xAM : std_logic_vector(5 downto 0);
@@ -757,7 +757,7 @@ DataType : out std_logic_vector (3 downto 0)) is
 
      end;
 	 
-     procedure SetAddress	(c_address : in std_logic_vector(63 downto 0); signal s_AddressingType : in t_AddressingType; v_address : out std_logic_vector(31 downto 0)) is
+     procedure SetAddress	(c_address : in std_logic_vector(63 downto 0); signal s_AddressingType : in t_Addressing_Type; v_address : out std_logic_vector(31 downto 0)) is
 
      begin
         case s_AddressingType is 
@@ -774,7 +774,7 @@ DataType : out std_logic_vector (3 downto 0)) is
         end case;
       end;	
       
-		procedure A64SetAddress	(c_address : in std_logic_vector(63 downto 0); signal s_AddressingType : in t_AddressingType; v_address : out std_logic_vector(63 downto 0)) is
+		procedure A64SetAddress	(c_address : in std_logic_vector(63 downto 0); signal s_AddressingType : in t_Addressing_Type; v_address : out std_logic_vector(63 downto 0)) is
 
      begin
         case s_AddressingType is 
@@ -791,21 +791,19 @@ DataType : out std_logic_vector (3 downto 0)) is
       end;	
 		
 		procedure Interrupt_Handler(signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record; signal s_dataToReceive : in std_logic_vector(31 downto 0);
-	                            signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType) is
+	                            signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type) is
 		
 		--variable v_dataTransferType : t_dataTransferType;
-		--variable v_AddressingType  : t_AddressingType;
+		--variable v_AddressingType  : t_Addressing_Type;
 		variable v_address : std_logic_vector(63 downto 0);
 		--variable v_dataToReceive : std_logic_vector(31 downto 0);
-		
+		variable ti : time;
 		begin
-		report "Sono qui bella 1!";
-		wait until VME64xBus_In.Vme64xIRQ /= x"0000000";
-		report "Sono qui bella 2!";
+		ti := now;
+		--wait until VME64xBus_In.Vme64xIRQ /= x"0000000";
 		if VME64xBus_In.Vme64xDtackN /='1' or VME64xBus_In.Vme64xBerrN /='0' then 
       wait until VME64xBus_In.Vme64xDtackN ='1' and VME64xBus_In.Vme64xBerrN = '0';
       end if;
-		report "Sono qui bella 3!";
 		--initialisation
      VME64xBus_Out.Vme64xAsN <='1';   
      VME64xBus_Out.Vme64xWRITEN <='1';
@@ -823,8 +821,9 @@ DataType : out std_logic_vector (3 downto 0)) is
 	  VME64xBus_Out.Vme64xAsN <='0';  
 	  VME64xBus_Out.Vme64xDs0N <='0';
      VME64xBus_Out.Vme64xDs1N <='0';
-	  wait until (VME64xBus_In.Vme64xDtackN = '0' or VME64xBus_In.Vme64xBerrN = '1');
+	  wait until (VME64xBus_In.Vme64xDtackN = '0' or VME64xBus_In.Vme64xBerrN = '1' or (now > (ti + 2 us)));
 	  wait for 10 ns;
+	  if (VME64xBus_In.Vme64xDtackN = '0') then
 	  VME64xBus_Out.Vme64xAsN <='1';  
 	  VME64xBus_Out.Vme64xDs0N <='1';
      VME64xBus_Out.Vme64xDs1N <='1';
@@ -838,11 +837,19 @@ DataType : out std_logic_vector (3 downto 0)) is
      --v_dataToReceive := x"00000001";
      S_Read(v_address => v_address, s_dataToReceive => s_dataToReceive, s_dataTransferType => s_dataTransferType,
      s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, VME64xBus_Out => VME64xBus_Out);
-	  
+	  else 
+	  VME64xBus_Out.Vme64xAsN <='1';  
+	  VME64xBus_Out.Vme64xDs0N <='1';
+     VME64xBus_Out.Vme64xDs1N <='1';
+	  VME64xBus_Out.Vme64xIACK <= '1';
+	  VME64xBus_Out.Vme64xLWORDN <='1';
+	  VME64xBus_Out.Vme64xIACKIN <= '1';
+	  wait for 30 ns;
+	  end if;
 	  end;
 		
 	 procedure A64S_Write	(v_address	: in std_logic_vector(63 downto 0); signal s_dataToSend : in std_logic_vector(31 downto 0);  -- this procedure is for A16, A24, A32 address type
-    signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; 
+    signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; 
     signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record) is
 	 
 	     variable  Vme64xAM : std_logic_vector(5 downto 0);
@@ -907,7 +914,7 @@ DataType : out std_logic_vector (3 downto 0)) is
 	 end;
 		
 		procedure A64S_Read (v_address	: in std_logic_vector(63 downto 0); signal s_dataToReceive : in std_logic_vector(31 downto 0);  -- this procedure is for A16, A24, A32 address type
-      signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; 
+      signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; 
       signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record) is
 		
 		variable  Vme64xAM : std_logic_vector(5 downto 0);
@@ -980,7 +987,7 @@ DataType : out std_logic_vector (3 downto 0)) is
 	  end;	
 	  
 	  procedure A64Blt_write(v_address	: in std_logic_vector(63 downto 0); signal s_Buffer_BLT : in t_Buffer_BLT;  -- this procedure is for A16, A24, A32 address type
-             signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; num : in std_logic_vector(8 downto 0); 
+             signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; num : in std_logic_vector(8 downto 0); 
              signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record)is
 	  variable n : integer;
 	  variable  Vme64xAM : std_logic_vector(5 downto 0);
@@ -1049,7 +1056,7 @@ DataType : out std_logic_vector (3 downto 0)) is
 	  end;
 	  
 	  procedure A64Blt_Read(v_address	: in std_logic_vector(63 downto 0); signal s_Buffer_BLT : in t_Buffer_BLT;  -- this procedure is for A16, A24, A32 address type
-                signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; num : in std_logic_vector(8 downto 0); 
+                signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; num : in std_logic_vector(8 downto 0); 
                 signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record) is
 	  
 	  variable  n : integer;
@@ -1123,7 +1130,7 @@ DataType : out std_logic_vector (3 downto 0)) is
 	  end;
 	  
 	  procedure A64Mblt_write(v_address	: in std_logic_vector(63 downto 0); signal s_Buffer_MBLT : in t_Buffer_MBLT;  -- this procedure is for A16, A24, A32 address type
-          signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; num : in std_logic_vector(8 downto 0); 
+          signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; num : in std_logic_vector(8 downto 0); 
           signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record)is
 	  variable n : integer;
 	  variable  Vme64xAM : std_logic_vector(5 downto 0);
@@ -1198,7 +1205,7 @@ DataType : out std_logic_vector (3 downto 0)) is
 	  end;
 	  
 	  procedure A64Mblt_Read(v_address	: in std_logic_vector(63 downto 0); signal s_Buffer_MBLT : in t_Buffer_MBLT;  -- this procedure is for A16, A24, A32 address type
-             signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_AddressingType; num : in std_logic_vector(8 downto 0); 
+             signal s_dataTransferType : in t_dataTransferType; signal s_AddressingType : in t_Addressing_Type; num : in std_logic_vector(8 downto 0); 
              signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record) is
 				 
 		variable  n : integer;
@@ -1277,7 +1284,7 @@ DataType : out std_logic_vector (3 downto 0)) is
 		
      end;	  
 	  
-	  procedure SetXAmAddress(signal s_AddressingType : in t_AddressingType; v_XAm : out std_logic_vector(7 downto 0))is
+	  procedure SetXAmAddress(signal s_AddressingType : in t_Addressing_Type; v_XAm : out std_logic_vector(7 downto 0))is
 	  begin
 	  case s_AddressingType is
         when A32_2eVME => v_XAm       := c_A32_2eVME; 
@@ -1290,7 +1297,7 @@ DataType : out std_logic_vector (3 downto 0)) is
 	  end;
 	  
 	  procedure TWOeVME_write(v_address	: in std_logic_vector(63 downto 0); signal s_Buffer_MBLT : in t_Buffer_MBLT;  -- this procedure is for A16, A24, A32 address type
-               signal s_AddressingType : in t_AddressingType; v_beat_count : in std_logic_vector(7 downto 0); 
+               signal s_AddressingType : in t_Addressing_Type; v_beat_count : in std_logic_vector(7 downto 0); 
                signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record) is
 	   
 		variable  n : integer;
@@ -1378,7 +1385,7 @@ DataType : out std_logic_vector (3 downto 0)) is
 	  end;
 	  
 	  procedure TWOeVME_read(v_address	: in std_logic_vector(63 downto 0); signal s_Buffer_MBLT : in t_Buffer_MBLT;  -- this procedure is for A16, A24, A32 address type
-               signal s_AddressingType : in t_AddressingType; v_beat_count : in std_logic_vector(7 downto 0); 
+               signal s_AddressingType : in t_Addressing_Type; v_beat_count : in std_logic_vector(7 downto 0); 
                signal VME64xBus_In : in VME64xBusIn_Record; signal VME64xBus_Out : out VME64xBusOut_Record) is
 	  
 	   variable  n : integer;

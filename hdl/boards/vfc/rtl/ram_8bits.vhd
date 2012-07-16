@@ -1,45 +1,44 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date:    08:56:12 05/31/2012 
--- Design Name: 
--- Module Name:    ram_8bits - Behavioral 
--- Project Name: 
--- Target Devices: 
--- Tool versions: 
--- Description: 
+--______________________________________________________________________________
+--                             VME TO WB INTERFACE
 --
--- Dependencies: 
---
--- Revision: 
--- Revision 0.01 - File Created
--- Additional Comments: 
---
-----------------------------------------------------------------------------------
+--                                CERN,BE/CO-HT 
+--______________________________________________________________________________
+-- File:                          ram_8bits.vhd
+--______________________________________________________________________________
+--______________________________________________________________________________
+-- Authors:                                 
+--               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
+--               Davide Pedretti       (Davide.Pedretti@cern.ch)  
+-- Date         06/2012                                                                           
+-- Version      v0.01  
+--______________________________________________________________________________
+--                               GNU LESSER GENERAL PUBLIC LICENSE                                
+--                              ------------------------------------                              
+-- This source file is free software; you can redistribute it and/or modify it under the terms of 
+-- the GNU Lesser General Public License as published by the Free Software Foundation; either     
+-- version 2.1 of the License, or (at your option) any later version.                             
+-- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       
+-- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     
+-- See the GNU Lesser General Public License for more details.                                    
+-- You should have received a copy of the GNU Lesser General Public License along with this       
+-- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html      
+----------------------------------------------------------------------------------------------               
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use ieee.std_logic_arith.all;
 library work;
 use work.genram_pkg.all;
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
 
--- Uncomment the following library declaration if instantiating
--- any Xilinx primitives in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
 
 entity ram_8bits is
   generic (
-    size       : natural := 256
+    size         : natural := 256
 	 );
-    Port ( addr : in  STD_LOGIC_VECTOR (f_log2_size(size)-1 downto 0);
-           di : in  STD_LOGIC_VECTOR (7 downto 0);
-           do : out  STD_LOGIC_VECTOR (7 downto 0);
-           we : in  STD_LOGIC;
-           clk_i : in  STD_LOGIC);
+    Port ( addr  : in   std_logic_vector (f_log2_size(size)-1 downto 0);
+           di    : in   std_logic_vector (7 downto 0);
+           do    : out  std_logic_vector (7 downto 0);
+           we    : in   std_logic;
+           clk_i : in   std_logic);
 end ram_8bits;
 
 architecture Behavioral of ram_8bits is

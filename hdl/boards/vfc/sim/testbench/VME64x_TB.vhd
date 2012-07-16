@@ -1,30 +1,5 @@
 --------------------------------------------------------------------------------
--- Company: 
--- Engineer:
---
--- Create Date:   15:50:49 03/28/2012
--- Design Name:   
--- Module Name:   /opt/ohwr/CERN_VME64x_modif/HDL/VFC_ISE_core/hdl/VME64x_TB.vhd
--- Project Name:  VME64xTest
--- Target Device:  
--- Tool versions:  
--- Description:   
--- 
--- VHDL Test Bench Created by ISE for module: TOP_LEVEL
--- 
--- Dependencies:
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
---
--- Notes: 
--- This testbench has been automatically generated using types std_logic and
--- std_logic_vector for the ports of the unit under test.  Xilinx recommends
--- that these types always be used for the top-level I/O of a design in order
--- to guarantee that the testbench will bind correctly to the post-implementation 
--- simulation model.
---------------------------------------------------------------------------------
+
 
 LIBRARY ieee;
 library std;
@@ -34,19 +9,14 @@ use IEEE.std_logic_arith.all;
 use IEEE.std_logic_unsigned.all;
 use IEEE.numeric_std.all;
 use IEEE.numeric_std.unsigned;
-use work.all;
-use work.VME_pack.all;
 use work.VME_CR_pack.all;
 use work.VME_CSR_pack.all; 
 use work.VME64xSim.all;
 use work.VME64x.all;
 use work.wishbone_pkg.all;
 use std.textio.all; 
- 
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---USE ieee.numeric_std.ALL;
- 
+use work.vme64x_pack.all; 
+
 ENTITY VME64x_TB IS
 END VME64x_TB;
  
@@ -81,7 +51,6 @@ ARCHITECTURE behavior OF VME64x_TB IS
          VME_ADDR_DIR_o : OUT  std_logic;
          VME_ADDR_OE_N_o : OUT  std_logic;
          RST_i : IN  std_logic;
-         rst_n_i : IN  std_logic;
 			Reset : IN std_logic
         );
     END COMPONENT;
@@ -99,7 +68,6 @@ ARCHITECTURE behavior OF VME64x_TB IS
    signal VME_IACKIN_n_i : std_logic := '1';
 	signal VME_IACK_n_i : std_logic := '1';
    signal RST_i : std_logic := '0';
-   signal rst_n_i : std_logic := '0';
    signal Reset : std_logic := '1';
 	
 	--BiDirs
@@ -127,7 +95,7 @@ ARCHITECTURE behavior OF VME64x_TB IS
    signal s_Buffer_BLT : t_Buffer_BLT;
 	signal s_Buffer_MBLT : t_Buffer_MBLT;
    signal s_dataTransferType : t_dataTransferType;
-   signal s_AddressingType : t_AddressingType;
+   signal s_AddressingType : t_Addressing_Type;
    
         -- Control signals
    signal s_dataToSendOut : std_logic_vector(31 downto 0);
@@ -174,7 +142,6 @@ BEGIN
           VME_ADDR_DIR_o => VME_ADDR_DIR_o,
           VME_ADDR_OE_N_o => VME_ADDR_OE_N_o,
           RST_i => RST_i,
-          rst_n_i => rst_n_i,
 			 Reset => Reset
         );
 		
@@ -246,55 +213,55 @@ test_VME64x : process
 --         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
 --         VME64xBus_Out => VME64xBus_Out);
 
-
-         wait for 30 ns;	
-			
-			s_dataTransferType <= D08Byte3;
-         s_AddressingType   <= CR_CSR;
-
-        -- Put the data to receive in the 8 lsb also if you are using D08Byte1 or D08Byte2 ecc..
-         s_dataToReceive <= x"00000009";
-         ReadCR_CSR(c_address	=> c_FUNC0_ADER_0, s_dataToReceive => s_dataToReceive, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
-         VME64xBus_Out => VME64xBus_Out);
-			
-			wait for 30 ns;
-			
-			--read ADER0:
-			
-			s_dataTransferType <= D08Byte3;
-         s_AddressingType   <= CR_CSR;
-
-        -- Put the data to receive in the 8 lsb also if you are using D08Byte1 or D08Byte2 ecc..
-         s_dataToReceive <= x"000000c0";
-         ReadCR_CSR(c_address	=> c_FUNC0_ADER_3, s_dataToReceive => s_dataToReceive, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
-         VME64xBus_Out => VME64xBus_Out);
-			
-			wait for 30 ns;
-			
-			s_dataTransferType <= D08Byte3;
-         s_AddressingType   <= CR_CSR;
-
-        -- Put the data to receive in the 8 lsb also if you are using D08Byte1 or D08Byte2 ecc..
-         s_dataToReceive <= x"00000000";
-         ReadCR_CSR(c_address	=> c_FUNC0_ADER_2, s_dataToReceive => s_dataToReceive, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
-         VME64xBus_Out => VME64xBus_Out);
-			
-			wait for 30 ns;
-			
-			s_dataTransferType <= D08Byte3;
-         s_AddressingType   <= CR_CSR;
-
-        -- Put the data to receive in the 8 lsb also if you are using D08Byte1 or D08Byte2 ecc..
-         s_dataToReceive <= x"00000000";
-         ReadCR_CSR(c_address	=> c_FUNC0_ADER_1, s_dataToReceive => s_dataToReceive, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
-         VME64xBus_Out => VME64xBus_Out);
-			
-			wait for 30 ns;
-			
+--
+--         wait for 30 ns;	
+--			
+--			s_dataTransferType <= D08Byte3;
+--         s_AddressingType   <= CR_CSR;
+--
+--        -- Put the data to receive in the 8 lsb also if you are using D08Byte1 or D08Byte2 ecc..
+--         s_dataToReceive <= x"00000024";
+--         ReadCR_CSR(c_address	=> c_FUNC0_ADER_0, s_dataToReceive => s_dataToReceive, s_dataTransferType => s_dataTransferType,
+--         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
+--         VME64xBus_Out => VME64xBus_Out);
+--			
+--			wait for 30 ns;
+--			
+--			--read ADER0:
+--			
+--			s_dataTransferType <= D08Byte3;
+--         s_AddressingType   <= CR_CSR;
+--
+--        -- Put the data to receive in the 8 lsb also if you are using D08Byte1 or D08Byte2 ecc..
+--         s_dataToReceive <= x"000000c0";
+--         ReadCR_CSR(c_address	=> c_FUNC0_ADER_3, s_dataToReceive => s_dataToReceive, s_dataTransferType => s_dataTransferType,
+--         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
+--         VME64xBus_Out => VME64xBus_Out);
+--			
+--			wait for 30 ns;
+--			
+--			s_dataTransferType <= D08Byte3;
+--         s_AddressingType   <= CR_CSR;
+--
+--        -- Put the data to receive in the 8 lsb also if you are using D08Byte1 or D08Byte2 ecc..
+--         s_dataToReceive <= x"00000000";
+--         ReadCR_CSR(c_address	=> c_FUNC0_ADER_2, s_dataToReceive => s_dataToReceive, s_dataTransferType => s_dataTransferType,
+--         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
+--         VME64xBus_Out => VME64xBus_Out);
+--			
+--			wait for 30 ns;
+--			
+--			s_dataTransferType <= D08Byte3;
+--         s_AddressingType   <= CR_CSR;
+--
+--        -- Put the data to receive in the 8 lsb also if you are using D08Byte1 or D08Byte2 ecc..
+--         s_dataToReceive <= x"00000000";
+--         ReadCR_CSR(c_address	=> c_FUNC0_ADER_1, s_dataToReceive => s_dataToReceive, s_dataTransferType => s_dataTransferType,
+--         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
+--         VME64xBus_Out => VME64xBus_Out);
+--			
+--			wait for 30 ns;
+--			
 			
 			report "START WRITE CSR";
 
@@ -536,94 +503,7 @@ test_VME64x : process
 
          s_AddressingType   <= CR_CSR;
 
-        s_dataToSend <= x"000000" & ADER0_A16_S(31 downto 24);  
-         WriteCSR(c_address	=> c_FUNC0_ADER_3  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
-         VME64xBus_Out => VME64xBus_Out);
-
-         wait for 20 ns;
-
-         s_dataTransferType <= D08Byte3;
-
-         s_AddressingType   <= CR_CSR;
-
-         s_dataToSend <= x"000000" & ADER0_A16_S(23 downto 16);  
-         WriteCSR(c_address	=> c_FUNC0_ADER_2  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
-         VME64xBus_Out => VME64xBus_Out);
-
-         wait for 20 ns;
-
-        s_dataTransferType <= D08Byte3;
-         s_AddressingType   <= CR_CSR;
-
-         s_dataToSend <= x"000000" & ADER0_A16_S(15 downto 8);  
-         WriteCSR(c_address	=> c_FUNC0_ADER_1  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
-         VME64xBus_Out => VME64xBus_Out);
-
-         wait for 20 ns;
-
-         s_dataTransferType <= D08Byte3;
-
-         s_AddressingType   <= CR_CSR;
-
-         s_dataToSend <= x"000000" & ADER0_A16_S(7 downto 0);  
-         WriteCSR(c_address	=> c_FUNC0_ADER_0  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
-         VME64xBus_Out => VME64xBus_Out);		
-
-         wait for 20 ns;
-        -- start write ADER1
-         s_dataTransferType <= D08Byte3;
-
-        s_AddressingType   <= CR_CSR;
-
-        s_dataToSend <= x"000000" & ADER1_A64(31 downto 24);  
-         WriteCSR(c_address	=> c_FUNC1_ADER_3  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
-         VME64xBus_Out => VME64xBus_Out);
-
-         wait for 20 ns;
-
-         s_dataTransferType <= D08Byte3;
-
-         s_AddressingType   <= CR_CSR;
-
-         s_dataToSend <= x"000000" & ADER1_A64(23 downto 16);  
-         WriteCSR(c_address	=> c_FUNC1_ADER_2  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
-         VME64xBus_Out => VME64xBus_Out);
-
-         wait for 20 ns;
-
-         s_dataTransferType <= D08Byte3;
-
-         s_AddressingType   <= CR_CSR;
-
-         s_dataToSend <= x"000000" & ADER1_A64(15 downto 8);  
-         WriteCSR(c_address	=> c_FUNC1_ADER_1 , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
-         VME64xBus_Out => VME64xBus_Out);
-
-         wait for 20 ns;
-
-         s_dataTransferType <= D08Byte3;
-
-         s_AddressingType   <= CR_CSR;
-
-         s_dataToSend <= x"000000" & ADER1_A64(7 downto 0);  
-         WriteCSR(c_address	=> c_FUNC1_ADER_0  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
-         VME64xBus_Out => VME64xBus_Out);		
-
-        -- start write ADER2 (ADER1_b)
-
-         s_dataTransferType <= D08Byte3;
-
-         s_AddressingType   <= CR_CSR;
-
-         s_dataToSend <= x"000000" & ADER1_A64_b(31 downto 24);  
+         s_dataToSend <= x"000000" & ADER0_A16_S(31 downto 24);  
          WriteCSR(c_address	=> c_FUNC2_ADER_3  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
          s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
          VME64xBus_Out => VME64xBus_Out);
@@ -634,8 +514,18 @@ test_VME64x : process
 
          s_AddressingType   <= CR_CSR;
 
-         s_dataToSend <= x"000000" & ADER1_A64_b(23 downto 16);  
+         s_dataToSend <= x"000000" & ADER0_A16_S(23 downto 16);  
          WriteCSR(c_address	=> c_FUNC2_ADER_2  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
+         VME64xBus_Out => VME64xBus_Out);
+
+         wait for 20 ns;
+
+        s_dataTransferType <= D08Byte3;
+         s_AddressingType   <= CR_CSR;
+
+         s_dataToSend <= x"000000" & ADER0_A16_S(15 downto 8);  
+         WriteCSR(c_address	=> c_FUNC2_ADER_1  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
          s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
          VME64xBus_Out => VME64xBus_Out);
 
@@ -645,107 +535,184 @@ test_VME64x : process
 
          s_AddressingType   <= CR_CSR;
 
-         s_dataToSend <= x"000000" & ADER1_A64_b(15 downto 8);  
-         WriteCSR(c_address	=> c_FUNC2_ADER_1 , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
-         VME64xBus_Out => VME64xBus_Out);
-
-         wait for 20 ns;
-
-         s_dataTransferType <= D08Byte3;
-
-         s_AddressingType   <= CR_CSR;
-
-         s_dataToSend <= x"000000" & ADER1_A64_b(7 downto 0);  
+         s_dataToSend <= x"000000" & ADER0_A16_S(7 downto 0);  
          WriteCSR(c_address	=> c_FUNC2_ADER_0  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
-         VME64xBus_Out => VME64xBus_Out);	
-   -- start write ADER3
-
-         s_dataTransferType <= D08Byte3;
-
-         s_AddressingType   <= CR_CSR;
-
-         s_dataToSend <= x"000000" & ADER2_A32_2eVME(31 downto 24);  
-         WriteCSR(c_address	=> c_FUNC3_ADER_3  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
-         VME64xBus_Out => VME64xBus_Out);
-
-         wait for 20 ns;
-
-         s_dataTransferType <= D08Byte3;
-
-         s_AddressingType   <= CR_CSR;
-
-         s_dataToSend <= x"000000" & ADER2_A32_2eVME(23 downto 16);  
-         WriteCSR(c_address	=> c_FUNC3_ADER_2  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
-         VME64xBus_Out => VME64xBus_Out);
-
-         wait for 20 ns;
-
-         s_dataTransferType <= D08Byte3;
-
-         s_AddressingType   <= CR_CSR;
-
-         s_dataToSend <= x"000000" & ADER2_A32_2eVME(15 downto 8);  
-         WriteCSR(c_address	=> c_FUNC3_ADER_1 , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
-         VME64xBus_Out => VME64xBus_Out);
-
-         wait for 20 ns;
-
-         s_dataTransferType <= D08Byte3;
-
-         s_AddressingType   <= CR_CSR;
-
-         s_dataToSend <= x"000000" & ADER2_A32_2eVME(7 downto 0);  
-         WriteCSR(c_address	=> c_FUNC3_ADER_0  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
+         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
          VME64xBus_Out => VME64xBus_Out);		
-        -- start write ADER4 (ADER2_b)
-
-         s_dataTransferType <= D08Byte3;
-
-         s_AddressingType   <= CR_CSR;
-
-         s_dataToSend <= x"000000" & ADER2_2e_b(31 downto 24);  
-         WriteCSR(c_address	=> c_FUNC4_ADER_3  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
-         VME64xBus_Out => VME64xBus_Out);
 
          wait for 20 ns;
+        -- start write ADER1
+--         s_dataTransferType <= D08Byte3;
 
-         s_dataTransferType <= D08Byte3;
+--        s_AddressingType   <= CR_CSR;
 
-         s_AddressingType   <= CR_CSR;
-
-         s_dataToSend <= x"000000" & ADER2_2e_b(23 downto 16);  
-         WriteCSR(c_address	=> c_FUNC4_ADER_2  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
-         VME64xBus_Out => VME64xBus_Out);
-
-         wait for 20 ns;
-
-         s_dataTransferType <= D08Byte3;
-
-         s_AddressingType   <= CR_CSR;
-
-         s_dataToSend <= x"000000" & ADER2_2e_b(15 downto 8);  
-         WriteCSR(c_address	=> c_FUNC4_ADER_1 , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
-         VME64xBus_Out => VME64xBus_Out);
-
-         wait for 20 ns;
-
-         s_dataTransferType <= D08Byte3;
-
-         s_AddressingType   <= CR_CSR;
-
-         s_dataToSend <= x"000000" & ADER2_2e_b(7 downto 0);  
-         WriteCSR(c_address	=> c_FUNC4_ADER_0  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
-         VME64xBus_Out => VME64xBus_Out);		
+--        s_dataToSend <= x"000000" & ADER1_A64(31 downto 24);  
+--         WriteCSR(c_address	=> c_FUNC1_ADER_3  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+--         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
+--         VME64xBus_Out => VME64xBus_Out);
+--
+--         wait for 20 ns;
+--
+--         s_dataTransferType <= D08Byte3;
+--
+--         s_AddressingType   <= CR_CSR;
+--
+--         s_dataToSend <= x"000000" & ADER1_A64(23 downto 16);  
+--         WriteCSR(c_address	=> c_FUNC1_ADER_2  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+--         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
+--         VME64xBus_Out => VME64xBus_Out);
+--
+--         wait for 20 ns;
+--
+--         s_dataTransferType <= D08Byte3;
+--
+--         s_AddressingType   <= CR_CSR;
+--
+--         s_dataToSend <= x"000000" & ADER1_A64(15 downto 8);  
+--         WriteCSR(c_address	=> c_FUNC1_ADER_1 , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+--         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
+--         VME64xBus_Out => VME64xBus_Out);
+--
+--         wait for 20 ns;
+--
+--         s_dataTransferType <= D08Byte3;
+--
+--         s_AddressingType   <= CR_CSR;
+--
+--         s_dataToSend <= x"000000" & ADER1_A64(7 downto 0);  
+--         WriteCSR(c_address	=> c_FUNC1_ADER_0  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+--         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
+--         VME64xBus_Out => VME64xBus_Out);		
+--
+--        -- start write ADER2 (ADER1_b)
+--
+--         s_dataTransferType <= D08Byte3;
+--
+--         s_AddressingType   <= CR_CSR;
+--
+--         s_dataToSend <= x"000000" & ADER1_A64_b(31 downto 24);  
+--         WriteCSR(c_address	=> c_FUNC2_ADER_3  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+--         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
+--         VME64xBus_Out => VME64xBus_Out);
+--
+--         wait for 20 ns;
+--
+--         s_dataTransferType <= D08Byte3;
+--
+--         s_AddressingType   <= CR_CSR;
+--
+--         s_dataToSend <= x"000000" & ADER1_A64_b(23 downto 16);  
+--         WriteCSR(c_address	=> c_FUNC2_ADER_2  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+--         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
+--         VME64xBus_Out => VME64xBus_Out);
+--
+--         wait for 20 ns;
+--
+--         s_dataTransferType <= D08Byte3;
+--
+--         s_AddressingType   <= CR_CSR;
+--
+--         s_dataToSend <= x"000000" & ADER1_A64_b(15 downto 8);  
+--         WriteCSR(c_address	=> c_FUNC2_ADER_1 , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+--         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
+--         VME64xBus_Out => VME64xBus_Out);
+--
+--         wait for 20 ns;
+--
+--         s_dataTransferType <= D08Byte3;
+--
+--         s_AddressingType   <= CR_CSR;
+--
+--         s_dataToSend <= x"000000" & ADER1_A64_b(7 downto 0);  
+--         WriteCSR(c_address	=> c_FUNC2_ADER_0  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+--         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
+--         VME64xBus_Out => VME64xBus_Out);	
+--   -- start write ADER3
+--
+--         s_dataTransferType <= D08Byte3;
+--
+--         s_AddressingType   <= CR_CSR;
+--
+--         s_dataToSend <= x"000000" & ADER2_A32_2eVME(31 downto 24);  
+--         WriteCSR(c_address	=> c_FUNC3_ADER_3  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+--         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
+--         VME64xBus_Out => VME64xBus_Out);
+--
+--         wait for 20 ns;
+--
+--         s_dataTransferType <= D08Byte3;
+--
+--         s_AddressingType   <= CR_CSR;
+--
+--         s_dataToSend <= x"000000" & ADER2_A32_2eVME(23 downto 16);  
+--         WriteCSR(c_address	=> c_FUNC3_ADER_2  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+--         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
+--         VME64xBus_Out => VME64xBus_Out);
+--
+--         wait for 20 ns;
+--
+--         s_dataTransferType <= D08Byte3;
+--
+--         s_AddressingType   <= CR_CSR;
+--
+--         s_dataToSend <= x"000000" & ADER2_A32_2eVME(15 downto 8);  
+--         WriteCSR(c_address	=> c_FUNC3_ADER_1 , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+--         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
+--         VME64xBus_Out => VME64xBus_Out);
+--
+--         wait for 20 ns;
+--
+--         s_dataTransferType <= D08Byte3;
+--
+--         s_AddressingType   <= CR_CSR;
+--
+--         s_dataToSend <= x"000000" & ADER2_A32_2eVME(7 downto 0);  
+--         WriteCSR(c_address	=> c_FUNC3_ADER_0  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+--         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
+--         VME64xBus_Out => VME64xBus_Out);		
+--        -- start write ADER4 (ADER2_b)
+--
+--         s_dataTransferType <= D08Byte3;
+--
+--         s_AddressingType   <= CR_CSR;
+--
+--         s_dataToSend <= x"000000" & ADER2_2e_b(31 downto 24);  
+--         WriteCSR(c_address	=> c_FUNC4_ADER_3  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+--         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
+--         VME64xBus_Out => VME64xBus_Out);
+--
+--         wait for 20 ns;
+--
+--         s_dataTransferType <= D08Byte3;
+--
+--         s_AddressingType   <= CR_CSR;
+--
+--         s_dataToSend <= x"000000" & ADER2_2e_b(23 downto 16);  
+--         WriteCSR(c_address	=> c_FUNC4_ADER_2  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+--         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
+--         VME64xBus_Out => VME64xBus_Out);
+--
+--         wait for 20 ns;
+--
+--         s_dataTransferType <= D08Byte3;
+--
+--         s_AddressingType   <= CR_CSR;
+--
+--         s_dataToSend <= x"000000" & ADER2_2e_b(15 downto 8);  
+--         WriteCSR(c_address	=> c_FUNC4_ADER_1 , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+--         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
+--         VME64xBus_Out => VME64xBus_Out);
+--
+--         wait for 20 ns;
+--
+--         s_dataTransferType <= D08Byte3;
+--
+--         s_AddressingType   <= CR_CSR;
+--
+--         s_dataToSend <= x"000000" & ADER2_2e_b(7 downto 0);  
+--         WriteCSR(c_address	=> c_FUNC4_ADER_0  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+--         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
+--         VME64xBus_Out => VME64xBus_Out);		
 
         -- check some ADER byte :
 
@@ -755,21 +722,21 @@ test_VME64x : process
          s_AddressingType   <= CR_CSR;
 
          s_dataToReceive <= x"000000" & c_A16 &"00";
-         ReadCR_CSR(c_address	=> c_FUNC0_ADER_0, s_dataToReceive => s_dataToReceive, s_dataTransferType => s_dataTransferType,
+         ReadCR_CSR(c_address	=> c_FUNC2_ADER_0, s_dataToReceive => s_dataToReceive, s_dataTransferType => s_dataTransferType,
          s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
          VME64xBus_Out => VME64xBus_Out);
          report "FUNC0_ADER_0 Correct!!!!";			
 
          wait for 20 ns;
 
-         s_dataTransferType <= D08Byte3;
-         s_AddressingType   <= CR_CSR;
-
-         s_dataToReceive <= x"000000" & c_A64 &"00";
-         ReadCR_CSR(c_address	=> c_FUNC1_ADER_0, s_dataToReceive => s_dataToReceive, s_dataTransferType => s_dataTransferType,
-         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
-         VME64xBus_Out => VME64xBus_Out);
-         report "FUNC1_ADER_0 Correct!!!!";		
+--         s_dataTransferType <= D08Byte3;
+--         s_AddressingType   <= CR_CSR;
+--
+--         s_dataToReceive <= x"000000" & c_A64 &"00";
+--         ReadCR_CSR(c_address	=> c_FUNC1_ADER_0, s_dataToReceive => s_dataToReceive, s_dataTransferType => s_dataTransferType,
+--         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
+--         VME64xBus_Out => VME64xBus_Out);
+--         report "FUNC1_ADER_0 Correct!!!!";		
          report "THE MASTER HAS WRITTEN CORRECTLY ALL THE ADERs $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$";
          
 			-- start write BAR
@@ -1063,14 +1030,14 @@ test_VME64x : process
 		  
 		  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		  --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-		   -- The Master write again the ADER 0 for access with A24 mode!
+		   -- The Master write again the ADER 1 for access with A24 mode!
 			 wait for 20 ns;
 			s_dataTransferType <= D08Byte3;
 
          s_AddressingType   <= CR_CSR;
 
         s_dataToSend <= x"000000" & ADER0_A24_S(31 downto 24);  
-         WriteCSR(c_address	=> c_FUNC0_ADER_3  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+         WriteCSR(c_address	=> c_FUNC1_ADER_3  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
          s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
          VME64xBus_Out => VME64xBus_Out);
 
@@ -1081,7 +1048,7 @@ test_VME64x : process
          s_AddressingType   <= CR_CSR;
 
          s_dataToSend <= x"000000" & ADER0_A24_S(23 downto 16);  
-         WriteCSR(c_address	=> c_FUNC0_ADER_2  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+         WriteCSR(c_address	=> c_FUNC1_ADER_2  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
          s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
          VME64xBus_Out => VME64xBus_Out);
 
@@ -1091,7 +1058,7 @@ test_VME64x : process
          s_AddressingType   <= CR_CSR;
 
          s_dataToSend <= x"000000" & ADER0_A24_S(15 downto 8);  
-         WriteCSR(c_address	=> c_FUNC0_ADER_1  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+         WriteCSR(c_address	=> c_FUNC1_ADER_1  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
          s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
          VME64xBus_Out => VME64xBus_Out);
 
@@ -1102,7 +1069,7 @@ test_VME64x : process
          s_AddressingType   <= CR_CSR;
 
          s_dataToSend <= x"000000" & ADER0_A24_S(7 downto 0);  
-         WriteCSR(c_address	=> c_FUNC0_ADER_0  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+         WriteCSR(c_address	=> c_FUNC1_ADER_0  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
          s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
          VME64xBus_Out => VME64xBus_Out);		
 		  	
@@ -1390,6 +1357,13 @@ test_VME64x : process
                     VME64xBus_In => VME64xBus_in, VME64xBus_Out => VME64xBus_Out);
 			wait for 20 ns;
 			
+			s_dataTransferType <= D08Byte3;
+         s_AddressingType   <= CR_CSR;
+         s_dataToReceive <= x"00000040";
+         ReadCR_CSR(c_address	=> c_BYTES0, s_dataToReceive => s_dataToReceive, s_dataTransferType => s_dataTransferType,
+         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_in, 
+         VME64xBus_Out => VME64xBus_Out);
+			
 			s_dataTransferType <= D32;  -- Data transfer type is D32 also if the data width is 64!!
 			s_AddressingType   <= A32_MBLT;
          s_address <= x"0000000000000010"; --Put here a multiple of 8!!!
@@ -1440,7 +1414,7 @@ test_VME64x : process
          s_AddressingType   <= CR_CSR;
 
          s_dataToSend <= x"000000" & ADER0_A24_MBLT(31 downto 24);  
-         WriteCSR(c_address	=> c_FUNC0_ADER_3  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+         WriteCSR(c_address	=> c_FUNC1_ADER_3  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
          s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
          VME64xBus_Out => VME64xBus_Out);
 
@@ -1451,7 +1425,7 @@ test_VME64x : process
          s_AddressingType   <= CR_CSR;
 
          s_dataToSend <= x"000000" & ADER0_A24_MBLT(23 downto 16);  
-         WriteCSR(c_address	=> c_FUNC0_ADER_2  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+         WriteCSR(c_address	=> c_FUNC1_ADER_2  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
          s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
          VME64xBus_Out => VME64xBus_Out);
 
@@ -1461,7 +1435,7 @@ test_VME64x : process
          s_AddressingType   <= CR_CSR;
 
          s_dataToSend <= x"000000" & ADER0_A24_MBLT(15 downto 8);  
-         WriteCSR(c_address	=> c_FUNC0_ADER_1  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+         WriteCSR(c_address	=> c_FUNC1_ADER_1  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
          s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
          VME64xBus_Out => VME64xBus_Out);
 
@@ -1472,7 +1446,7 @@ test_VME64x : process
          s_AddressingType   <= CR_CSR;
 
          s_dataToSend <= x"000000" & ADER0_A24_MBLT(7 downto 0);  
-         WriteCSR(c_address	=> c_FUNC0_ADER_0  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+         WriteCSR(c_address	=> c_FUNC1_ADER_0  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
          s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
          VME64xBus_Out => VME64xBus_Out);		
 			-- ADER0 written
@@ -1535,7 +1509,6 @@ test_VME64x : process
          s_AddressingType   <= CR_CSR;
 
          s_dataToSend <= x"00000002";  
-         --s_address  <= x"0000000000000000";
 
          WriteCSR(c_address	=> c_IRQ_level , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
          s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
@@ -1552,6 +1525,14 @@ test_VME64x : process
          WriteCSR(c_address	=> c_IRQ_Vector , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
          s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
          VME64xBus_Out => VME64xBus_Out);	
+			wait for 10 ns;
+			--Test if the daisy chaine is working; 
+			
+			s_dataTransferType <= D32;
+         s_AddressingType   <= A32;
+         s_dataToReceive <= x"00000003";
+			Interrupt_Handler(VME64xBus_In => VME64xBus_In,VME64xBus_Out => VME64xBus_Out,s_dataToReceive => s_dataToReceive,
+	                        s_dataTransferType => s_dataTransferType, s_AddressingType => s_AddressingType);
 			
 			--The master write FREQ register in the RAM
 			wait for 10 ns;
@@ -1652,7 +1633,7 @@ test_VME64x : process
 --         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
 --         VME64xBus_Out => VME64xBus_Out);
          --Check if the falling edge is passed on the IACKOUT daisy chain			
-			
+--_____________________________________________________________________________________________________________________________________			
 			--TEST A64
 			s_dataTransferType <= D08Byte3;
 
@@ -1662,6 +1643,70 @@ test_VME64x : process
          WriteCSR(c_address	=> c_FUNC4_ADER_3  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
          s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
          VME64xBus_Out => VME64xBus_Out);		
+			wait for 20 ns;
+			s_dataTransferType <= D08Byte3;
+
+         s_AddressingType   <= CR_CSR;
+
+         s_dataToSend <=  x"00000000";
+         WriteCSR(c_address	=> c_FUNC4_ADER_2  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
+         VME64xBus_Out => VME64xBus_Out);
+         wait for 20 ns;
+			s_dataTransferType <= D08Byte3;
+
+         s_AddressingType   <= CR_CSR;
+
+         s_dataToSend <=  x"00000000";
+         WriteCSR(c_address	=> c_FUNC4_ADER_1  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
+         VME64xBus_Out => VME64xBus_Out);	
+			wait for 20 ns;
+			s_dataTransferType <= D08Byte3;
+
+         s_AddressingType   <= CR_CSR;
+
+         s_dataToSend <=  x"00000000";
+         WriteCSR(c_address	=> c_FUNC4_ADER_0  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
+         VME64xBus_Out => VME64xBus_Out);	
+			wait for 20 ns;
+			s_dataTransferType <= D08Byte3;
+
+         s_AddressingType   <= CR_CSR;
+
+         s_dataToSend <=  x"00000000";
+         WriteCSR(c_address	=> c_FUNC3_ADER_3  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
+         VME64xBus_Out => VME64xBus_Out);	
+			wait for 20 ns;
+			s_dataTransferType <= D08Byte3;
+
+         s_AddressingType   <= CR_CSR;
+
+         s_dataToSend <=  x"00000000";
+         WriteCSR(c_address	=> c_FUNC3_ADER_2  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
+         VME64xBus_Out => VME64xBus_Out);	
+			wait for 20 ns;
+			s_dataTransferType <= D08Byte3;
+
+         s_AddressingType   <= CR_CSR;
+
+         s_dataToSend <=  x"00000000";
+         WriteCSR(c_address	=> c_FUNC3_ADER_1  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
+         VME64xBus_Out => VME64xBus_Out);	
+			wait for 20 ns;
+			s_dataTransferType <= D08Byte3;
+
+         s_AddressingType   <= CR_CSR;
+
+         s_dataToSend <=  x"00000004";
+         WriteCSR(c_address	=> c_FUNC3_ADER_0  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+         s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
+         VME64xBus_Out => VME64xBus_Out);	
+			
 			
 			s_dataTransferType <= D32;
 
@@ -1813,32 +1858,32 @@ test_VME64x : process
                             s_dataTransferType => s_dataTransferType, s_AddressingType => s_AddressingType,
                             num => s_num, VME64xBus_In => VME64xBus_In, VME64xBus_Out => VME64xBus_Out);		
 --__________________________________________________________________________________________________________________________________________
-
-        s_dataTransferType <= D08Byte3;
-
-        s_AddressingType   <= CR_CSR;
-
-        s_dataToSend <= x"000000" & ADER2_A32_2eVME(31 downto 24);  
-        WriteCSR(c_address	=> c_FUNC5_ADER_3  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
-        s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
-        VME64xBus_Out => VME64xBus_Out);
-
-
-         s_AddressingType   <= A32_2eVME;
-         s_beat_count <= "00001000";
-			s_address <= x"0000000000000010";						 
-			TWOeVME_write(v_address	=> s_address, s_Buffer_MBLT => s_Buffer_MBLT,
-                       s_AddressingType => s_AddressingType,
-                       v_beat_count => s_beat_count, VME64xBus_In => VME64xBus_In, VME64xBus_Out => VME64xBus_Out);
-							  
-			wait for 30 ns;				  
-			s_AddressingType   <= A64_2eVME;
-         s_beat_count <= "00001000";
-			s_address <= x"0000000000000010";						 
-			TWOeVME_read(v_address	=> s_address, s_Buffer_MBLT => s_Buffer_MBLT,
-                       s_AddressingType => s_AddressingType,
-                       v_beat_count => s_beat_count, VME64xBus_In => VME64xBus_In, VME64xBus_Out => VME64xBus_Out);
-							  
+--
+--        s_dataTransferType <= D08Byte3;
+--
+--        s_AddressingType   <= CR_CSR;
+--
+--        s_dataToSend <= x"000000" & ADER2_A32_2eVME(31 downto 24);  
+--        WriteCSR(c_address	=> c_FUNC5_ADER_3  , s_dataToSend => s_dataToSend, s_dataTransferType => s_dataTransferType,
+--        s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
+--        VME64xBus_Out => VME64xBus_Out);
+--
+--
+--         s_AddressingType   <= A32_2eVME;
+--         s_beat_count <= "00001000";
+--			s_address <= x"0000000000000010";						 
+--			TWOeVME_write(v_address	=> s_address, s_Buffer_MBLT => s_Buffer_MBLT,
+--                       s_AddressingType => s_AddressingType,
+--                       v_beat_count => s_beat_count, VME64xBus_In => VME64xBus_In, VME64xBus_Out => VME64xBus_Out);
+--							  
+--			wait for 30 ns;				  
+--			s_AddressingType   <= A64_2eVME;
+--         s_beat_count <= "00001000";
+--			s_address <= x"0000000000000010";						 
+--			TWOeVME_read(v_address	=> s_address, s_Buffer_MBLT => s_Buffer_MBLT,
+--                       s_AddressingType => s_AddressingType,
+--                       v_beat_count => s_beat_count, VME64xBus_In => VME64xBus_In, VME64xBus_Out => VME64xBus_Out);
+--							  
 							  
 			report "FINE///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////";
 			
@@ -1923,11 +1968,9 @@ test_VME64x : process
          wait for 50 ns;	
          VME_RST_n_i <= '0';
          RST_i <= '1';
-         rst_n_i <= '0';
          wait for 50 ns;
          VME_RST_n_i <= '1';
          RST_i <= '0';
-         rst_n_i <= '1';
          wait for 600 ns;
 
          wait;
