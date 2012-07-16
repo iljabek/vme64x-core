@@ -1,5 +1,5 @@
 files = [ "VME64xCore_Top.vhd",
-          "VME64x_pack.vhd",
+          "vme64x_pack.vhd",
           "VME_Access_Decode.vhd",
           "VME_Am_Match.vhd",
           "VME_bus.vhd",
