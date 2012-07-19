@@ -146,6 +146,7 @@ entity VME_CR_CSR_Space is
            Ader7              : out  std_logic_vector(31 downto 0);
            ModuleEnable       : out  std_logic;
            Sw_Reset           : out  std_logic;
+			  W32                : out  std_logic;
            MBLT_Endian_o      : out  std_logic_vector(2 downto 0);
            BAR_o              : out  std_logic_vector(4 downto 0);
          -- IRQ_controller signals
@@ -183,7 +184,7 @@ begin
          if s_reset = '1'  then
             s_CSRarray(BAR) <= (others => '0');
             s_bar_written   <= '0';
-            for i in 254 downto BYTES1 loop        -- Initialization of the CSR memory
+            for i in 254 downto WB32or64 loop        -- Initialization of the CSR memory
                s_CSRarray(i) <= c_csr_array(i);
             end loop;
          elsif s_bar_written = '0' then
@@ -245,6 +246,10 @@ begin
                
                when to_integer("00" & c_MBLT_Endian_addr(18 downto 2)) =>
                   s_CSRarray(MBLT_Endian) <= s_locDataIn(7 downto 0);		
+						
+					when to_integer("00" & c_WB32or64_addr(18 downto 2)) =>
+                  s_CSRarray(WB32or64) <= s_locDataIn(7 downto 0);	
+						
                when others => null;   
             end case;	
 
@@ -317,6 +322,7 @@ begin
          when "00" & c_TIME4_ns_addr(18 downto 2)        => s_CSRdata <= s_CSRarray(TIME4_ns);
          when "00" & c_BYTES0_addr(18 downto 2)          => s_CSRdata <= s_CSRarray(BYTES0);
          when "00" & c_BYTES1_addr(18 downto 2)          => s_CSRdata <= s_CSRarray(BYTES1);
+			when "00" & c_WB32or64_addr(18 downto 2)        => s_CSRdata <= s_CSRarray(WB32or64);
          when others                                     => s_CSRdata <= (others => '0');
       end case;
 
@@ -344,6 +350,7 @@ begin
    ModuleEnable  <= s_CSRarray(BIT_SET_CLR_REG)(4);
    MBLT_Endian_o <= std_logic_vector(s_CSRarray(MBLT_Endian)(2 downto 0));
    Sw_Reset      <= s_CSRarray(BIT_SET_CLR_REG)(7);
+	W32           <= s_CSRarray(WB32or64)(0);  
    BAR_o         <= std_logic_vector(s_CSRarray(BAR)(7 downto 3));
 ---------------------------------------------------------------------------------------------------------------
 -- CRAM:

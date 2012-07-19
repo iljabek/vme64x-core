@@ -1270,7 +1270,7 @@ test_VME64x : process
                             num => s_num, VME64xBus_In => VME64xBus_In, VME64xBus_Out => VME64xBus_Out);
         
          wait for 10 ns;
-		   s_address <= x"0000000000000014"; -- use n+1 inside the function if I start to read from the second D32 word written
+		   s_address <= x"0000000000000010"; -- use n+1 inside the function if I start to read from the second D32 word written
 			s_num <= "000000100";
    
 			Blt_Read(v_address	=> s_address, s_Buffer_BLT => s_Buffer_BLT,
@@ -1280,7 +1280,7 @@ test_VME64x : process
 			wait for 10 ns;
          s_dataTransferType <= D08Byte3; --only D32 is possible with BLT transfer 
 			s_AddressingType   <= A32_BLT;
-         s_address <= x"0000000000000014";
+         s_address <= x"0000000000000010";
 			s_num <= "000000100";
    
 			Blt_Read(v_address	=> s_address, s_Buffer_BLT => s_Buffer_BLT,

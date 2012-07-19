@@ -529,8 +529,8 @@ DataType : out std_logic_vector (3 downto 0)) is
 	   exit;
 	  else	  
 	   v_dataToReceiveOut := VME64xBus_In.Vme64xDATA;
-      assert (v_dataToReceiveOut /= s_Buffer_BLT(n + 1))report "CORRECT DATA!!!" severity error;
-      assert (v_dataToReceiveOut = s_Buffer_BLT(n + 1))report "RECEIVED WRONG DATA!!!" severity failure;
+      assert (v_dataToReceiveOut /= s_Buffer_BLT(n))report "CORRECT DATA!!!" severity error;
+      assert (v_dataToReceiveOut = s_Buffer_BLT(n))report "RECEIVED WRONG DATA!!!" severity failure;
      end if;
       VME64xBus_Out.Vme64xDs0N <= '1';
       VME64xBus_Out.Vme64xDs1N <= '1';

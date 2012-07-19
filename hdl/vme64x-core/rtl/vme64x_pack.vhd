@@ -136,6 +136,7 @@ package vme64x_pack is
    constant TIME4_ns            : integer := FUNC0_ADER_3 -9;
    constant BYTES0              : integer := FUNC0_ADER_3 -10;
    constant BYTES1              : integer := FUNC0_ADER_3 -11;
+	constant WB32or64            : integer := FUNC0_ADER_3 -12;
    constant MBLT_Endian         : integer := FUNC0_ADER_3 -4;
   
    -- Initialization CR:
@@ -164,10 +165,15 @@ package vme64x_pack is
    FUNC_ADEM   => (add => 16#188#, len => 32));
   
    -- Main Finite State machine signals defoult:
+	-- When the S_FPGA detects the magic sequency, it erases the A_FPGA so 
+	-- I don't need to drive the s_dtackOE, s_dataOE, s_addrOE, s_addrDir, s_dataDir 
+	-- to 'Z' in the default configuration.
+	-- If the S_FPGA will be provided to a core who drive these lines without erase the
+	-- A_FPGA the above mentioned lines should be changed to 'Z' !!!
    constant c_FSM_default : t_FSM :=(
    s_memReq         => '0',
    s_decode         => '0',
-   s_dtackOE        => '0',
+   s_dtackOE        => '0',  
    s_mainDTACK      => '1',
    s_dataDir        => '0',
    s_dataOE         => '0',
@@ -233,6 +239,7 @@ package vme64x_pack is
   constant c_TIME4_ns_addr        : unsigned(19 downto 0) := x"7FF3f";
   constant c_BYTES0_addr          : unsigned(19 downto 0) := x"7FF3b";
   constant c_BYTES1_addr          : unsigned(19 downto 0) := x"7FF37";
+  constant c_WB32or64_addr        : unsigned(19 downto 0) := x"7FF33";
   constant c_MBLT_Endian_addr     : unsigned(19 downto 0) := x"7FF53";  -- VME64x reserved CSR
 
 --___________________________________________________________________________________________
@@ -336,7 +343,7 @@ package vme64x_pack is
    type t_FUNC_32b_array_std is array (0 to 7) of std_logic_vector(31 downto 0);  -- ADER register array
    type t_FUNC_64b_array_std is array (0 to 7) of std_logic_vector(63 downto 0);  -- AMCAP register array
    type t_FUNC_256b_array_std is array (0 to 7) of std_logic_vector(255 downto 0);  -- XAMCAP register array
-   type t_CSRarray is array(BAR downto BYTES1) of unsigned(7 downto 0);
+   type t_CSRarray is array(BAR downto WB32or64) of unsigned(7 downto 0);
    type t_cr_array is array (natural range <>) of std_logic_vector(7 downto 0);
 
 --_____________________________________________________________________________________________________
@@ -375,6 +382,7 @@ package vme64x_pack is
                         ModuleEnable         : in std_logic;
                         MBLT_Endian_i        : in std_logic_vector(2 downto 0);
                         Sw_Reset             : in std_logic;
+								W32                  : in  std_logic;
                         BAR_i                : in std_logic_vector(4 downto 0);
                         transfer_done_i      : in std_logic;          
                         reset_o              : out std_logic;
@@ -526,6 +534,7 @@ package vme64x_pack is
                         Ader7              : out std_logic_vector(31 downto 0);
                         ModuleEnable       : out std_logic;
                         Sw_Reset           : out std_logic;
+								W32                : out  std_logic;
                         numBytes           : in  std_logic_vector(12 downto 0);
                         transfTime         : in  std_logic_vector(39 downto 0);
                         MBLT_Endian_o      : out std_logic_vector(2 downto 0);
@@ -594,6 +603,7 @@ package vme64x_pack is
                         s_AckWithError  : out std_logic;
                         memAckWb        : out std_logic;
                         err             : out std_logic;
+								W32             : in  std_logic;
                         rty             : out std_logic;
                         psize_o         : out std_logic_vector(8 downto 0);
                         cyc_o           : out std_logic;

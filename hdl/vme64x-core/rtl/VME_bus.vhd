@@ -136,6 +136,7 @@ entity VME_bus is
           ModuleEnable         : in  std_logic;
           MBLT_Endian_i        : in  std_logic_vector(2 downto 0);     
           Sw_Reset             : in  std_logic;
+			 W32                  : in  std_logic;  
           BAR_i                : in  std_logic_vector(4 downto 0);
           numBytes             : out std_logic_vector(12 downto 0);
           transfTime           : out std_logic_vector(39 downto 0);
@@ -595,7 +596,7 @@ begin
                when DTACK_LOW =>         
                   s_FSM                  <=  c_FSM_default;
                   s_FSM.s_dtackOE        <= '1';
-                  s_FSM.s_dataDir        <= VME_WRITE_n_i;
+						s_FSM.s_dataDir        <= VME_WRITE_n_i;
                   s_FSM.s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
                   s_FSM.s_dataPhase      <= s_dataPhase;
                   s_FSM.s_transferActive <= '1';
@@ -614,7 +615,6 @@ begin
                when DECIDE_NEXT_CYCLE =>
                   s_FSM                  <=  c_FSM_default;
                   s_FSM.s_dtackOE        <= '1';
-                  s_FSM.s_dataDir        <= VME_WRITE_n_i;
                   s_FSM.s_addrDir        <=  (s_is_d64) and VME_WRITE_n_i;
                   s_FSM.s_dataPhase      <= s_dataPhase;
                   s_FSM.s_transferActive <= '1';
@@ -633,7 +633,6 @@ begin
                when INCREMENT_ADDR =>
                   s_FSM                  <=  c_FSM_default;
                   s_FSM.s_dtackOE        <= '1';
-                  s_FSM.s_dataDir        <= VME_WRITE_n_i;
                   s_FSM.s_addrDir        <=  (s_is_d64) and VME_WRITE_n_i;
                   s_FSM.s_dataPhase      <= s_dataPhase;
                   s_FSM.s_transferActive <= '1';
@@ -643,7 +642,6 @@ begin
                when SET_DATA_PHASE =>                              
                   s_FSM                  <=  c_FSM_default;
                   s_FSM.s_dtackOE        <= '1';
-                  s_FSM.s_dataDir        <= VME_WRITE_n_i;
                   s_FSM.s_addrDir        <=  (s_is_d64) and VME_WRITE_n_i;
                   s_FSM.s_dataPhase      <= '1';
                   s_FSM.s_transferActive <= '1';
@@ -985,7 +983,7 @@ begin
                (s_addressingType = AM_Error) or s_blockTransferLimit = '1' or 
                (s_transferType = BLT and (not(s_typeOfDataTransfer = D32 or 
                s_typeOfDataTransfer = D64))) or (s_transferType = MBLT and 
-               s_typeOfDataTransfer /= D64)  then 
+               s_typeOfDataTransfer /= D64) or (s_is_d64 = '1' and W32 = '1') then 
 
                s_BERRcondition <= '1';
             else
@@ -1401,6 +1399,7 @@ end process;
                                          stall_i         => stall_i,
                                          rty_i           => rty_i,
                                          err_i           => err_i,
+													  W32             => W32,
                                          cyc_o           => cyc_o,
                                          memReq_o        => memReq_o,
                                          WBdata_o        => wbData_o,

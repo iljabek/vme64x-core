@@ -193,6 +193,8 @@
   signal s_BAR                     : std_logic_vector(4 downto 0);
   signal s_time                    : std_logic_vector(39 downto 0);
   signal s_bytes                   : std_logic_vector(12 downto 0);
+  signal s_W32                     : std_logic;
+  
   -- Oversampled input signals 
   signal VME_RST_n_oversampled     : std_logic;
   signal VME_AS_n_oversampled      : std_logic;   
@@ -381,6 +383,7 @@ begin
 		 ModuleEnable         => s_ModuleEnable,
 		 MBLT_Endian_i        => s_MBLT_Endian,
 		 Sw_Reset             => s_Sw_Reset,
+		 W32                  => s_W32,
 		 BAR_i                => s_BAR,
 		 numBytes             => s_bytes,
 	    transfTime           => s_time,
@@ -455,6 +458,7 @@ begin
 		       Ader7               => s_Ader7,
 		       ModuleEnable        => s_ModuleEnable,
 		       Sw_Reset            => s_Sw_Reset,
+				 W32                 => s_W32,
 		       MBLT_Endian_o       => s_MBLT_Endian,
 		       BAR_o               => s_BAR,
 		       INT_Level           => s_INT_Level,
