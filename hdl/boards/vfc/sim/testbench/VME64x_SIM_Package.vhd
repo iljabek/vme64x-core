@@ -800,7 +800,7 @@ DataType : out std_logic_vector (3 downto 0)) is
 		variable ti : time;
 		begin
 		ti := now;
-		--wait until VME64xBus_In.Vme64xIRQ /= x"0000000";
+		wait until VME64xBus_In.Vme64xIRQ /= x"0000000";
 		if VME64xBus_In.Vme64xDtackN /='1' or VME64xBus_In.Vme64xBerrN /='0' then 
       wait until VME64xBus_In.Vme64xDtackN ='1' and VME64xBus_In.Vme64xBerrN = '0';
       end if;

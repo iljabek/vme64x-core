@@ -1528,12 +1528,12 @@ test_VME64x : process
 			wait for 10 ns;
 			--Test if the daisy chaine is working; 
 			
-			s_dataTransferType <= D32;
-         s_AddressingType   <= A32;
-         s_dataToReceive <= x"00000003";
-			Interrupt_Handler(VME64xBus_In => VME64xBus_In,VME64xBus_Out => VME64xBus_Out,s_dataToReceive => s_dataToReceive,
-	                        s_dataTransferType => s_dataTransferType, s_AddressingType => s_AddressingType);
-			
+--			s_dataTransferType <= D32;
+--         s_AddressingType   <= A32;
+--         s_dataToReceive <= x"00000003";
+--			Interrupt_Handler(VME64xBus_In => VME64xBus_In,VME64xBus_Out => VME64xBus_Out,s_dataToReceive => s_dataToReceive,
+--	                        s_dataTransferType => s_dataTransferType, s_AddressingType => s_AddressingType);
+--			
 			--The master write FREQ register in the RAM
 			wait for 10 ns;
 			s_dataTransferType <= D32;
