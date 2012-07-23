@@ -90,13 +90,13 @@ end VME_Wb_master;
 
 architecture Behavioral of VME_Wb_master is
 signal s_shift_dx  :   std_logic;
-
+signal s_cyc       :   std_logic;
 -- stb_o handler
 begin
    process(clk_i)
    begin
       if rising_edge(clk_i) then
-         if s_reset = '1' or s_mainFSMreset = '1' or stall_i = '0' then
+         if s_reset = '1' or s_mainFSMreset = '1' or (stall_i = '0' and s_cyc = '1') then
             memReq_o <= '0';
          elsif s_memReq = '1' and s_cardSel = '1' and s_BERRcondition = '0' then	 
             memReq_o <= '1';
@@ -108,12 +108,13 @@ begin
    begin
       if rising_edge(clk_i) then
          if s_reset = '1' or s_mainFSMreset = '1' or memAckWB_i = '1' then
-            cyc_o <= '0';
+            s_cyc <= '0';
          elsif s_memReq = '1' and s_cardSel = '1' and s_BERRcondition = '0' then	 
-            cyc_o <= '1';
+            s_cyc <= '1';
          end if;
       end if;
    end process;
+	cyc_o  <= s_cyc;
 -- shift s_sel, we need to this process when W32 is '1'.
    process(s_sel)
    begin
