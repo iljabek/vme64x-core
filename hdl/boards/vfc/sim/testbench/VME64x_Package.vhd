@@ -40,7 +40,7 @@ package VME64x is
 			Vme64xADDR			: Vme64xAddressType;
 			Vme64xDATA			: Vme64xDataType;
 			
-			--per ora nn gestisco IACKIN e BBSY
+			
 			
     end record;
 	 
@@ -144,6 +144,7 @@ constant ADER2_2e_b : std_logic_vector(31 downto 0) := BA(7 downto 3) & "0000000
   constant c_MBLT_Endian : std_logic_vector := x"7Ff53";
   constant c_IRQ_Vector : std_logic_vector := x"7FF5F";
   constant c_IRQ_level : std_logic_vector := x"7FF5B";
+  constant c_WB32or64 : std_logic_vector := x"7FF33";
   -- CR constant
   constant c_StartDefinedCR : std_logic_vector := x"00000";
   constant c_EndDefinedCR : std_logic_vector := x"00FFF";

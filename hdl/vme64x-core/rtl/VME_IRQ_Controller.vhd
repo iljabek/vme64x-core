@@ -75,11 +75,12 @@
 -- Authors:       
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                                                          
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date         06/2012                                                                           
--- Version      v0.01  
+-- Date          06/2012                                                                           
+-- Version       v0.01  
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
---                              ------------------------------------                              
+--                              ------------------------------------        
+-- Copyright (c) 2009 - 2011 CERN                      
 -- This source file is free software; you can redistribute it and/or modify it under the terms of 
 -- the GNU Lesser General Public License as published by the Free Software Foundation; either     
 -- version 2.1 of the License, or (at your option) any later version.                             
@@ -111,7 +112,7 @@ entity VME_IRQ_Controller is
           VME_DTACK_n_o    : out  std_logic;
           VME_DTACK_OE_o   : out  std_logic;
           VME_DATA_o       : out  std_logic_vector (31 downto 0);
-          DataDir          : out  std_logic);
+          VME_DATA_DIR_o   : out  std_logic);
 end VME_IRQ_Controller;
 
 architecture Behavioral of VME_IRQ_Controller is
@@ -120,6 +121,7 @@ architecture Behavioral of VME_IRQ_Controller is
 --output signals
    signal s_DTACK                   : std_logic;
    signal s_DTACK_OE                : std_logic;
+	signal s_DTACK_OE_o              : std_logic;
    signal s_DataDir                 : std_logic;
    signal s_IACKOUT                 : std_logic;
 	signal s_IACKOUT_o               : std_logic;
@@ -178,7 +180,7 @@ begin
    DataDirOutputSample : FlipFlopD
      port map(
               sig_i  => s_DataDir,
-              sig_o  => DataDir,
+              sig_o  => VME_DATA_DIR_o,
               clk_i  => clk_i,
               reset  => '0',
               enable => '1'
@@ -187,6 +189,14 @@ begin
      port map(
               sig_i  => s_IACKOUT,
               sig_o  => s_IACKOUT_o,
+              clk_i  => clk_i,
+              reset  => '0',
+              enable => '1'
+           );		
+   DTACKOEOutputSample : FlipFlopD
+     port map(
+              sig_i  => s_DTACK_OE,
+              sig_o  => s_DTACK_OE_o,
               clk_i  => clk_i,
               reset  => '0',
               enable => '1'
@@ -222,7 +232,7 @@ begin
      end if;
   end process;		
 -- Update next state
-  process(currs,INT_Req_sample,VME_AS_n_i,VME_DS_n_i,s_ack_int,VME_IACKIN_n_i)
+  process(currs,INT_Req_sample,VME_AS_n_i,VME_DS_n_i,s_ack_int,VME_IACKIN_n_i,AS_RisingEdge)
   begin
     case currs is 
       when IDLE =>
@@ -295,7 +305,7 @@ begin
 
   end process;
 -- Update Outputs
-  process(currs,AS_RisingEdge)
+  process(currs,VME_AS1_n_i)
   begin
     case currs is 
       when IDLE =>
@@ -447,7 +457,7 @@ begin
   s_Data <= x"000000" & INT_Vector;  
   s_enable <= VME_IACKIN_n_i and s_IACKOUT_o;
   -- the INT_Vector is in the D0:7 lines (byte3 in big endian order)  
-  VME_DTACK_OE_o  <= s_DTACK_OE;
+  VME_DTACK_OE_o  <= s_DTACK_OE_o;
   VME_IACKOUT_n_o <= s_IACKOUT_o;
 end Behavioral;
 

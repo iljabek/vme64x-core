@@ -52,6 +52,8 @@
 -- IRQ_level  --> 0x7FF5B _|
 --                       
 -- MBLT_Endian --> 0x7FF53  --> for the swapper
+--
+-- WB32or64  --> 0x7FF33 --> if the bit 0 is '1' it means that the WB data bus is 32 bit
 --                       _
 -- TIME0_ns  --> 0x7FF4f  |
 -- TIME1_ns  --> 0x7FF4b  |
@@ -60,7 +62,7 @@
 -- TIME4_ns  --> 0x7FF3f  |
 -- BYTES0    --> 0x7FF3b  |
 -- BYTES1    --> 0x7FF37 _|
---
+-- 
 -- CRAM memory Added. How to use the CRAM:
 --        1) The Master read the CRAM_OWNER Register location 0x7fff3; if 0 the CRAM is free
 --        2) The Master write his ID in the CRAM_OWNER Register location 0x7fff3
@@ -98,7 +100,8 @@
 -- Version      v0.01  
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
---                              ------------------------------------                              
+--                              ------------------------------------  
+-- Copyright (c) 2009 - 2011 CERN                            
 -- This source file is free software; you can redistribute it and/or modify it under the terms of 
 -- the GNU Lesser General Public License as published by the Free Software Foundation; either     
 -- version 2.1 of the License, or (at your option) any later version.                             
@@ -163,8 +166,19 @@ architecture Behavioral of VME_CR_CSR_Space is
    signal s_CrCsrOffsetAddr      : unsigned(18 downto 0);
    signal s_locDataIn            : unsigned(7 downto 0);
    signal s_CrCsrOffsetAderIndex : unsigned(18 downto 0);
-
+   signal s_odd_parity           : std_logic;
+	signal s_BARerror             : std_logic;
+	signal s_BAR_o                : std_logic_vector(4 downto 0);
+	
 begin
+-- check the parity:
+s_odd_parity   <=  VME_GA_oversampled(5) xor VME_GA_oversampled(4) xor 
+                   VME_GA_oversampled(3) xor VME_GA_oversampled(2) xor 
+					    VME_GA_oversampled(1) xor VME_GA_oversampled(0);	
+-- If the crate is not driving the GA lines or the parity is odd the BAR register
+  -- is set to 0x00 and the following flag is asserted; the board will not answer if the 
+  -- master accesses its  CR/CSR space and we can see a time out error in the VME bus.  
+s_BARerror <= not(s_BAR_o(4) or s_BAR_o(3)or s_BAR_o(2) or s_BAR_o(1) or s_BAR_o(0));		
 --------------------------------------------------------------------------------
 -- CR
    process(clk_i)
@@ -187,11 +201,13 @@ begin
             for i in 254 downto WB32or64 loop        -- Initialization of the CSR memory
                s_CSRarray(i) <= c_csr_array(i);
             end loop;
-         elsif s_bar_written = '0' then
+         elsif s_bar_written = '0' and s_odd_parity = '1' then  
             -- initialization of BAR reg to access the CR/CSR space
             s_CSRarray(BAR)(7 downto 3) <= unsigned(not VME_GA_oversampled(4 downto 0));   
             s_CSRarray(BAR)(2 downto 0) <= "000";
-            s_bar_written <= '1';  		  
+            s_bar_written <= '1';  		 
+         elsif s_odd_parity = '0' then		
+			   s_CSRarray(BAR) <= (others => '0');
          elsif (en_wr_CSR = '1') then  
             case to_integer(s_CrCsrOffsetAddr) is    
                when to_integer("00" & c_BAR_addr(18 downto 2)) =>       
@@ -350,8 +366,9 @@ begin
    ModuleEnable  <= s_CSRarray(BIT_SET_CLR_REG)(4);
    MBLT_Endian_o <= std_logic_vector(s_CSRarray(MBLT_Endian)(2 downto 0));
    Sw_Reset      <= s_CSRarray(BIT_SET_CLR_REG)(7);
-	W32           <= s_CSRarray(WB32or64)(0);  
-   BAR_o         <= std_logic_vector(s_CSRarray(BAR)(7 downto 3));
+	W32           <= s_CSRarray(WB32or64)(0); 
+   BAR_o	        <= s_BAR_o;
+   s_BAR_o       <= std_logic_vector(s_CSRarray(BAR)(7 downto 3));
 ---------------------------------------------------------------------------------------------------------------
 -- CRAM:
    CRAM_1 : dpblockram

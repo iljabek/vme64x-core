@@ -7,14 +7,15 @@
 --________________________________________________________________________________________________
 -- Description: This file defines the default configuration of the CSR space after power-up or software reset.
 --______________________________________________________________________________
--- Authors:      Erik Van der Bij      (Erik.Van.der.Bij@cern.ch)                                  
+-- Authors:                                      
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
 -- Date         06/2012                                                                           
 -- Version      v0.01  
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
---                              ------------------------------------                              
+--                              ------------------------------------         
+-- Copyright (c) 2009 - 2011 CERN                     
 -- This source file is free software; you can redistribute it and/or modify it under the terms of 
 -- the GNU Lesser General Public License as published by the Free Software Foundation; either     
 -- version 2.1 of the License, or (at your option) any later version.                             
@@ -35,7 +36,7 @@ package VME_CSR_pack is
 constant c_csr_array : 	t_CSRarray :=
 (
 BAR  => x"00", --CR/CSR BAR
-BIT_SET_CLR_REG  => x"10", --Bit set register -- 0x10=module enable
+BIT_SET_CLR_REG  => x"00", --Bit set register -- 0x10=module enable
 USR_BIT_SET_CLR_REG  => x"00", --Bit clear register
 CRAM_OWNER  => x"00", --CRAM_OWNER
 
@@ -77,7 +78,7 @@ FUNC6_ADER_3 =>x"00",
 IRQ_Vector   =>x"00",  --"00" because each Slot has a different IRQ Vector
                        -- and the VME Master should set this value
 IRQ_level    =>x"02",
-WB32or64     =>x"00",
+WB32or64     =>x"01",  -- 32 bit WB of default
 others => (others => '0'));
 end VME_CSR_pack;                                                                
 

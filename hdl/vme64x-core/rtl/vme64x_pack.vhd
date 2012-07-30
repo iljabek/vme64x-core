@@ -12,7 +12,8 @@
 -- Version      v0.01  
 --_______________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
---                              ------------------------------------                              
+--                              ------------------------------------    
+-- Copyright (c) 2009 - 2011 CERN                           
 -- This source file is free software; you can redistribute it and/or modify it under the terms of 
 -- the GNU Lesser General Public License as published by the Free Software Foundation; either     
 -- version 2.1 of the License, or (at your option) any later version.                             
@@ -61,7 +62,7 @@ package vme64x_pack is
   -- Constants:
    constant DFS              : integer := 2;    -- for accessing at the ADEM's bit 2
    constant XAM_MODE         : integer := 0;  -- for accessing at the ADER's bit 0
-   constant clk_period       : std_logic_vector(19 downto 0) := "00000000000000110010";
+   constant clk_period       : std_logic_vector(19 downto 0) := "00000000000000001101";
   --AM table:
    constant c_A24_S_sup      : std_logic_vector(5 downto 0) := "111101";
    constant c_A24_S          : std_logic_vector(5 downto 0) := "111001";
@@ -164,7 +165,7 @@ package vme64x_pack is
    FUNC_XAMCAP => (add => 16#088#, len => 256),
    FUNC_ADEM   => (add => 16#188#, len => 32));
   
-   -- Main Finite State machine signals defoult:
+   -- Main Finite State machine signals default:
 	-- When the S_FPGA detects the magic sequency, it erases the A_FPGA so 
 	-- I don't need to drive the s_dtackOE, s_dataOE, s_addrOE, s_addrDir, s_dataDir 
 	-- to 'Z' in the default configuration.
@@ -360,7 +361,6 @@ package vme64x_pack is
                         VME_ADDR_b_i         : in std_logic_vector(31 downto 1);
                         VME_DATA_b_i         : in std_logic_vector(31 downto 0);
                         VME_AM_i             : in std_logic_vector(5 downto 0);
-                        VME_BBSY_n_i         : in std_logic;
                         VME_IACK_n_i         : in std_logic;
                         memAckWB_i           : in std_logic;
                         wbData_i             : in std_logic_vector(63 downto 0);
@@ -412,7 +412,6 @@ package vme64x_pack is
                         CRAMdata_o           : out std_logic_vector(7 downto 0);
                         CRAMwea_o            : out std_logic;
                         CRaddr_o             : out std_logic_vector(11 downto 0);
-                        VME_GA_oversampled_o : out std_logic_vector(5 downto 0);
                         en_wr_CSR            : out std_logic;
                         CrCsrOffsetAddr      : out std_logic_vector(18 downto 0);
                         CSRData_o            : out std_logic_vector(7 downto 0);
@@ -534,7 +533,7 @@ package vme64x_pack is
                         Ader7              : out std_logic_vector(31 downto 0);
                         ModuleEnable       : out std_logic;
                         Sw_Reset           : out std_logic;
-								W32                : out  std_logic;
+								W32                : out std_logic;
                         numBytes           : in  std_logic_vector(12 downto 0);
                         transfTime         : in  std_logic_vector(39 downto 0);
                         MBLT_Endian_o      : out std_logic_vector(2 downto 0);
@@ -546,37 +545,37 @@ package vme64x_pack is
 
               COMPONENT VME_Am_Match
                  PORT(
-                        clk_i          : in std_logic;
-                        s_reset        : in std_logic;
-                        s_mainFSMreset : in std_logic;
-                        Ader0          : in std_logic_vector(31 downto 0);
-                        Ader1          : in std_logic_vector(31 downto 0);
-                        Ader2          : in std_logic_vector(31 downto 0);
-                        Ader3          : in std_logic_vector(31 downto 0);
-                        Ader4          : in std_logic_vector(31 downto 0);
-                        Ader5          : in std_logic_vector(31 downto 0);
-                        Ader6          : in std_logic_vector(31 downto 0);
-                        Ader7          : in std_logic_vector(31 downto 0);
-                        AmCap0         : in std_logic_vector(63 downto 0);
-                        AmCap1         : in std_logic_vector(63 downto 0);
-                        AmCap2         : in std_logic_vector(63 downto 0);
-                        AmCap3         : in std_logic_vector(63 downto 0);
-                        AmCap4         : in std_logic_vector(63 downto 0);
-                        AmCap5         : in std_logic_vector(63 downto 0);
-                        AmCap6         : in std_logic_vector(63 downto 0);
-                        AmCap7         : in std_logic_vector(63 downto 0);
-                        XAmCap0        : in std_logic_vector(255 downto 0);
-                        XAmCap1        : in std_logic_vector(255 downto 0);
-                        XAmCap2        : in std_logic_vector(255 downto 0);
-                        XAmCap3        : in std_logic_vector(255 downto 0);
-                        XAmCap4        : in std_logic_vector(255 downto 0);
-                        XAmCap5        : in std_logic_vector(255 downto 0);
-                        XAmCap6        : in std_logic_vector(255 downto 0);
-                        XAmCap7        : in std_logic_vector(255 downto 0);
-                        Am             : in std_logic_vector(5 downto 0);
-                        XAm            : in std_logic_vector(7 downto 0);
-                        DFS_i          : in std_logic_vector(7 downto 0);
-                        s_decode       : in std_logic;          
+                        clk_i          : in  std_logic;
+                        s_reset        : in  std_logic;
+                        s_mainFSMreset : in  std_logic;
+                        Ader0          : in  std_logic_vector(31 downto 0);
+                        Ader1          : in  std_logic_vector(31 downto 0);
+                        Ader2          : in  std_logic_vector(31 downto 0);
+                        Ader3          : in  std_logic_vector(31 downto 0);
+                        Ader4          : in  std_logic_vector(31 downto 0);
+                        Ader5          : in  std_logic_vector(31 downto 0);
+                        Ader6          : in  std_logic_vector(31 downto 0);
+                        Ader7          : in  std_logic_vector(31 downto 0);
+                        AmCap0         : in  std_logic_vector(63 downto 0);
+                        AmCap1         : in  std_logic_vector(63 downto 0);
+                        AmCap2         : in  std_logic_vector(63 downto 0);
+                        AmCap3         : in  std_logic_vector(63 downto 0);
+                        AmCap4         : in  std_logic_vector(63 downto 0);
+                        AmCap5         : in  std_logic_vector(63 downto 0);
+                        AmCap6         : in  std_logic_vector(63 downto 0);
+                        AmCap7         : in  std_logic_vector(63 downto 0);
+                        XAmCap0        : in  std_logic_vector(255 downto 0);
+                        XAmCap1        : in  std_logic_vector(255 downto 0);
+                        XAmCap2        : in  std_logic_vector(255 downto 0);
+                        XAmCap3        : in  std_logic_vector(255 downto 0);
+                        XAmCap4        : in  std_logic_vector(255 downto 0);
+                        XAmCap5        : in  std_logic_vector(255 downto 0);
+                        XAmCap6        : in  std_logic_vector(255 downto 0);
+                        XAmCap7        : in  std_logic_vector(255 downto 0);
+                        Am             : in  std_logic_vector(5 downto 0);
+                        XAm            : in  std_logic_vector(7 downto 0);
+                        DFS_i          : in  std_logic_vector(7 downto 0);
+                        s_decode       : in  std_logic;          
                         AmMatch        : out std_logic_vector(7 downto 0)
                      );
               END COMPONENT;
@@ -728,7 +727,7 @@ package vme64x_pack is
                         reset           : in  std_logic;
                         VME_IACKIN_n_i  : in  std_logic;
                         VME_AS_n_i      : in  std_logic;
-								VME_AS1_n_i     : in   std_logic;
+								VME_AS1_n_i     : in  std_logic;
                         VME_DS_n_i      : in  std_logic_vector(1 downto 0);
                         VME_LWORD_n_i   : in  std_logic;
                         VME_ADDR_123    : in  std_logic_vector(2 downto 0);
@@ -740,7 +739,7 @@ package vme64x_pack is
                         VME_DTACK_n_o   : out std_logic;
                         VME_DTACK_OE_o  : out std_logic;
                         VME_DATA_o      : out std_logic_vector(31 downto 0);
-                        DataDir         : out std_logic
+                        VME_DATA_DIR_o  : out std_logic
                      );
               END COMPONENT;
 

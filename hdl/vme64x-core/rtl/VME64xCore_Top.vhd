@@ -8,8 +8,8 @@
 -- Description:        
 -- This core implements an interface to transfer data between the VMEbus and the WBbus.
 -- This core is a Slave in the VME side and Master in the WB side.
--- The main blocks:                                                            |
---                                                                             |
+-- The main blocks:                                                            
+--                                                                             
 --    ________________________________________________________________             
 --   |                     VME64xCore_Top.vhd                         |            
 --   |__      ____________________                __________________  |            
@@ -29,11 +29,22 @@
 --   |       |                    |  | CR    |   |                 |  |            
 --   |       |____________________|  |_______|   |_________________|  |            
 --   |________________________________________________________________|            
---  
--- All the VMEbus's asynchronous signals must be sampled 2 or 3 times to avoid  |
--- metastability problem.                                                                         
+-- This core complies with the VME64x specifications and allows "plug and play"
+-- configuration of VME crates.
+-- The base address is setted by the Geographical lines.
+-- The base address can't be setted by hand with the switches on the board.
+-- If the core is used in an old VME system without GA lines, the core should be provided of
+-- a logic that detects if GA = "11111" and if it is the base address of the module
+-- should be derived from the switches on the board.
+-- All the VMEbus's asynchronous signals must be sampled 2 or 3 times to avoid  
+-- metastability problem. 
+-- All the output signals on the WB bus are registered.
+-- The Input signals from the WB bus aren't registered indeed the WB is a synchronous protocol and 
+-- some registers in the WB side will introduce a delay that make impossible reproduce the 
+-- WB PIPELINED protocol. 
+-- The WB Slave application must work at the same frequency of this vme64x core.                                                                     
 -- The main component is the VME_bus on the left of the block diagram. Inside this component
--- you can find the main finite state machine who coordinates all the synchronisms. 
+-- you can find the main finite state machine that coordinates all the synchronisms. 
 -- The WB protocol is more faster than the VME protocol so to make independent
 -- the two protocols a FIFO memory can be introduced. 
 -- The FIFO is necessary only during 2eSST access mode.
@@ -55,6 +66,7 @@
 -- Access modes supported:
 -- http://www.ohwr.org/projects/vme64x-core/repository/changes/trunk/
 --        documentation/user_guides/VFC_access.pdf
+-- This core is 
 --______________________________________________________________________________
 --
 -- References: 
@@ -69,7 +81,8 @@
 -- Version      v0.01  
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
---                              ------------------------------------                              
+--                              ------------------------------------       
+-- Copyright (c) 2009 - 2011 CERN                        
 -- This source file is free software; you can redistribute it and/or modify it under the terms of 
 -- the GNU Lesser General Public License as published by the Free Software Foundation; either     
 -- version 2.1 of the License, or (at your option) any later version.                             
@@ -100,14 +113,12 @@
      VME_BERR_o       : out   std_logic;
      VME_DTACK_n_o    : out   std_logic;
      VME_RETRY_n_o    : out   std_logic;
-     VME_RETRY_OE_o   : out   std_logic;
      VME_LWORD_n_b_i  : in    std_logic;
 	  VME_LWORD_n_b_o  : out   std_logic;
      VME_ADDR_b_i     : in    std_logic_vector(31 downto 1);
 	  VME_ADDR_b_o     : out   std_logic_vector(31 downto 1);
      VME_DATA_b_i     : in    std_logic_vector(31 downto 0);
 	  VME_DATA_b_o     : out   std_logic_vector(31 downto 0);
-     VME_BBSY_n_i     : in    std_logic;
      VME_IRQ_n_o      : out   std_logic_vector(6 downto 0);
      VME_IACKIN_n_i   : in    std_logic;
      VME_IACK_n_i     : in    std_logic;
@@ -119,9 +130,9 @@
      VME_DATA_OE_N_o  : out   std_logic;
      VME_ADDR_DIR_o   : out   std_logic;
      VME_ADDR_OE_N_o  : out   std_logic;
-
-     -- WishBone
-     RST_i            : in    std_logic;
+     VME_RETRY_OE_o   : out   std_logic;
+     
+	  -- WishBone
      DAT_i            : in    std_logic_vector(63 downto 0);
      DAT_o            : out   std_logic_vector(63 downto 0);
      ADR_o            : out   std_logic_vector(63 downto 0);
@@ -172,7 +183,6 @@
   signal s_INT_Vector              : std_logic_vector(7 downto 0);
   signal s_VME_IRQ_n_o             : std_logic_vector(6 downto 0);
   signal s_reset_IRQ               : std_logic;
-  signal s_VME_GA_oversampled      : std_logic_vector(5 downto 0);
   signal s_CSRData_o               : std_logic_vector(7 downto 0);
   signal s_CSRData_i               : std_logic_vector(7 downto 0);
   signal s_CrCsrOffsetAddr         : std_logic_vector(18 downto 0);
@@ -335,7 +345,6 @@ begin
 		 VME_DATA_DIR_o       => s_VME_DATA_DIR_VMEbus,
 		 VME_DATA_OE_N_o      => VME_DATA_OE_N_o,
 		 VME_AM_i             => VME_AM_oversampled,
-		 VME_BBSY_n_i         => VME_BBSY_n_i,  -- not used
 		 VME_IACK_n_i         => VME_IACK_n_oversampled,
 		 -- WB
        memReq_o             => STB_o,
@@ -365,7 +374,6 @@ begin
 		 CRAMwea_o            => s_CRAMwea,
 		 CRaddr_o             => s_CRaddr,
 		 CRdata_i             => s_CRdata,
-		 VME_GA_oversampled_o => s_VME_GA_oversampled,
 		 en_wr_CSR            => s_en_wr_CSR,
 		 CrCsrOffsetAddr      => s_CrCsrOffsetAddr,
 		 CSRData_o            => s_CSRData_o,
@@ -426,7 +434,7 @@ begin
          		 VME_DTACK_n_o     => s_VME_DTACK_IRQ,
          		 VME_DTACK_OE_o    => s_VME_DTACK_OE_IRQ,
          		 VME_DATA_o        => s_VME_DATA_IRQ,
-         		 DataDir           => s_VME_DATA_DIR_IRQ
+         		 VME_DATA_DIR_o    => s_VME_DATA_DIR_IRQ
                   	);
     
     s_reset_IRQ    <= not(s_reset);
@@ -443,7 +451,7 @@ begin
 		       CRAM_Wen            => s_CRAMwea,
          	 en_wr_CSR           => s_en_wr_CSR,
 	          CrCsrOffsetAddr     => s_CrCsrOffsetAddr,
-		       VME_GA_oversampled  => s_VME_GA_oversampled,
+		       VME_GA_oversampled  => VME_GA_oversampled,
 		       locDataIn           => s_CSRData_o,
 		       s_err_flag          => s_err_flag,
 		       s_reset_flag        => s_reset_flag,

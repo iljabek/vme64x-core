@@ -3,7 +3,7 @@
 --
 --                                CERN,BE/CO-HT 
 --___________________________________________________________________________________
--- File:                           Wb_master.vhd
+-- File:                           VME_Wb_master.vhd
 --___________________________________________________________________________________
 -- Description:
 -- This component implements the WB master side in the vme64x core.
@@ -246,13 +246,15 @@ begin
                       s_cardSel = '1' and s_sel = "11111111" and W32 = '0' else
                     (others => '0'); 
 
-   process(W32,s_rel_locAddr)
+   process(clk_i)
    begin
+	   if rising_edge(clk_i) then
          if W32 = '0' then
             locAddr_o <= b"000" & s_rel_locAddr(63 downto 3);
          else	 
             locAddr_o <= b"00" & s_rel_locAddr(63 downto 2);
          end if;
+		end if;	
    end process;	
 			
    err <= err_i;

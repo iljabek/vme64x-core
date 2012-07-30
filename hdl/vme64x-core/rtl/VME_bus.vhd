@@ -66,7 +66,7 @@ use work.vme64x_pack.all;
 entity VME_bus is
    port(
           clk_i                : in  std_logic;
-          reset_o              : out std_logic;
+          reset_o              : out std_logic;   -- to the Interrupt Generator
           -- VME signals                                                              
           VME_RST_n_i          : in  std_logic;
           VME_AS_n_i           : in  std_logic;
@@ -89,7 +89,6 @@ entity VME_bus is
           VME_DATA_DIR_o       : out std_logic;
           VME_DATA_OE_N_o      : out std_logic;
           VME_AM_i             : in  std_logic_vector(5 downto 0);     
-          VME_BBSY_n_i         : in  std_logic;  -- not used
           VME_IACK_n_i         : in  std_logic;  -- USE VME_IACK_n_i and NOT VME_IACKIN_n_i !!!!
 			                                        -- because VME_IACKIN_n_i is delayed the more you
                                                  -- are away from Slots 0
@@ -105,21 +104,22 @@ entity VME_bus is
           err_i                : in  std_logic;
           rty_i                : in  std_logic;
           stall_i              : in  std_logic;
-          psize_o              : out std_logic_vector(8 downto 0);                    
+          psize_o              : out std_logic_vector(8 downto 0);  
+			 
           --FIFO Signals
           VMEtoWB              : out std_logic;
           WBtoVME              : out std_logic;
           FifoMux              : out std_logic;
           transfer_done_i      : in  std_logic;  
           transfer_done_o      : out std_logic;  
+			 
           --CR/CSR space signals:
           CRAMaddr_o           : out std_logic_vector(18 downto 0);
           CRAMdata_o           : out std_logic_vector(7 downto 0);
           CRAMdata_i           : in  std_logic_vector(7 downto 0);
           CRAMwea_o            : out std_logic;
           CRaddr_o             : out std_logic_vector(11 downto 0);
-          CRdata_i             : in  std_logic_vector(7 downto 0);
-          VME_GA_oversampled_o : out std_logic_vector(5 downto 0);    
+          CRdata_i             : in  std_logic_vector(7 downto 0);   
           en_wr_CSR            : out std_logic;
           CrCsrOffsetAddr      : out std_logic_vector(18 downto 0);
           CSRData_o            : out std_logic_vector(7 downto 0);
@@ -257,7 +257,7 @@ architecture RTL of VME_bus is
   -- Error signals
    signal s_BERRcondition             : std_logic;   -- Condition for asserting BERR 
    signal s_wberr1                    : std_logic;
-   signal s_rty1                      : std_logic;                           
+   signal s_rty1                      : std_logic;       
   -- Initialization signals
    signal s_initInProgress            : std_logic;  --The initialization is in progress
    signal s_initReadCounter           : unsigned(8 downto 0); -- Counts read operations
@@ -275,7 +275,7 @@ architecture RTL of VME_bus is
    signal s_transfer_done_i           : std_logic;
 
   -- 
-   signal s_counter                   : unsigned(31 downto 0); 
+   signal s_counter                   : unsigned(25 downto 0); 
    signal s_countcyc                  : unsigned(9 downto 0); 
    signal s_BERR_out                  : std_logic;  
    signal s_errorflag                 : std_logic;
@@ -292,25 +292,24 @@ architecture RTL of VME_bus is
    signal s_err                       : std_logic;
    signal s_rty                       : std_logic;
   -- transfer rate signals:
-   signal s_countertime               : unsigned(19 downto 0);
+   signal s_countertime               : unsigned(39 downto 0);
    signal s_time                      : std_logic_vector(39 downto 0);
-   signal s_counterbytes              : unsigned(8 downto 0);
-   signal s_bytes                     : std_logic_vector(12 downto 0);
-   signal s_time_ns                   : unsigned(39 downto 0);     
+   signal s_counterbytes              : unsigned(12 downto 0);
+   signal s_bytes                     : std_logic_vector(12 downto 0);     
    signal s_datawidth                 : unsigned(3 downto 0);
+  -- 
 begin
+  
   --
    s_FIFO   <= '0'; -- FIFO not used if '0'
    FifoMux  <= s_FIFO; 
   ---------
-   s_is_d64 <= '1' when s_sel= "11111111" else '0'; --for the VME_ADDR_DIR_o |
+   s_is_d64 <= '1' when s_sel= "11111111" else '0'; --used to drive the VME_ADDR_DIR_o 
   ---------	
    s_RW     <= VME_WRITE_n_i; 
    s_reset  <= not(VME_RST_n_i) or s_sw_reset; -- hw and sw reset
    reset_o  <= s_reset;   -- Asserted when high
 
-   VME_GA_oversampled_o <= VME_GA_i;           
-   -- the GA lines are connected to the CR_CSR_Space to initialize the BAR   | 
   -------------------------------------------------------------------------
   -- These output signals are connected to the buffers on the board 
   -- SN74VMEH22501A Function table:
@@ -490,6 +489,10 @@ begin
 
                when IDLE =>
                   s_FSM  <=  c_FSM_default; 
+						-- I don't need to drive the s_dtackOE, s_dataOE, s_addrOE, s_addrDir, 
+						-- s_dataDir to 'Z' in the default configuration.
+	               -- If the S_FPGA will be provided to a core who drives these lines without 
+						-- erase the A_FPGA the above mentioned lines should be changed to 'Z' !!!
                   -- During the Interrupt ack cycle the Slave can't be accessed
                   -- so if VME_IACK is asserted the FSM is blocked in IDLE state.
                   -- The VME_IACK signal is asserted by the Interrupt handler
@@ -506,12 +509,13 @@ begin
                   s_FSM.s_decode  <= '1';
                   s_FSM.s_DSlatch <= '1';		
                   -- uncomment for using 2e modes:						
-                  --if s_addressingType = TWOedge then   -- start 2e transfer
-                  --   s_mainFSMstate <= WAIT_FOR_DS_2e;
+                  -- if s_addressingType = TWOedge then   -- start 2e transfer
+                  -- s_mainFSMstate <= WAIT_FOR_DS_2e;
                   if s_confAccess = '1' or (s_cardSel = '1') then               
                      s_mainFSMstate <= WAIT_FOR_DS;
                   else
                      s_mainFSMstate <= DECODE_ACCESS;
+						--	another board will answer; wait here the rising edge on VME_AS_i 
                   end if;
 
                when WAIT_FOR_DS =>         -- wait until DS /= "11"             
@@ -531,7 +535,7 @@ begin
 
                when LATCH_DS =>                                             
                   -- this state is necessary indeed the VME master can assert the 
-                  -- DS lines not at the same time
+                  -- DS lines not at the same time 
                   s_FSM                  <=  c_FSM_default;                                      
                   s_FSM.s_dtackOE        <= '1';
                   s_FSM.s_dataDir        <= VME_WRITE_n_i;
@@ -934,7 +938,7 @@ begin
    end process;
 
   -- BERR driver 
-  -- The slave assert the Error line when during the Decode access phase an error 
+  -- The slave assert the Error line if during the Decode access phase an error 
   -- condition is detected and the s_BERRcondition is asserted.
   -- When the FSM is in the DTACK_LOW state one of the VME_DTACK and VME_BERR line is asserted.
   -- The VME_BERR line can not be asserted by the slave at anytime, but only during 
@@ -996,9 +1000,9 @@ begin
    end if;
   end process;
 
-  --generate the error condition if block transfer overlap the limit
-  -- BLT --> block transfer limit = 256 bytes
-  -- MBLT --> block transfer limit = 2048 bytes                         
+  -- generate the error condition if block transfer overlap the limit
+  -- BLT --> block transfer limit = 256 bytes (rule 2.12a VME64 std ANSI/VITA 1-1994)
+  -- MBLT --> block transfer limit = 2048 bytes (rule 2.78 VME64 std ANSI/VITA 1-1994)                   
   with s_transferType select
      s_blockTransferLimit <= s_addrOffset(8)   when BLT, 
                              s_addrOffset(11)  when MBLT, 
@@ -1226,10 +1230,11 @@ begin
      end if;	 
   end process;                           
   --swap the data during read or write operation
-  --sel= 00 --> No swap
-  --sel= 01 --> Swap Byte  eg: 01234567 became 10325476
-  --sel= 10 --> Swap Word  eg: 01234567 became 23016745
-  --sel= 11 --> Swap Word+ Swap Byte eg: 01234567 became 32107654
+  --sel= 000 --> No swap
+  --sel= 001 --> Swap Byte  eg: 01234567 became 10325476
+  --sel= 010 --> Swap Word  eg: 01234567 became 23016745
+  --sel= 011 --> Swap Word+ Swap Byte eg: 01234567 became 32107654
+  --sel= 100 --> Swap DWord + Swap Word+ Swap Byte eg: 01234567 became 76543210
   swapper_write: VME_swapper PORT MAP(
                                       d_i => std_logic_vector(s_locDataIn),
                                       sel => MBLT_Endian_i,
@@ -1542,7 +1547,7 @@ end process;
         if VME_RST_n_i = '0' or s_mainFSMreset = '1' then 
            s_countertime <= (others => '0');
         elsif  VME_AS_n_i = '0' then
-           s_countertime <= s_countertime + 1;
+           s_countertime <= s_countertime + unsigned(clk_period);
         end if;	
   end if;
   end process;
@@ -1551,7 +1556,7 @@ end process;
   begin
      if rising_edge(clk_i) then
         if s_mainFSMreset = '1' and s_cardSel = '1' then
-           s_time <= std_logic_vector(s_countertime * unsigned(clk_period));
+           s_time <= std_logic_vector(s_countertime);
         end if;	
      end if;
   end process;                                                             
@@ -1562,7 +1567,7 @@ end process;
         if VME_RST_n_i = '0' or s_mainFSMreset = '1' then 
            s_counterbytes <= (others => '0');
         elsif  s_memReq = '1' and s_cardSel = '1' then
-           s_counterbytes <= s_counterbytes + 1;
+           s_counterbytes <= s_counterbytes + s_datawidth;
         end if;	
      end if;
   end process;
@@ -1571,7 +1576,7 @@ end process;
   begin
      if rising_edge(clk_i) then
         if s_mainFSMreset = '1' and s_cardSel = '1' then
-           s_bytes <= std_logic_vector(unsigned(s_counterbytes * s_datawidth));
+           s_bytes <= std_logic_vector(unsigned(s_counterbytes));
         end if;	
      end if;
   end process;
@@ -1694,7 +1699,7 @@ end process;
    leds(4) <= s_led4; 
 
  -------------------------------------------------------------------------------------------  
- -- This process implements a simple 32 bit counter. If the bitstream file has been downloaded
+ -- This process implements a simple 26 bit counter. If the bitstream file has been downloaded
  -- correctly and the clock is working properly you can see a led flash on the board.
   process(clk_i)
   begin
