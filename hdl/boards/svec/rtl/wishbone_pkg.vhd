@@ -15,7 +15,7 @@ package wishbone_pkg is
   subtype t_wishbone_data is
     std_logic_vector(c_wishbone_data_width-1 downto 0);
   subtype t_wishbone_byte_select is
-    std_logic_vector((c_wishbone_address_width/8)-1 downto 0);
+    std_logic_vector((c_wishbone_data_width/8)-1 downto 0);
   subtype t_wishbone_cycle_type is
     std_logic_vector(2 downto 0);
   subtype t_wishbone_burst_type is
@@ -40,7 +40,6 @@ package wishbone_pkg is
     err   : std_logic;
     rty   : std_logic;
     stall : std_logic;
-    int   : std_logic;
     dat   : t_wishbone_data;
   end record t_wishbone_slave_out;
   subtype t_wishbone_master_in is t_wishbone_slave_out;
@@ -58,14 +57,14 @@ package wishbone_pkg is
 
   constant cc_dummy_address : std_logic_vector(c_wishbone_address_width-1 downto 0):=
     (others => 'X');
-  constant cc_dummy_data : std_logic_vector(c_wishbone_address_width-1 downto 0) :=
+  constant cc_dummy_data : std_logic_vector(c_wishbone_data_width-1 downto 0) :=
     (others => 'X');
   constant cc_dummy_sel : std_logic_vector(c_wishbone_data_width/8-1 downto 0) :=
     (others => 'X');
   constant cc_dummy_slave_in : t_wishbone_slave_in :=
     ('X', 'X', cc_dummy_address, cc_dummy_sel, 'X', cc_dummy_data);
   constant cc_dummy_slave_out : t_wishbone_slave_out :=
-    ('X', 'X', 'X', 'X', 'X', cc_dummy_data);
+    ('X', 'X', 'X', 'X', cc_dummy_data);
 
 
 ------------------------------------------------------------------------------

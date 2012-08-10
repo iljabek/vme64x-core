@@ -40,7 +40,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use IEEE.numeric_std.all;
 package genram_pkg is
-
+    
+  constant c_SIZE : natural := 1024;
   function f_log2_size (A : natural) return natural;
   
   -- Single-port synchronous RAM

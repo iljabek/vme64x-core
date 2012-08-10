@@ -57,11 +57,12 @@
 -- Authors:  
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                                                            
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date         06/2012                                                                           
--- Version      v0.01  
+-- Date         08/2012                                                                           
+-- Version      v0.02  
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
---                              ------------------------------------                              
+--                              ------------------------------------         
+-- Copyright (c) 2009 - 2011 CERN                     
 -- This source file is free software; you can redistribute it and/or modify it under the terms of 
 -- the GNU Lesser General Public License as published by the Free Software Foundation; either     
 -- version 2.1 of the License, or (at your option) any later version.                             
@@ -75,9 +76,12 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-
+use work.vme64x_pack.all;
+--===========================================================================
+-- Entity declaration
+--===========================================================================
 entity IRQ_generator is
-    Port ( clk_i          : in   std_logic;
+    port ( clk_i          : in   std_logic;
            reset          : in   std_logic;
            Freq           : in   std_logic_vector (31 downto 0);
            Int_Count_i    : in   std_logic_vector (31 downto 0);
@@ -86,8 +90,11 @@ entity IRQ_generator is
            IRQ_o          : out  std_logic;
            Int_Count_o    : out  std_logic_vector (31 downto 0));
 end IRQ_generator;
-
+--===========================================================================
+-- Architecture declaration
+--===========================================================================
 architecture Behavioral of IRQ_generator is
+
 type t_FSM is (IDLE, CHECK, INCR, IRQ, WAIT_INT_ACK, WAIT_RD);
 signal s_en_int               : std_logic;
 signal currs, nexts           : t_FSM;
@@ -101,16 +108,18 @@ signal s_incr                 : std_logic;
 signal s_gen_irq              : std_logic;
 signal s_count0               : std_logic;
 signal s_Freq                 : std_logic_vector(31 downto 0);
-
+--===========================================================================
+-- Architecture begin
+--===========================================================================
 begin
 -- In/Out sample	
-RDinputSample : entity work.DoubleSigInputSample
+RDinputSample : DoubleSigInputSample
     port map(
       sig_i => Read_Int_Count,
       sig_o => s_Rd_Int_Count_delayed,
       clk_i => clk_i
       );			
-IRQOutputSample : entity work.FlipFlopD
+IRQOutputSample : FlipFlopD
     port map(
       sig_i => s_IRQ_o,
       sig_o => IRQ_o,
@@ -263,6 +272,7 @@ begin
 end process;
 
 -- Update outputs
+-- Moore FSM
 process(currs)
 begin
    case currs is 
@@ -294,4 +304,6 @@ end process;
 
 Int_Count_o <= std_logic_vector(s_count_int);
 end Behavioral;
-
+--===========================================================================
+-- Architecture end
+--===========================================================================

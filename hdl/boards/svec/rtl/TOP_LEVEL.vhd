@@ -9,21 +9,21 @@
 -- block diagram.
 --
 -- TOP_LEVEL's block diagram
---              ____________________________________________________________ 
---    ___      |   ______________________            ___________________    |
---   | B |     |  |                      |          |                   |   |
---   | A |     |  |      VME TO WB       |          |                   |   |
---   | C |     |  |      INTERFACE       |          |                   |   |
---   | K |     |  | (VME64xCore_Top.vhd) |          |      SPRAM        |   |
---   | P |_____|__|           |          |__________|        WB         |   |
---   | L |_____|__|           |          |__________|      SLAVE        |   |
---   | A |     |  |   VME     |   WB     |Point to  |  (xwb_ram.vhd)    |   |
---   | N |     |  |  SLAVE    | MASTER   |  Point   |    64-bit port    |   |
---   | E |     |  |           |          |Interconn |  Byte Granularity |   |
---   |   |     |  |           |          |          |                   |   |
---   |   |     |  |           |          |          |                   |   |
---   |___|     |  |______________________|          |___________________|   | 
---             |____________________________________________________________|       
+--              __________________________________________________________________ 
+--    ___      |   _____________________    ______________     __________________ |
+--   | B |     |  |                     |  |WB_Bridge.vhd |   |                  ||
+--   | A |     |  |      VME TO WB      |  |              |   |                  ||
+--   | C |     |  |      INTERFACE      |  |   _________  |   |                  ||
+--   | K |     |  | (VME64xCore_Top.vhd)|  |  |INT_COUNT| |   |     SPRAM        ||
+--   | P |_____|__|           |         |__|   ________   |___|       WB         ||
+--   | L |_____|__|           |         |__|  |INT_RATE|  |___|     SLAVE        ||
+--   | A |     |  |   VME     |   WB    |  |   ________   |   |(or your WB appl.)||
+--   | N |     |  |  SLAVE    | MASTER  |  |  |IRQ_Gen.|  |   |   64-bit port    ||
+--   | E |     |  |           |         |  |  |        |  |   | Byte Granularity ||
+--   |   |     |  |           |         |  |  |        |  |   |                  ||
+--   |   |     |  |           |         |  |  |________|  |   |                  ||
+--   |___|     |  |_____________________|  |______________|   |__________________|| 
+--             |__________________________________________________________________|       
 --
 --
 -- The wb slave supports the PIPELINED mode.  
@@ -60,8 +60,8 @@
 -- Authors:                                     
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date         06/2012                                                                           
--- Version      v0.01  
+-- Date         08/2012                                                                           
+-- Version      v0.02  
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------  
@@ -77,14 +77,16 @@
 ---------------------------------------------------------------------------------------
 
 -- uncomment to use the PLL 
- Library UNISIM;
- use UNISIM.vcomponents.all;
+Library UNISIM;
+use UNISIM.vcomponents.all;
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.numeric_std.all;
 use work.wishbone_pkg.all;
-
-
+use work.vme64x_pack.all;
+--===========================================================================
+-- Entity declaration
+--===========================================================================
 entity TOP_LEVEL is
 port(
     clk_i            : in    std_logic;    	 
@@ -102,7 +104,6 @@ port(
     VME_LWORD_n_b    : inout std_logic;
     VME_ADDR_b       : inout std_logic_vector(31 downto 1);
     VME_DATA_b       : inout std_logic_vector(31 downto 0);
-    VME_BBSY_n_i     : in    std_logic;
     VME_IRQ_n_o      : out   std_logic_vector(6 downto 0);
     VME_IACKIN_n_i   : in    std_logic;
     VME_IACKOUT_n_o  : out   std_logic;
@@ -119,11 +120,17 @@ port(
 	 );
 
 end TOP_LEVEL;
-
+--===========================================================================
+-- Architecture declaration
+--===========================================================================
 architecture Behavioral of TOP_LEVEL is
 
-COMPONENT VME64xCore_Top
-	PORT(
+component VME64xCore_Top is
+	generic(g_width      : integer := c_width;
+	        g_addr_width : integer := c_addr_width;
+			  g_CRAM_SIZE  : integer := c_CRAM_SIZE
+	        );
+	port(
 	   -- VME signals:
 		clk_i           : in    std_logic;
 		VME_AS_n_i      : in    std_logic;
@@ -152,26 +159,27 @@ COMPONENT VME64xCore_Top
 		VME_ADDR_DIR_o  : out   std_logic;
 		VME_ADDR_OE_N_o : out   std_logic;
 		-- WB signals
-		DAT_i           : in    std_logic_vector(63 downto 0);
+		DAT_i           : in    std_logic_vector(g_width - 1 downto 0);
 		ERR_i           : in    std_logic;
 		RTY_i           : in    std_logic;
 		ACK_i           : in    std_logic;
 		STALL_i         : in    std_logic;
-		IRQ_i           : in    std_logic;  
-      INT_ack         : out   std_logic;	
-		DAT_o           : out   std_logic_vector(63 downto 0);
-		ADR_o           : out   std_logic_vector(63 downto 0);
+		DAT_o           : out   std_logic_vector(g_width - 1 downto 0);
+		ADR_o           : out   std_logic_vector(g_addr_width - 1 downto 0);
 		CYC_o           : out   std_logic;
-		SEL_o           : out   std_logic_vector(7 downto 0);
+		SEL_o           : out   std_logic_vector(f_div8(g_width) - 1 downto 0);
 		STB_o           : out   std_logic;
 		WE_o            : out   std_logic;
+		-- IRQ Generator
+		IRQ_i           : in    std_logic;
+		INT_ack         : out   std_logic;
 		reset_o         : out   std_logic;
 		-- for debug:
 	   leds            : out   std_logic_vector(7 downto 0)
 		);
-END COMPONENT;
+end component VME64xCore_Top;
 
-COMPONENT xwb_ram
+component xwb_ram is
         generic(
                 g_size                  : natural := 256;
                 g_init_file             : string  := "";
@@ -179,27 +187,72 @@ COMPONENT xwb_ram
                 g_slave1_interface_mode : t_wishbone_interface_mode;
                 g_slave1_granularity    : t_wishbone_address_granularity
        );
-	PORT(
+	port(
 		          clk_sys_i : in std_logic;
-		          rst_n_i   : in std_logic;
-	           	 INT_ack   : in std_logic;
 		          slave1_i  : in t_wishbone_slave_in;          
 		          slave1_o  : out t_wishbone_slave_out
 		);
-END COMPONENT;
+end component xwb_ram;
 
-signal WbDat_i                   : std_logic_vector(63 downto 0);
-signal WbDat_o                   : std_logic_vector(63 downto 0);
-signal WbAdr_o                   : std_logic_vector(63 downto 0);
+component WB_Bridge is
+generic(g_width      : integer := c_width;
+	     g_addr_width : integer := c_addr_width
+	    );
+	port(
+		clk_i     : in  std_logic;
+		rst_i     : in  std_logic;
+		Int_Ack_i : in  std_logic;
+		cyc_i     : in  std_logic;
+		stb_i     : in  std_logic;
+		adr_i     : in  std_logic_vector(g_addr_width - 1 downto 0);
+		dat_i     : in  std_logic_vector(g_width - 1 downto 0);
+		sel_i     : in  std_logic_vector(f_div8(g_width) - 1 downto 0);
+		we_i      : in  std_logic;
+		m_ack_i   : in  std_logic;
+		m_err_i   : in  std_logic;
+		m_stall_i : in  std_logic;
+		m_rty_i   : in  std_logic;
+		m_dat_i   : in  std_logic_vector(g_width - 1 downto 0);          
+		Int_Req_o : out std_logic;
+		ack_o     : out std_logic;
+		err_o     : out std_logic;
+		rty_o     : out std_logic;
+		stall_o   : out std_logic;
+		dat_o     : out std_logic_vector(g_width - 1 downto 0);
+		m_cyc_o   : out std_logic;
+		m_stb_o   : out std_logic;
+		m_adr_o   : out std_logic_vector(g_addr_width - 1 downto 0);
+		m_dat_o   : out std_logic_vector(g_width - 1 downto 0);
+		m_sel_o   : out std_logic_vector(f_div8(g_width) - 1 downto 0);
+		m_we_o    : out std_logic
+		);
+end component WB_Bridge;
+	
+signal WbDat_i                   : std_logic_vector(c_width - 1 downto 0);
+signal WbDat_o                   : std_logic_vector(c_width - 1 downto 0);
+signal WbAdr_o                   : std_logic_vector(c_addr_width - 1 downto 0);
 signal WbCyc_o                   : std_logic;
 signal WbErr_i                   : std_logic;
 signal WbRty_i                   : std_logic;
-signal WbSel_o                   : std_logic_vector(7 downto 0);
+signal WbSel_o                   : std_logic_vector(f_div8(c_width) - 1 downto 0);
 signal WbStb_o                   : std_logic;
 signal WbAck_i                   : std_logic;	
 signal WbWe_o                    : std_logic;		
 signal WbStall_i                 : std_logic;		
-signal WbIrq_i                   : std_logic;		
+signal WbIrq_i                   : std_logic;
+	
+signal WbMemDat_i                : std_logic_vector(c_width - 1 downto 0);
+signal WbMemDat_o                : std_logic_vector(c_width - 1 downto 0);
+signal WbMemAdr_i                : std_logic_vector(c_addr_width - 1 downto 0);
+signal WbMemCyc_i                : std_logic;
+signal WbMemErr_o                : std_logic;
+signal WbMemRty_o                : std_logic;
+signal WbMemSel_i                : std_logic_vector(f_div8(c_width) - 1 downto 0);
+signal WbMemStb_i                : std_logic;
+signal WbMemAck_o                : std_logic;	
+signal WbMemWe_i                 : std_logic;		
+signal WbMemStall_o              : std_logic;	
+	
 signal Rst                       : std_logic;								
 signal clk_in_buf                : std_logic;
 signal clk_in                    : std_logic;
@@ -207,15 +260,25 @@ signal s_locked                  : std_logic;
 signal s_fb                      : std_logic;
 signal s_INT_ack                 : std_logic;
 signal s_rst                     : std_logic;
+
 --mux
 signal s_VME_DATA_b_o            : std_logic_vector(31 downto 0);
 signal s_VME_DATA_DIR            : std_logic;
 signal s_VME_ADDR_DIR            : std_logic;
 signal s_VME_ADDR_b_o            : std_logic_vector(31 downto 1);
 signal s_VME_LWORD_n_b_o         : std_logic;
+--===========================================================================
+-- Architecture begin
+--===========================================================================
 begin
 
-Inst_VME64xCore_Top: VME64xCore_Top PORT MAP(
+Inst_VME64xCore_Top: VME64xCore_Top 
+generic map(
+              g_width => c_width,
+				  g_addr_width => c_addr_width 
+           )
+port map(
+      -- VME
 		clk_i           => clk_in,
 		VME_AS_n_i      => VME_AS_n_i,
 		VME_RST_n_i     => Rst,
@@ -225,8 +288,7 @@ Inst_VME64xCore_Top: VME64xCore_Top PORT MAP(
 		VME_GA_i        => VME_GA_i,
 		VME_BERR_o      => VME_BERR_o,
 		VME_DTACK_n_o   => VME_DTACK_n_o,
-		VME_RETRY_n_o   => VME_RETRY_n_o,
-		VME_RETRY_OE_o  => VME_RETRY_OE_o,
+		VME_RETRY_n_o   => VME_RETRY_n_o,		
 		VME_LWORD_n_b_i => VME_LWORD_n_b,
 		VME_LWORD_n_b_o => s_VME_LWORD_n_b_o,
 		VME_ADDR_b_i    => VME_ADDR_b,
@@ -237,11 +299,14 @@ Inst_VME64xCore_Top: VME64xCore_Top PORT MAP(
 		VME_IACKIN_n_i  => VME_IACKIN_n_i,
 		VME_IACK_n_i    => VME_IACK_n_i,
 		VME_IACKOUT_n_o => VME_IACKOUT_n_o,
+		-- buffer
 		VME_DTACK_OE_o  => VME_DTACK_OE_o,
 		VME_DATA_DIR_o  => s_VME_DATA_DIR,
 		VME_DATA_OE_N_o => VME_DATA_OE_N_o,
 		VME_ADDR_DIR_o  => s_VME_ADDR_DIR,
 		VME_ADDR_OE_N_o => VME_ADDR_OE_N_o,
+		VME_RETRY_OE_o  => VME_RETRY_OE_o,
+		--WB
 		DAT_i           => WbDat_i,  
 		DAT_o           => WbDat_o,  
 		ADR_o           => WbAdr_o,  
@@ -253,6 +318,7 @@ Inst_VME64xCore_Top: VME64xCore_Top PORT MAP(
 		ACK_i           => WbAck_i, 
 		WE_o            => WbWe_o,  
 		STALL_i         => WbStall_i, 
+		--IRQ Generator
 		IRQ_i           => WbIrq_i,  
 		INT_ack         => s_INT_ack,
 		reset_o         => s_rst,
@@ -269,26 +335,56 @@ Inst_xwb_ram: xwb_ram
 						)
     		port map(
 		            clk_sys_i                => clk_in,
-		            rst_n_i                  => s_rst,
-						INT_ack                  => s_INT_ack,
-						slave1_i.cyc             => WbCyc_o,
-                  slave1_i.stb             => WbStb_o,
-                  slave1_i.adr             => WbAdr_o,
-                  slave1_i.sel             => WbSel_o,
-                  slave1_i.we              => WbWe_o,
-                  slave1_i.dat             => WbDat_o,
-		            slave1_o.ack             => WbAck_i,
-                  slave1_o.err             => WbErr_i,
-                  slave1_o.rty             => WbRty_i,
-                  slave1_o.stall           => WbStall_i,
-                  slave1_o.int             => WbIrq_i, 
-                  slave1_o.dat             => WbDat_i
+						slave1_i.cyc             => WbMemCyc_i,
+                  slave1_i.stb             => WbMemStb_i,
+                  slave1_i.adr             => WbMemAdr_i,
+                  slave1_i.sel             => WbMemSel_i,
+                  slave1_i.we              => WbMemWe_i,
+                  slave1_i.dat             => WbMemDat_i,
+		            slave1_o.ack             => WbMemAck_o,
+                  slave1_o.err             => WbMemErr_o,
+                  slave1_o.rty             => WbMemRty_o,
+                  slave1_o.stall           => WbMemStall_o,
+                  slave1_o.dat             => WbMemDat_o
 	);
 	
+Inst_WB_Bridge: WB_Bridge 
+generic map(
+              g_width => c_width,
+				  g_addr_width => c_addr_width 
+           )
+port map(
+		clk_i     => clk_in,
+		rst_i     => s_rst,
+		Int_Ack_i => s_INT_ack,
+		Int_Req_o => WbIrq_i,
+		cyc_i     => WbCyc_o,
+		stb_i     => WbStb_o,
+		adr_i     => WbAdr_o,
+		dat_i     => WbDat_o,
+		sel_i     => WbSel_o,
+		we_i      => WbWe_o,
+		ack_o     => WbAck_i,
+		err_o     => WbErr_i,
+		rty_o     => WbRty_i,
+		stall_o   => WbStall_i,
+		dat_o     => WbDat_i,
+		m_cyc_o   => WbMemCyc_i,
+		m_stb_o   => WbMemStb_i,
+		m_adr_o   => WbMemAdr_i,
+		m_dat_o   => WbMemDat_i,
+		m_sel_o   => WbMemSel_i,
+		m_we_o    => WbMemWe_i,
+		m_ack_i   => WbMemAck_o,
+		m_err_i   => WbMemErr_o,
+		m_stall_i => WbMemStall_o,
+		m_rty_i   => WbMemRty_o,
+		m_dat_i   => WbMemDat_o
+	);
 	
   Rst <= VME_RST_n_i and Reset;
 ---------------------------------------------------------------------------------  
-    -- buffers...The buffers on the board work in the same way                                                             
+    -- buffers                                                         
     VME_DATA_b       <= s_VME_DATA_b_o    when s_VME_DATA_DIR = '1' else (others => 'Z');
     VME_ADDR_b       <= s_VME_ADDR_b_o    when s_VME_ADDR_DIR = '1' else (others => 'Z');
     VME_LWORD_n_b    <= s_VME_LWORD_n_b_o when s_VME_ADDR_DIR = '1' else 'Z';
@@ -297,7 +393,7 @@ Inst_xwb_ram: xwb_ram
 	 VME_ADDR_DIR_o   <= s_VME_ADDR_DIR;
 	 VME_DATA_DIR_o   <= s_VME_DATA_DIR;
 ---------------------------------------------------------------------------------	 
--- uncomment to use the PLL:
+
  PLL_BASE_inst : PLL_BASE
    generic map (
       BANDWIDTH => "OPTIMIZED",   -- "HIGH", "LOW" or "OPTIMIZED" 
@@ -307,7 +403,7 @@ Inst_xwb_ram: xwb_ram
       CLKIN_PERIOD => 50.000,     -- Input clock period in ns to ps resolution (i.e. 33.333 is 30
                                   -- MHz).
       -- CLKOUT0_DIVIDE - CLKOUT5_DIVIDE: Divide amount for CLKOUT# clock output (1-128)
-      CLKOUT0_DIVIDE => 5,
+      CLKOUT0_DIVIDE => 4,
       CLKOUT1_DIVIDE => 1,
       CLKOUT2_DIVIDE => 1,
       CLKOUT3_DIVIDE => 1,
@@ -323,17 +419,17 @@ Inst_xwb_ram: xwb_ram
       CLKOUT5_DUTY_CYCLE => 0.500,
       -- CLKOUT0_PHASE - CLKOUT5_PHASE: 
       -- Output phase relationship for CLKOUT# clock output (-360.0-360.0).
-      CLKOUT0_PHASE => 0.000,
-      CLKOUT1_PHASE => 0.000,
-      CLKOUT2_PHASE => 0.000,
-      CLKOUT3_PHASE => 0.000,
-      CLKOUT4_PHASE => 0.000,
-      CLKOUT5_PHASE => 0.000,
-      CLK_FEEDBACK => "CLKFBOUT",           
-      COMPENSATION => "SYSTEM_SYNCHRONOUS", 
-      DIVCLK_DIVIDE => 1,                   -- Division value for all output clocks (1-52)
-      REF_JITTER => 0.016,                    -- Reference Clock Jitter in UI (0.000-0.999).
-      RESET_ON_LOSS_OF_LOCK => FALSE        -- Must be set to FALSE
+      CLKOUT0_PHASE         => 0.000,
+      CLKOUT1_PHASE         => 0.000,
+      CLKOUT2_PHASE         => 0.000,
+      CLKOUT3_PHASE         => 0.000,
+      CLKOUT4_PHASE         => 0.000,
+      CLKOUT5_PHASE         => 0.000,
+      CLK_FEEDBACK          => "CLKFBOUT",           
+      COMPENSATION          => "SYSTEM_SYNCHRONOUS", 
+      DIVCLK_DIVIDE         => 1, -- Division value for all output clocks (1-52)
+      REF_JITTER            => 0.016,-- Reference Clock Jitter in UI (0.000-0.999).
+      RESET_ON_LOSS_OF_LOCK => FALSE -- Must be set to FALSE
    )
    port map (
       CLKFBOUT => s_fb,     -- 1-bit output: PLL_BASE feedback output
@@ -344,10 +440,10 @@ Inst_xwb_ram: xwb_ram
       CLKOUT3 => open,
       CLKOUT4 => open,
       CLKOUT5 => open,
-      LOCKED => s_locked,   -- 1-bit output: PLL_BASE lock status output
+      LOCKED  => s_locked,   -- 1-bit output: PLL_BASE lock status output
       CLKFBIN => s_fb,      -- 1-bit input: Feedback clock input
-      CLKIN => clk_i,       -- 1-bit input: Clock input
-      RST => '0'            -- 1-bit input: Reset input
+      CLKIN   => clk_i,       -- 1-bit input: Clock input
+      RST     => '0'            -- 1-bit input: Reset input
    );	
 cmp_clk_dmtd_buf : BUFG
   port map
@@ -356,4 +452,6 @@ cmp_clk_dmtd_buf : BUFG
 -- comment the next line if the PLL is used:
 --	clk_in <= clk_i;
 end Behavioral;
-
+--===========================================================================
+-- Architecture end
+--===========================================================================
