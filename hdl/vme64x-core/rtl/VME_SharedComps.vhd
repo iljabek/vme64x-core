@@ -60,7 +60,30 @@ begin
 		end if;
 	end process;
 end RTL;
+--***************************************************
+library IEEE;
+use IEEE.STD_LOGIC_1164.all;
 
+entity SingleRegInputSample is 
+	generic(
+		width: natural:=8
+		);
+	port (
+		reg_i: in std_logic_vector(width-1 downto 0);
+		reg_o: out std_logic_vector(width-1 downto 0);
+		clk_i: in std_logic 
+		);
+end SingleRegInputSample;
+
+architecture RTL of SingleRegInputSample is
+begin
+	process(clk_i)
+	begin
+		if rising_edge(clk_i) then
+			reg_o <= reg_i;		 
+		end if;
+	end process;
+end RTL;
 -- ***************************************************
 --FlipFlopD
 library IEEE;

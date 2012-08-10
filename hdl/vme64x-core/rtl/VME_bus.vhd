@@ -28,20 +28,19 @@
 --                            |____________________________________|            |
 --                                                                              |                                 
 -- The INIT component performs the initialization of the core after the power-up|
--- and the software reset.                                                      |
+-- or reset.                                                                    |
 -- The Access decode component decodes the address to check if the board is the |
 -- responding Slave. This component is of fundamental importance, indeed only   |
--- one Slave can answer to th Master!                                           |
+-- one Slave can answer to the Master!                                          |
 -- In the right side you can see the WB Master who implements the Wb Pipelined  |
 -- single read/write protocol.                                                  |
--- In this code there are other process to elaborate the data and address lines.|
 -- Inside each component is possible read a more detailed description.          |
 --______________________________________________________________________________
 -- Authors:                                      
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date         06/2012                                                                           
--- Version      v0.01  
+-- Date         08/2012                                                                           
+-- Version      v0.02  
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------    
@@ -62,8 +61,14 @@ use IEEE.numeric_std.all;
 use IEEE.numeric_std.unsigned;
 
 use work.vme64x_pack.all;
-
+--===========================================================================
+-- Entity declaration
+--===========================================================================
 entity VME_bus is
+   generic(g_width      : integer := c_width;
+	        g_addr_width : integer := c_addr_width;
+			  g_CRAM_SIZE  : integer := c_CRAM_SIZE
+	);
    port(
           clk_i                : in  std_logic;
           reset_o              : out std_logic;   -- to the Interrupt Generator
@@ -76,7 +81,6 @@ entity VME_bus is
           VME_RETRY_OE_o       : out std_logic;
           VME_WRITE_n_i        : in  std_logic;
           VME_DS_n_i           : in  std_logic_vector(1 downto 0);
-          VME_GA_i             : in  std_logic_vector(5 downto 0); --Geograp. Address
           VME_DTACK_n_o        : out std_logic;
           VME_DTACK_OE_o       : out std_logic;
           VME_BERR_o           : out std_logic;
@@ -95,10 +99,10 @@ entity VME_bus is
           -- WB signals
           memReq_o             : out std_logic;
           memAckWB_i           : in  std_logic;
-          wbData_o             : out std_logic_vector(63 downto 0);
-          wbData_i             : in  std_logic_vector(63 downto 0);
-          locAddr_o            : out std_logic_vector(63 downto 0);
-          wbSel_o              : out std_logic_vector(7 downto 0);
+          wbData_o             : out std_logic_vector(g_width - 1 downto 0);
+          wbData_i             : in  std_logic_vector(g_width - 1 downto 0);
+          locAddr_o            : out std_logic_vector(g_addr_width - 1 downto 0);
+          wbSel_o              : out std_logic_vector(f_div8(g_width) - 1 downto 0);
           RW_o                 : out std_logic;
           cyc_o                : out std_logic;
           err_i                : in  std_logic;
@@ -114,7 +118,7 @@ entity VME_bus is
           transfer_done_o      : out std_logic;  
 			 
           --CR/CSR space signals:
-          CRAMaddr_o           : out std_logic_vector(18 downto 0);
+          CRAMaddr_o           : out std_logic_vector(f_log2_size(g_CRAM_SIZE)-1 downto 0);
           CRAMdata_o           : out std_logic_vector(7 downto 0);
           CRAMdata_i           : in  std_logic_vector(7 downto 0);
           CRAMwea_o            : out std_logic;
@@ -141,11 +145,13 @@ entity VME_bus is
           BAR_i                : in  std_logic_vector(4 downto 0);
           numBytes             : out std_logic_vector(12 downto 0);
           transfTime           : out std_logic_vector(39 downto 0);
-          -- Debug Davide
+          -- Debug 
           leds                 : out std_logic_vector(7 downto 0)
        );
 end VME_bus;
-
+--===========================================================================
+-- Architecture declaration
+--===========================================================================
 architecture RTL of VME_bus is
 
    signal s_reset                     : std_logic;                  
@@ -179,6 +185,7 @@ architecture RTL of VME_bus is
    signal s_locDataSwap               : std_logic_vector(63 downto 0);
    signal s_locDataInSwap             : std_logic_vector(63 downto 0);
    signal s_locDataOutWb              : std_logic_vector(63 downto 0);
+	
   -- Latched signals
    signal s_VMEaddrLatched            : unsigned(63 downto 1); --Latch on AS falling edge
    signal s_LWORDlatched              : std_logic;  -- Stores LWORD on falling edge of AS
@@ -186,27 +193,25 @@ architecture RTL of VME_bus is
    signal s_AMlatched                 : std_logic_vector(5 downto 0); --Latch on AS f. edge 
    signal s_XAM                       : unsigned(7 downto 0);  -- Stores received XAM  
    signal s_RSTedge                   : std_logic;
+	
   -- Type of data transfer (depending on VME_DS_n, VME_LWORD_n and VME_ADDR(1))
-
    signal s_typeOfDataTransfer        : t_typeOfDataTransfer;
    signal s_typeOfDataTransferSelect  : std_logic_vector(4 downto 0);   
 
-  -- Addressing type (depending on VME_AM)
-
+  -- Addressing type (depending on VME_AM_i)
    signal s_addressingType            : t_addressingType;
    signal s_addressingTypeSelect      : std_logic_vector(5 downto 0);
    signal s_transferType              : t_transferType;	
    signal s_XAMtype                   : t_XAMtype;
    signal s_2eType                    : t_2eType;
    signal s_addrWidth                 : std_logic_vector(1 downto 0);    
+  
   -- Main FSM signals 
-
    signal s_mainFSMstate              : t_mainFSMstates;
    signal s_FSM                       : t_FSM;
    signal s_dataToAddrBus             : std_logic;  -- (for D64) --> multiplexed transfer 
    signal s_dataToOutput              : std_logic;   -- Puts data to VME data bus
    signal s_mainDTACK                 : std_logic;       -- DTACK driving
-
    signal s_memAck                    : std_logic;  -- Memory acknowledge 
    signal s_memAckCSR                 : std_logic;  -- CR/CSR acknowledge
    signal s_memReq                    : std_logic;  -- Global memory request      
@@ -254,10 +259,12 @@ architecture RTL of VME_bus is
    signal s_END_USER_CR               : std_logic_vector(23 downto 0);      
    signal s_BEG_CRAM                  : std_logic_vector(23 downto 0);
    signal s_END_CRAM                  : std_logic_vector(23 downto 0);
+	
   -- Error signals
    signal s_BERRcondition             : std_logic;   -- Condition for asserting BERR 
    signal s_wberr1                    : std_logic;
    signal s_rty1                      : std_logic;       
+	
   -- Initialization signals
    signal s_initInProgress            : std_logic;  --The initialization is in progress
    signal s_initReadCounter           : unsigned(8 downto 0); -- Counts read operations
@@ -272,9 +279,9 @@ architecture RTL of VME_bus is
 
   --flag FIFO: if '1' the FIFO is used                                      
    signal s_FIFO                      : std_logic;
+	
    signal s_transfer_done_i           : std_logic;
-
-  -- 
+ 
    signal s_counter                   : unsigned(25 downto 0); 
    signal s_countcyc                  : unsigned(9 downto 0); 
    signal s_BERR_out                  : std_logic;  
@@ -285,10 +292,10 @@ architecture RTL of VME_bus is
 	signal s_led3                      : std_logic;
    signal s_led4                      : std_logic;
 	signal s_led5                      : std_logic;
-   signal s_AckWithError              : std_logic;
    signal s_sw_reset                  : std_logic;
    signal s_decode                    : std_logic;
    signal s_AckWb                     : std_logic;
+	signal s_CRCSRtype                 : std_logic;
    signal s_err                       : std_logic;
    signal s_rty                       : std_logic;
   -- transfer rate signals:
@@ -298,6 +305,9 @@ architecture RTL of VME_bus is
    signal s_bytes                     : std_logic_vector(12 downto 0);     
    signal s_datawidth                 : unsigned(3 downto 0);
   -- 
+--===========================================================================
+-- Architecture begin
+--=========================================================================== 
 begin
   
   --
@@ -394,7 +404,7 @@ begin
    end process;
 
   -- Address modifier decoder    
-  -- Either the supervisor or user access mode are supported                 
+  -- Either the supervisor or user access modes are supported                 
    s_addressingTypeSelect <= s_AMlatched;
 
    with s_addressingTypeSelect select
@@ -418,33 +428,83 @@ begin
                           A64_MBLT                when c_A64_MBLT,
                           TWOedge                 when c_TWOedge,
                           AM_Error                when others;
-  -- Transfer type decoder                                                  
-   s_transferType <= SINGLE when s_addressingType = A24 or s_addressingType = CR_CSR or 
-                                 s_addressingType = A16 or s_addressingType = A32 or 
-                                 s_addressingType = A64      else
-                     BLT    when s_addressingType = A24_BLT or s_addressingType = A32_BLT or 
-                                 s_addressingType = A64_BLT  else
-                     MBLT   when s_addressingType = A24_MBLT or s_addressingType = A32_MBLT or 
-                                 s_addressingType = A64_MBLT else
-                     TWOe   when s_addressingType = TWOedge  else     
-                     error;
+								  
+  -- Transfer type decoder       
+  with s_addressingType select
+       s_transferType <= SINGLE when A24,
+                         SINGLE when CR_CSR,
+								 SINGLE when A16,
+								 SINGLE when A32,
+								 SINGLE when A64,
+								 BLT    when A24_BLT,
+								 BLT    when A32_BLT,
+								 BLT    when A64_BLT,
+								 MBLT   when A24_MBLT,
+								 MBLT   when A32_MBLT,
+								 MBLT   when A64_MBLT,
+								 TWOe   when TWOedge,
+								 error  when others;
+						
+  process(clk_i)
+  begin
+     if rising_edge(clk_i) then
+        if s_typeOfDataTransfer = D08_0 or s_typeOfDataTransfer = D08_1  or
+		     s_typeOfDataTransfer = D08_2 or s_typeOfDataTransfer = D08_3  then
+		     s_datawidth <= "0001";
+        elsif s_typeOfDataTransfer = D16_01 or s_typeOfDataTransfer = D16_23 then
+			  s_datawidth <= "0010";
+		  elsif s_typeOfDataTransfer = D32 or (s_typeOfDataTransfer = D64 and
+		        (s_transferType = SINGLE or s_transferType = BLT)) then
+		     s_datawidth <= "0100"; 
+		  else
+		     s_datawidth <= "1000";
+        end if;	
+    end if;
+  end process;
+  
+--   s_datawidth <=    "0001" when s_typeOfDataTransfer = D08_0  or 
+--	                              s_typeOfDataTransfer = D08_1  or 
+--                                 s_typeOfDataTransfer = D08_2  or 
+--											s_typeOfDataTransfer = D08_3                      else
+--                     "0010" when s_typeOfDataTransfer = D16_01 or 
+--							            s_typeOfDataTransfer = D16_23                     else
+--                     "0100" when s_typeOfDataTransfer = D32    or 
+--							           (s_typeOfDataTransfer = D64 and 
+--                                (s_transferType = SINGLE or s_transferType = BLT)) else
+--                     "1000" when s_typeOfDataTransfer = D64                        else
+--                     "1000";                                       
 
-   s_datawidth <=    "0001" when s_typeOfDataTransfer = D08_0 or s_typeOfDataTransfer = D08_1 or 
-                                 s_typeOfDataTransfer = D08_2 or s_typeOfDataTransfer = D08_3   else
-                     "0010" when s_typeOfDataTransfer = D16_01 or s_typeOfDataTransfer = D16_23 else
-                     "0100" when s_typeOfDataTransfer = D32 or (s_typeOfDataTransfer = D64 and 
-                                 (s_transferType = SINGLE or  s_transferType = BLT))            else
-                     "1000" when s_typeOfDataTransfer = D64                                     else
-                     "1000";                                       
 
+ process(clk_i)
+  begin
+     if rising_edge(clk_i) then
+        if s_addressingType = A16 then 
+           s_addrWidth <= "00";
+        elsif s_addressingType = A24 or s_addressingType = A24_BLT or
+		        s_addressingType = A24_MBLT or s_addressingType = CR_CSR then
+			  s_addrWidth <= "01";
+        elsif s_addressingType = A32 or s_addressingType = A32_BLT or
+		        s_addressingType = A32_MBLT or (s_addressingType = TWOedge and 
+		        (s_XAMtype = A32_2eVME or s_XAMtype = A32_2eSST)) then
+			   s_addrWidth <= "10";
+		  else
+		      s_addrWidth <= "11"; -- for A64, A64 BLT, A64 MBLT, A64_2eVME, A64_2eSST
+        end if;	
+    end if;
+  end process;
 
-   s_addrWidth <=    "00" when s_addressingType = A16                                    else
-                     "01" when s_addressingType = A24 or s_addressingType = A24_BLT or 
-                               s_addressingType = A24_MBLT or s_addressingType = CR_CSR  else
-                     "10" when s_addressingType = A32 or s_addressingType = A32_BLT or 
-                               s_addressingType = A32_MBLT or (s_addressingType = TWOedge and 
-                               (s_XAMtype = A32_2eVME or s_XAMtype = A32_2eSST))         else
-                     "11";     -- for A64, A64 BLT, A64 MBLT, A64_2eVME, A64_2eSST
+--   s_addrWidth <=    "00" when s_addressingType = A16                              else
+--                     "01" when s_addressingType = A24 or 
+--							          s_addressingType = A24_BLT or 
+--                               s_addressingType = A24_MBLT or 
+--										 s_addressingType = CR_CSR                           else
+--                     "10" when s_addressingType = A32 or 
+--							          s_addressingType = A32_BLT or 
+--                               s_addressingType = A32_MBLT or 
+--										 (s_addressingType = TWOedge and 
+--                               (s_XAMtype = A32_2eVME or s_XAMtype = A32_2eSST))   else
+--                     "11";     -- for A64, A64 BLT, A64 MBLT, A64_2eVME, A64_2eSST
+  
   -- uncomment for using 2e modes:
    --with s_XAM select                                            
    --   s_XAMtype <=   A32_2eVME when x"01",
@@ -494,11 +554,11 @@ begin
 	               -- If the S_FPGA will be provided to a core who drives these lines without 
 						-- erase the A_FPGA the above mentioned lines should be changed to 'Z' !!!
                   -- During the Interrupt ack cycle the Slave can't be accessed
-                  -- so if VME_IACK is asserted the FSM is blocked in IDLE state.
-                  -- The VME_IACK signal is asserted by the Interrupt handler
+                  -- so if VME_IACK_n_i is asserted the FSM is in IDLE state.
+                  -- The VME_IACK_n_i signal is asserted by the Interrupt handler
                   -- during all the Interrupt cycle.
                   if s_VMEaddrLatch = '1' and VME_IACK_n_i = '1' then              
-                     s_mainFSMstate <= DECODE_ACCESS; -- if AS fall. edge go in DECODE_ACCESS
+                     s_mainFSMstate <= DECODE_ACCESS; -- if AS falling edge --> go in DECODE_ACCESS
                   else                                                                       
                      s_mainFSMstate <= IDLE;                         
                   end if;
@@ -511,7 +571,9 @@ begin
                   -- uncomment for using 2e modes:						
                   -- if s_addressingType = TWOedge then   -- start 2e transfer
                   -- s_mainFSMstate <= WAIT_FOR_DS_2e;
-                  if s_confAccess = '1' or (s_cardSel = '1') then               
+                  if s_confAccess = '1' or (s_cardSel = '1') then  
+						--confAccess = '1' it means CR/CSR space addressed
+                  --s_cardSel  = '1' it means WB application addressed						
                      s_mainFSMstate <= WAIT_FOR_DS;
                   else
                      s_mainFSMstate <= DECODE_ACCESS;
@@ -521,7 +583,6 @@ begin
                when WAIT_FOR_DS =>         -- wait until DS /= "11"             
                   s_FSM  <=  c_FSM_default; 
                   s_FSM.s_dtackOE        <= '1';
-                  s_FSM.s_dataDir        <= VME_WRITE_n_i;
                   s_FSM.s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
                   s_FSM.s_DSlatch        <= '1';
                   s_FSM.s_dataPhase      <= s_dataPhase;
@@ -923,7 +984,19 @@ begin
    end process;
 
   ------------------------- RETRY and ERROR drivers----------------------|
-
+   -- s_rty is asserted by the WB application
+	-- s_retry is used during the 2e cycles.
+	-- 2.3.13 Retry Capability...vme64 ANSI/VITA 1-1994 (R2002):
+	-- Master supports retry capability, it terminates the bus cycle when it 
+	-- detects RETRY* low without waiting for either DTACK* or BERR*.
+	-- In the case of a busy condition, if the Master does not support Retry 
+	-- and does not terminate the cycle the slave waits and asserts DTACK* low
+	-- once the busy resource becomes available, if the Bus Timer does not 
+	-- detect a time out condition before.
+	-- Please note that the VME_WB_Master component supports single write/read
+   -- pipelined cycles, so the WB Slave should drive the stall signal to '1' if
+   -- the resource is busy! 
+	
    p_RETRYdriver: process(clk_i)
    begin
       if rising_edge(clk_i) then
@@ -938,9 +1011,10 @@ begin
    end process;
 
   -- BERR driver 
-  -- The slave assert the Error line if during the Decode access phase an error 
+  -- The slave asserts the Error line during the Decode access phase when an error 
   -- condition is detected and the s_BERRcondition is asserted.
-  -- When the FSM is in the DTACK_LOW state one of the VME_DTACK and VME_BERR line is asserted.
+  -- When the FSM is in the DTACK_LOW state one of the VME_DTACK and VME_BERR lines
+  -- is asserted.
   -- The VME_BERR line can not be asserted by the slave at anytime, but only during 
   -- the DTACK_LOW state; this to avoid that one temporary error condition 
   -- during the decode access phase causes an undesired assertion of VME_BERR line.
@@ -948,8 +1022,9 @@ begin
    p_BERRdriver: process(clk_i)    
    begin
       if rising_edge(clk_i) then
-         s_berr_1      <= s_berr;    
-         s_berr_2      <= s_berr and s_berr_1;
+	  -- uncomment if 2e is implemented:
+     --    s_berr_1      <= s_berr;    
+     --    s_berr_2      <= s_berr and s_berr_1;
          if (s_BERR_out = '1') then    
             VME_BERR_o <= '1';   -- The VME_BERR is asserted when '1' becouse 
                                  -- the buffers on the board invert the logic
@@ -959,7 +1034,7 @@ begin
       end if;
    end process;
 
-  -- When the VME_BERR line is asserted this process assert the error flag; This flag 
+  -- When the VME_BERR line is asserted this process asserts the error flag; This flag 
   -- acts as the BERR flag --> BIT SET REGISTER's bit 3 in the CSR space
 
    FlagError: process(clk_i)
@@ -973,8 +1048,12 @@ begin
       end if;                     
    end process;
 
-  -- This process detect an error condition and assert the s_BERRcondition signal
-  -- If the VME master try to access with a not supported mode  the slave answer with an error.
+  -- This process detects an error condition and assert the s_BERRcondition signal
+  -- A transfer cycle is terminated with assertion of this signal if the VME64x 
+  -- slave does not recognize the data or addressing type used in the transfer cycle,
+  -- if a Master attempts to access in BLT mode with D08 or D16, if the master attempts
+  -- to access in MBLT mode and the WB data bus is 32 bits, or if the read only memory 
+  -- is addressed during a write only cycle! 
 
    process(clk_i)
    begin	 
@@ -1008,7 +1087,7 @@ begin
                              s_addrOffset(11)  when MBLT, 
                              '0'               when others;  
 
-  -- handler of wb err pulse
+  -- wb err handler
   process(clk_i)
   begin
    if rising_edge(clk_i) then
@@ -1020,7 +1099,7 @@ begin
    end if;
   end process;
 
-  -- handler of wb retry pulse                                        
+  -- wb retry handler                                     
   process(clk_i)
   begin
      if rising_edge(clk_i) then
@@ -1033,7 +1112,7 @@ begin
   end process;
 
   ---------------------------------------------------------------------|  
-  --These two mux are inserted to provide the vme64x core of the MBLT access mode
+  --These two mux are inserted to provide the MBLT access mode
   p_ADDRmux : process(clk_i)
   begin
      if rising_edge(clk_i) then
@@ -1111,24 +1190,25 @@ begin
 --   end if;
 --  end process;
 --   s_XAM  <= s_phase1addr(7 downto 0);
-    -- Local address mapping                                         
-
-   s_locAddrBeforeOffset(63 downto 1) <= x"000000000000" & s_VMEaddrLatched(15 downto 1)
-                                         when  s_addrWidth = "00" else
-                                         x"0000000000" & s_VMEaddrLatched(23 downto 1) 
-                                         when s_addrWidth = "01" else
-                                         x"00000000" & s_VMEaddrLatched(31 downto 1)  
-                                         when s_addrWidth = "10" else
-   s_VMEaddrLatched(63 downto 1);
-
-   s_locAddrBeforeOffset(0) <= '0' when (s_DSlatched(1) = '0' and s_DSlatched(0) = '1') else
-                               '1' when (s_DSlatched(1) = '1' and s_DSlatched(0) = '0') else
-                               '0';
+    -- Local address mapping  
+	 
+   with s_addrWidth select
+	    s_locAddrBeforeOffset(63 downto 1) <= x"000000000000" & s_VMEaddrLatched(15 downto 1) when "00",
+	                                          x"0000000000" & s_VMEaddrLatched(23 downto 1)   when "01",
+                                             x"00000000" & s_VMEaddrLatched(31 downto 1)     when "10",
+															s_VMEaddrLatched(63 downto 1)                   when others;
+															
+   with s_DSlatched select
+	     s_locAddrBeforeOffset(0) <= '0' when "01",
+		                              '1' when "10",
+	                                 '0' when others;
+	
 
    s_locAddr2e <= s_phase1addr(63 downto 8) & s_phase2addr(7 downto 0);
+	
   -- This process generates the s_locAddr that is used during the access decode process;
   -- If the board is addressed the VME_Access_Decode component generates the s_base_addr 
-  -- The s_rel_locAddr is used by the VME_WB_master to address the WB memory
+  -- The s_rel_locAddr is used in the VME_WB_master to address the WB memory
   process(clk_i)
   begin
     if rising_edge(clk_i) then
@@ -1143,6 +1223,7 @@ begin
        end if;
     end if;
   end process;
+  
   -- Local address incrementing                                       
   -- This process generates the s_addrOffset 
   -- The s_addrOffset is /= 0 during BLT, MBLT and 2e access modes, when 
@@ -1186,7 +1267,8 @@ begin
                (resize(s_initReadCounter, s_CRaddr'length));  
 
    CRaddr_o   <= std_logic_vector(s_CRaddr(11 downto 0));
-   CRAMaddr_o <= std_logic_vector(s_CrCsrOffsetAddr - unsigned(s_BEG_CRAM(18 downto 0)));
+   CRAMaddr_o <= std_logic_vector(resize(s_CrCsrOffsetAddr - unsigned(s_BEG_CRAM(18 downto 0)),
+	              f_log2_size(g_CRAM_SIZE)));
 
   --------------------DATA HANDLER PROCESS---------------------------- |  
   -- Data strobe latching
@@ -1205,6 +1287,7 @@ begin
    s_VMEdata64In(32) <= (s_LWORDinput);
    s_VMEdata64In(31 downto 0) <=  s_VMEdataInput(31 downto 0);
 
+  -- This process aligns the VME data input in the lsb
   process(clk_i)
   begin
     if rising_edge(clk_i) then
@@ -1228,51 +1311,58 @@ begin
               CRAMwea_o  <= '0';
         end if;
      end if;	 
-  end process;                           
+  end process;       
+  
   --swap the data during read or write operation
   --sel= 000 --> No swap
   --sel= 001 --> Swap Byte  eg: 01234567 became 10325476
   --sel= 010 --> Swap Word  eg: 01234567 became 23016745
   --sel= 011 --> Swap Word+ Swap Byte eg: 01234567 became 32107654
   --sel= 100 --> Swap DWord + Swap Word+ Swap Byte eg: 01234567 became 76543210
-  swapper_write: VME_swapper PORT MAP(
+  swapper_write: VME_swapper port map(
                                       d_i => std_logic_vector(s_locDataIn),
                                       sel => MBLT_Endian_i,
                                       d_o => s_locDataInSwap
                                     );	  
 
-  swapper_read: VME_swapper PORT MAP(
+  swapper_read: VME_swapper port map(
                                      d_i => std_logic_vector(s_locData),
                                      sel => MBLT_Endian_i,
                                      d_o => s_locDataSwap
-                                   );	  
-
-  s_locDataOut <=   unsigned(s_locDataOutWb) when s_cardSel = '1' else
-                    resize(s_CSRdata, s_locDataOut'length) when 
-                       s_confAccess = '1' and s_CSRaddressed = '1' and 
-                       s_CRAMaddressed = '0' and s_CRaddressed = '0' and 
-                       (s_typeOfDataTransfer = D08_3 or s_typeOfDataTransfer = D32 or 
-                       s_typeOfDataTransfer = D16_23 or (s_typeOfDataTransfer = D64 and 
-                       s_transferType /= MBLT)) else
-                    resize(unsigned(s_CRdataIn), s_locDataOut'length) when 
-                       s_confAccess = '1' and s_CRaddressed = '1' and 
-                       s_CRAMaddressed = '0' and s_CSRaddressed = '0' and 
-                       (s_typeOfDataTransfer = D08_3 or s_typeOfDataTransfer = D32 or 
-                       s_typeOfDataTransfer = D16_23 or (s_typeOfDataTransfer = D64 and 
-                       s_transferType /= MBLT)) else
-                    resize(unsigned(s_CRAMdataIn), s_locDataOut'length) when 
-                       s_confAccess = '1' and s_CRAMaddressed = '1' and 
-                       s_CRaddressed = '0' and s_CSRaddressed = '0'  and 
-                       (s_typeOfDataTransfer = D08_3 or s_typeOfDataTransfer = D32 or 
-                       s_typeOfDataTransfer = D16_23 or (s_typeOfDataTransfer = D64 and 
-                       s_transferType /= MBLT)) else
-                    (others => '0');   
-  
+                                   );	
+											  
+  -- data from WB or CR/CSR to VME bus
+  s_CRCSRtype <= '1' when (s_typeOfDataTransfer = D08_3 or s_typeOfDataTransfer = D32 or
+                          s_typeOfDataTransfer = D16_23 or (s_typeOfDataTransfer = D64 and
+						        s_transferType /= MBLT)) else
+					  '0';
+  process(clk_i)
+  begin
+      if rising_edge(clk_i) then
+		    if s_cardSel = '1' then
+			    s_locDataOut <= unsigned(s_locDataOutWb);
+			 elsif s_confAccess = '1' and s_CSRaddressed = '1' and
+			       s_CRAMaddressed = '0' and s_CRaddressed = '0' and 
+				    s_CRCSRtype = '1' then
+				 s_locDataOut <= resize(s_CSRdata, s_locDataOut'length);
+			 elsif s_confAccess = '1' and s_CRaddressed = '1' and 
+				    s_CRAMaddressed = '0' and s_CSRaddressed = '0' and
+				    s_CRCSRtype = '1' then
+				 s_locDataOut <= resize(unsigned(s_CRdataIn), s_locDataOut'length);
+			 elsif s_confAccess = '1' and s_CRAMaddressed = '1' and
+			       s_CRaddressed = '0' and s_CSRaddressed = '0'  and 
+					 s_CRCSRtype = '1' then
+				 s_locDataOut <= resize(unsigned(s_CRAMdataIn), s_locDataOut'length);
+			 else
+			    s_locDataOut <= (others => '0');
+			 end if;
+		end if;
+	end process;
+					   
   s_locData(63 downto 0) <= s_locDataOut(63 downto 0) sll to_integer(unsigned(s_DataShift));
   s_CSRdata <= unsigned(CSRData_i);
-  -------------------------BEAT COUNT--------------------------------|
-
   
+  -------------------------BEAT COUNT--------------------------------|
   -- 2eSST:
   -- The Cycle Count informs the slave in advance of the amount of data that 
   -- it is requested to receive in a write transaction or the amount of data 
@@ -1287,7 +1377,7 @@ begin
   -- during 2e access the Master send this information, during
   -- BLT and MBLT access the Beat Count is equal to the block transfer limit.
   process(s_cycleCount,s_beatCount,s_XAMtype, s_transferType, s_typeOfDataTransfer)
-  begin                            --                                |
+  begin                            --                                
     if ((s_XAMtype = A32_2eVME) or (s_XAMtype = A64_2eVME) or (s_XAMtype = A32_2eSST) 
        or (s_XAMtype = A64_2eSST))  then 
           s_beatCount <= (resize(s_cycleCount*2, s_beatCount'length));
@@ -1382,26 +1472,31 @@ end process;
      end if;
   end process;
   s_sel <= unsigned(s_nx_sel);
+  
 --------------------------WB MASTER-----------------------------------|
 --This component acts as WB master for single read/write PIPELINED mode.
 --The data and address lines are shifted inside this component.
-  Inst_Wb_master: VME_Wb_master PORT MAP(
+  Inst_Wb_master: VME_Wb_master 
+                               generic map(
+                                         g_width         => c_width,
+				                             g_addr_width    => c_addr_width 
+                                         )
+                                port map(
                                          s_memReq        => s_memReq,
                                          clk_i           => clk_i,
-                                         s_cardSel       => s_cardSel,
-                                         s_reset         => s_reset,
-                                         s_mainFSMreset  => s_mainFSMreset,
-                                         s_BERRcondition => s_BERRcondition,
-                                         s_sel           => std_logic_vector(s_sel),
-                                         s_beatCount     => std_logic_vector(s_beatCount),
-                                         s_locDataInSwap => s_locDataInSwap,
-                                         s_locDataOut    => s_locDataOutWb,
-                                         s_rel_locAddr   => std_logic_vector(s_rel_locAddr),
-                                         s_AckWithError  => s_AckWithError,
+                                         cardSel         => s_cardSel,
+                                         reset           => s_reset,
+                                         mainFSMreset    => s_mainFSMreset,
+                                         BERRcondition   => s_BERRcondition,
+                                         sel             => std_logic_vector(s_sel),
+                                         beatCount       => std_logic_vector(s_beatCount),
+                                         locDataInSwap   => s_locDataInSwap,
+                                         locDataOut      => s_locDataOutWb,
+                                         rel_locAddr     => std_logic_vector(s_rel_locAddr),
                                          memAckWb        => s_AckWb,
                                          err             => s_err,
                                          rty             => s_rty,
-                                         s_RW            => s_RW,
+                                         RW              => s_RW,
                                          psize_o         => psize_o,
                                          stall_i         => stall_i,
                                          rty_i           => rty_i,
@@ -1416,15 +1511,16 @@ end process;
                                          WbSel_o         => wbSel_o,
                                          RW_o            => RW_o
                                         );
+													 
 --------------------------DECODER-------------------------------------|
   -- DECODER: This component check if the board is addressed; if the CR/CSR 
-  --space is addressed the Confaccess is asserted
-  -- If the Wb memory is addressed the CardSel is asserted.
-  Inst_Access_Decode: VME_Access_Decode PORT MAP(
+  -- space is addressed the Confaccess signal is asserted
+  -- If the Wb memory is addressed the CardSel signal is asserted.
+  Inst_Access_Decode: VME_Access_Decode port map(
                                                  clk_i          => clk_i,
-                                                 s_reset        => s_reset,
-                                                 s_mainFSMreset => s_mainFSMreset,
-                                                 s_decode       => s_decode,
+                                                 reset          => s_reset,
+                                                 mainFSMreset   => s_mainFSMreset,
+                                                 decode         => s_decode,
                                                  ModuleEnable   => ModuleEnable,
                                                  InitInProgress => s_initInProgress,
                                                  Addr           => std_logic_vector(s_locAddr),
@@ -1462,7 +1558,7 @@ end process;
                                                  XAmCap7        => s_FUNC_XAMCAP(7),
                                                  Am             => s_AMlatched,
                                                  XAm            => std_logic_vector(s_XAM),
-                                                 BAR            => BAR_i,
+                                                 BAR_i          => BAR_i,
                                                  AddrWidth      => s_addrWidth,
                                                  Funct_Sel      => s_func_sel,
                                                  Base_Addr      => s_nx_base_addr,
@@ -1472,6 +1568,8 @@ end process;
   s_base_addr <= unsigned(s_nx_base_addr);
 
   -- CR/CSR addressing 
+  -- Please note that the location of the user defined CR and CSR regions as well as the CRAM
+  -- region are programmable. If these regions are overlapped the vme64x core asserts the BERR* line
   s_CSRaddressed  <= '1' when (s_locAddr(18 downto 0) <= x"7FFFF" and 
                       s_locAddr(18 downto 0) >= x"7FC00") xor 
                       (s_locAddr(18 downto 0) >= unsigned(s_BEG_USER_CSR(18 downto 0)) and 
@@ -1489,11 +1587,13 @@ end process;
                      unsigned(s_BEG_CRAM) < unsigned(s_END_CRAM)) else '0';
 
   --------------------------ACKNOWLEDGE---------------------------------------|
-  -- The signal s_memAck is used as condition to pass from the MEMORY_REQ to DATA_TO_BUS 
-  -- or DTACK_LOW state ,so is necessary assert s_memACk also if there is an error.
-
-  s_memAck <= s_memAckCSR or s_AckWb or s_AckWithError or s_err;
-
+  --s_memAck should be asserted also if an error condition is detected.
+  process(clk_i)
+  begin
+      if rising_edge(clk_i) then
+          s_memAck <= s_memAckCSR or s_AckWb or s_err;
+      end if;
+  end process;
   -- CR/CSR memory acknowledge
 
   p_memAckCSR : process(clk_i)
@@ -1523,9 +1623,10 @@ end process;
   err_flag_o <= s_errorflag;
   
   s_resetflag <= reset_flag_i;
+  
   -- Software reset: the VME Master assert the BIT SET REGISTER's bit 7. The reset will be 
   -- effective the next AS rising edge at the end of the write operation in this register.
-
+  -- The sw reset is a pulse
   process(clk_i)
   begin
      if rising_edge(clk_i) then
@@ -1537,17 +1638,16 @@ end process;
      end if;	
   end process;
 
--- The following process are used to calculate the duration in ns of the 
--- transfer (time between the As falling edge and the AS rising edge) and
+-- The following process are used to calculate the transfer time in ns 
+-- (time between the As falling edge and the AS rising edge), and
 -- the number of bytes transferred. 
---  
   process(clk_i)
   begin
      if rising_edge(clk_i) then
-        if VME_RST_n_i = '0' or s_mainFSMreset = '1' then 
+        if s_reset = '1' or s_mainFSMreset = '1' then 
            s_countertime <= (others => '0');
         elsif  VME_AS_n_i = '0' then
-           s_countertime <= s_countertime + unsigned(clk_period);
+           s_countertime <= s_countertime + unsigned(c_CLK_PERIOD);
         end if;	
   end if;
   end process;
@@ -1555,7 +1655,7 @@ end process;
   process(clk_i)
   begin
      if rising_edge(clk_i) then
-        if s_mainFSMreset = '1' and s_cardSel = '1' then
+        if (s_mainFSMreset = '1' and s_cardSel = '1') or s_reset = '1' then
            s_time <= std_logic_vector(s_countertime);
         end if;	
      end if;
@@ -1564,7 +1664,7 @@ end process;
   process(clk_i)
   begin
      if rising_edge(clk_i) then
-        if VME_RST_n_i = '0' or s_mainFSMreset = '1' then 
+        if s_reset = '1' or s_mainFSMreset = '1' then 
            s_counterbytes <= (others => '0');
         elsif  s_memReq = '1' and s_cardSel = '1' then
            s_counterbytes <= s_counterbytes + s_datawidth;
@@ -1575,19 +1675,20 @@ end process;
   process(clk_i)
   begin
      if rising_edge(clk_i) then
-        if s_mainFSMreset = '1' and s_cardSel = '1' then
-           s_bytes <= std_logic_vector(unsigned(s_counterbytes));
+        if (s_mainFSMreset = '1' and s_cardSel = '1') or s_reset = '1' then
+           s_bytes <= std_logic_vector(s_counterbytes);
         end if;	
      end if;
   end process;
+  
   numBytes <= s_bytes;
   transfTime <= s_time;
 
 ---------------------------INITIALIZATION-------------------------------------|  
-  -- Initialization procedure                
+  -- Initialization procedure (about 8800 ns)   
   -- Read important CR data (like FUNC_ADEMs etc.) and store it locally
   s_initReadCounter <= unsigned(s_initReadCounter1);
-  Inst_VME_Init: VME_Init PORT MAP(
+  Inst_VME_Init: VME_Init port map(
                                    clk_i          => clk_i,
                                    RSTedge        => s_RSTedge,
                                    CRAddr         => std_logic_vector(s_CRaddr),
@@ -1626,10 +1727,7 @@ end process;
                                    FUNC7_XAMCAP_o => s_FUNC_XAMCAP(7) 
                                   );                                 
 
-  ---------------------METASTABILITY-----------------------------------------
-  -- Input oversampling & edge detection; oversampling the input data is necessary to avoid 
-  -- metastability problems. With 3 samples the probability of metastability problem will 
-  -- be very low but of course the transfer rate will be slow down a little.
+------------------EDGE DETECTION and SAMPLING-----------------------------------------
 
   ASfallingEdge : FallingEdgeDetection
   port map (
@@ -1669,7 +1767,7 @@ end process;
              clk_i => clk_i
         );
 
-  CRAMinputSample : DoubleRegInputSample
+  CRAMinputSample : SingleRegInputSample
   generic map(
               width => 8
            )
@@ -1679,8 +1777,6 @@ end process;
              clk_i => clk_i
          );
 
-  
-
  ---------------------------Output for FIFO.vhd-------------------------------------|
 
   VMEtoWB <= '1' when (s_cardSel = '1' and (s_transferType = BLT or s_transferType = MBLT) and 
@@ -1688,8 +1784,31 @@ end process;
   WBtoVME <= '1' when (s_cardSel = '1' and (s_transferType = BLT or s_transferType = MBLT) and 
                       VME_WRITE_n_i = '1' and VME_DS_n_i /= "11") else '0';
   transfer_done_o <= s_mainFSMreset;
+  --------------------------Input from FIFO-----------------------------------------
+   s_transfer_done_i <= transfer_done_i when s_FIFO = '1' else '1';
+	
   ------------------------------LEDS------------------------------------------------|
-   leds(6) <= not s_transferActive;
+  -- Debug
+  process(clk_i)
+  begin
+     if rising_edge(clk_i) then
+        if  s_reset = '1' then 
+            s_led1 <= '1';  -- off
+				s_led2 <= '1';
+				s_led3 <= '1';
+				s_led4 <= '1';
+				s_led5 <= '1';
+        else 
+            s_led1 <= s_DSlatched(1);  
+				s_led2 <= s_DSlatched(0);
+				s_led3 <= s_VMEaddrLatched(1);
+				s_led4 <= s_LWORDlatched;
+				s_led5 <= s_VMEaddrLatched(2);		      
+        end if;	
+    end if;
+  end process;
+	
+	leds(6) <= not s_transferActive;
    leds(2) <= s_led2;   
    leds(7) <= s_counter(25);
    leds(5) <= s_led5;
@@ -1711,28 +1830,8 @@ end process;
         end if;	
     end if;
   end process;
-
---------------------------------------------------------------------------------------
-   s_transfer_done_i <= transfer_done_i when s_FIFO = '1' else '1';
-
-process(clk_i)
-  begin
-     if rising_edge(clk_i) then
-        if  s_reset = '1' then 
-            s_led1 <= '1';  -- off
-				s_led2 <= '1';
-				s_led3 <= '1';
-				s_led4 <= '1';
-				s_led5 <= '1';
-        else 
-            s_led1 <= s_DSlatched(1);  
-				s_led2 <= s_DSlatched(0);
-				s_led3 <= s_VMEaddrLatched(1);
-				s_led4 <= s_LWORDlatched;
-				s_led5 <= s_VMEaddrLatched(2);		      
-        end if;	
-    end if;
-  end process;
  	
-
-     end RTL;
+end RTL;
+--===========================================================================
+-- Architecture end
+--===========================================================================

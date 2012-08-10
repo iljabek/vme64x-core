@@ -13,8 +13,8 @@
 --______________________________________________________________________________
 -- Authors:                                                                    
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date         06/2012                                                                           
--- Version      v0.01  
+-- Date         08/2012                                                                           
+-- Version      v0.02  
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------ 
@@ -30,13 +30,17 @@
 ---------------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-
+--===========================================================================
+-- Entity declaration
+--===========================================================================
 entity VME_swapper is
     Port ( d_i : in  STD_LOGIC_VECTOR (63 downto 0);
 	        sel : in  STD_LOGIC_VECTOR (2 downto 0);
            d_o : out  STD_LOGIC_VECTOR (63 downto 0));
 end VME_swapper;
-
+--===========================================================================
+-- Architecture declaration
+--===========================================================================
 architecture Behavioral of VME_swapper is
 signal Byte0_i : std_logic_vector(7 downto 0);
 signal Byte1_i : std_logic_vector(7 downto 0);
@@ -54,7 +58,11 @@ signal Byte4_o : std_logic_vector(7 downto 0);
 signal Byte5_o : std_logic_vector(7 downto 0);
 signal Byte6_o : std_logic_vector(7 downto 0);
 signal Byte7_o : std_logic_vector(7 downto 0);
+--===========================================================================
+-- Architecture begin
+--===========================================================================
 begin
+
 process (sel,Byte0_i,Byte1_i,Byte2_i,Byte3_i,Byte7_i)
 begin
    case sel is
@@ -168,6 +176,7 @@ d_o(47 downto 40) <= Byte5_o;
 d_o(55 downto 48) <= Byte6_o;
 d_o(63 downto 56) <= Byte7_o;
 
-
 end Behavioral;
-
+--===========================================================================
+-- Architecture end
+--===========================================================================

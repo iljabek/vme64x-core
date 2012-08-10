@@ -6,7 +6,7 @@
 -- File:                      VME_IRQ_Controller.vhd
 --_________________________________________________________________________________________
 -- Description:
--- This block acts as Interrupter; phases of an interrupt cycle:
+-- This block acts as Interrupter. Phases of an interrupt cycle:
 -- 1) The Interrupt Controller receives an interrupt request by the WB bus; 
 --    this request is a pulse on the INT_Req input 
 -- 2) The Interrupt Controller asserts ('0') one of the 7 VME_IRQ lines; --> request of a service.
@@ -20,10 +20,10 @@
 --    indicated on the address lines A1, A2 and A3,the data transfer width during the interrupt 
 --    acknowledge cycle should be equal or greater than the size the it can respond with, and 
 --    it shall receive a falling edge on its IACKIN*.
--- 5) If the it is the responding interrupter should send the source/ID on the VME_DATA lines 
+-- 5) If it is the responding interrupter should send the source/ID on the VME_DATA lines 
 --    (in our case the source/ID is the INT_Vector that the Master can write in the corresponding 
---    register in the CR/CSR space) and terminates the interrupt cycle with an acknowledge and 
---    releases the IRQ line. If it isn't the responding interrupter should pass a falling edge on 
+--    register in the CR/CSR space) and it terminates the interrupt cycle with an acknowledge before 
+--    releasing the IRQ lines. If it isn't the responding interrupter, it should pass a falling edge on 
 --    down the daisy-chain so other interrupters can respond.
 --     
 -- All the output signals are registered   
@@ -75,8 +75,8 @@
 -- Authors:       
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                                                          
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date          06/2012                                                                           
--- Version       v0.01  
+-- Date          08/2012                                                                           
+-- Version       v0.02  
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------        
@@ -94,7 +94,9 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.numeric_std.all;
 use work.vme64x_pack.all;
-
+--===========================================================================
+-- Entity declaration
+--===========================================================================
 entity VME_IRQ_Controller is
    Port ( clk_i            : in   std_logic;
           reset            : in   std_logic;  
@@ -114,7 +116,9 @@ entity VME_IRQ_Controller is
           VME_DATA_o       : out  std_logic_vector (31 downto 0);
           VME_DATA_DIR_o   : out  std_logic);
 end VME_IRQ_Controller;
-
+--===========================================================================
+-- Architecture declaration
+--===========================================================================
 architecture Behavioral of VME_IRQ_Controller is
 --input signals
    signal INT_Req_sample            : std_logic;
@@ -140,7 +144,9 @@ architecture Behavioral of VME_IRQ_Controller is
    signal VME_DS_latched            : std_logic_vector(1 downto 0);
    signal DSlatch                   : std_logic;
    signal ADDRmatch                 : std_logic;
-
+--===========================================================================
+-- Architecture begin
+--===========================================================================
 begin
 
 -- Input sampling and edge detection
@@ -305,6 +311,7 @@ begin
 
   end process;
 -- Update Outputs
+-- Mealy FSM
   process(currs,VME_AS1_n_i)
   begin
     case currs is 
@@ -460,5 +467,7 @@ begin
   VME_DTACK_OE_o  <= s_DTACK_OE_o;
   VME_IACKOUT_n_o <= s_IACKOUT_o;
 end Behavioral;
-
+--===========================================================================
+-- Architecture end
+--===========================================================================
 

@@ -11,7 +11,7 @@
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
 -- Date         06/2012                                                                           
--- Version      v0.01  
+-- Version      v0.02  
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------                              
@@ -42,7 +42,7 @@ package VME_CR_pack is
    constant c_amcapMBLT : std_logic_vector(63 downto 0) :=
    "0000000000000000000000000000000000000000000000000000000100000000";	
    constant c_amcap1 : std_logic_vector(63 downto 0) :=
-   "1011101100000000000000000000000000000000000000000000000000001011";	--A24
+   "1011101100000000000000000000000000000000000000000000000000000000";	--A24
    constant c_amcap2 : std_logic_vector(63 downto 0) :=
    "0000000000000000001000100000000000000000000000000000000000000000";	--A16
    constant c_amcapA64 : std_logic_vector(63 downto 0) :=
@@ -117,13 +117,13 @@ package VME_CR_pack is
    (
    16#00#  => (others => '0'),
       -- Length of ROM
-   16#01#  => x"01",
-   16#02#  => x"00",
+   16#01#  => x"00",
+   16#02#  => x"10",
    16#03#  => x"00",
       --Configuration ROM data acces width
-   16#04#  => x"00",
+   16#04#  => x"84",  --D32, D16, D08
       --CSR data acces width
-   16#05#  => x"81",  -- it was 01...changed by Davide
+   16#05#  => x"84",  --D32, D16, D08
       --CR/CSR Space Specification ID
    16#06#  => x"01", 		
       --Ascii "C"
@@ -144,48 +144,48 @@ package VME_CR_pack is
    16#11#  => x"04",
    16#12#  => x"04",
    16#13#  => x"03",
-      --Point to ascii null terminatied
+  --Point to ascii null terminatied
    16#14#  => x"00",
    16#15#  => x"00",
    16#16#  => x"00",  
-      --Program Id code
-   16#1F#  => x"02",
-                --Offset to BEG_USER_CR    --Added by Davide
+  --Program Id code
+   16#1F#  => x"54",
+   --Offset to BEG_USER_CR    
    16#20#  => x"00",
    16#21#  => x"00",
    16#22#  => x"00",
-      --Offset to END_USER_CR    --Added by Davide
+   --Offset to END_USER_CR   
    16#23#  => x"00",
    16#24#  => x"00",
    16#25#  => x"00",
-      --Offset to BEG_CRAM       --Added by Davide
+      --Offset to BEG_CRAM    
    16#26#  => x"00",
-   16#27#  => x"10",    --10
-   16#28#  => x"00",    --00
-      --Offset to END_CRAM       --Added by Davide
-   16#29#  => x"07",   
-   16#2A#  => x"fb",   
+   16#27#  => x"10",    
+   16#28#  => x"00",    
+      --Offset to END_CRAM       
+   16#29#  => x"00",   
+   16#2A#  => x"13",   
    16#2B#  => x"ff",   
-      --Offset to BEG_USER_CSR   --Added by Davide
+      --Offset to BEG_USER_CSR  
    16#2C#  => x"00",
    16#2D#  => x"00",
-   16#2E#  => x"00",    --NB: 0x7fbf0 and NOT 0x7fbf3 because is possible access with D32 mode
-      --Offset to END_USER_CSR   --Added by Davide
+   16#2E#  => x"00",    -- 0x7fbf0 and NOT 0x7fbf3 because is possible access with D32 mode
+      --Offset to END_USER_CSR   
    16#2F#  => x"00",
    16#30#  => x"00",
    16#31#  => x"00",
       --CRAM_ACCESS_WIDTH
-   16#39#  => x"81",
+   16#3f#  => x"84", --D32, D16, D08
       --Function data access width
-   16#40#  => x"85", -- Fun 0 accepts MD32, D16, D08(EO) cycles
-   16#41#  => x"85", -- Fun 1 
-   16#42#  => x"85", -- Fun 2 
-   16#43#  => x"85", -- Fun 3
+   16#40#  => x"86", -- Fun 0 accepts D64, D32, D16, D08(EO) cycles
+   16#41#  => x"86", -- Fun 1 
+   16#42#  => x"86", -- Fun 2 
+   16#43#  => x"86", -- Fun 3
 
-   16#44#  => x"85", -- Fun 4
-   16#45#  => x"85", -- Fun 5
-   16#46#  => x"85", -- Fun 6
-   16#47#  => x"85", -- Fun 7
+   16#44#  => x"86", -- Fun 4
+   16#45#  => x"86", -- Fun 5
+   16#46#  => x"86", -- Fun 6
+   16#47#  => x"86", -- Fun 7
 
 
       --Function AM code Mask

@@ -48,7 +48,7 @@
 -- The WB protocol is more faster than the VME protocol so to make independent
 -- the two protocols a FIFO memory can be introduced. 
 -- The FIFO is necessary only during 2eSST access mode.
--- During the block transfer without FIFO the VME_bus accesses directly at the Wb bus in
+-- During the block transfer without FIFO the VME_bus accesses directly the Wb bus in
 -- Single pipelined read/write mode. If this is the only Wb master this solution is
 -- better than the solution with FIFO.
 -- In this base version of the core the FIFO is not implemented indeed the 2e access modes
@@ -65,8 +65,8 @@
 -- Inside each component is possible to read a more detailed description.
 -- Access modes supported:
 -- http://www.ohwr.org/projects/vme64x-core/repository/changes/trunk/
---        documentation/user_guides/VFC_access.pdf
--- This core is 
+--        documentation/user_guides/VME_access_modes.pdf
+-- 
 --______________________________________________________________________________
 --
 -- References: 
@@ -77,8 +77,8 @@
 -- Authors:                                      
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date         06/2012                                                                           
--- Version      v0.01  
+-- Date         08/2012                                                                           
+-- Version      v0.02  
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------       
@@ -97,8 +97,14 @@
   use IEEE.STD_LOGIC_1164.all;
   use IEEE.numeric_std.all;
   use work.vme64x_pack.all;
-
+--===========================================================================
+-- Entity declaration
+--===========================================================================
   entity VME64xCore_Top is
+    generic(g_width      : integer := c_width;
+	         g_addr_width : integer := c_addr_width;
+				g_CRAM_SIZE  : integer := c_CRAM_SIZE
+	 );
    port(
      clk_i            : in std_logic;              
      -- for the IRQ_Generator and relative registers 
@@ -133,33 +139,37 @@
      VME_RETRY_OE_o   : out   std_logic;
      
 	  -- WishBone
-     DAT_i            : in    std_logic_vector(63 downto 0);
-     DAT_o            : out   std_logic_vector(63 downto 0);
-     ADR_o            : out   std_logic_vector(63 downto 0);
+     DAT_i            : in    std_logic_vector(g_width - 1 downto 0);
+     DAT_o            : out   std_logic_vector(g_width - 1 downto 0);
+     ADR_o            : out   std_logic_vector(g_addr_width - 1 downto 0);
      CYC_o            : out   std_logic;
      ERR_i            : in    std_logic;
      RTY_i            : in    std_logic;
-     SEL_o            : out   std_logic_vector(7 downto 0);
+     SEL_o            : out   std_logic_vector(f_div8(g_width) - 1 downto 0);
      STB_o            : out   std_logic;
      ACK_i            : in    std_logic;
      WE_o             : out   std_logic;
      STALL_i          : in    std_logic;
 
      -- IRQ Generator
-     INT_ack          : out   std_logic;
-     IRQ_i            : in    std_logic;
-    
+     INT_ack          : out   std_logic;   -- when the IRQ controller acknowledges the Interrupt
+	                                        -- cycle it sends a pulse to the IRQ Generator
+     IRQ_i            : in    std_logic;   -- Interrupt request; the IRQ Generator sends a pulse to
+	                                        -- the IRQ Controller and it asserts one of the IRQ lines.
      -- Add by Davide for debug:
      leds             : out   std_logic_vector(7 downto 0)
     );
 
   end VME64xCore_Top;
 
+--===========================================================================
+-- Architecture declaration
+--===========================================================================
 
   architecture RTL of VME64xCore_Top is
   
   signal s_CRAMdataOut             : std_logic_vector(7 downto 0);
-  signal s_CRAMaddr                : std_logic_vector(18 downto 0);
+  signal s_CRAMaddr                : std_logic_vector(f_log2_size(g_CRAM_SIZE)-1 downto 0);
   signal s_CRAMdataIn              : std_logic_vector(7 downto 0);
   signal s_CRAMwea                 : std_logic;
   signal s_CRaddr                  : std_logic_vector(11 downto 0);
@@ -171,7 +181,7 @@
   signal s_VME_DATA_IRQ            : std_logic_vector(31 downto 0);
   signal s_VME_DATA_VMEbus         : std_logic_vector(31 downto 0);
   signal s_VME_DATA_b              : std_logic_vector(31 downto 0);
-  signal s_DATi_sample             : std_logic_vector(63 downto 0);
+  signal s_DATi_sample             : std_logic_vector(g_width - 1 downto 0);
   signal s_fifo                    : std_logic;
   signal s_VME_DTACK_VMEbus        : std_logic;
   signal s_VME_DTACK_IRQ           : std_logic;
@@ -208,7 +218,7 @@
   -- Oversampled input signals 
   signal VME_RST_n_oversampled     : std_logic;
   signal VME_AS_n_oversampled      : std_logic;   
-  signal VME_AS_n_oversampled1     : std_logic;
+  signal VME_AS_n_oversampled1     : std_logic;  -- for the IRQ_Controller
   signal VME_LWORD_n_oversampled   : std_logic;
   signal VME_WRITE_n_oversampled   : std_logic;
   signal VME_DS_n_oversampled      : std_logic_vector(1 downto 0);
@@ -219,8 +229,15 @@
   signal VME_AM_oversampled        : std_logic_vector(5 downto 0);   
   signal VME_IACK_n_oversampled    : std_logic;
   signal VME_IACKIN_n_oversampled  : std_logic;
+--===========================================================================
+-- Architecture begin
+--===========================================================================
 begin
-
+---------------------METASTABILITY-----------------------------------------
+  -- Input oversampling & edge detection; oversampling the input data is necessary to avoid 
+  -- metastability problems. With 3 samples the probability of metastability problem will 
+  -- be very low but of course the transfer rate will be slow down a little.
+  
   AMinputSample : RegInputSample
   generic map(
               width => 6
@@ -320,7 +337,13 @@ begin
               clk_i => clk_i
             );			
 				
-  Inst_VME_bus: VME_bus PORT MAP(
+  Inst_VME_bus: VME_bus 
+  generic map(
+              g_width      => c_width,
+				  g_addr_width => c_addr_width, 
+				  g_CRAM_SIZE  => c_CRAM_SIZE
+           )
+  port map(
        clk_i                => clk_i,
 		 reset_o              => s_reset,  -- asserted when '1'
        -- VME 
@@ -332,7 +355,6 @@ begin
 		 VME_RETRY_OE_o       => VME_RETRY_OE_o,
 		 VME_WRITE_n_i        => VME_WRITE_n_oversampled,
 		 VME_DS_n_i           => VME_DS_n_oversampled,
-		 VME_GA_i             => VME_GA_oversampled,
 		 VME_DTACK_n_o        => s_VME_DTACK_VMEbus,
 		 VME_DTACK_OE_o       => s_VME_DTACK_OE_VMEbus,
 		 VME_BERR_o           => VME_BERR_o,
@@ -407,17 +429,17 @@ begin
     INT_ack          <= s_VME_DTACK_IRQ;
 --------------------------------------------------------------------------------	 
     --Multiplexer added on the output signal used by either VMEbus.vhd and the IRQ_controller.vhd  
-    VME_DATA_b_o     <= s_VME_DATA_VMEbus       WHEN  VME_IACK_n_oversampled ='1' ELSE 
+    VME_DATA_b_o     <= s_VME_DATA_VMEbus       when  VME_IACK_n_oversampled ='1' else 
                         s_VME_DATA_IRQ;
-    VME_DTACK_n_o    <= s_VME_DTACK_VMEbus      WHEN  VME_IACK_n_oversampled ='1' ELSE 
+    VME_DTACK_n_o    <= s_VME_DTACK_VMEbus      when  VME_IACK_n_oversampled ='1' else 
                         s_VME_DTACK_IRQ;		
-    VME_DTACK_OE_o   <= s_VME_DTACK_OE_VMEbus   WHEN  VME_IACK_n_oversampled ='1' ELSE 
+    VME_DTACK_OE_o   <= s_VME_DTACK_OE_VMEbus   when  VME_IACK_n_oversampled ='1' else 
                         s_VME_DTACK_OE_IRQ;					
-    VME_DATA_DIR_o   <= s_VME_DATA_DIR_VMEbus   WHEN  VME_IACK_n_oversampled ='1' ELSE 
+    VME_DATA_DIR_o   <= s_VME_DATA_DIR_VMEbus   when  VME_IACK_n_oversampled ='1' else 
                         s_VME_DATA_DIR_IRQ;					
 --------------------------------------------------------------------------------
     --  Interrupter
-   Inst_VME_IRQ_Controller: VME_IRQ_Controller PORT MAP(
+   Inst_VME_IRQ_Controller: VME_IRQ_Controller port map(
          		 clk_i             => clk_i,
 	         	 reset             => s_reset_IRQ,  -- asserted when low
 		          VME_IACKIN_n_i    => VME_IACKIN_n_oversampled,
@@ -440,9 +462,13 @@ begin
     s_reset_IRQ    <= not(s_reset);
 --------------------------------------------------------------------------
     --CR/CSR space
-   Inst_VME_CR_CSR_Space: VME_CR_CSR_Space PORT MAP(
+   Inst_VME_CR_CSR_Space: VME_CR_CSR_Space 
+	generic map(
+				  g_CRAM_SIZE  => c_CRAM_SIZE
+              )
+	port map(
        		 clk_i               => clk_i,
-		       s_reset             => s_reset,
+		       reset               => s_reset,
 	          CR_addr             => s_CRaddr,
 		       CR_data             => s_CRdata,
 		       CRAM_addr           => s_CRAMaddr,
@@ -453,8 +479,8 @@ begin
 	          CrCsrOffsetAddr     => s_CrCsrOffsetAddr,
 		       VME_GA_oversampled  => VME_GA_oversampled,
 		       locDataIn           => s_CSRData_o,
-		       s_err_flag          => s_err_flag,
-		       s_reset_flag        => s_reset_flag,
+		       err_flag            => s_err_flag,
+		       reset_flag          => s_reset_flag,
 		       CSRdata             => s_CSRData_i,
 		       Ader0               => s_Ader0,
 		       Ader1               => s_Ader1,
@@ -475,7 +501,7 @@ begin
 		       INT_Vector          => s_INT_Vector
 	);
 ------------------------------------------------------------------------
-    -- This process sampling the WB data input; this is a warranty that this
+    -- This process registers the WB data input; this is a warranty that this
     -- data will be stable during all the time the VME_bus component needs to 
     -- transfers its to the VME bus.
     process(clk_i)
@@ -489,3 +515,6 @@ begin
 
 ------------------------------------------------------------------------
   end RTL;
+--===========================================================================
+-- Architecture end
+--===========================================================================

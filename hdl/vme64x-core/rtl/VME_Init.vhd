@@ -9,8 +9,8 @@
 -- Authors:                                     
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date         06/2012                                                                           
--- Version      v0.01  
+-- Date         08/2012                                                                           
+-- Version      v0.02  
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------ 
@@ -30,6 +30,9 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 use work.vme64x_pack.all;
 
+--===========================================================================
+-- Entity declaration
+--===========================================================================
 entity VME_Init is
    Port ( clk_i          : in    std_logic;
           RSTedge        : inout std_logic;
@@ -69,7 +72,11 @@ entity VME_Init is
           FUNC7_XAMCAP_o : out   std_logic_vector (255 downto 0));
 end VME_Init;
 
+--===========================================================================
+-- Architecture declaration
+--===========================================================================
 architecture Behavioral of VME_Init is
+
    signal s_initReadCounter : unsigned(8 downto 0);
    signal s_initState       : t_initState;
    signal s_latchCRdata     : std_logic;  -- Stores read CR data
@@ -88,7 +95,10 @@ architecture Behavioral of VME_Init is
    signal s_END_USER_CR     : unsigned(23 downto 0);
    signal s_BEG_CRAM        : unsigned(23 downto 0);
    signal s_END_CRAM        : unsigned(23 downto 0); 
-
+	
+--===========================================================================
+-- Architecture begin
+--===========================================================================
 begin
    InitReadCount <= std_logic_vector(s_initReadCounter);
    s_CRaddr <= unsigned(CRAddr);
@@ -107,8 +117,8 @@ begin
                   s_initReadCounter <= to_unsigned(0, s_initReadCounter'length);
                   s_latchCRdata     <= '0';
                   s_initState       <= SET_ADDR;
+						
                when SET_ADDR =>
-
                   s_initReadCounter <= s_initReadCounter+1;
                   s_latchCRdata     <= '0';
                   s_initState       <= GET_DATA;
@@ -243,4 +253,6 @@ begin
    FUNC7_XAMCAP_o <= std_logic_vector(s_FUNC_XAMCAP(7));
 
 end Behavioral;
-
+--===========================================================================
+-- Architecture end
+--===========================================================================

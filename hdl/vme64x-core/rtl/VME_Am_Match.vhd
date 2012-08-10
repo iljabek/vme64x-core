@@ -5,15 +5,14 @@
 --______________________________________________________________________________________
 -- File:                       VME_ Am_Match.vhd
 --______________________________________________________________________________________
--- Description: this component checks if the AM match the capability of the function. 
+-- Description: this component checks if the AM match. 
 -- If it is the corrispondent AmMatch's bit is asserted. This condition is necessary but 
 -- not sufficient to select the function and access the board.
 -- If DFS = '0' the function supports only access modes with the same address width; 
 -- 1 function --> only 1 address width;
 -- is sufficient check the AMCAP; AmMatch(i) <= s_FUNC_AMCAP(i)(to_integer(unsigned(Am))).
 -- If DFS = '1' the function supports access modes with different address wide so AmMatch(i)
--- is asserted only if AMCAP(i)(to_integer(unsigned(Am))) = '1' and ADER[7:2] = AM and 
--- s_FUNC_AMCAP(i)(to_integer(unsigned(Am)))='1'.
+-- is asserted only if ADER[7:2] = AM and s_FUNC_AMCAP(i)(to_integer(unsigned(Am)))='1'.
 -- If ADER(i)'s XAM bit is asserted than AmMatch(i) is asserted only if AM = 0x20 and if the 
 -- XAMCAP(i)(to_integer(unsigned(XAm))) = '1' and if DFS = '1' also ADER[9:2] must be equal 
 -- to XAM[7:0] lines.
@@ -21,8 +20,8 @@
 -- Authors:                                   
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date         06/2012                                                                           
--- Version      v0.01  
+-- Date         08/2012                                                                           
+-- Version      v0.02 
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------     
@@ -42,11 +41,14 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 use work.vme64x_pack.all;
 
+--===========================================================================
+-- Entity declaration
+--===========================================================================
 
 entity VME_Am_Match is
    Port ( clk_i          : in  std_logic;
-          s_reset        : in  std_logic;
-          s_mainFSMreset : in  std_logic;
+          reset          : in  std_logic;
+          mainFSMreset   : in  std_logic;
           Ader0          : in  std_logic_vector (31 downto 0);
           Ader1          : in  std_logic_vector (31 downto 0);
           Ader2          : in  std_logic_vector (31 downto 0);
@@ -74,10 +76,12 @@ entity VME_Am_Match is
           Am             : in  std_logic_vector (5 downto 0);
           XAm            : in  std_logic_vector (7 downto 0);  
           DFS_i          : in  std_logic_vector (7 downto 0);
-          s_decode       : in  std_logic;
+          decode         : in  std_logic;
           AmMatch        : out std_logic_vector (7 downto 0));
 end VME_Am_Match;
-
+--===========================================================================
+-- Architecture declaration
+--===========================================================================
 architecture Behavioral of VME_Am_Match is
    signal s_FUNC_ADER    : t_FUNC_32b_array;
    signal s_FUNC_AMCAP   : t_FUNC_64b_array;
@@ -85,6 +89,9 @@ architecture Behavioral of VME_Am_Match is
    signal s_amcap_match  : std_logic_vector(7 downto 0);
    signal s_xamcap_match : std_logic_vector(7 downto 0);
    signal debugAm        : integer;
+--===========================================================================
+-- Architecture begin
+--===========================================================================
 begin
 
    s_FUNC_ADER(0)   <= unsigned(Ader0);
@@ -117,10 +124,10 @@ begin
    p_AMmatch : process(clk_i)
    begin
       if rising_edge(clk_i) then  
-         if s_mainFSMreset = '1' or s_reset = '1' then
+         if mainFSMreset = '1' or reset = '1' then
             AmMatch <= (others => '0');
             debugAm <= 0;
-         elsif s_decode = '1' then	  
+         elsif decode = '1' then	  
             for i in AmMatch'range loop
                if DFS_i(i) = '1' then
                   if s_FUNC_ADER(i)(XAM_MODE) = '0' then
@@ -171,4 +178,6 @@ begin
    end process;
 ------------------------------------------------------
 end Behavioral;
-
+--===========================================================================
+-- Architecture end
+--===========================================================================

@@ -6,12 +6,14 @@
 -- File:                      VME_Access_Decode.vhd
 --_________________________________________________________________________________
 -- Description: This component check if the board is addressed and if it is, allows 
--- the access to CR/CSR space asserting the Confaccess signal, or allows the access 
--- to WB bus asserting the CardSel signal.
+-- the access to CR/CSR space by asserting the Confaccess signal, or allows the access 
+-- to WB bus by asserting the CardSel signal.
+--
 -- The access to CR/CSR space is possible if:
 --   1) Addr[23:19] = BAR[7:3],     (BAR[7:3] = not VME_GA_i),   (VME_GA_i = not Slot number)
 --   2) AM = 0x2f
 --   3) The initialization is finished (wait about 8800 ns after power-up or software reset)
+--
 -- To Access the Wb bus we have 7 function; only one at time can be selected. If one of 
 -- these functions is selected the CardSel signal is asserted (this is the responding Slave).
 -- To access the Wb bus we need to decode the AM and the address lines; so as shown in 
@@ -34,9 +36,9 @@
 --                               |                                           |
 --                               |___________________________________________|
 
--- Each function has one ADER, one ADEM, one AMCAP and one XAMCAP registers.   
+-- Each function has one ADER, one ADEM, one AMCAP and one XAMCAP register.   
 -- The ADEM, AMCAP, XAMCAP are in the CR memory; the Master can't write these registers 
--- The ADER registers are collocated in the CSR space so the VME master has to write 
+-- The ADER registers are located in the CSR space so the VME master has to write 
 -- these registers properly after the initialization.
 -- How to access:
 --          ADER[31:0]        
@@ -50,7 +52,7 @@
 --         [1]     --> '0'
 --         [0]     --> '1'
 --          ADEM[31:0]
---         [31:8]  --> mask bits (put here the base address) 
+--         [31:8]  --> mask bits
 --         [7:4]   --> "0000"
 --         [3]     --> '0' --> The ADER is programmable   
 --         [2]     --> DFS
@@ -59,13 +61,12 @@
 --         EFM = Extra Function Mask: if '1' the next ADEM (and so the next AMCAP, XAMCAP and ADER) 
 --               provides the upper bit's mask for a 64 bit decoder.
 --               This bit is '1' during A64 and 2e access.
---         DFS = Dynamic Function Decoder: a '1' here means this function can be used to decode 
---               different access mode. Since different access mode have different AM this bit 
---               influences the way of work of the AM Match component. If '1' this function has to 
---               decode different address length (eg. A16 or A24 or A32) so the mask bits 
+--         DFS = Dynamic Function Decoder: a '1' here means this function can be used to decode different 
+--               address length (eg. A16 or A24 or A32) so the mask bits 
 --               should be all '1' !!!
+--
 --          AMCAP[63:0]
---         6 AM lines --> 2**6 = 64 different configuration
+--         6 AM lines --> 2**6 = 64 different configurations
 --         This register is 64 bits wide and each bit rappresents one AM configuration. 
 --         If the bit is '1' it means that the corrisponding AM is supported by this function.
 --         If the corresponding ADEM's DFS is 0, only the AMCAP's bits with the same address 
@@ -74,38 +75,41 @@
 --         eg: "1011101100000000001000100000000100000000000000001011101100000000" this 
 --            function supports the following access mode:
 --            A24_S, A24_BLT, A24_MBLT, A16_S, A32_S, A32_BLT, A32_MBLT supervisor and user access
+--
 --          XAMCAP[255:0]
---         8 XAM lines --> 2**8 = 256 different configuration
+--         8 XAM lines --> 2**8 = 256 different configurations
 --         This register is 256 bits wide and each bit rappresents one XAM configuration. 
 --         If the bit is '1' it means that the corrisponding XAM is supported
 --         by this function.
 --         This register is used during the decode phase if the XAM bit is asserted (1).
 -- Before accessing the board the VME Master must write the ADER registers. Of course for 
 -- writing properly the ADER the VME Master need to know the corrisponding ADEM and check if EFM 
--- or DFS bits are asserted (Read CR memory). If DFS is asserted the VME Master can read also 
+-- or DFS bits are asserted. The VME Master can read also 
 -- the AMCAP and XAMCAP and check the access mode supported by each function.
--- How this decode process can be used:
--- eg1. lets imagine that we want be able to access different storage device; we can assign 
+-- 
+-- eg.1 lets imagine that we want be able to access different storage device; we can assign 
 -- one base address and one function at each storage.
 -- Now the VME Master has to write the base address of each storage in the corrisponding 
 -- ADER's compare bits and after this operation each function decodes the access to 
 -- the corresponding storage.
--- eg2. this example is relative to our application; the vme64x interface has to transfer 
+-- eg.2 this example is relative to our application; the vme64x interface has to transfer 
 -- data from the VMEbus to WB bus and in this core we have only one WB master. We 
 -- can use the same base address for all the functions because we will access always 
--- at this WB master, and use the different functions to access with different mode eg:
---       function0 --> A24_S, A24_BLT, A24_MBLT, A16_S, A32_S, A32_BLT, A32_MBLT modes
---       function1 and function2 --> A64, A64_BLT, A64_MBLT
---       function3 and function4 --> 2eVME and 2eSST modes
+-- the same WB master, and use the different functions to access with different mode eg:
+--       function0 --> A32_S, A32_BLT, A32_MBLT modes
+--       function1 --> A24_S, A24_BLT, A24_MBLT modes
+--       function2 --> A16 mode
+--       function3 and function4 --> A64, A64_BLT, A64_MBLT
+--       function5 and function6 --> 2eVME and 2eSST modes
 -- Note that if the address is 64 bits wide we need of two ADER and two ADEM to decode the 
 -- address so we need of two functions! (see also EFM bit definition)
 -- Of course you can mix these two example and set up one system with more storage devices each 
--- with his base address and assign at each storage more than one function for access it 
+-- with its base address and to assign each storage more than one function to access it 
 -- with all the access modes.
 -- It is also possible extend the number of the functions defining other ADEM, AMCAP, XAMCAP 
 -- and ADER in the User CR Space and User CSR Space (see the VME_CR_CSR_Space.vhd component) 
 -- respectively.
--- In the VME_Funct_Match.vhd and VME_Am_Match.vhd components you can find more detail 
+-- In the VME_Funct_Match.vhd and VME_Am_Match.vhd components you can find more details 
 -- about the decode process.
 --
 -- To access the board both the FunctMatch(i) and AmMatch(i) must be equal to one.
@@ -113,8 +117,8 @@
 -- Authors:                                     
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date         06/2012                                                                           
--- Version      v0.01  
+-- Date         08/2012                                                                           
+-- Version      v0.02  
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------    
@@ -135,12 +139,15 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 use work.vme64x_pack.all;
 
+--===========================================================================
+-- Entity declaration
+--===========================================================================
 
 entity VME_Access_Decode is
-    Port ( clk_i          : in  STD_LOGIC;
-          s_reset         : in  STD_LOGIC;
-          s_mainFSMreset  : in  STD_LOGIC;
-          s_decode        : in  STD_LOGIC;
+    Port (clk_i           : in  STD_LOGIC;
+          reset           : in  STD_LOGIC;
+          mainFSMreset    : in  STD_LOGIC;
+          decode          : in  STD_LOGIC;
           ModuleEnable    : in  STD_LOGIC;
           InitInProgress  : in  STD_LOGIC;
           Addr            : in  STD_LOGIC_VECTOR (63 downto 0);
@@ -176,33 +183,38 @@ entity VME_Access_Decode is
           XAmCap5         : in  STD_LOGIC_VECTOR (255 downto 0);
           XAmCap6         : in  STD_LOGIC_VECTOR (255 downto 0);
           XAmCap7         : in  STD_LOGIC_VECTOR (255 downto 0);
-          Am              : in STD_LOGIC_VECTOR (5 downto 0);
-          XAm             : in STD_LOGIC_VECTOR (7 downto 0);
-          BAR             : in STD_LOGIC_VECTOR (4 downto 0);
+          Am              : in  STD_LOGIC_VECTOR (5 downto 0);
+          XAm             : in  STD_LOGIC_VECTOR (7 downto 0);
+          BAR_i           : in  STD_LOGIC_VECTOR (4 downto 0);
           AddrWidth       : in  STD_LOGIC_VECTOR (1 downto 0);
           Funct_Sel       : out  STD_LOGIC_VECTOR (7 downto 0);
           Base_Addr       : out  STD_LOGIC_VECTOR (63 downto 0);
-          Confaccess      : out std_logic;
-          CardSel         : out std_logic
+          Confaccess      : out  std_logic;
+          CardSel         : out  std_logic
        );
 
 end VME_Access_Decode;
-
+--===========================================================================
+-- Architecture declaration
+--===========================================================================
 architecture Behavioral of VME_Access_Decode is
    signal s_Func_Match    : std_logic_vector(7 downto 0);
    signal s_Am_Match      : std_logic_vector(7 downto 0);
    signal s_nx_base_addr  : std_logic_vector(63 downto 0);
    signal s_func_sel      : std_logic_vector(7 downto 0);
    signal s_DFS           : std_logic_vector(7 downto 0);
+--===========================================================================
+-- Architecture begin
+--===========================================================================	
 begin
 
    Funct_Sel <= s_func_sel;
 
-   Inst_Funct_Match: VME_Funct_Match PORT MAP(
+   Inst_Funct_Match: VME_Funct_Match port map(
                                                 clk_i          => clk_i,
-                                                s_reset        => s_reset,
-                                                s_decode       => s_decode,
-                                                s_mainFSMreset => s_mainFSMreset,
+                                                reset          => reset,
+                                                decode         => decode,
+                                                mainFSMreset   => mainFSMreset,
                                                 Addr           => Addr,
                                                 AddrWidth      => AddrWidth,
                                                 Ader0          => Ader0,
@@ -226,10 +238,10 @@ begin
                                                 Nx_Base_Addr   => s_nx_base_addr
                                              );
 
-   Inst_Am_Match: VME_Am_Match PORT MAP(
+   Inst_Am_Match: VME_Am_Match port map(
                                                 clk_i          => clk_i,
-                                                s_reset        => s_reset,
-                                                s_mainFSMreset => s_mainFSMreset,
+                                                reset          => reset,
+                                                mainFSMreset   => mainFSMreset,
                                                 Ader0          => Ader0,
                                                 Ader1          => Ader1,
                                                 Ader2          => Ader2,
@@ -257,11 +269,11 @@ begin
                                                 Am             => Am,
                                                 XAm            => XAm,
                                                 DFS_i          => s_DFS,
-                                                s_decode       => s_decode,
+                                                decode         => decode,
                                                 AmMatch        => s_Am_Match
                                        );
 
-
+-- Check if the WB application is addressed
    process(clk_i)
    begin
       if rising_edge(clk_i) then
@@ -280,11 +292,13 @@ begin
    end process;
 
    s_func_sel <=  s_Func_Match and s_Am_Match; 
-
-   Confaccess <= '1' when unsigned(BAR) = unsigned(Addr(23 downto 19)) and 
+	
+-- Check if the CR/CSR space is addressed
+   Confaccess <= '1' when unsigned(BAR_i) = unsigned(Addr(23 downto 19)) and 
                   Am = c_CR_CSR and InitInProgress = '0' else '0';  
 
-------------------------------------------------------
 
 end Behavioral;
-
+--===========================================================================
+-- Architecture end
+--===========================================================================

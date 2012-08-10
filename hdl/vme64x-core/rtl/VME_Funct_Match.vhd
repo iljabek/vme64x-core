@@ -6,16 +6,16 @@
 -- File:                      VME_Funct_Match.vhd
 --_________________________________________________________________________________________
 -- Description: this component compares the Address with the ADER using the mask bits and 
--- if the base address match asserts the corrisponding bit of the FunctMatch signal and 
--- latches the base address that will be subtract at the Address before access the WB bus. 
--- FunctMatch  /= 0 is necessary but not sufficient to select one function and access the board, 
+-- if the base address match it asserts the corrisponding bit in the FunctMatch vector and it
+-- latches the base address that will be subtract to the Address before accessing the WB bus. 
+-- FunctMatch  /= 0 is necessary but not sufficient to select one function and to access the board, 
 -- indeed also the AM has to be checked (VME_AM_Match.vhd component).
 -- For better understanding how this component works here one example:
 --  base address = 0xc0
 --  access mode: A32_S  --> AM = 0x09
---  The Master write the ADERi = 0xc0000024
+--  The Master writes the ADERi = 0xc0000024
 --  ADEMi = 0xffffff04 --> DFS = '1' --> all the mask bits are '1'!!
--- The Master want access at the location 0x08: Address= 0xc0000008
+-- The Master wants to access the location 0x08: Address= 0xc0000008
 --  For i = 0 to 7 check:
 --  Check if the ADEMi is compatible with the AM selected: ADEMi[31:8] /= 0
 --  Address[31:8] and ADEMi[31:8]              ADERi[31:8] and ADEMi[31:8] 
@@ -41,8 +41,9 @@
 --                                 |_______| 
 --                               No |     |yes
 --         FunctMatch(i) <= '0'_____|     |______FunctMatch(i) <= '1'   
---  DFS = '1' --> 1 function --> multiple access mode
--- The Master access with different mode only changing the ADER registers if the 
+--
+--  DFS = '1' --> 1 function --> multiple access modes
+-- The Master accesses with different modes only changing the ADER registers if the 
 -- DFS bit is asserted but:
 -- It is easy to see that if DFS = '1'  we can only address 256 bytes, indeed eg:
 --  base address = 0xc0
@@ -93,7 +94,7 @@
 --  Yes, it is. Indeed now suppose that we are in this situation:
 --  ADERi = 0x00000000
 --  ADEMi = 0x0000ff00 --> DFS = '0'
---  A VME Master access to VMEbus for accessing at another board:
+--  A VME Master takes the ownership of the VMEbus for accessing another board:
 --  base address = 0xc0
 --  access mode: A32_S  --> AM = 0x09
 --  The Master want access at the location 0x0008: Address= 0xc0000008
@@ -113,7 +114,7 @@
 -- If DFS is '1' AmMatch(i) is zero becouse ADER[7:2] is 0 (see VME_Am_Match.vhd) and
 -- also FunctMatch(i) is 0 because ADEMi should has all the mask bits '1'.
 --
---Follow an example about A64 access mode:
+-- An example about A64 access mode:
 --  base address = 0xc0
 --  access mode: A64_S  --> AM = 0x01
 -- ADEM(i) = 0x00000001 --> EFM = '1' and DFS = '0' 
@@ -126,7 +127,7 @@
 -- ADER64(i) = ADER(i+1) & ADER(i)
 -- s_isprev_func64(i+1) --> '1' --> don't check if the function i + 1 is selected 
 -- because the next ADER and ADEM are used to decode the function i.
--- The Master want access at the location 0x0008: Address= 0xc000000000000008
+-- The Master accesses the location 0x0008: Address= 0xc000000000000008
 -- Check if the ADEM64i is compatible with the AM selected: ADEM64(i)[63:10] /= 0
 -- Address[63:10] and ADEM64(i)[63:10]              ADER64(i)[63:10] and ADEM64(i)[63:10] 
 --                |                                        |
@@ -137,12 +138,12 @@
 --                               No |     |yes
 --         FunctMatch(i) <= '0'_____|     |______FunctMatch(i) <= '1' 
 --
--- For the 2e modes is the same, change only the ADER(i)'s XAM bit that must be '1'.
+-- For the 2e modes it is the same, it changes only the ADER(i)'s XAM bit that must be '1'.
 --______________________________________________________________________________
 -- Authors:                                   
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date         06/2012                                                                           
+-- Date         08/2012                                                                           
 -- Version      v0.01  
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
@@ -162,12 +163,15 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 use work.vme64x_pack.all;
 
+--===========================================================================
+-- Entity declaration
+--===========================================================================
 
 entity VME_Funct_Match is
    Port ( clk_i          : in  std_logic;
-          s_reset        : in  std_logic;
-          s_decode       : in  std_logic;
-          s_mainFSMreset : in  std_logic;
+          reset          : in  std_logic;
+          decode         : in  std_logic;
+          mainFSMreset   : in  std_logic;
           Addr           : in  std_logic_vector(63 downto 0);
           AddrWidth      : in  std_logic_vector(1 downto 0);
           Ader0          : in  std_logic_vector(31 downto 0);
@@ -191,24 +195,29 @@ entity VME_Funct_Match is
           Nx_Base_Addr   : out std_logic_vector(63 downto 0)
 );
 end VME_Funct_Match;
-
+--===========================================================================
+-- Architecture declaration
+--===========================================================================
 architecture Behavioral of VME_Funct_Match is
    signal s_FUNC_ADER, s_FUNC_ADEM      : t_FUNC_32b_array;
    signal s_FUNC_ADER_64, s_FUNC_ADEM_64: t_FUNC_64b_array;
    signal s_isprev_func64               : std_logic_vector(7 downto 0);
    signal s_locAddr                     : unsigned(63 downto 0);
    signal debugfunct                    : integer;
+--===========================================================================
+-- Architecture begin
+--===========================================================================
 begin
    s_locAddr <= unsigned(Addr);
 
    p_functMatch : process(clk_i)
    begin
       if rising_edge(clk_i) then
-         if s_mainFSMreset = '1' or s_reset = '1' then
+         if mainFSMreset = '1' or reset = '1' then
             FunctMatch <= (others => '0');
             Nx_Base_Addr <= (others => '0');
             debugfunct <= 0;
-         elsif s_decode = '1' then	 
+         elsif decode = '1' then	 
             for i in FunctMatch'range loop
 
                case AddrWidth is
@@ -306,4 +315,6 @@ begin
    s_isprev_func64(0) <= '0';
    s_FUNC_ADEM_64(7) <= (others => '0');
 end Behavioral;
-
+--===========================================================================
+-- Architecture end
+--===========================================================================

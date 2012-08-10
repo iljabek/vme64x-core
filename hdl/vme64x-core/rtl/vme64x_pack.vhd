@@ -9,7 +9,7 @@
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
 -- Date         06/2012                                                                           
--- Version      v0.01  
+-- Version      v0.02 
 --_______________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------    
@@ -60,9 +60,18 @@ package vme64x_pack is
 
   --_______________________________________________________________________________
   -- Constants:
+  --WB data width:
+   constant c_width          : integer := 32; --must be 32 or 64!
+	--CRAM size in the CR/CSR space (bytes):
+	constant c_CRAM_SIZE      : integer := 1024; 
+	-- remember to set properly the "END_CRAM" register in the CR space
+  -- WB addr width:
+	constant c_addr_width     : integer := 64;
+	--
    constant DFS              : integer := 2;    -- for accessing at the ADEM's bit 2
    constant XAM_MODE         : integer := 0;  -- for accessing at the ADER's bit 0
-   constant clk_period       : std_logic_vector(19 downto 0) := "00000000000000001101";
+	-- Tclk in ns used to calculate the data transfer rate
+   constant c_CLK_PERIOD     : std_logic_vector(19 downto 0) := "00000000000000001010";
   --AM table:
    constant c_A24_S_sup      : std_logic_vector(5 downto 0) := "111101";
    constant c_A24_S          : std_logic_vector(5 downto 0) := "111001";
@@ -347,23 +356,30 @@ package vme64x_pack is
    type t_CSRarray is array(BAR downto WB32or64) of unsigned(7 downto 0);
    type t_cr_array is array (natural range <>) of std_logic_vector(7 downto 0);
 
+-- functions
+function f_div8 (width : integer) return integer;
+function f_log2_size (A : natural) return natural;
 --_____________________________________________________________________________________________________
 --COMPONENTS:
-              COMPONENT VME_bus
-                 PORT(
+              component VME_bus is
+				  generic(
+                        g_width : integer := c_width;
+	                     g_addr_width : integer := c_addr_width;
+								g_CRAM_SIZE  : integer := c_CRAM_SIZE
+                        );
+                 port(
                         clk_i                : in std_logic;
                         VME_RST_n_i          : in std_logic;
                         VME_AS_n_i           : in std_logic;
                         VME_LWORD_n_b_i      : in std_logic;
                         VME_WRITE_n_i        : in std_logic;
                         VME_DS_n_i           : in std_logic_vector(1 downto 0);
-                        VME_GA_i             : in std_logic_vector(5 downto 0);
                         VME_ADDR_b_i         : in std_logic_vector(31 downto 1);
                         VME_DATA_b_i         : in std_logic_vector(31 downto 0);
                         VME_AM_i             : in std_logic_vector(5 downto 0);
                         VME_IACK_n_i         : in std_logic;
                         memAckWB_i           : in std_logic;
-                        wbData_i             : in std_logic_vector(63 downto 0);
+                        wbData_i             : in std_logic_vector(g_width - 1 downto 0);
                         err_i                : in std_logic;
                         rty_i                : in std_logic;
                         stall_i              : in std_logic;
@@ -399,16 +415,16 @@ package vme64x_pack is
                         VME_DATA_DIR_o       : out std_logic;
                         VME_DATA_OE_N_o      : out std_logic;
                         memReq_o             : out std_logic;
-                        wbData_o             : out std_logic_vector(63 downto 0);
-                        locAddr_o            : out std_logic_vector(63 downto 0);
-                        wbSel_o              : out std_logic_vector(7 downto 0);
+                        wbData_o             : out std_logic_vector(g_width - 1 downto 0);
+                        locAddr_o            : out std_logic_vector(g_addr_width - 1 downto 0);
+                        wbSel_o              : out std_logic_vector(f_div8(g_width) - 1 downto 0);
                         RW_o                 : out std_logic;
                         cyc_o                : out std_logic;
                         psize_o              : out std_logic_vector(8 downto 0);
                         VMEtoWB              : out std_logic;
                         WBtoVME              : out std_logic;
                         FifoMux              : out std_logic;
-                        CRAMaddr_o           : out std_logic_vector(18 downto 0);
+                        CRAMaddr_o           : out std_logic_vector(f_log2_size(g_CRAM_SIZE)-1 downto 0);
                         CRAMdata_o           : out std_logic_vector(7 downto 0);
                         CRAMwea_o            : out std_logic;
                         CRaddr_o             : out std_logic_vector(11 downto 0);
@@ -421,15 +437,15 @@ package vme64x_pack is
                         leds                 : out std_logic_vector(7 downto 0);
                         transfer_done_o      : out std_logic	
                      );
-              END COMPONENT;
+              end component VME_bus;
 
 
-              COMPONENT VME_Access_Decode
-                 PORT (
+              component VME_Access_Decode is
+                 port (
                         clk_i          : in  std_logic;
-                        s_reset        : in  std_logic;
-                        s_mainFSMreset : in  std_logic;
-                        s_decode       : in  std_logic;
+                        reset          : in  std_logic;
+                        mainFSMreset   : in  std_logic;
+                        decode         : in  std_logic;
                         ModuleEnable   : in  std_logic;
                         InitInProgress : in  std_logic;
                         Addr           : in  std_logic_vector(63 downto 0);
@@ -467,21 +483,21 @@ package vme64x_pack is
                         XAmCap7        : in  std_logic_vector(255 downto 0);
                         Am             : in  std_logic_vector(5 downto 0);
                         XAm            : in  std_logic_vector(7 downto 0);
-                        BAR            : in  std_logic_vector(4 downto 0);
+                        BAR_i          : in  std_logic_vector(4 downto 0);
                         AddrWidth      : in  std_logic_vector(1 downto 0);          
                         Funct_Sel      : out std_logic_vector(7 downto 0);
                         Base_Addr      : out std_logic_vector(63 downto 0);
                         Confaccess     : out std_logic;
                         CardSel        : out std_logic
                      );
-              END COMPONENT;
+              end component VME_Access_Decode;
 
-              COMPONENT VME_Funct_Match
-                 PORT(
+              component VME_Funct_Match is
+                 port(
                         clk_i          : in  std_logic;
-                        s_reset        : in  std_logic;
-                        s_decode       : in  std_logic;
-                        s_mainFSMreset : in  std_logic;
+                        reset          : in  std_logic;
+                        decode         : in  std_logic;
+                        mainFSMreset   : in  std_logic;
                         Addr           : in  std_logic_vector(63 downto 0);
                         AddrWidth      : in  std_logic_vector(1 downto 0);
                         Ader0          : in  std_logic_vector(31 downto 0);
@@ -504,24 +520,27 @@ package vme64x_pack is
                         DFS_o          : out std_logic_vector(7 downto 0);
                         Nx_Base_Addr   : out std_logic_vector(63 downto 0)
                      );
-              END COMPONENT;
+              end component VME_Funct_Match;
 
-              COMPONENT VME_CR_CSR_Space
-                 PORT(
+              component VME_CR_CSR_Space is
+				  generic(
+								g_CRAM_SIZE  : integer := c_CRAM_SIZE
+                        );
+                 port(
                         clk_i              : in  std_logic;
-                        s_reset            : in  std_logic;
+                        reset              : in  std_logic;
                         CR_addr            : in  std_logic_vector(11 downto 0);
-                        CRAM_addr          : in  std_logic_vector(18 downto 0);
+                        CRAM_addr          : in  std_logic_vector(f_log2_size(g_CRAM_SIZE)-1 downto 0);
                         CRAM_data_i        : in  std_logic_vector(7 downto 0);
                         CRAM_Wen           : in  std_logic;
                         en_wr_CSR          : in  std_logic;
                         CrCsrOffsetAddr    : in  std_logic_vector(18 downto 0);
                         VME_GA_oversampled : in  std_logic_vector(5 downto 0);
                         locDataIn          : in  std_logic_vector(7 downto 0);
-                        s_err_flag         : in  std_logic;          
+                        err_flag           : in  std_logic;          
                         CR_data            : out std_logic_vector(7 downto 0);
                         CRAM_data_o        : out std_logic_vector(7 downto 0);
-                        s_reset_flag       : out std_logic;
+                        reset_flag         : out std_logic;
                         CSRdata            : out std_logic_vector(7 downto 0);
                         Ader0              : out std_logic_vector(31 downto 0);
                         Ader1              : out std_logic_vector(31 downto 0);
@@ -541,13 +560,13 @@ package vme64x_pack is
                         INT_Level          : out std_logic_vector(7 downto 0);
                         INT_Vector         : out std_logic_vector(7 downto 0)
                      );
-              END COMPONENT;
+              end component VME_CR_CSR_Space;
 
-              COMPONENT VME_Am_Match
-                 PORT(
+              component VME_Am_Match is
+                 port(
                         clk_i          : in  std_logic;
-                        s_reset        : in  std_logic;
-                        s_mainFSMreset : in  std_logic;
+                        reset          : in  std_logic;
+                        mainFSMreset   : in  std_logic;
                         Ader0          : in  std_logic_vector(31 downto 0);
                         Ader1          : in  std_logic_vector(31 downto 0);
                         Ader2          : in  std_logic_vector(31 downto 0);
@@ -575,31 +594,34 @@ package vme64x_pack is
                         Am             : in  std_logic_vector(5 downto 0);
                         XAm            : in  std_logic_vector(7 downto 0);
                         DFS_i          : in  std_logic_vector(7 downto 0);
-                        s_decode       : in  std_logic;          
+                        decode         : in  std_logic;          
                         AmMatch        : out std_logic_vector(7 downto 0)
                      );
-              END COMPONENT;
+              end component VME_Am_Match;
 
-              COMPONENT VME_Wb_master
-                 PORT(
+              component VME_Wb_master is
+				  generic(
+                        g_width : integer := c_width;
+	                     g_addr_width : integer := c_addr_width
+                        );
+                 port(
                         s_memReq        : in  std_logic;
                         clk_i           : in  std_logic;
-                        s_cardSel       : in  std_logic;
-                        s_reset         : in  std_logic;
-                        s_mainFSMreset  : in  std_logic;
-                        s_BERRcondition : in  std_logic;
-                        s_sel           : in  std_logic_vector(7 downto 0);
-                        s_beatCount     : in  std_logic_vector(8 downto 0);
-                        s_locDataInSwap : in  std_logic_vector(63 downto 0);
-                        s_rel_locAddr   : in  std_logic_vector(63 downto 0);
-                        s_RW            : in  std_logic;
+                        cardSel         : in  std_logic;
+                        reset           : in  std_logic;
+                        mainFSMreset    : in  std_logic;
+                        BERRcondition   : in  std_logic;
+                        sel             : in  std_logic_vector(7 downto 0);
+                        beatCount       : in  std_logic_vector(8 downto 0);
+                        locDataInSwap   : in  std_logic_vector(63 downto 0);
+                        rel_locAddr     : in  std_logic_vector(63 downto 0);
+                        RW              : in  std_logic;
                         stall_i         : in  std_logic;
                         rty_i           : in  std_logic;
                         err_i           : in  std_logic;
-                        wbData_i        : in  std_logic_vector(63 downto 0);
+                        wbData_i        : in  std_logic_vector(g_width - 1 downto 0);
                         memAckWB_i      : in  std_logic;          
-                        s_locDataOut    : out std_logic_vector(63 downto 0);
-                        s_AckWithError  : out std_logic;
+                        locDataOut      : out std_logic_vector(63 downto 0);
                         memAckWb        : out std_logic;
                         err             : out std_logic;
 								W32             : in  std_logic;
@@ -607,15 +629,15 @@ package vme64x_pack is
                         psize_o         : out std_logic_vector(8 downto 0);
                         cyc_o           : out std_logic;
                         memReq_o        : out std_logic;
-                        WBdata_o        : out std_logic_vector(63 downto 0);
-                        locAddr_o       : out std_logic_vector(63 downto 0);
-                        WbSel_o         : out std_logic_vector(7 downto 0);
+                        WBdata_o        : out std_logic_vector(g_width - 1 downto 0);
+                        locAddr_o       : out std_logic_vector(g_addr_width - 1 downto 0);
+                        WbSel_o         : out std_logic_vector(f_div8(g_width) - 1 downto 0);
                         RW_o            : out std_logic
                      );
-              END COMPONENT;
+              end component VME_Wb_master;
 
-              COMPONENT VME_Init
-                 PORT(
+              component VME_Init is
+                 port(
                         clk_i          : in    std_logic;
                         CRAddr         : in    std_logic_vector(18 downto 0);
                         CRdata_i       : in    std_logic_vector(7 downto 0);    
@@ -653,51 +675,58 @@ package vme64x_pack is
                         FUNC6_XAMCAP_o : out   std_logic_vector(255 downto 0);
                         FUNC7_XAMCAP_o : out   std_logic_vector(255 downto 0)
                      );
-              END COMPONENT;	
+              end component VME_Init;	
 
-              COMPONENT VME_swapper
-                 PORT(
+              component VME_swapper is
+                 port(
                         d_i : in  std_logic_vector(63 downto 0);
                         sel : in  std_logic_vector(2 downto 0);          
                         d_o : out std_logic_vector(63 downto 0)
                      );
-              END COMPONENT;
+              end component VME_swapper;
+				  component Reg32bit is
+	             port (
+	                   	 reset, clk_i, enable: in std_logic;
+	         	          di : in std_logic_vector(31 downto 0);
+		                   do: out std_logic_vector(31 downto 0)
+		              );
+              end component Reg32bit;
               component FlipFlopD is
                  port (
                          reset,enable,sig_i,clk_i     : in  std_logic;
                          sig_o                        : out std_logic := '0'
                       );
-              end component;
+              end component FlipFlopD;
               component EdgeDetection is
                  port (
                          sig_i,clk_i : in  std_logic;
                          sigEdge_o   : out std_logic := '0'
                       );
-              end component;
+              end component EdgeDetection;
 
               component FallingEdgeDetection is
                  port (
                  sig_i, clk_i : in  std_logic;
                  FallEdge_o   : out std_logic);
-              end component;
+              end component FallingEdgeDetection;
 
               component RisEdgeDetection is
                  port (
                  sig_i, clk_i : in  std_logic;
                  RisEdge_o    : out std_logic);
-              end component;
+              end component RisEdgeDetection;
 
               component DoubleSigInputSample is
                  port (
                  sig_i, clk_i : in  std_logic;
                  sig_o        : out std_logic);
-              end component;
+              end component DoubleSigInputSample;
 
               component SigInputSample is
                  port (
                  sig_i, clk_i : in  std_logic;
                  sig_o        : out std_logic);
-              end component;  
+              end component SigInputSample;  
 
               component DoubleRegInputSample is
                  generic(
@@ -708,7 +737,7 @@ package vme64x_pack is
                          reg_o : out std_logic_vector(width-1 downto 0) := (others => '0');
                          clk_i : in  std_logic
                       );
-              end component;
+              end component DoubleRegInputSample;
 
               component RegInputSample is
                  generic(
@@ -719,10 +748,22 @@ package vme64x_pack is
                          reg_o : out std_logic_vector(width-1 downto 0) := (others => '0');
                          clk_i : in  std_logic
                       );
-              end component;
+              end component RegInputSample;
+				  
+				  component SingleRegInputSample is
+                 generic(
+                           width : natural := 8
+                        );
+                 port (
+                         reg_i : in  std_logic_vector(width-1 downto 0);
+                         reg_o : out std_logic_vector(width-1 downto 0) := (others => '0');
+                         clk_i : in  std_logic
+                      );
+              end component SingleRegInputSample;
+				  
 
-              COMPONENT VME_IRQ_Controller
-                 PORT(
+              component VME_IRQ_Controller is
+                 port(
                         clk_i           : in  std_logic;
                         reset           : in  std_logic;
                         VME_IACKIN_n_i  : in  std_logic;
@@ -741,26 +782,41 @@ package vme64x_pack is
                         VME_DATA_o      : out std_logic_vector(31 downto 0);
                         VME_DATA_DIR_o  : out std_logic
                      );
-              END COMPONENT;
+              end component VME_IRQ_Controller;
 
-              COMPONENT dpblockram
-                 generic (dl : integer := 8; 		-- Length of the data word 
-                          al : integer := 19;			-- Size of the addr map (10 = 1024 words)
-                          nw : integer := 2**19);    -- Number of words
-                 PORT(
+              component VME_CRAM is
+                 generic (dl : integer := 8; 		
+                          al : integer := f_log2_size(c_CRAM_SIZE)	
+                          );    
+                 port(
                         clk : in  std_logic;
                         we  : in  std_logic;
                         aw  : in  std_logic_vector(al - 1 downto 0);
-                        ar  : in  std_logic_vector(al - 1 downto 0);
                         di  : in  std_logic_vector(dl - 1 downto 0);          
-                        dw  : out std_logic_vector(dl - 1 downto 0);
-                        do  : out std_logic_vector(dl - 1 downto 0)
+                        dw  : out std_logic_vector(dl - 1 downto 0)
                      );
-              END COMPONENT;
+              end component VME_CRAM;
 
            end vme64x_pack;
 package body vme64x_pack is
 
+function f_div8 (width : integer) return integer is
+  begin
+    for I in 1 to 8 loop      
+      if (8*I >= width) then
+        return(I);
+      end if;
+    end loop;
+  end function f_div8;
 
-
+function f_log2_size (A : natural) return natural is
+  begin
+    for I in 1 to 64 loop               -- Works for up to 64 bits
+      if (2**I >= A) then
+        return(I);
+      end if;
+    end loop;
+    return(63);
+  end function f_log2_size;
+  
 end vme64x_pack;

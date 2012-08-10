@@ -6,9 +6,9 @@
 -- File:                           VME_CR_CSR_Space.vhd
 --________________________________________________________________________________________________
 -- Description:
--- Only the third location of each 4-byte group is implemented so is possible write the CSR/CRAM 
--- selecting the data transfer mode D08_Byte3, D16_Byte23, D32. If other data transfer mode are 
--- selected the write operation will not be successful.
+-- Please note that only every fourth location in the CR/CSR space is used so is possible write 
+-- the CSR/CRAM selecting the data transfer mode D08_Byte3, D16_Byte23, D32. If other data transfer 
+-- mode are selected the write operation will not be successful.
 -- If the Master access the board for a reading operation with data transfer type different than 
 -- D08_Byte3, D16_Byte23, D32 the data that will be read is 0.
 --                                        width = 1 byte
@@ -23,7 +23,7 @@
 --                          |       ANSI/VITA 1.1-1997        |
 --                          |        VME64 Extensions         |
 --                          |_________________________________|0x7fc00
---                          |                                 |0x7fbff
+--                          |                                 |0x013ff
 --                          |                                 |
 --                          |                                 |
 --                          |              CRAM               |
@@ -63,12 +63,12 @@
 -- BYTES0    --> 0x7FF3b  |
 -- BYTES1    --> 0x7FF37 _|
 -- 
--- CRAM memory Added. How to use the CRAM:
+-- CRAM memory Added. How to use the CRAM:  (1KB)
 --        1) The Master read the CRAM_OWNER Register location 0x7fff3; if 0 the CRAM is free
 --        2) The Master write his ID in the CRAM_OWNER Register location 0x7fff3
---        3) If the Master can read his ID in the CRAM_OWNER Register it means that this master 
+--        3) If the Master can read his ID in the CRAM_OWNER Register it means that it 
 --           is the owner of the CRAM.
---           If other Master write their ID in the CRAM_OWNER Register when it contains a non-zero 
+--           If other Masters write their ID in the CRAM_OWNER Register when it contains a non-zero 
 --           value, the write operation will not be successful --> this allows the first 
 --           Master that writes a non-zero value to acquire ownership.
 --        4) When a Master has the ownership of the CRAM the Bit Set Register's bit 2, 
@@ -77,7 +77,7 @@
 --           Register location 0x7fffb.
 -- Other flags:
 --   Module Enable --> Bit Set Register's bit 4 location 0x7fffb
---                     If this bit is '0' the slave module's address decoding is not enable and 
+--                     If this bit is '0' the slave module's address decoder is not enable and 
 --                     the Wb bus can't be accessed.
 --   Error flag    --> Bit Set Register's bit 3 location 0x7fffb
 --                     When the Slave asserts the BERR* line should asserts also this bit.
@@ -96,8 +96,8 @@
 -- Authors:                                       
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date         06/2012                                                                           
--- Version      v0.01  
+-- Date         08/2012                                                                           
+-- Version      v0.02  
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------  
@@ -118,14 +118,19 @@ use IEEE.numeric_std.all;
 use work.vme64x_pack.all;
 use work.VME_CR_pack.all;
 use work.VME_CSR_pack.all;
-
+--===========================================================================
+-- Entity declaration
+--===========================================================================
 entity VME_CR_CSR_Space is
+   generic(
+				   g_CRAM_SIZE  : integer := c_CRAM_SIZE
+              );
    Port ( -- VMEbus.vhd signals
            clk_i              : in   std_logic;
-           s_reset            : in   std_logic;
+           reset              : in   std_logic;
            CR_addr            : in   std_logic_vector (11 downto 0);  
            CR_data            : out  std_logic_vector (7 downto 0);
-           CRAM_addr          : in   std_logic_vector (18 downto 0);
+           CRAM_addr          : in   std_logic_vector (f_log2_size(g_CRAM_SIZE)-1 downto 0);
            CRAM_data_o        : out  std_logic_vector (7 downto 0);
            CRAM_data_i        : in   std_logic_vector (7 downto 0);
            CRAM_Wen           : in   std_logic;
@@ -133,8 +138,8 @@ entity VME_CR_CSR_Space is
            CrCsrOffsetAddr    : in   std_logic_vector (18 downto 0);
            VME_GA_oversampled : in   std_logic_vector (5 downto 0);
            locDataIn          : in   std_logic_vector (7 downto 0);
-           s_err_flag         : in   std_logic;
-           s_reset_flag       : out  std_logic;
+           err_flag           : in   std_logic;
+           reset_flag         : out  std_logic;
            CSRdata            : out  std_logic_vector(7 downto 0);
            numBytes           : in   std_logic_vector(12 downto 0);
            transfTime         : in   std_logic_vector(39 downto 0);
@@ -157,7 +162,9 @@ entity VME_CR_CSR_Space is
            INT_Vector         : out  std_logic_vector(7 downto 0)
         );
 end VME_CR_CSR_Space;
-
+--===========================================================================
+-- Architecture declaration
+--===========================================================================
 architecture Behavioral of VME_CR_CSR_Space is
    signal s_CSRarray             : t_CSRarray;   -- Array of CSR registers
    signal s_bar_written          : std_logic;
@@ -169,15 +176,17 @@ architecture Behavioral of VME_CR_CSR_Space is
    signal s_odd_parity           : std_logic;
 	signal s_BARerror             : std_logic;
 	signal s_BAR_o                : std_logic_vector(4 downto 0);
-	
+--===========================================================================
+-- Architecture begin
+--===========================================================================
 begin
 -- check the parity:
 s_odd_parity   <=  VME_GA_oversampled(5) xor VME_GA_oversampled(4) xor 
                    VME_GA_oversampled(3) xor VME_GA_oversampled(2) xor 
 					    VME_GA_oversampled(1) xor VME_GA_oversampled(0);	
--- If the crate is not driving the GA lines or the parity is odd the BAR register
-  -- is set to 0x00 and the following flag is asserted; the board will not answer if the 
-  -- master accesses its  CR/CSR space and we can see a time out error in the VME bus.  
+-- If the crate is not driving the GA lines or the parity is even the BAR register
+-- is set to 0x00 and the following flag is asserted; the board will not answer if the 
+-- master accesses its  CR/CSR space and we can see a time out error in the VME bus.  
 s_BARerror <= not(s_BAR_o(4) or s_BAR_o(3)or s_BAR_o(2) or s_BAR_o(1) or s_BAR_o(0));		
 --------------------------------------------------------------------------------
 -- CR
@@ -195,7 +204,7 @@ s_BARerror <= not(s_BAR_o(4) or s_BAR_o(3)or s_BAR_o(2) or s_BAR_o(1) or s_BAR_o
    p_CSR_Write : process(clk_i)
    begin
       if rising_edge(clk_i) then
-         if s_reset = '1'  then
+         if reset = '1'  then
             s_CSRarray(BAR) <= (others => '0');
             s_bar_written   <= '0';
             for i in 254 downto WB32or64 loop        -- Initialization of the CSR memory
@@ -225,7 +234,7 @@ s_BARerror <= not(s_BAR_o(4) or s_BAR_o(3)or s_BAR_o(2) or s_BAR_o(1) or s_BAR_o
                         s_CSRarray(BIT_SET_CLR_REG)(i) <= '0';
                         s_CSRarray(CRAM_OWNER)         <= x"00";
                      elsif  s_locDataIn(i) = '1' and i = 3 then
-                        s_reset_flag <= '1';
+                        reset_flag <= '1';
                      else 
                         if s_locDataIn(i) = '1' then
                            s_CSRarray(BIT_SET_CLR_REG)(i) <= '0';
@@ -270,7 +279,12 @@ s_BARerror <= not(s_BAR_o(4) or s_BAR_o(3)or s_BAR_o(2) or s_BAR_o(1) or s_BAR_o
             end case;	
 
          else
-            s_reset_flag         <= '0';
+			   if c_width = 32 then
+				   s_CSRarray(WB32or64) <= x"01";
+				else
+				   s_CSRarray(WB32or64) <= x"00";
+				end if;	
+            reset_flag           <= '0';
             s_CSRarray(BYTES0)   <= unsigned(numBytes(7 downto 0));
             s_CSRarray(BYTES1)   <= resize(unsigned(numBytes(12 downto 8)),8);
             s_CSRarray(TIME0_ns) <= unsigned(transfTime(7 downto 0));
@@ -283,15 +297,15 @@ s_BARerror <= not(s_BAR_o(4) or s_BAR_o(3)or s_BAR_o(2) or s_BAR_o(1) or s_BAR_o
    end process;
   ------------------------------------------------------------------------------------------------------------------------------------
   --CSR Read
-   process(s_CSRarray, s_CrCsrOffsetAddr,s_err_flag)
+   process(s_CSRarray, s_CrCsrOffsetAddr,err_flag)
    begin
       s_CSRdata <= (others => '0');
       case (s_CrCsrOffsetAddr) is
          when "00" & c_BAR_addr(18 downto 2)             => s_CSRdata <= s_CSRarray(BAR); 
          when "00" & c_BIT_SET_REG_addr(18 downto 2)     => s_CSRdata <= s_CSRarray(
-              BIT_SET_CLR_REG)(7 downto 4) & s_err_flag & s_CSRarray(BIT_SET_CLR_REG)(2 downto 0); 
+              BIT_SET_CLR_REG)(7 downto 4) & err_flag & s_CSRarray(BIT_SET_CLR_REG)(2 downto 0); 
          when "00" & c_BIT_CLR_REG_addr(18 downto 2)     => s_CSRdata <= s_CSRarray(
-              BIT_SET_CLR_REG)(7 downto 4) & s_err_flag & s_CSRarray(BIT_SET_CLR_REG)(2 downto 0);
+              BIT_SET_CLR_REG)(7 downto 4) & err_flag & s_CSRarray(BIT_SET_CLR_REG)(2 downto 0);
          when "00" & c_CRAM_OWNER_addr(18 downto 2)      => s_CSRdata <= s_CSRarray(CRAM_OWNER);
          when "00" & c_USR_BIT_SET_REG_addr(18 downto 2) => s_CSRdata <= s_CSRarray(
               USR_BIT_SET_CLR_REG);
@@ -371,18 +385,16 @@ s_BARerror <= not(s_BAR_o(4) or s_BAR_o(3)or s_BAR_o(2) or s_BAR_o(1) or s_BAR_o
    s_BAR_o       <= std_logic_vector(s_CSRarray(BAR)(7 downto 3));
 ---------------------------------------------------------------------------------------------------------------
 -- CRAM:
-   CRAM_1 : dpblockram
-   generic map(dl => 8,                  -- Length of the data word 
-               al => 19,                 -- Size of the addr map (10 = 1024 words)
-               nw => 2**19)              -- Number of words
-                                         -- 'nw' has to be coherent with 'al'
-   port map(clk => clk_i,                -- Global Clock
-            we  => CRAM_Wen,             -- Write Enable
-            aw  => CRAM_addr,            -- Write Address 
-            ar  => (others => '0'),      -- Read Address
-            di  => CRAM_data_i,          -- Data input
-            dw  => CRAM_data_o,          -- Data write, normaly open
-            do  => open);                -- Data output
-
+   CRAM_1 : VME_CRAM
+   generic map(dl => 8,                   
+               al => f_log2_size(g_CRAM_SIZE)
+               )					
+   port map(clk => clk_i,            
+            we  => CRAM_Wen,            
+            aw  => CRAM_addr,            
+            di  => CRAM_data_i,         
+            dw  => CRAM_data_o);          
 end Behavioral;
-
+--===========================================================================
+-- Architecture end
+--===========================================================================
