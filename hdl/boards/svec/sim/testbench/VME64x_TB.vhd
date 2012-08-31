@@ -722,7 +722,7 @@ BEGIN
 		s_dataTransferType <= D08Byte3;
       s_AddressingType   <= CR_CSR;
 
-      s_dataToReceive <= x"00000000";
+      s_dataToReceive <= x"00000001";
       ReadCR_CSR(c_address	=> c_WB32or64, s_dataToReceive => s_dataToReceive, s_dataTransferType => s_dataTransferType,
       s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
       VME64xBus_Out => VME64xBus_Out);
