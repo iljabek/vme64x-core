@@ -66,12 +66,12 @@ package vme64x_pack is
 	constant c_CRAM_SIZE      : integer := 1024; 
 	-- remember to set properly the "END_CRAM" register in the CR space
   -- WB addr width:
-	constant c_addr_width     : integer := 64;
+	constant c_addr_width     : integer := 32;
 	--
    constant DFS              : integer := 2;    -- for accessing at the ADEM's bit 2
    constant XAM_MODE         : integer := 0;  -- for accessing at the ADER's bit 0
 	-- Tclk in ns used to calculate the data transfer rate
-   constant c_CLK_PERIOD     : std_logic_vector(19 downto 0) := "00000000000000001010";
+   constant c_CLK_PERIOD     : std_logic_vector(19 downto 0) := "00000000000000110010";
   --AM table:
    constant c_A24_S_sup      : std_logic_vector(5 downto 0) := "111101";
    constant c_A24_S          : std_logic_vector(5 downto 0) := "111001";
@@ -371,11 +371,11 @@ function f_log2_size (A : natural) return natural;
                         clk_i                : in std_logic;
                         VME_RST_n_i          : in std_logic;
                         VME_AS_n_i           : in std_logic;
-                        VME_LWORD_n_b_i      : in std_logic;
+                        VME_LWORD_n_i        : in std_logic;
                         VME_WRITE_n_i        : in std_logic;
                         VME_DS_n_i           : in std_logic_vector(1 downto 0);
-                        VME_ADDR_b_i         : in std_logic_vector(31 downto 1);
-                        VME_DATA_b_i         : in std_logic_vector(31 downto 0);
+                        VME_ADDR_i           : in std_logic_vector(31 downto 1);
+                        VME_DATA_i           : in std_logic_vector(31 downto 0);
                         VME_AM_i             : in std_logic_vector(5 downto 0);
                         VME_IACK_n_i         : in std_logic;
                         memAckWB_i           : in std_logic;
@@ -402,16 +402,16 @@ function f_log2_size (A : natural) return natural;
                         BAR_i                : in std_logic_vector(4 downto 0);
                         transfer_done_i      : in std_logic;          
                         reset_o              : out std_logic;
-                        VME_LWORD_n_b_o      : out std_logic;
+                        VME_LWORD_n_o        : out std_logic;
                         VME_RETRY_n_o        : out std_logic;
                         VME_RETRY_OE_o       : out std_logic;
                         VME_DTACK_n_o        : out std_logic;
                         VME_DTACK_OE_o       : out std_logic;
                         VME_BERR_o           : out std_logic;
-                        VME_ADDR_b_o         : out std_logic_vector(31 downto 1);
+                        VME_ADDR_o           : out std_logic_vector(31 downto 1);
                         VME_ADDR_DIR_o       : out std_logic;
                         VME_ADDR_OE_N_o      : out std_logic;
-                        VME_DATA_b_o         : out std_logic_vector(31 downto 0);
+                        VME_DATA_o           : out std_logic_vector(31 downto 0);
                         VME_DATA_DIR_o       : out std_logic;
                         VME_DATA_OE_N_o      : out std_logic;
                         memReq_o             : out std_logic;

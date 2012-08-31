@@ -3,7 +3,7 @@
 --
 --                                CERN,BE/CO-HT 
 --______________________________________________________________________________________
--- File:                       VME_ Am_Match.vhd
+-- File:                       VME_Am_Match.vhd
 --______________________________________________________________________________________
 -- Description: this component checks if the AM match. 
 -- If it is the corrispondent AmMatch's bit is asserted. This condition is necessary but 

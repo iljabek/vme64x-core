@@ -14,7 +14,7 @@
 --   2) AM = 0x2f
 --   3) The initialization is finished (wait about 8800 ns after power-up or software reset)
 --
--- To Access the Wb bus we have 7 function; only one at time can be selected. If one of 
+-- To Access the Wb bus we have 7 functions; only one at time can be selected. If one of 
 -- these functions is selected the CardSel signal is asserted (this is the responding Slave).
 -- To access the Wb bus we need to decode the AM and the address lines; so as shown in 
 -- the block diagram the main component are two: VME_Funct_Match, VME_Am_Match.

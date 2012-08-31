@@ -75,8 +75,8 @@ entity VME_bus is
           -- VME signals                                                              
           VME_RST_n_i          : in  std_logic;
           VME_AS_n_i           : in  std_logic;
-          VME_LWORD_n_b_o      : out std_logic;
-          VME_LWORD_n_b_i      : in  std_logic;
+          VME_LWORD_n_o        : out std_logic;
+          VME_LWORD_n_i        : in  std_logic;
           VME_RETRY_n_o        : out std_logic;
           VME_RETRY_OE_o       : out std_logic;
           VME_WRITE_n_i        : in  std_logic;
@@ -84,12 +84,12 @@ entity VME_bus is
           VME_DTACK_n_o        : out std_logic;
           VME_DTACK_OE_o       : out std_logic;
           VME_BERR_o           : out std_logic;
-          VME_ADDR_b_i         : in  std_logic_vector(31 downto 1);  
-          VME_ADDR_b_o         : out std_logic_vector(31 downto 1);
+          VME_ADDR_i           : in  std_logic_vector(31 downto 1);  
+          VME_ADDR_o           : out std_logic_vector(31 downto 1);
           VME_ADDR_DIR_o       : out std_logic;
           VME_ADDR_OE_N_o      : out std_logic;
-          VME_DATA_b_i         : in  std_logic_vector(31 downto 0);   
-          VME_DATA_b_o         : out std_logic_vector(31 downto 0);
+          VME_DATA_i           : in  std_logic_vector(31 downto 0);   
+          VME_DATA_o           : out std_logic_vector(31 downto 0);
           VME_DATA_DIR_o       : out std_logic;
           VME_DATA_OE_N_o      : out std_logic;
           VME_AM_i             : in  std_logic_vector(5 downto 0);     
@@ -1117,8 +1117,8 @@ begin
   begin
      if rising_edge(clk_i) then
         if s_dataToAddrBus = '1' then   
-           VME_ADDR_b_o    <=  s_locDataSwap(63 downto 33);                    
-           VME_LWORD_n_b_o <= s_locDataSwap(32);                       
+           VME_ADDR_o      <=  s_locDataSwap(63 downto 33);                    
+           VME_LWORD_n_o   <= s_locDataSwap(32);                       
         end if;
      end if;
   end process;
@@ -1127,18 +1127,18 @@ begin
      if rising_edge(clk_i) then
         if s_dataToAddrBus = '1' or s_dataToOutput = '1' then
            if s_addressingType = CR_CSR then
-              VME_DATA_b_o <=  std_logic_vector(s_locData(31 downto 0));
+              VME_DATA_o <=  std_logic_vector(s_locData(31 downto 0));
            else	  
-              VME_DATA_b_o <=  s_locDataSwap(31 downto 0);                       
+              VME_DATA_o <=  s_locDataSwap(31 downto 0);                       
            end if;
         end if;
      end if;
   end process;
   ---------------------ADDRESS_HANDLER_PROCESS------------------------|
   --Local address & AM & 2e address phase latching
-  s_VMEaddrInput <= unsigned(VME_ADDR_b_i);
-  s_LWORDinput   <= VME_LWORD_n_b_i;
-  s_VMEdataInput <= unsigned(VME_DATA_b_i);
+  s_VMEaddrInput <= unsigned(VME_ADDR_i);
+  s_LWORDinput   <= VME_LWORD_n_i;
+  s_VMEdataInput <= unsigned(VME_DATA_i);
   p_addrLatching : process(clk_i)  
   begin
      if rising_edge(clk_i) then
@@ -1315,10 +1315,10 @@ begin
   
   --swap the data during read or write operation
   --sel= 000 --> No swap
-  --sel= 001 --> Swap Byte  eg: 01234567 became 10325476
-  --sel= 010 --> Swap Word  eg: 01234567 became 23016745
-  --sel= 011 --> Swap Word+ Swap Byte eg: 01234567 became 32107654
-  --sel= 100 --> Swap DWord + Swap Word+ Swap Byte eg: 01234567 became 76543210
+  --sel= 001 --> Swap Byte  eg: 01234567 become 10325476
+  --sel= 010 --> Swap Word  eg: 01234567 become 23016745
+  --sel= 011 --> Swap Word+ Swap Byte eg: 01234567 become 32107654
+  --sel= 100 --> Swap DWord + Swap Word+ Swap Byte eg: 01234567 become 76543210
   swapper_write: VME_swapper port map(
                                       d_i => std_logic_vector(s_locDataIn),
                                       sel => MBLT_Endian_i,

@@ -119,12 +119,12 @@
      VME_BERR_o       : out   std_logic;
      VME_DTACK_n_o    : out   std_logic;
      VME_RETRY_n_o    : out   std_logic;
-     VME_LWORD_n_b_i  : in    std_logic;
-	  VME_LWORD_n_b_o  : out   std_logic;
-     VME_ADDR_b_i     : in    std_logic_vector(31 downto 1);
-	  VME_ADDR_b_o     : out   std_logic_vector(31 downto 1);
-     VME_DATA_b_i     : in    std_logic_vector(31 downto 0);
-	  VME_DATA_b_o     : out   std_logic_vector(31 downto 0);
+     VME_LWORD_n_i  : in    std_logic;
+	  VME_LWORD_n_o  : out   std_logic;
+     VME_ADDR_i     : in    std_logic_vector(31 downto 1);
+	  VME_ADDR_o     : out   std_logic_vector(31 downto 1);
+     VME_DATA_i     : in    std_logic_vector(31 downto 0);
+	  VME_DATA_o     : out   std_logic_vector(31 downto 0);
      VME_IRQ_n_o      : out   std_logic_vector(6 downto 0);
      VME_IACKIN_n_i   : in    std_logic;
      VME_IACK_n_i     : in    std_logic;
@@ -152,12 +152,12 @@
      STALL_i          : in    std_logic;
 
      -- IRQ Generator
-     INT_ack          : out   std_logic;   -- when the IRQ controller acknowledges the Interrupt
+     INT_ack_o        : out   std_logic;   -- when the IRQ controller acknowledges the Interrupt
 	                                        -- cycle it sends a pulse to the IRQ Generator
      IRQ_i            : in    std_logic;   -- Interrupt request; the IRQ Generator sends a pulse to
 	                                        -- the IRQ Controller and it asserts one of the IRQ lines.
      -- Add by Davide for debug:
-     leds             : out   std_logic_vector(7 downto 0)
+     debug            : out   std_logic_vector(7 downto 0)
     );
 
   end VME64xCore_Top;
@@ -253,7 +253,7 @@ begin
                width => 32
             )
   port map (
-              reg_i => VME_DATA_b_i,
+              reg_i => VME_DATA_i,
               reg_o => VME_DATA_oversampled,
               clk_i => clk_i
            );
@@ -263,7 +263,7 @@ begin
                width => 31
             )
   port map(
-             reg_i => VME_ADDR_b_i,
+             reg_i => VME_ADDR_i,
              reg_o => VME_ADDR_oversampled,
              clk_i => clk_i
           );
@@ -297,7 +297,7 @@ begin
 
   LWORDinputSample : SigInputSample
   port map(
-            sig_i => VME_LWORD_n_b_i,
+            sig_i => VME_LWORD_n_i,
             sig_o => VME_LWORD_n_oversampled,
             clk_i => clk_i
          );
@@ -349,8 +349,8 @@ begin
        -- VME 
 		 VME_RST_n_i          => VME_RST_n_oversampled,
 		 VME_AS_n_i           => VME_AS_n_oversampled,
-		 VME_LWORD_n_b_o      => VME_LWORD_n_b_o,
-		 VME_LWORD_n_b_i      => VME_LWORD_n_oversampled,
+		 VME_LWORD_n_o        => VME_LWORD_n_o,
+		 VME_LWORD_n_i        => VME_LWORD_n_oversampled,
 		 VME_RETRY_n_o        => VME_RETRY_n_o,
 		 VME_RETRY_OE_o       => VME_RETRY_OE_o,
 		 VME_WRITE_n_i        => VME_WRITE_n_oversampled,
@@ -358,12 +358,12 @@ begin
 		 VME_DTACK_n_o        => s_VME_DTACK_VMEbus,
 		 VME_DTACK_OE_o       => s_VME_DTACK_OE_VMEbus,
 		 VME_BERR_o           => VME_BERR_o,
-		 VME_ADDR_b_i         => VME_ADDR_oversampled,
-		 VME_ADDR_b_o         => VME_ADDR_b_o,
+		 VME_ADDR_i           => VME_ADDR_oversampled,
+		 VME_ADDR_o           => VME_ADDR_o,
 		 VME_ADDR_DIR_o       => VME_ADDR_DIR_o,
 		 VME_ADDR_OE_N_o      => VME_ADDR_OE_N_o,
-		 VME_DATA_b_i         => VME_DATA_oversampled,
-		 VME_DATA_b_o         => s_VME_DATA_VMEbus,
+		 VME_DATA_i           => VME_DATA_oversampled,
+		 VME_DATA_o           => s_VME_DATA_VMEbus,
 		 VME_DATA_DIR_o       => s_VME_DATA_DIR_VMEbus,
 		 VME_DATA_OE_N_o      => VME_DATA_OE_N_o,
 		 VME_AM_i             => VME_AM_oversampled,
@@ -418,7 +418,7 @@ begin
 		 numBytes             => s_bytes,
 	    transfTime           => s_time,
        -- debug
-		 leds                 => leds
+		 leds                 => debug
 	       );
 
 ---------------------------------------------------------------------------------
@@ -426,10 +426,10 @@ begin
     VME_IRQ_n_o      <= not s_VME_IRQ_n_o; --The buffers will invert again the logic level
     WE_o             <= not s_RW;   
     reset_o          <= s_reset;
-    INT_ack          <= s_VME_DTACK_IRQ;
+    INT_ack_o        <= s_VME_DTACK_IRQ;
 --------------------------------------------------------------------------------	 
     --Multiplexer added on the output signal used by either VMEbus.vhd and the IRQ_controller.vhd  
-    VME_DATA_b_o     <= s_VME_DATA_VMEbus       when  VME_IACK_n_oversampled ='1' else 
+    VME_DATA_o       <= s_VME_DATA_VMEbus       when  VME_IACK_n_oversampled ='1' else 
                         s_VME_DATA_IRQ;
     VME_DTACK_n_o    <= s_VME_DTACK_VMEbus      when  VME_IACK_n_oversampled ='1' else 
                         s_VME_DTACK_IRQ;		
