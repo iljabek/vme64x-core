@@ -61,17 +61,17 @@ package vme64x_pack is
   --_______________________________________________________________________________
   -- Constants:
   --WB data width:
-   constant c_width          : integer := 32; --must be 32 or 64!
+   constant c_width          : integer := 64; --must be 32 or 64!
 	--CRAM size in the CR/CSR space (bytes):
 	constant c_CRAM_SIZE      : integer := 1024; 
 	-- remember to set properly the "END_CRAM" register in the CR space
   -- WB addr width:
-	constant c_addr_width     : integer := 32;
+	constant c_addr_width     : integer := 10;
 	--
    constant DFS              : integer := 2;    -- for accessing at the ADEM's bit 2
    constant XAM_MODE         : integer := 0;  -- for accessing at the ADER's bit 0
 	-- Tclk in ns used to calculate the data transfer rate
-   constant c_CLK_PERIOD     : std_logic_vector(19 downto 0) := "00000000000000110010";
+   constant c_CLK_PERIOD     : std_logic_vector(19 downto 0) := "00000000000000001010";
   --AM table:
    constant c_A24_S_sup      : std_logic_vector(5 downto 0) := "111101";
    constant c_A24_S          : std_logic_vector(5 downto 0) := "111001";

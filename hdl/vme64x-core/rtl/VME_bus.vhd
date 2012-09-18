@@ -1647,16 +1647,16 @@ end process;
         if s_reset = '1' or s_mainFSMreset = '1' then 
            s_countertime <= (others => '0');
         elsif  VME_AS_n_i = '0' then
-           s_countertime <= s_countertime + unsigned(c_CLK_PERIOD);
+              s_countertime <= s_countertime + unsigned(c_CLK_PERIOD);
         end if;	
-  end if;
+     end if;
   end process;
 
   process(clk_i)
   begin
      if rising_edge(clk_i) then
         if (s_mainFSMreset = '1' and s_cardSel = '1') or s_reset = '1' then
-           s_time <= std_logic_vector(s_countertime);
+               s_time <= std_logic_vector(s_countertime + 30);
         end if;	
      end if;
   end process;                                                             
@@ -1736,7 +1736,7 @@ end process;
              FallEdge_o => s_VMEaddrLatch
           ); 	
 
-  RSTfallingEdge : RisEdgeDetection
+  RSTrisingEdge : RisEdgeDetection
   port map (
               sig_i      => s_reset,
               clk_i      => clk_i,

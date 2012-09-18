@@ -214,6 +214,7 @@
   signal s_time                    : std_logic_vector(39 downto 0);
   signal s_bytes                   : std_logic_vector(12 downto 0);
   signal s_W32                     : std_logic;
+  signal s_IRQ                     : std_logic;
   
   -- Oversampled input signals 
   signal VME_RST_n_oversampled     : std_logic;
@@ -337,6 +338,13 @@ begin
               clk_i => clk_i
             );			
 				
+  IrqrisingEdge : RisEdgeDetection
+  port map (
+              sig_i      => IRQ_i,
+              clk_i      => clk_i,
+              RisEdge_o  => s_IRQ
+          );
+				
   Inst_VME_bus: VME_bus 
   generic map(
               g_width      => c_width,
@@ -450,7 +458,7 @@ begin
          		 VME_ADDR_123      => VME_ADDR_oversampled(3 downto 1),
          		 INT_Level         => s_INT_Level,
          		 INT_Vector        => s_INT_Vector ,
-	          	 INT_Req           => IRQ_i,
+	          	 INT_Req           => s_IRQ,
 		          VME_IRQ_n_o       => s_VME_IRQ_n_o,
          		 VME_IACKOUT_n_o   => VME_IACKOUT_n_o,
          		 VME_DTACK_n_o     => s_VME_DTACK_IRQ,
