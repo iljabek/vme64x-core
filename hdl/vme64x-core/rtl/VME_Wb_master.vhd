@@ -319,7 +319,7 @@ s_wbData_i <= std_logic_vector(resize(unsigned(wbData_i),s_wbData_i'length));
 			  
    err <= err_i;
    rty <= rty_i; 
-   memAckWb <= memAckWB_i or s_AckWithError;
+   memAckWb <= memAckWB_i or s_AckWithError or rty_i;
    psize_o <= beatCount;
 
 end Behavioral;

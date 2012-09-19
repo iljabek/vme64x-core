@@ -222,7 +222,8 @@ architecture RTL of VME_bus is
    signal s_mainFSMreset              : std_logic;  -- Resets main FSM on AS r. edge
    signal s_dataPhase                 : std_logic;  -- for A64 and multipl. transf.
    signal s_transferActive            : std_logic;  -- active VME transfer
-   signal s_retry                     : std_logic;  -- RETRY signal
+--   signal s_retry                     : std_logic;  -- RETRY signal
+   signal s_retry_out                 : std_logic;  
    signal s_berr                      : std_logic;  -- BERR signal
    signal s_berr_1                    : std_logic;  --                            
    signal s_berr_2                    : std_logic;  --    
@@ -532,7 +533,7 @@ begin
    s_dataToAddrBus  <= s_FSM.s_dataToAddrBus;
    s_transferActive <= s_FSM.s_transferActive;
    s_2eLatchAddr    <= s_FSM.s_2eLatchAddr;
-   s_retry          <= s_FSM.s_retry;
+   s_retry_out      <= s_FSM.s_retry;
    s_berr           <= s_FSM.s_berr;
    s_BERR_out       <= s_FSM.s_BERR_out;                        
 
@@ -666,9 +667,12 @@ begin
                   s_FSM.s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
                   s_FSM.s_dataPhase      <= s_dataPhase;
                   s_FSM.s_transferActive <= '1';
-                  if s_BERRcondition = '0' then
+						
+                  if s_BERRcondition = '0' and s_rty1 = '0' then
                      s_FSM.s_mainDTACK <= '0';
-                  else                                         
+						elsif s_BERRcondition = '0' and s_rty1 = '1' then
+						   s_FSM.s_retry <= '1';
+						else                                        
                      s_FSM.s_BERR_out <= '1';
                   end if;
 
@@ -1000,7 +1004,7 @@ begin
    p_RETRYdriver: process(clk_i)
    begin
       if rising_edge(clk_i) then
-         if s_rty1='1' or s_retry ='1' then
+         if s_retry_out = '1' then
             VME_RETRY_n_o    <= '0';   
             VME_RETRY_OE_o   <= '1';
          else

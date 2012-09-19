@@ -78,7 +78,7 @@ FUNC6_ADER_3 =>x"00",
 IRQ_Vector   =>x"00",  --"00" because each Slot has a different IRQ Vector
                        -- and the VME Master should set this value
 IRQ_level    =>x"02",
-WB32or64     =>x"00",  -- 32 bit WB of default
+WB32bits     =>x"01",  -- 32 bit WB of default
 others => (others => '0'));
 end VME_CSR_pack;                                                                
 

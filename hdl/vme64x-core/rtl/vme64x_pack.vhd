@@ -61,7 +61,7 @@ package vme64x_pack is
   --_______________________________________________________________________________
   -- Constants:
   --WB data width:
-   constant c_width          : integer := 64; --must be 32 or 64!
+   constant c_width          : integer := 32; --must be 32 or 64!
 	--CRAM size in the CR/CSR space (bytes):
 	constant c_CRAM_SIZE      : integer := 1024; 
 	-- remember to set properly the "END_CRAM" register in the CR space
@@ -146,7 +146,7 @@ package vme64x_pack is
    constant TIME4_ns            : integer := FUNC0_ADER_3 -9;
    constant BYTES0              : integer := FUNC0_ADER_3 -10;
    constant BYTES1              : integer := FUNC0_ADER_3 -11;
-	constant WB32or64            : integer := FUNC0_ADER_3 -12;
+	constant WB32bits            : integer := FUNC0_ADER_3 -12;
    constant MBLT_Endian         : integer := FUNC0_ADER_3 -4;
   
    -- Initialization CR:
@@ -249,7 +249,7 @@ package vme64x_pack is
   constant c_TIME4_ns_addr        : unsigned(19 downto 0) := x"7FF3f";
   constant c_BYTES0_addr          : unsigned(19 downto 0) := x"7FF3b";
   constant c_BYTES1_addr          : unsigned(19 downto 0) := x"7FF37";
-  constant c_WB32or64_addr        : unsigned(19 downto 0) := x"7FF33";
+  constant c_WB32bits_addr        : unsigned(19 downto 0) := x"7FF33";
   constant c_MBLT_Endian_addr     : unsigned(19 downto 0) := x"7FF53";  -- VME64x reserved CSR
 
 --___________________________________________________________________________________________
@@ -353,7 +353,7 @@ package vme64x_pack is
    type t_FUNC_32b_array_std is array (0 to 7) of std_logic_vector(31 downto 0);  -- ADER register array
    type t_FUNC_64b_array_std is array (0 to 7) of std_logic_vector(63 downto 0);  -- AMCAP register array
    type t_FUNC_256b_array_std is array (0 to 7) of std_logic_vector(255 downto 0);  -- XAMCAP register array
-   type t_CSRarray is array(BAR downto WB32or64) of unsigned(7 downto 0);
+   type t_CSRarray is array(BAR downto WB32bits) of unsigned(7 downto 0);
    type t_cr_array is array (natural range <>) of std_logic_vector(7 downto 0);
 
 -- functions

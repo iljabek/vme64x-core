@@ -149,7 +149,7 @@ package VME_CR_pack is
    16#15#  => x"00",
    16#16#  => x"00",  
   --Program Id code
-   16#1F#  => x"54",
+   16#1F#  => x"55",
    --Offset to BEG_USER_CR    
    16#20#  => x"00",
    16#21#  => x"00",

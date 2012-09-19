@@ -207,7 +207,7 @@ s_BARerror <= not(s_BAR_o(4) or s_BAR_o(3)or s_BAR_o(2) or s_BAR_o(1) or s_BAR_o
          if reset = '1'  then
             s_CSRarray(BAR) <= (others => '0');
             s_bar_written   <= '0';
-            for i in 254 downto WB32or64 loop        -- Initialization of the CSR memory
+            for i in 254 downto WB32bits loop        -- Initialization of the CSR memory
                s_CSRarray(i) <= c_csr_array(i);
             end loop;
          elsif s_bar_written = '0' and s_odd_parity = '1' then  
@@ -270,19 +270,16 @@ s_BARerror <= not(s_BAR_o(4) or s_BAR_o(3)or s_BAR_o(2) or s_BAR_o(1) or s_BAR_o
                   s_CSRarray(IRQ_level) <= s_locDataIn(7 downto 0);
                
                when to_integer("00" & c_MBLT_Endian_addr(18 downto 2)) =>
-                  s_CSRarray(MBLT_Endian) <= s_locDataIn(7 downto 0);		
-						
-					when to_integer("00" & c_WB32or64_addr(18 downto 2)) =>
-                  s_CSRarray(WB32or64) <= s_locDataIn(7 downto 0);	
+                  s_CSRarray(MBLT_Endian) <= s_locDataIn(7 downto 0);			
 						
                when others => null;   
             end case;	
 
          else
 			   if c_width = 32 then
-				   s_CSRarray(WB32or64) <= x"01";
+				   s_CSRarray(WB32bits) <= x"01";
 				else
-				   s_CSRarray(WB32or64) <= x"00";
+				   s_CSRarray(WB32bits) <= x"00";
 				end if;	
             reset_flag           <= '0';
             s_CSRarray(BYTES0)   <= unsigned(numBytes(7 downto 0));
@@ -352,7 +349,7 @@ s_BARerror <= not(s_BAR_o(4) or s_BAR_o(3)or s_BAR_o(2) or s_BAR_o(1) or s_BAR_o
          when "00" & c_TIME4_ns_addr(18 downto 2)        => s_CSRdata <= s_CSRarray(TIME4_ns);
          when "00" & c_BYTES0_addr(18 downto 2)          => s_CSRdata <= s_CSRarray(BYTES0);
          when "00" & c_BYTES1_addr(18 downto 2)          => s_CSRdata <= s_CSRarray(BYTES1);
-			when "00" & c_WB32or64_addr(18 downto 2)        => s_CSRdata <= s_CSRarray(WB32or64);
+			when "00" & c_WB32bits_addr(18 downto 2)        => s_CSRdata <= s_CSRarray(WB32bits);
          when others                                     => s_CSRdata <= (others => '0');
       end case;
 
@@ -380,7 +377,7 @@ s_BARerror <= not(s_BAR_o(4) or s_BAR_o(3)or s_BAR_o(2) or s_BAR_o(1) or s_BAR_o
    ModuleEnable  <= s_CSRarray(BIT_SET_CLR_REG)(4);
    MBLT_Endian_o <= std_logic_vector(s_CSRarray(MBLT_Endian)(2 downto 0));
    Sw_Reset      <= s_CSRarray(BIT_SET_CLR_REG)(7);
-	W32           <= s_CSRarray(WB32or64)(0); 
+	W32           <= s_CSRarray(WB32bits)(0); 
    BAR_o	        <= s_BAR_o;
    s_BAR_o       <= std_logic_vector(s_CSRarray(BAR)(7 downto 3));
 ---------------------------------------------------------------------------------------------------------------
