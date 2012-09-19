@@ -116,16 +116,18 @@
      VME_AM_i         : in    std_logic_vector(5 downto 0);
      VME_DS_n_i       : in    std_logic_vector(1 downto 0);
      VME_GA_i         : in    std_logic_vector(5 downto 0);
-     VME_BERR_o       : out   std_logic;
+     VME_BERR_o       : out   std_logic;  -- [In the VME standard this line is asserted when low.
+	                                       -- Here is asserted when high indeed the logic will be 
+														-- inverted again in the VME transceivers on the board]*.
      VME_DTACK_n_o    : out   std_logic;
      VME_RETRY_n_o    : out   std_logic;
-     VME_LWORD_n_i  : in    std_logic;
-	  VME_LWORD_n_o  : out   std_logic;
-     VME_ADDR_i     : in    std_logic_vector(31 downto 1);
-	  VME_ADDR_o     : out   std_logic_vector(31 downto 1);
-     VME_DATA_i     : in    std_logic_vector(31 downto 0);
-	  VME_DATA_o     : out   std_logic_vector(31 downto 0);
-     VME_IRQ_n_o      : out   std_logic_vector(6 downto 0);
+     VME_LWORD_n_i    : in    std_logic;
+	  VME_LWORD_n_o    : out   std_logic;
+     VME_ADDR_i       : in    std_logic_vector(31 downto 1);
+	  VME_ADDR_o       : out   std_logic_vector(31 downto 1);
+     VME_DATA_i       : in    std_logic_vector(31 downto 0);
+	  VME_DATA_o       : out   std_logic_vector(31 downto 0);
+     VME_IRQ_o        : out   std_logic_vector(6 downto 0);  -- the same as []*
      VME_IACKIN_n_i   : in    std_logic;
      VME_IACK_n_i     : in    std_logic;
      VME_IACKOUT_n_o  : out   std_logic;
@@ -431,7 +433,7 @@ begin
 
 ---------------------------------------------------------------------------------
     -- output
-    VME_IRQ_n_o      <= not s_VME_IRQ_n_o; --The buffers will invert again the logic level
+    VME_IRQ_o      <= not s_VME_IRQ_n_o; --The buffers will invert again the logic level
     WE_o             <= not s_RW;   
     reset_o          <= s_reset;
     INT_ack_o        <= s_VME_DTACK_IRQ;
