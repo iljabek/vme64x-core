@@ -33,7 +33,16 @@
 -- responding Slave. This component is of fundamental importance, indeed only   |
 -- one Slave can answer to the Master!                                          |
 -- In the right side you can see the WB Master who implements the Wb Pipelined  |
--- single read/write protocol.                                                  |
+-- single read/write protocol.   
+--      
+-- led 0  <-- error flag
+-- led 1  <-- last access: CR/CSR
+-- led 2  <-- last access: WB SINGLE access
+-- led 3  <-- last access: WB BLT access
+-- led 4  <-- last access: WB MBLT access
+-- led 5  <-- WB data bus 32 bits
+-- led 6  <-- Module enable
+-- led 7  <-- flashing
 -- Inside each component is possible read a more detailed description.          |
 --______________________________________________________________________________
 -- Authors:                                      
@@ -81,6 +90,7 @@ entity VME_bus is
           VME_RETRY_OE_o       : out std_logic;
           VME_WRITE_n_i        : in  std_logic;
           VME_DS_n_i           : in  std_logic_vector(1 downto 0);
+			 VME_DS_ant_n_i       : in  std_logic_vector(1 downto 0);
           VME_DTACK_n_o        : out std_logic;
           VME_DTACK_OE_o       : out std_logic;
           VME_BERR_o           : out std_logic;
@@ -205,6 +215,7 @@ architecture RTL of VME_bus is
    signal s_XAMtype                   : t_XAMtype;
    signal s_2eType                    : t_2eType;
    signal s_addrWidth                 : std_logic_vector(1 downto 0);    
+	signal s_addrWidth1                : std_logic_vector(1 downto 0);
   
   -- Main FSM signals 
    signal s_mainFSMstate              : t_mainFSMstates;
@@ -362,47 +373,30 @@ begin
   --         |	        |	      |	       |  BYTE(0)| BYTE(1) | BYTE(2) | BYTE(3)
   --  BYTE(0)| BYTE(1) | BYTE(2) | BYTE(3) |  BYTE(4)| BYTE(5) | BYTE(6) | BYTE(7) 
   
-   process(clk_i)                                           
-   begin
-      if rising_edge(clk_i) then
-         if (s_addressingType /= TWOedge) then                                           
-            case s_typeOfDataTransferSelect is                                          
-               when "01010" => s_typeOfDataTransfer <= D08_0; 
-                               s_DataShift          <= b"001000";        
-               when "01011" => s_typeOfDataTransfer <= D08_0; 
-					                s_DataShift          <= b"001000";  
-               when "10010" => s_typeOfDataTransfer <= D08_1; 
-                               s_DataShift          <= b"000000";  
-               when "10011" => s_typeOfDataTransfer <= D08_1; 
-                               s_DataShift          <= b"000000";  
-               when "01110" => s_typeOfDataTransfer <= D08_2; 
-                               s_DataShift          <= b"001000";   
-               when "01111" => s_typeOfDataTransfer <= D08_2; 
-                               s_DataShift          <= b"001000";  
-               when "10110" => s_typeOfDataTransfer <= D08_3; 
-                               s_DataShift          <= b"000000";  
-               when "10111" => s_typeOfDataTransfer <= D08_3; 
-                               s_DataShift          <= b"000000";    
-               when "00010" => s_typeOfDataTransfer <= D16_01; 
-                               s_DataShift          <= b"000000"; 
-               when "00011" => s_typeOfDataTransfer <= D16_01; 
-                               s_DataShift          <= b"000000"; 
-               when "00110" => s_typeOfDataTransfer <= D16_23; 
-                               s_DataShift          <= b"000000"; 
-               when "00111" => s_typeOfDataTransfer <= D16_23; 
-                               s_DataShift          <= b"000000"; 
-               when "00001" => s_typeOfDataTransfer <= D32; 
-                               s_DataShift          <= b"000000";   
-               when "00000" => s_typeOfDataTransfer <= D64; 
-                               s_DataShift          <= b"000000";       
-               when others =>  s_typeOfDataTransfer <= TypeError; 
-                               s_DataShift          <= b"000000"; 
-            end case;
-         else  
-            s_typeOfDataTransfer <= D64;
-         end if;
-      end if;
-   end process;
+  
+  with s_typeOfDataTransferSelect select
+       s_typeOfDataTransfer <= D08_0     when "01010",
+		                         D08_0     when "01011",
+		                         D08_1     when "10010",
+									    D08_1     when "10011",
+									    D08_2     when "01110",
+									    D08_2     when "01111",
+									    D08_3     when "10110",
+									    D08_3     when "10111",
+									    D16_01    when "00010",
+									    D16_01    when "00011",
+									    D16_23    when "00110",
+									    D16_23    when "00111",
+									    D32       when "00001",
+									    D64       when "00000",
+									    TypeError when others;
+									 
+  with s_typeOfDataTransferSelect select
+       s_DataShift <= b"001000" when "01010",
+		                b"001000" when "01011",
+						    b"001000" when "01110",
+						    b"001000" when "01111",
+						    b"000000" when others;								 
 
   -- Address modifier decoder    
   -- Either the supervisor or user access modes are supported                 
@@ -462,50 +456,27 @@ begin
         end if;	
     end if;
   end process;
-  
---   s_datawidth <=    "0001" when s_typeOfDataTransfer = D08_0  or 
---	                              s_typeOfDataTransfer = D08_1  or 
---                                 s_typeOfDataTransfer = D08_2  or 
---											s_typeOfDataTransfer = D08_3                      else
---                     "0010" when s_typeOfDataTransfer = D16_01 or 
---							            s_typeOfDataTransfer = D16_23                     else
---                     "0100" when s_typeOfDataTransfer = D32    or 
---							           (s_typeOfDataTransfer = D64 and 
---                                (s_transferType = SINGLE or s_transferType = BLT)) else
---                     "1000" when s_typeOfDataTransfer = D64                        else
---                     "1000";                                       
-
 
  process(clk_i)
-  begin
+ begin
      if rising_edge(clk_i) then
-        if s_addressingType = A16 then 
-           s_addrWidth <= "00";
-        elsif s_addressingType = A24 or s_addressingType = A24_BLT or
-		        s_addressingType = A24_MBLT or s_addressingType = CR_CSR then
-			  s_addrWidth <= "01";
-        elsif s_addressingType = A32 or s_addressingType = A32_BLT or
-		        s_addressingType = A32_MBLT or (s_addressingType = TWOedge and 
-		        (s_XAMtype = A32_2eVME or s_XAMtype = A32_2eSST)) then
-			   s_addrWidth <= "10";
-		  else
-		      s_addrWidth <= "11"; -- for A64, A64 BLT, A64 MBLT, A64_2eVME, A64_2eSST
-        end if;	
-    end if;
-  end process;
+         s_addrWidth <= s_addrWidth1; 
+     end if;
+ end process;
 
---   s_addrWidth <=    "00" when s_addressingType = A16                              else
---                     "01" when s_addressingType = A24 or 
---							          s_addressingType = A24_BLT or 
---                               s_addressingType = A24_MBLT or 
---										 s_addressingType = CR_CSR                           else
---                     "10" when s_addressingType = A32 or 
---							          s_addressingType = A32_BLT or 
---                               s_addressingType = A32_MBLT or 
---										 (s_addressingType = TWOedge and 
---                               (s_XAMtype = A32_2eVME or s_XAMtype = A32_2eSST))   else
---                     "11";     -- for A64, A64 BLT, A64 MBLT, A64_2eVME, A64_2eSST
-  
+-- To implement the A32 2eVME and A32 2eSST accesses the following logic
+-- must be changed:
+with s_addressingType select
+       s_addrWidth1 <= "00" when A16,
+		                 "01" when A24,
+							  "01" when A24_BLT,
+					 		  "01" when A24_MBLT,
+                       "01" when CR_CSR,
+						     "10" when A32,
+						 	  "10" when A32_BLT,
+							  "10" when A32_MBLT,
+							  "11" when others;
+								 
   -- uncomment for using 2e modes:
    --with s_XAM select                                            
    --   s_XAMtype <=   A32_2eVME when x"01",
@@ -999,7 +970,7 @@ begin
 	-- detect a time out condition before.
 	-- Please note that the VME_WB_Master component supports single write/read
    -- pipelined cycles, so the WB Slave should drive the stall signal to '1' if
-   -- the resource is busy! 
+   -- the resource is busy
 	
    p_RETRYdriver: process(clk_i)
    begin
@@ -1063,10 +1034,8 @@ begin
    begin	 
       if rising_edge(clk_i) then
          if s_reset = '1' then s_BERRcondition <= '0';
-      else
-         if s_initInProgress = '0' then
-            if (s_CRAMaddressed = '1' and s_CRaddressed = '1') or (s_CRAMaddressed = '1' and 
-                s_CSRaddressed = '1') or  (s_CRaddressed = '1' and s_confAccess = '1' and s_RW = '0')
+         elsif (s_CRAMaddressed = '1' and s_CRaddressed = '1') or (s_CRAMaddressed = '1' and 
+               s_CSRaddressed = '1') or  (s_CRaddressed = '1' and s_confAccess = '1' and s_RW = '0')
                or (s_CSRaddressed = '1' and s_CRaddressed = '1') or ((s_transferType = error or 
                s_wberr1 = '1') and s_transferActive='1') or (s_typeOfDataTransfer = TypeError) or  
                (s_addressingType = AM_Error) or s_blockTransferLimit = '1' or 
@@ -1075,12 +1044,10 @@ begin
                s_typeOfDataTransfer /= D64) or (s_is_d64 = '1' and W32 = '1') then 
 
                s_BERRcondition <= '1';
-            else
+          else
                s_BERRcondition <= '0';
-            end if;
-         end if;  
-      end if;		 
-   end if;
+          end if;	 
+     end if;
   end process;
 
   -- generate the error condition if block transfer overlap the limit
@@ -1280,9 +1247,7 @@ begin
   begin
     if rising_edge(clk_i) then
        if s_DSlatch = '1' then
-          s_DSlatched <= VME_DS_n_i;
-       else
-          s_DSlatched <= s_DSlatched;
+          s_DSlatched <= VME_DS_ant_n_i;
        end if;
     end if;
   end process;
@@ -1380,30 +1345,34 @@ begin
   -- The Beat Count information is important if the FIFO is used; 
   -- during 2e access the Master send this information, during
   -- BLT and MBLT access the Beat Count is equal to the block transfer limit.
-  process(s_cycleCount,s_beatCount,s_XAMtype, s_transferType, s_typeOfDataTransfer)
-  begin                            --                                
-    if ((s_XAMtype = A32_2eVME) or (s_XAMtype = A64_2eVME) or (s_XAMtype = A32_2eSST) 
-       or (s_XAMtype = A64_2eSST))  then 
-          s_beatCount <= (resize(s_cycleCount*2, s_beatCount'length));
-    elsif s_transferType = SINGLE then 
-          s_beatCount <= (to_unsigned(1, s_beatCount'length));
-    elsif s_transferType = BLT then	 
-              --Rule 2.12a VME64std
-          if (s_typeOfDataTransfer = D08_0 or s_typeOfDataTransfer = D08_1 or 
-             s_typeOfDataTransfer = D08_2 or s_typeOfDataTransfer = D08_3)       then
-               s_beatCount <= (to_unsigned(255, s_beatCount'length));
-          elsif (s_typeOfDataTransfer = D16_01 or s_typeOfDataTransfer = D16_23) then
-               s_beatCount <= (to_unsigned(127, s_beatCount'length));
-          else 	
-               s_beatCount <= (to_unsigned(31, s_beatCount'length));  
-          --32 not 64 becouse the fifo read from wb 64 bit (not 32) every cycle.
-          end if;	
-    elsif s_transferType =	MBLT and s_FIFO = '1' then   --  Rule 2.78 VME64std
-          s_beatCount <= (to_unsigned(255, s_beatCount'length));
-    else
-          s_beatCount <= (to_unsigned(1, s_beatCount'length));   
-    end if;  
-end process;       
+  
+-- Uncomment the following process for 2edge modes:
+--  process(s_cycleCount,s_beatCount,s_XAMtype, s_transferType, s_typeOfDataTransfer)
+--  begin                            --                                
+--    if ((s_XAMtype = A32_2eVME) or (s_XAMtype = A64_2eVME) or (s_XAMtype = A32_2eSST) 
+--       or (s_XAMtype = A64_2eSST))  then 
+--          s_beatCount <= (resize(s_cycleCount*2, s_beatCount'length));
+--    elsif s_transferType = SINGLE then 
+--          s_beatCount <= (to_unsigned(1, s_beatCount'length));
+--    elsif s_transferType = BLT then	 
+--              --Rule 2.12a VME64std
+--          if (s_typeOfDataTransfer = D08_0 or s_typeOfDataTransfer = D08_1 or 
+--             s_typeOfDataTransfer = D08_2 or s_typeOfDataTransfer = D08_3)       then
+--               s_beatCount <= (to_unsigned(255, s_beatCount'length));
+--          elsif (s_typeOfDataTransfer = D16_01 or s_typeOfDataTransfer = D16_23) then
+--               s_beatCount <= (to_unsigned(127, s_beatCount'length));
+--          else 	
+--               s_beatCount <= (to_unsigned(31, s_beatCount'length));  
+--          --32 not 64 becouse the fifo read from wb 64 bit (not 32) every cycle.
+--          end if;	
+--    elsif s_transferType =	MBLT and s_FIFO = '1' then   --  Rule 2.78 VME64std
+--          s_beatCount <= (to_unsigned(255, s_beatCount'length));
+--    else
+--          s_beatCount <= (to_unsigned(1, s_beatCount'length));   
+--    end if;  
+--  end process;       
+-- Comment the following line for 2e modes
+s_beatCount <= (others => '0');
        
   ---------------------MEMORY MAPPING--------------------------------
   -- WB bus width = 64-bits
@@ -1482,8 +1451,8 @@ end process;
 --The data and address lines are shifted inside this component.
   Inst_Wb_master: VME_Wb_master 
                                generic map(
-                                         g_width         => c_width,
-				                             g_addr_width    => c_addr_width 
+                                         g_width         => g_width,
+				                             g_addr_width    => g_addr_width 
                                          )
                                 port map(
                                          s_memReq        => s_memReq,
@@ -1793,33 +1762,26 @@ end process;
 	
   ------------------------------LEDS------------------------------------------------|
   -- Debug
+  
   process(clk_i)
   begin
      if rising_edge(clk_i) then
         if  s_reset = '1' then 
-            s_led1 <= '1';  -- off
-				s_led2 <= '1';
-				s_led3 <= '1';
-				s_led4 <= '1';
-				s_led5 <= '1';
-        else 
-            s_led1 <= s_DSlatched(1);  
-				s_led2 <= s_DSlatched(0);
-				s_led3 <= s_VMEaddrLatched(1);
-				s_led4 <= s_LWORDlatched;
-				s_led5 <= s_VMEaddrLatched(2);		      
+            s_led5 <= '1'; 
+        else
+            s_led5 <= not W32;    
         end if;	
     end if;
   end process;
-	
-	leds(6) <= not s_transferActive;
-   leds(2) <= s_led2;   
+  
+	leds(6) <= not ModuleEnable;
+   leds(2) <= '1';   
    leds(7) <= s_counter(25);
    leds(5) <= s_led5;
-   leds(0) <= not(s_func_sel(0));                
-   leds(1) <= s_led1;
-   leds(3) <= s_led3; 
-   leds(4) <= s_led4; 
+   leds(4) <= not s_errorflag;                
+   leds(1) <= '1';
+   leds(3) <= '1'; 
+   leds(0) <= '1'; 
 
  -------------------------------------------------------------------------------------------  
  -- This process implements a simple 26 bit counter. If the bitstream file has been downloaded

@@ -290,6 +290,17 @@ begin
              reg_o => VME_DS_n_oversampled,
              clk_i => clk_i
          );
+			
+-- to avoid timing problem during BLT and MBLT accesses
+  DSinputSample1 : DoubleRegInputSample 
+  generic map(
+              width => 2
+           )
+  port map(
+             reg_i => VME_DS_n_i,
+             reg_o => VME_DS_n_oversampled_1,
+             clk_i => clk_i
+         );
  
   WRITEinputSample : SigInputSample
   port map(
@@ -349,9 +360,9 @@ begin
 				
   Inst_VME_bus: VME_bus 
   generic map(
-              g_width      => c_width,
-				  g_addr_width => c_addr_width, 
-				  g_CRAM_SIZE  => c_CRAM_SIZE
+              g_width      => g_width,
+				  g_addr_width => g_addr_width, 
+				  g_CRAM_SIZE  => g_CRAM_SIZE
            )
   port map(
        clk_i                => clk_i,
@@ -365,6 +376,7 @@ begin
 		 VME_RETRY_OE_o       => VME_RETRY_OE_o,
 		 VME_WRITE_n_i        => VME_WRITE_n_oversampled,
 		 VME_DS_n_i           => VME_DS_n_oversampled,
+		 VME_DS_ant_n_i       => VME_DS_n_oversampled_1,
 		 VME_DTACK_n_o        => s_VME_DTACK_VMEbus,
 		 VME_DTACK_OE_o       => s_VME_DTACK_OE_VMEbus,
 		 VME_BERR_o           => VME_BERR_o,
@@ -474,7 +486,8 @@ begin
     --CR/CSR space
    Inst_VME_CR_CSR_Space: VME_CR_CSR_Space 
 	generic map(
-				  g_CRAM_SIZE  => c_CRAM_SIZE
+				  g_CRAM_SIZE  => g_CRAM_SIZE,
+				  g_width      => g_width		  
               )
 	port map(
        		 clk_i               => clk_i,

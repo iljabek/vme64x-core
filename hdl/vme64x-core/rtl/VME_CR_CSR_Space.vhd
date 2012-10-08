@@ -123,7 +123,8 @@ use work.VME_CSR_pack.all;
 --===========================================================================
 entity VME_CR_CSR_Space is
    generic(
-				   g_CRAM_SIZE  : integer := c_CRAM_SIZE
+				   g_CRAM_SIZE  : integer := c_CRAM_SIZE;
+					g_width      : integer := c_width
               );
    Port ( -- VMEbus.vhd signals
            clk_i              : in   std_logic;
@@ -276,7 +277,7 @@ s_BARerror <= not(s_BAR_o(4) or s_BAR_o(3)or s_BAR_o(2) or s_BAR_o(1) or s_BAR_o
             end case;	
 
          else
-			   if c_width = 32 then
+			   if g_width = 32 then
 				   s_CSRarray(WB32bits) <= x"01";
 				else
 				   s_CSRarray(WB32bits) <= x"00";

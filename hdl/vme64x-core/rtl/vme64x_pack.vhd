@@ -61,12 +61,12 @@ package vme64x_pack is
   --_______________________________________________________________________________
   -- Constants:
   --WB data width:
-   constant c_width          : integer := 32; --must be 32 or 64!
+   constant c_width          : integer := 64; --must be 32 or 64!
 	--CRAM size in the CR/CSR space (bytes):
 	constant c_CRAM_SIZE      : integer := 1024; 
 	-- remember to set properly the "END_CRAM" register in the CR space
   -- WB addr width:
-	constant c_addr_width     : integer := 10;
+	constant c_addr_width     : integer := 9;
 	--
    constant DFS              : integer := 2;    -- for accessing at the ADEM's bit 2
    constant XAM_MODE         : integer := 0;  -- for accessing at the ADER's bit 0
@@ -374,6 +374,7 @@ function f_log2_size (A : natural) return natural;
                         VME_LWORD_n_i        : in std_logic;
                         VME_WRITE_n_i        : in std_logic;
                         VME_DS_n_i           : in std_logic_vector(1 downto 0);
+								VME_DS_ant_n_i       : in std_logic_vector(1 downto 0);
                         VME_ADDR_i           : in std_logic_vector(31 downto 1);
                         VME_DATA_i           : in std_logic_vector(31 downto 0);
                         VME_AM_i             : in std_logic_vector(5 downto 0);
@@ -524,7 +525,8 @@ function f_log2_size (A : natural) return natural;
 
               component VME_CR_CSR_Space is
 				  generic(
-								g_CRAM_SIZE  : integer := c_CRAM_SIZE
+								g_CRAM_SIZE  : integer := c_CRAM_SIZE;
+								g_width      : integer := c_width
                         );
                  port(
                         clk_i              : in  std_logic;

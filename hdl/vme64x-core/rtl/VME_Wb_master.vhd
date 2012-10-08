@@ -153,38 +153,31 @@ s_wbData_i <= std_logic_vector(resize(unsigned(wbData_i),s_wbData_i'length));
          process(clk_i)
          begin
 	         if rising_edge(clk_i) then
-              locAddr_o <= std_logic_vector(resize(unsigned(rel_locAddr) srl 3,c_addr_width));
+              locAddr_o <= std_logic_vector(resize(unsigned(rel_locAddr) srl 3,g_addr_width));
 	         end if;
 	      end process;
 
          process(clk_i)
          begin
             if rising_edge(clk_i) then
-               if sel = "10000000" then
-                  WBdata_o <= std_logic_vector(unsigned(locDataInSwap) sll 56);               
-               elsif sel = "01000000" then
-                  WBdata_o <= std_logic_vector(unsigned(locDataInSwap) sll 48);                                     
-               elsif sel = "00100000" then
-                  WBdata_o <=  std_logic_vector(unsigned(locDataInSwap) sll 40);                     
-               elsif sel = "00010000" then
-                  WBdata_o <=   std_logic_vector(unsigned(locDataInSwap) sll 32);                      
-               elsif sel = "00001000" then
-                  WBdata_o <=  std_logic_vector(unsigned(locDataInSwap) sll 24);                                
-               elsif sel = "00000100" then
-                  WBdata_o <=   std_logic_vector(unsigned(locDataInSwap) sll 16);                     
-               elsif sel = "00000010" then
-                  WBdata_o <= std_logic_vector(unsigned(locDataInSwap) sll 8);                       
-               elsif sel = "11000000" then
-                  WBdata_o <=   std_logic_vector(unsigned(locDataInSwap) sll 48); 
-               elsif sel = "00110000" then
-                  WBdata_o <=  std_logic_vector(unsigned(locDataInSwap) sll 32);                    
-               elsif sel = "00001100" then
-                  WBdata_o <=  std_logic_vector(unsigned(locDataInSwap) sll 16);                               
-               elsif sel = "11110000" then
-                  WBdata_o <=  std_logic_vector(unsigned(locDataInSwap) sll 32);                                  
-               else 
-                  WBdata_o <=  locDataInSwap;                                  
-               end if;
+				   case sel is                                          
+                 when "10000000" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap) sll 56); 
+                 when "01000000" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap) sll 48); 
+                 when "00100000" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap) sll 40); 
+					  when "00010000" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap) sll 32); 
+                 when "00001000" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap) sll 24);                                  
+                 when "00000100" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap) sll 16);                  
+                 when "00000010" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap) sll 8);                    
+                 when "11000000" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap) sll 48);                           
+                 when "00110000" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap) sll 32);                 
+                 when "00001100" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap) sll 16);                      
+                 when "11110000" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap) sll 32);
+                 when "00001111" => WBdata_o <= locDataInSwap;                                          
+                 when "00000001" => WBdata_o <= locDataInSwap;
+                 when "00000011" => WBdata_o <= locDataInSwap;
+					  when "11111111" => WBdata_o <= locDataInSwap;
+					  when others => null;
+               end case;                                 
 			      WbSel_o  <= std_logic_vector(sel);
 		      end if;
          end process;		
@@ -235,7 +228,7 @@ s_wbData_i <= std_logic_vector(resize(unsigned(wbData_i),s_wbData_i'length));
 			process(clk_i)
          begin
 	         if rising_edge(clk_i) then
-               locAddr_o <= std_logic_vector(resize(unsigned(rel_locAddr) srl 2,c_addr_width));
+               locAddr_o <= std_logic_vector(resize(unsigned(rel_locAddr) srl 2,g_addr_width));
 	         end if;
 	      end process;
 			
@@ -252,28 +245,27 @@ s_wbData_i <= std_logic_vector(resize(unsigned(wbData_i),s_wbData_i'length));
 		   process(clk_i)
          begin
            if rising_edge(clk_i) then
-       	     if sel = "10000000" then
-                 WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap) sll 24,c_width));               
-              elsif sel = "01000000" then
-                 WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap) sll 16,c_width));                                     
-              elsif sel = "00100000" then
-                 WBdata_o <=  std_logic_vector(resize(unsigned(locDataInSwap) sll 8,c_width));                                          
-              elsif sel = "00001000" then
-                 WBdata_o <=  std_logic_vector(resize(unsigned(locDataInSwap) sll 24,c_width));                                
-              elsif sel = "00000100" then
-                 WBdata_o <=   std_logic_vector(resize(unsigned(locDataInSwap) sll 16,c_width));                     
-              elsif sel = "00000010" then
-                 WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap) sll 8,c_width));                       
-              elsif sel = "11000000" then
-                 WBdata_o <=   std_logic_vector(resize(unsigned(locDataInSwap) sll 16,c_width));                     
-              elsif sel = "00001100" then
-                 WBdata_o <=  std_logic_vector(resize(unsigned(locDataInSwap) sll 16,c_width));                                                                 
-              else 
-                 WBdata_o <=  std_logic_vector(resize(unsigned(locDataInSwap),c_width));                                  
-              end if;
+			     case sel is                                          
+                 when "10000000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap) sll 24,g_width)); 
+                 when "01000000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap) sll 16,g_width)); 
+                 when "00100000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap) sll 8,g_width)); 
+					  when "00010000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap),g_width)); 
+                 when "00001000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap) sll 24,g_width));                                  
+                 when "00000100" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap) sll 16,g_width));                  
+                 when "00000010" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap) sll 8,g_width));                    
+                 when "11000000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap) sll 16,g_width));                           
+                 when "00110000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap),g_width));                 
+                 when "00001100" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap) sll 16,g_width));                      
+                 when "11110000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap),g_width));
+                 when "00001111" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap),g_width));                                          
+                 when "00000001" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap),g_width));
+                 when "00000011" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap),g_width));
+					  when "11111111" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap),g_width));
+					  when others => null;
+               end case;                        
 			  
 			     if s_shift_dx = '1' then
-			        WbSel_o  <= sel(7 downto 4);  -- b"0000" &
+			        WbSel_o  <= sel(7 downto 4);  
 			     else
 			        WbSel_o  <= sel(3 downto 0);
               end if;			  		  
