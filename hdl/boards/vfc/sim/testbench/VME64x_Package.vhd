@@ -74,7 +74,7 @@ type t_Addressing_Type is  (A24, A24_BLT, A24_MBLT, A24_LCK, CR_CSR, A16, A16_LC
 
  -- constant <constant_name>		: time := <time_unit> ns;
 constant BA : std_logic_vector(7 downto 0) := "11110000";        
-constant VME_GA		: std_logic_vector(5 downto 0) := "010111";    -- GA parity match '1' & slot number
+constant VME_GA		: std_logic_vector(5 downto 0) := "110111";    -- GA parity match '1' & slot number
 constant ID_Master   : std_logic_vector(7 downto 0) := "00001111";   -- max 31
 constant ADER0_A16_S : std_logic_vector(31 downto 0) := "0000000000000000" & BA(7 downto 3) & "000" & c_A16 &"00";
 constant ADER0_A24_S : std_logic_vector(31 downto 0) := "00000000" & BA(7 downto 3) & "00000000000" & c_A24_S &"00";
