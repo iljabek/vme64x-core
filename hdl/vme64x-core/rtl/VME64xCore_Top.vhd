@@ -16,8 +16,8 @@
 --   |  |    |                    |              |                  | |            
 --   |S |    |    VME_bus.vhd     |              |                  | |            
 -- V |A |    |                    |              |VME_to_WB_FIFO.vhd| |            
--- M |M |    |         |          |              |    (not yet      | |            
--- E |P |    |  VME    |    WB    |              |   implemented)   | |  W         
+-- M |M |    |         |          |              |(not implemented) | |            
+-- E |P |    |  VME    |    WB    |              |                  | |  W         
 --   |L |    | slave   |  master  |              |                  | |  B         
 -- B |I |    |         |          |   _______    |                  | |            
 -- U |N |    |         |          |  | CSR   |   |                  | |  B         

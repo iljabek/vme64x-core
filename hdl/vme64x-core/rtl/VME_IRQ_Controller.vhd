@@ -68,27 +68,29 @@
 --
 --  To avoid the time constraint indicated with the number 35 fig. 55 pag. 183 in the
 --  "VMEbus Specification" ANSI/IEEE STD1014-1987, is necessary generate the VME_AS1_n_i 
---  signal who is the AS signal sampled only two times and not 3 times as the VME_AS_n_i signal,
---  and assign this signal to the s_IACKOUT signal when the fsm is in the IACKOUTx state.
+--  signal who is the AS signal sampled only two times and not 3 times as the VME_AS_n_i 
+--  signal, and assign this signal to the s_IACKOUT signal when the fsm is in the 
+--  IACKOUTx state.
 --
---______________________________________________________________________________
+--____________________________________________________________________________________
 -- Authors:       
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                                                          
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
 -- Date          08/2012                                                                           
 -- Version       v0.02  
---______________________________________________________________________________
+--_____________________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
---                              ------------------------------------        
--- Copyright (c) 2009 - 2011 CERN                      
--- This source file is free software; you can redistribute it and/or modify it under the terms of 
--- the GNU Lesser General Public License as published by the Free Software Foundation; either     
--- version 2.1 of the License, or (at your option) any later version.                             
--- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       
--- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     
--- See the GNU Lesser General Public License for more details.                                    
--- You should have received a copy of the GNU Lesser General Public License along with this       
--- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     
+--                              ------------------------------------    
+-- Copyright (c) 2009 - 2011 CERN                           
+-- This source file is free software; you can redistribute it and/or modify it 
+-- under the terms of the GNU Lesser General Public License as published by the 
+-- Free Software Foundation; either version 2.1 of the License, or (at your option) 
+-- any later version. This source is distributed in the hope that it will be useful, 
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
+-- FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for 
+-- more details. You should have received a copy of the GNU Lesser General Public 
+-- License along with this source; if not, download it from 
+-- http://www.gnu.org/licenses/lgpl-2.1.html                     
 ---------------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -462,7 +464,7 @@ begin
   end process;	
   s_ack_int <= (not(VME_DS_latched(0))) and ADDRmatch; --D08 Byte3 access or D32 access  
   s_Data <= x"000000" & INT_Vector;  
-  s_enable <= VME_IACKIN_n_i and s_IACKOUT_o;
+  s_enable <= (not INT_Req_sample) or (not s_DTACK);   -- VME_IACKIN_n_i and s_IACKOUT_o;
   -- the INT_Vector is in the D0:7 lines (byte3 in big endian order)  
   VME_DTACK_OE_o  <= s_DTACK_OE_o;
   VME_IACKOUT_n_o <= s_IACKOUT_o;

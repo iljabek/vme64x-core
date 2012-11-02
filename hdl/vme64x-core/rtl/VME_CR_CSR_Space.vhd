@@ -53,7 +53,7 @@
 --                       
 -- MBLT_Endian --> 0x7FF53  --> for the swapper
 --
--- WB32or64  --> 0x7FF33 --> if the bit 0 is '1' it means that the WB data bus is 32 bit
+-- WB32bits  --> 0x7FF33 --> if the bit 0 is '1' it means that the WB data bus is 32 bit
 --                       _
 -- TIME0_ns  --> 0x7FF4f  |
 -- TIME1_ns  --> 0x7FF4b  |

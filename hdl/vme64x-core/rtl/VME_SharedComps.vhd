@@ -1,17 +1,32 @@
---______________________________________________________________________________
+--_______________________________________________________________________________________
+--                             VME TO WB INTERFACE
+--
+--                                CERN,BE/CO-HT 
+--_______________________________________________________________________________________
+-- File:                       VME_SharedComps.vhd
+--_______________________________________________________________________________________
+-- Description: This component implements the rising and falling edge detection and the 
+-- tripple and double sample entities
+--_______________________________________________________________________________________
+-- Authors:                                     
+--               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
+--               Davide Pedretti       (Davide.Pedretti@cern.ch)  
+-- Date         08/2012                                                                           
+-- Version      v0.02  
+--_______________________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------    
 -- Copyright (c) 2009 - 2011 CERN                           
--- This source file is free software; you can redistribute it and/or modify it under the terms of 
--- the GNU Lesser General Public License as published by the Free Software Foundation; either     
--- version 2.1 of the License, or (at your option) any later version.                             
--- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       
--- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     
--- See the GNU Lesser General Public License for more details.                                    
--- You should have received a copy of the GNU Lesser General Public License along with this       
--- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     
----------------------------------------------------------------------------------------
-
+-- This source file is free software; you can redistribute it and/or modify it 
+-- under the terms of the GNU Lesser General Public License as published by the 
+-- Free Software Foundation; either version 2.1 of the License, or (at your option) 
+-- any later version. This source is distributed in the hope that it will be useful, 
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
+-- FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for 
+-- more details. You should have received a copy of the GNU Lesser General Public 
+-- License along with this source; if not, download it from 
+-- http://www.gnu.org/licenses/lgpl-2.1.html                     
+----------------------------------------------------------------------------------------
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 

@@ -6,24 +6,25 @@
 -- File:                          VME_CR_pack.vhd
 --______________________________________________________________________________________
 -- Description: ROM memory (CR space)
---______________________________________________________________________________
+--______________________________________________________________________________________
 -- Authors:                                       
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
 -- Date         06/2012                                                                           
 -- Version      v0.02  
---______________________________________________________________________________
+--______________________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
---                              ------------------------------------                              
--- Copyright (c) 2009 - 2011 CERN
--- This source file is free software; you can redistribute it and/or modify it under the terms of 
--- the GNU Lesser General Public License as published by the Free Software Foundation; either     
--- version 2.1 of the License, or (at your option) any later version.                             
--- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       
--- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     
--- See the GNU Lesser General Public License for more details.                                    
--- You should have received a copy of the GNU Lesser General Public License along with this       
--- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     
+--                              ------------------------------------    
+-- Copyright (c) 2009 - 2011 CERN                           
+-- This source file is free software; you can redistribute it and/or modify it 
+-- under the terms of the GNU Lesser General Public License as published by the 
+-- Free Software Foundation; either version 2.1 of the License, or (at your option) 
+-- any later version. This source is distributed in the hope that it will be useful, 
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
+-- FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for 
+-- more details. You should have received a copy of the GNU Lesser General Public 
+-- License along with this source; if not, download it from 
+-- http://www.gnu.org/licenses/lgpl-2.1.html                     
 ---------------------------------------------------------------------------------------
 
 library IEEE;
@@ -58,53 +59,60 @@ package VME_CR_pack is
    x"0000000000000000000000000000000000000000000000000000000000060006";   
 
    constant c_amb : t_cr_array(0 to 7) :=(
-   c_amcap(7 downto 0), c_amcap(15 downto 8),
+   c_amcap(7 downto 0),   c_amcap(15 downto 8),
    c_amcap(23 downto 16), c_amcap(31 downto 24),
    c_amcap(39 downto 32), c_amcap(47 downto 40),
    c_amcap(55 downto 48), c_amcap(63 downto 56));    
 
    constant c_amb0 : t_cr_array(0 to 7) :=(                
-   c_amcap0(7 downto 0), c_amcap0(15 downto 8),
+   c_amcap0(7 downto 0),   c_amcap0(15 downto 8),
    c_amcap0(23 downto 16), c_amcap0(31 downto 24),
    c_amcap0(39 downto 32), c_amcap0(47 downto 40),
    c_amcap0(55 downto 48), c_amcap0(63 downto 56));	
 
    constant c_amb1 : t_cr_array(0 to 7) :=(                
-   c_amcap1(7 downto 0), c_amcap1(15 downto 8),
+   c_amcap1(7 downto 0),   c_amcap1(15 downto 8),
    c_amcap1(23 downto 16), c_amcap1(31 downto 24),
    c_amcap1(39 downto 32), c_amcap1(47 downto 40),
    c_amcap1(55 downto 48), c_amcap1(63 downto 56));			
 
    constant c_amb2 : t_cr_array(0 to 7) :=(              
-   c_amcap2(7 downto 0), c_amcap2(15 downto 8),
+   c_amcap2(7 downto 0),   c_amcap2(15 downto 8),
    c_amcap2(23 downto 16), c_amcap2(31 downto 24),
-   c_amcap2(39 downto 32),c_amcap2(47 downto 40),
+   c_amcap2(39 downto 32), c_amcap2(47 downto 40),
    c_amcap2(55 downto 48), c_amcap2(63 downto 56));			
 
+   constant c_amb2e : t_cr_array(0 to 7) :=(              
+   c_amcap2e(7 downto 0),   c_amcap2e(15 downto 8),
+   c_amcap2e(23 downto 16), c_amcap2e(31 downto 24),
+   c_amcap2e(39 downto 32), c_amcap2e(47 downto 40),
+   c_amcap2e(55 downto 48), c_amcap2e(63 downto 56));	
    constant c_amb64 : t_cr_array(0 to 7) :=(              
-   c_amcapA64(7 downto 0), c_amcapA64(15 downto 8),
+   c_amcapA64(7 downto 0),   c_amcapA64(15 downto 8),
    c_amcapA64(23 downto 16), c_amcapA64(31 downto 24),
-   c_amcapA64(39 downto 32),c_amcapA64(47 downto 40),
+  c_amcapA64(39 downto 32),  c_amcapA64(47 downto 40),
    c_amcapA64(55 downto 48), c_amcapA64(63 downto 56));	
 
    constant c_xam0 : t_cr_array(0 to 31) :=(               
-   c_xamcap0(7 downto 0), c_xamcap0(15 downto 8),c_xamcap0(23 downto 16), c_xamcap0(31 downto 24),
-   c_xamcap0(39 downto 32), c_xamcap0(47 downto 40), c_xamcap0(55 downto 48), 
-   c_xamcap0(63 downto 56), c_xamcap0(71 downto 64), c_xamcap0(79 downto 72), c_xamcap0(87 downto 80), 
-   c_xamcap0(95 downto 88), c_xamcap0(103 downto 96), c_xamcap0(111 downto 104), 
-   c_xamcap0(119 downto 112),c_xamcap0(127 downto 120),c_xamcap0(135 downto 128), 
-   c_xamcap0(143 downto 136), c_xamcap0(151 downto 144), c_xamcap0(159 downto 152),
-   c_xamcap0(167 downto 160), c_xamcap0(175 downto 168), c_xamcap0(183 downto 176), 
-   c_xamcap0(191 downto 184), c_xamcap0(199 downto 192), c_xamcap0(207 downto 200), 
-   c_xamcap0(215 downto 208), c_xamcap0(223 downto 216), c_xamcap0(231 downto 224), 
-   c_xamcap0(239 downto 232), c_xamcap0(247 downto 240), c_xamcap0(255 downto 248));
+   c_xamcap0(7 downto 0),     c_xamcap0(15 downto 8),    c_xamcap0(23 downto 16), 
+	c_xamcap0(31 downto 24),   c_xamcap0(39 downto 32),   c_xamcap0(47 downto 40), 
+	c_xamcap0(55 downto 48),   c_xamcap0(63 downto 56),   c_xamcap0(71 downto 64), 
+	c_xamcap0(79 downto 72),   c_xamcap0(87 downto 80),   c_xamcap0(95 downto 88), 
+	c_xamcap0(103 downto 96),  c_xamcap0(111 downto 104), c_xamcap0(119 downto 112), 
+	c_xamcap0(127 downto 120), c_xamcap0(135 downto 128), c_xamcap0(143 downto 136), 
+	c_xamcap0(151 downto 144), c_xamcap0(159 downto 152), c_xamcap0(167 downto 160), 
+	c_xamcap0(175 downto 168), c_xamcap0(183 downto 176), c_xamcap0(191 downto 184), 
+	c_xamcap0(199 downto 192), c_xamcap0(207 downto 200), c_xamcap0(215 downto 208), 
+	c_xamcap0(223 downto 216), c_xamcap0(231 downto 224), c_xamcap0(239 downto 232), 
+	c_xamcap0(247 downto 240), c_xamcap0(255 downto 248));
 
 
    constant c_xam2 : t_cr_array(0 to 31) :=(             
-   c_xamcap2(7 downto 0), c_xamcap2(15 downto 8),c_xamcap2(23 downto 16), c_xamcap2(31 downto 24),
-   c_xamcap2(39 downto 32), c_xamcap2(47 downto 40), c_xamcap2(55 downto 48), c_xamcap2(63 downto 56), 
-   c_xamcap2(71 downto 64), c_xamcap2(79 downto 72), c_xamcap2(87 downto 80), c_xamcap2(95 downto 88),
-   c_xamcap2(103 downto 96), c_xamcap2(111 downto 104), c_xamcap2(119 downto 112),
+   c_xamcap2(7 downto 0),     c_xamcap2(15 downto 8),    c_xamcap2(23 downto 16), 
+	c_xamcap2(31 downto 24),   c_xamcap2(39 downto 32),   c_xamcap2(47 downto 40), 
+	c_xamcap2(55 downto 48),   c_xamcap2(63 downto 56),   c_xamcap2(71 downto 64), 
+	c_xamcap2(79 downto 72),   c_xamcap2(87 downto 80),   c_xamcap2(95 downto 88),
+   c_xamcap2(103 downto 96),  c_xamcap2(111 downto 104), c_xamcap2(119 downto 112),
    c_xamcap2(127 downto 120), c_xamcap2(135 downto 128), c_xamcap2(143 downto 136), 
    c_xamcap2(151 downto 144), c_xamcap2(159 downto 152), c_xamcap2(167 downto 160), 
    c_xamcap2(175 downto 168), c_xamcap2(183 downto 176), c_xamcap2(191 downto 184),
@@ -149,7 +157,7 @@ package VME_CR_pack is
    16#15#  => x"00",
    16#16#  => x"00",  
   --Program Id code
-   16#1F#  => x"58",
+   16#1F#  => x"59",
    --Offset to BEG_USER_CR    
    16#20#  => x"00",
    16#21#  => x"00",
@@ -189,7 +197,7 @@ package VME_CR_pack is
 
 
       --Function AM code Mask
-   16#48#  => c_amb0(7), -- Fun 0    
+   16#48#  => c_amb0(7), -- Fun 0    for A32 S, A32 BLT, A32 MBLT
    16#49#  => c_amb0(6), -- Fun 0 
    16#4A#  => c_amb0(5), -- Fun 0 
    16#4B#  => c_amb0(4), -- Fun 0  
@@ -198,7 +206,7 @@ package VME_CR_pack is
    16#4E#  => c_amb0(1), -- Fun 0  
    16#4F#  => c_amb0(0), -- Fun 0
 
-   16#50#  => c_amb1(7), -- Fun 1      
+   16#50#  => c_amb1(7), -- Fun 1    for A24 S, A24 BLT, A24 MBLT
    16#51#  => c_amb1(6), -- Fun 1 
    16#52#  => c_amb1(5), -- Fun 1 
    16#53#  => c_amb1(4), -- Fun 1 
@@ -208,7 +216,7 @@ package VME_CR_pack is
    16#57#  => c_amb1(0), -- Fun 1
 
 
-   16#58#  => c_amb2(7), -- Fun 2     
+   16#58#  => c_amb2(7), -- Fun 2    for A16 
    16#59#  => c_amb2(6), -- Fun 2  
    16#5A#  => c_amb2(5), -- Fun 2
    16#5B#  => c_amb2(4), -- Fun 2 
@@ -218,7 +226,7 @@ package VME_CR_pack is
    16#5F#  => c_amb2(0), -- Fun 2
 
 
-   16#60#  => c_amb64(7), -- Fun 3 
+   16#60#  => c_amb64(7), -- Fun 3   -- for A64 S, A64 BLT, A64 MBLT
    16#61#  => c_amb64(6), -- Fun 3 
    16#62#  => c_amb64(5), -- Fun 3 
    16#63#  => c_amb64(4), -- Fun 3 
@@ -228,8 +236,8 @@ package VME_CR_pack is
    16#67#  => c_amb64(0), -- Fun 3
 
 
-   16#68#  => x"00", -- Fun 3_b   --These are not used because the FUNC 3 decode the access mode: A64 --> 2 ADER, 2 ADEM
-   16#69#  => x"00", -- Fun 3_b 
+   16#68#  => x"00", -- Fun 3_b   -- These are not used because the FUNC 3 decode 
+   16#69#  => x"00", -- Fun 3_b   -- the access mode: A64 --> 2 ADER, 2 ADEM
    16#6A#  => x"00", -- Fun 3_b 
    16#6B#  => x"00", -- Fun 3_b 
    16#6C#  => x"00", -- Fun 3_b 
@@ -237,14 +245,14 @@ package VME_CR_pack is
    16#6E#  => x"00", -- Fun 3_b 
    16#6F#  => x"00", -- Fun 3_b
 
-   16#70#  => c_amb2(7), -- Fun 4 
-   16#71#  => c_amb2(6), -- Fun 4 
-   16#72#  => c_amb2(5), -- Fun 4 
-   16#73#  => c_amb2(4), -- Fun 4
-   16#74#  => c_amb2(3), -- Fun 4 
-   16#75#  => c_amb2(2), -- Fun 4 
-   16#76#  => c_amb2(1), -- Fun 4 
-   16#77#  => c_amb2(0), -- Fun 4
+   16#70#  => c_amb2e(7), -- Fun 4 
+   16#71#  => c_amb2e(6), -- Fun 4 
+   16#72#  => c_amb2e(5), -- Fun 4 
+   16#73#  => c_amb2e(4), -- Fun 4
+   16#74#  => c_amb2e(3), -- Fun 4 
+   16#75#  => c_amb2e(2), -- Fun 4 
+   16#76#  => c_amb2e(1), -- Fun 4 
+   16#77#  => c_amb2e(0), -- Fun 4
 
    16#78#  => x"00", -- Fun 4_b 
    16#79#  => x"00", -- Fun 4_b 

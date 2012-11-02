@@ -10,7 +10,7 @@
 -- to WB bus by asserting the CardSel signal.
 --
 -- The access to CR/CSR space is possible if:
---   1) Addr[23:19] = BAR[7:3],     (BAR[7:3] = not VME_GA_i),   (VME_GA_i = not Slot number)
+--   1) Addr[23:19] = BAR[7:3],  (BAR[7:3] = not VME_GA_i), (VME_GA_i = not Slot number)
 --   2) AM = 0x2f
 --   3) The initialization is finished (wait about 8800 ns after power-up or software reset)
 --
@@ -58,11 +58,11 @@
 --         [2]     --> DFS
 --         [1]     --> '0'
 --         [0]     --> EFM : '0'
---         EFM = Extra Function Mask: if '1' the next ADEM (and so the next AMCAP, XAMCAP and ADER) 
---               provides the upper bit's mask for a 64 bit decoder.
+--         EFM = Extra Function Mask: if '1' the next ADEM (and so the next AMCAP, XAMCAP 
+--               and ADER) provides the upper bit's mask for a 64 bit decoder.
 --               This bit is '1' during A64 and 2e access.
---         DFS = Dynamic Function Decoder: a '1' here means this function can be used to decode different 
---               address length (eg. A16 or A24 or A32) so the mask bits 
+--         DFS = Dynamic Function Decoder: a '1' here means this function can be used 
+--               to decode different address length (eg. A16 or A24 or A32) so the mask bits 
 --               should be all '1' !!!
 --
 --          AMCAP[63:0]
@@ -74,7 +74,8 @@
 --         If the corresponding ADEM's DFS is 1, one or more AMCAP's bits can be '1'  
 --         eg: "1011101100000000001000100000000100000000000000001011101100000000" this 
 --            function supports the following access mode:
---            A24_S, A24_BLT, A24_MBLT, A16_S, A32_S, A32_BLT, A32_MBLT supervisor and user access
+--            A24_S, A24_BLT, A24_MBLT, A16_S, A32_S, A32_BLT, A32_MBLT supervisor and user 
+--         access
 --
 --          XAMCAP[255:0]
 --         8 XAM lines --> 2**8 = 256 different configurations
@@ -83,8 +84,8 @@
 --         by this function.
 --         This register is used during the decode phase if the XAM bit is asserted (1).
 -- Before accessing the board the VME Master must write the ADER registers. Of course for 
--- writing properly the ADER the VME Master need to know the corrisponding ADEM and check if EFM 
--- or DFS bits are asserted. The VME Master can read also 
+-- writing properly the ADER the VME Master need to know the corrisponding ADEM and check if 
+-- EFM or DFS bits are asserted. The VME Master can read also 
 -- the AMCAP and XAMCAP and check the access mode supported by each function.
 -- 
 -- eg.1 lets imagine that we want be able to access different storage device; we can assign 
@@ -103,8 +104,8 @@
 --       function5 and function6 --> 2eVME and 2eSST modes
 -- Note that if the address is 64 bits wide we need of two ADER and two ADEM to decode the 
 -- address so we need of two functions! (see also EFM bit definition)
--- Of course you can mix these two example and set up one system with more storage devices each 
--- with its base address and to assign each storage more than one function to access it 
+-- Of course you can mix these two example and set up one system with more storage devices 
+-- each with its base address and to assign each storage more than one function to access it 
 -- with all the access modes.
 -- It is also possible extend the number of the functions defining other ADEM, AMCAP, XAMCAP 
 -- and ADER in the User CR Space and User CSR Space (see the VME_CR_CSR_Space.vhd component) 
@@ -113,26 +114,27 @@
 -- about the decode process.
 --
 -- To access the board both the FunctMatch(i) and AmMatch(i) must be equal to one.
---______________________________________________________________________________
+--________________________________________________________________________________________
 -- Authors:                                     
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
 -- Date         08/2012                                                                           
 -- Version      v0.02  
---______________________________________________________________________________
+--________________________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------    
--- Copyright (c) 2009 - 2011 CERN                          
--- This source file is free software; you can redistribute it and/or modify it under the terms of 
--- the GNU Lesser General Public License as published by the Free Software Foundation; either     
--- version 2.1 of the License, or (at your option) any later version.                             
--- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       
--- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     
--- See the GNU Lesser General Public License for more details.                                    
--- You should have received a copy of the GNU Lesser General Public License along with this       
--- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     
----------------------------------------------------------------------------------------
--------------------------------------------------------------------------------------------------------------------------------
+-- Copyright (c) 2009 - 2011 CERN                           
+-- This source file is free software; you can redistribute it and/or modify it 
+-- under the terms of the GNU Lesser General Public License as published by the 
+-- Free Software Foundation; either version 2.1 of the License, or (at your option) 
+-- any later version. This source is distributed in the hope that it will be useful, 
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
+-- FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for 
+-- more details. You should have received a copy of the GNU Lesser General Public 
+-- License along with this source; if not, download it from 
+-- http://www.gnu.org/licenses/lgpl-2.1.html                     
+-----------------------------------------------------------------------------------------
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 

@@ -799,7 +799,7 @@ function f_log2_size (A : natural) return natural;
                      );
               end component VME_CRAM;
 
-           end vme64x_pack;
+end vme64x_pack;
 package body vme64x_pack is
 
 function f_div8 (width : integer) return integer is

@@ -54,15 +54,16 @@
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------    
 -- Copyright (c) 2009 - 2011 CERN                           
--- This source file is free software; you can redistribute it and/or modify it under the terms of 
--- the GNU Lesser General Public License as published by the Free Software Foundation; either     
--- version 2.1 of the License, or (at your option) any later version.                             
--- This source is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;       
--- without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.     
--- See the GNU Lesser General Public License for more details.                                    
--- You should have received a copy of the GNU Lesser General Public License along with this       
--- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html                     
----------------------------------------------------------------------------------------
+-- This source file is free software; you can redistribute it and/or modify it 
+-- under the terms of the GNU Lesser General Public License as published by the 
+-- Free Software Foundation; either version 2.1 of the License, or (at your option) 
+-- any later version. This source is distributed in the hope that it will be useful, 
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
+-- FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for 
+-- more details. You should have received a copy of the GNU Lesser General Public 
+-- License along with this source; if not, download it from 
+-- http://www.gnu.org/licenses/lgpl-2.1.html                     
+----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
@@ -80,7 +81,7 @@ entity VME_bus is
 	);
    port(
           clk_i                : in  std_logic;
-          reset_o              : out std_logic;   -- to the Interrupt Generator
+          reset_o              : out std_logic;   -- to the Interrupt Generator and IRQ controller
           -- VME signals                                                              
           VME_RST_n_i          : in  std_logic;
           VME_AS_n_i           : in  std_logic;
@@ -1050,7 +1051,7 @@ with s_addressingType select
      end if;
   end process;
 
-  -- generate the error condition if block transfer overlap the limit
+  -- generate the error condition if block transfer overflow the limit
   -- BLT --> block transfer limit = 256 bytes (rule 2.12a VME64 std ANSI/VITA 1-1994)
   -- MBLT --> block transfer limit = 2048 bytes (rule 2.78 VME64 std ANSI/VITA 1-1994)                   
   with s_transferType select
