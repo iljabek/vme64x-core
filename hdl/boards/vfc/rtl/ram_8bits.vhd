@@ -9,8 +9,8 @@
 -- Authors:                                 
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date         06/2012                                                                           
--- Version      v0.01  
+-- Date         08/2012                                                                           
+-- Version      v0.02  
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------ 
@@ -29,11 +29,12 @@ use IEEE.STD_LOGIC_1164.ALL;
 use ieee.std_logic_arith.all;
 library work;
 use work.genram_pkg.all;
-
-
+--===========================================================================
+-- Entity declaration
+--===========================================================================
 entity ram_8bits is
   generic (
-    size         : natural := 256
+    size         : integer := c_SIZE
 	 );
     Port ( addr  : in   std_logic_vector (f_log2_size(size)-1 downto 0);
            di    : in   std_logic_vector (7 downto 0);
@@ -41,10 +42,15 @@ entity ram_8bits is
            we    : in   std_logic;
            clk_i : in   std_logic);
 end ram_8bits;
-
+--===========================================================================
+-- Architecture declaration
+--===========================================================================
 architecture Behavioral of ram_8bits is
 type t_ram_type is array(size-1 downto 0) of std_logic_vector(7 downto 0);
 signal sram  : t_ram_type;
+--===========================================================================
+-- Architecture begin
+--===========================================================================
 begin
 process (clk_i)
     begin
@@ -56,4 +62,6 @@ process (clk_i)
         end if;
     end process;
 end Behavioral;
-
+--===========================================================================
+-- Architecture end
+--===========================================================================
