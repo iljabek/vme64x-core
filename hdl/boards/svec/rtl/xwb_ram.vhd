@@ -65,7 +65,7 @@ use work.wishbone_pkg.all;
 --===========================================================================
 entity xwb_ram is
   generic(
-    g_size                  : natural := c_SIZE;  
+    g_size                  : integer := c_SIZE;  
     g_init_file             : string  := "";
     g_must_have_init_file   : boolean := false;
     g_slave1_interface_mode : t_wishbone_interface_mode;
@@ -106,7 +106,7 @@ begin
     generic map(
       -- standard parameters
       g_data_width               => c_wishbone_data_width,
-      g_size                     => c_SIZE,
+      g_size                     => g_size,
       g_with_byte_enable         =>  true,
       g_init_file                => "",
       g_addr_conflict_resolution => "read_first"
@@ -114,7 +114,7 @@ begin
     port map(
       clk_i   => clk_sys_i,
       bwe_i   => s_bwea,
-      a_i     => slave1_i.adr(f_log2_size(c_SIZE)-1 downto 0),                                 
+      a_i     => slave1_i.adr(f_log2_size(g_size)-1 downto 0),                                 
       d_i     => slave1_i.dat,                                  
       q_o     => slave1_o.dat	                                 
 	 );
@@ -136,8 +136,8 @@ begin
   
   s_stall        <= '0';
   slave1_o.stall <= s_stall;
-  slave1_o.err   <= '0';
-  slave1_o.rty   <= '0'; 
+  slave1_o.err   <= '0';   --slave1_out.ack;
+  slave1_o.rty   <= '0';       -- '0'; 
   slave1_o.ack   <= slave1_out.ack;
   
 end struct;

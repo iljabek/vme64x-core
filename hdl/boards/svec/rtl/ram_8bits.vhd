@@ -34,7 +34,7 @@ use work.genram_pkg.all;
 --===========================================================================
 entity ram_8bits is
   generic (
-    size         : natural := c_SIZE
+    size         : integer := c_SIZE
 	 );
     Port ( addr  : in   std_logic_vector (f_log2_size(size)-1 downto 0);
            di    : in   std_logic_vector (7 downto 0);

@@ -84,10 +84,20 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.numeric_std.all;
 use work.wishbone_pkg.all;
 use work.vme64x_pack.all;
+use work.genram_pkg.all;
 --===========================================================================
 -- Entity declaration
 --===========================================================================
 entity TOP_LEVEL is
+generic(--WB data width:
+        g_width          : integer := 64;  --c_width;
+		  -- WB addr width:
+	     g_addr_width     : integer := 11;    --c_addr_width;
+		  --CRAM size in the CR/CSR space (bytes):
+		  g_CRAM_SIZE      : integer := 1024;    --c_CRAM_SIZE;
+		  --My WB slave memory:
+		  g_WB_memory_size : integer := 1024      -- c_SIZE
+	     );
 port(
     clk_i            : in    std_logic;    	 
     Reset            : in    std_logic;  -- hand reset; button PB1
@@ -141,17 +151,17 @@ component VME64xCore_Top is
 		VME_GA_i        : in    std_logic_vector(5 downto 0);
 		VME_IACKIN_n_i  : in    std_logic;
 		VME_IACK_n_i    : in    std_logic;	
-		VME_LWORD_n_b_i : in    std_logic;
-		VME_LWORD_n_b_o : out   std_logic;
-		VME_ADDR_b_i    : in    std_logic_vector(31 downto 1);
-		VME_ADDR_b_o    : out   std_logic_vector(31 downto 1);
-		VME_DATA_b_i    : in    std_logic_vector(31 downto 0); 
-		VME_DATA_b_o    : out   std_logic_vector(31 downto 0); 
+		VME_LWORD_n_i   : in    std_logic;
+		VME_LWORD_n_o   : out   std_logic;
+		VME_ADDR_i      : in    std_logic_vector(31 downto 1);
+		VME_ADDR_o      : out   std_logic_vector(31 downto 1);
+		VME_DATA_i      : in    std_logic_vector(31 downto 0); 
+		VME_DATA_o      : out   std_logic_vector(31 downto 0); 
 		VME_BERR_o      : out   std_logic;
 		VME_DTACK_n_o   : out   std_logic;
 		VME_RETRY_n_o   : out   std_logic;
 		VME_RETRY_OE_o  : out   std_logic;
-		VME_IRQ_n_o     : out   std_logic_vector(6 downto 0);
+		VME_IRQ_o       : out   std_logic_vector(6 downto 0);
 		VME_IACKOUT_n_o : out   std_logic;
 		VME_DTACK_OE_o  : out   std_logic;
 		VME_DATA_DIR_o  : out   std_logic;
@@ -172,16 +182,16 @@ component VME64xCore_Top is
 		WE_o            : out   std_logic;
 		-- IRQ Generator
 		IRQ_i           : in    std_logic;
-		INT_ack         : out   std_logic;
+		INT_ack_o       : out   std_logic;
 		reset_o         : out   std_logic;
 		-- for debug:
-	   leds            : out   std_logic_vector(7 downto 0)
+	   debug           : out   std_logic_vector(7 downto 0)
 		);
 end component VME64xCore_Top;
 
 component xwb_ram is
         generic(
-                g_size                  : natural := 256;
+                g_size                  : integer := 256;
                 g_init_file             : string  := "";
                 g_must_have_init_file   : boolean := true;
                 g_slave1_interface_mode : t_wishbone_interface_mode;
@@ -228,26 +238,26 @@ generic(g_width      : integer := c_width;
 		);
 end component WB_Bridge;
 	
-signal WbDat_i                   : std_logic_vector(c_width - 1 downto 0);
-signal WbDat_o                   : std_logic_vector(c_width - 1 downto 0);
-signal WbAdr_o                   : std_logic_vector(c_addr_width - 1 downto 0);
+signal WbDat_i                   : std_logic_vector(g_width - 1 downto 0);
+signal WbDat_o                   : std_logic_vector(g_width - 1 downto 0);
+signal WbAdr_o                   : std_logic_vector(g_addr_width - 1 downto 0);
 signal WbCyc_o                   : std_logic;
 signal WbErr_i                   : std_logic;
 signal WbRty_i                   : std_logic;
-signal WbSel_o                   : std_logic_vector(f_div8(c_width) - 1 downto 0);
+signal WbSel_o                   : std_logic_vector(f_div8(g_width) - 1 downto 0);
 signal WbStb_o                   : std_logic;
 signal WbAck_i                   : std_logic;	
 signal WbWe_o                    : std_logic;		
 signal WbStall_i                 : std_logic;		
 signal WbIrq_i                   : std_logic;
 	
-signal WbMemDat_i                : std_logic_vector(c_width - 1 downto 0);
-signal WbMemDat_o                : std_logic_vector(c_width - 1 downto 0);
-signal WbMemAdr_i                : std_logic_vector(c_addr_width - 1 downto 0);
+signal WbMemDat_i                : std_logic_vector(g_width - 1 downto 0);
+signal WbMemDat_o                : std_logic_vector(g_width - 1 downto 0);
+signal WbMemAdr_i                : std_logic_vector(g_addr_width - 1 downto 0);
 signal WbMemCyc_i                : std_logic;
 signal WbMemErr_o                : std_logic;
 signal WbMemRty_o                : std_logic;
-signal WbMemSel_i                : std_logic_vector(f_div8(c_width) - 1 downto 0);
+signal WbMemSel_i                : std_logic_vector(f_div8(g_width) - 1 downto 0);
 signal WbMemStb_i                : std_logic;
 signal WbMemAck_o                : std_logic;	
 signal WbMemWe_i                 : std_logic;		
@@ -274,8 +284,8 @@ begin
 
 Inst_VME64xCore_Top: VME64xCore_Top 
 generic map(
-              g_width => c_width,
-				  g_addr_width => c_addr_width 
+              g_width => g_width,
+				  g_addr_width => g_addr_width 
            )
 port map(
       -- VME
@@ -289,13 +299,13 @@ port map(
 		VME_BERR_o      => VME_BERR_o,
 		VME_DTACK_n_o   => VME_DTACK_n_o,
 		VME_RETRY_n_o   => VME_RETRY_n_o,		
-		VME_LWORD_n_b_i => VME_LWORD_n_b,
-		VME_LWORD_n_b_o => s_VME_LWORD_n_b_o,
-		VME_ADDR_b_i    => VME_ADDR_b,
-		VME_ADDR_b_o    => s_VME_ADDR_b_o,
-		VME_DATA_b_i    => VME_DATA_b,
-		VME_DATA_b_o    => s_VME_DATA_b_o,
-		VME_IRQ_n_o     => VME_IRQ_n_o,
+		VME_LWORD_n_i   => VME_LWORD_n_b,
+		VME_LWORD_n_o   => s_VME_LWORD_n_b_o,
+		VME_ADDR_i      => VME_ADDR_b,
+		VME_ADDR_o      => s_VME_ADDR_b_o,
+		VME_DATA_i      => VME_DATA_b,
+		VME_DATA_o      => s_VME_DATA_b_o,
+		VME_IRQ_o       => VME_IRQ_n_o,
 		VME_IACKIN_n_i  => VME_IACKIN_n_i,
 		VME_IACK_n_i    => VME_IACK_n_i,
 		VME_IACKOUT_n_o => VME_IACKOUT_n_o,
@@ -320,14 +330,14 @@ port map(
 		STALL_i         => WbStall_i, 
 		--IRQ Generator
 		IRQ_i           => WbIrq_i,  
-		INT_ack         => s_INT_ack,
+		INT_ack_o       => s_INT_ack,
 		reset_o         => s_rst,
 		-- Add by Davide for debug:
-	   leds            => leds
+	   debug           => leds
 	);
 
 Inst_xwb_ram: xwb_ram 
-      generic map(g_size                   => 256,
+      generic map(g_size                   => g_WB_memory_size,
                   g_init_file              => "",
                   g_must_have_init_file    => false,
                   g_slave1_interface_mode  => PIPELINED,
@@ -350,8 +360,8 @@ Inst_xwb_ram: xwb_ram
 	
 Inst_WB_Bridge: WB_Bridge 
 generic map(
-              g_width => c_width,
-				  g_addr_width => c_addr_width 
+              g_width => g_width,
+				  g_addr_width => g_addr_width 
            )
 port map(
 		clk_i     => clk_in,
@@ -434,7 +444,7 @@ port map(
    port map (
       CLKFBOUT => s_fb,     -- 1-bit output: PLL_BASE feedback output
       -- CLKOUT0 - CLKOUT5: 1-bit (each) output: Clock outputs
-      CLKOUT0 => clk_in_buf,    --clk 80 MHz
+      CLKOUT0 => clk_in_buf,    --clk 100 MHz
       CLKOUT1 => open,
       CLKOUT2 => open,
       CLKOUT3 => open,

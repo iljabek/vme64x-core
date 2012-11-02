@@ -7,7 +7,7 @@ library work;
 
 package wishbone_pkg is
 
-  constant c_wishbone_address_width : integer := 64;
+  constant c_wishbone_address_width : integer := 11;
   constant c_wishbone_data_width    : integer := 64;
 
   subtype t_wishbone_address is

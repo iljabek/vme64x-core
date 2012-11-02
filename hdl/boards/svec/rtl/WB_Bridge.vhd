@@ -154,8 +154,8 @@ m_sel_o <= sel_i;
 m_we_o  <= we_i;
 ----------------------------------------------------------------------
 Inst_IRQ_Generator_Top: IRQ_Generator_Top 
-generic map(g_width      => c_width,
-	         g_addr_width => c_addr_width
+generic map(g_width      => g_width,
+	         g_addr_width => g_addr_width
 	        )
 port map(
 		clk_i     => clk_i,
