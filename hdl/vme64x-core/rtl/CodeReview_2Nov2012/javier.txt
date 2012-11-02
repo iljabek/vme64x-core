@@ -1,0 +1,7 @@
+TODO:
+- Check iack_in -> iack_out part.
+- Make sure no interrupts can be missed.
+- Check licensing in sources.
+- Check sampling of DS0 and DS1.
+- Check the reset signals.
+- See if the main state machine can be stuck somewhere.
