@@ -719,14 +719,14 @@ BEGIN
       report "START WRITE AND READ WB MEMORY YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY";
          -- The Master check if the WB data bus as 64 bit
 	
-		s_dataTransferType <= D08Byte3;
-      s_AddressingType   <= CR_CSR;
-
-      s_dataToReceive <= x"00000001";
-      ReadCR_CSR(c_address	=> c_WB32or64, s_dataToReceive => s_dataToReceive, s_dataTransferType => s_dataTransferType,
-      s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
-      VME64xBus_Out => VME64xBus_Out);
-		
+--		s_dataTransferType <= D08Byte3;
+--      s_AddressingType   <= CR_CSR;
+--
+--      s_dataToReceive <= x"00000001";
+--      ReadCR_CSR(c_address	=> c_WB32or64, s_dataToReceive => s_dataToReceive, s_dataTransferType => s_dataTransferType,
+--      s_AddressingType => s_AddressingType, VME64xBus_In => VME64xBus_In, 
+--      VME64xBus_Out => VME64xBus_Out);
+--		
 		-- Module Enabled:
 
       s_dataTransferType <= D08Byte3;
