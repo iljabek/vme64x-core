@@ -1,3 +1,23 @@
+VME64xCore_Top.vhd
+------------------
+
+In the comments, it would be useful to explain a bit about the context
+this core expects in the PCB, e.g. what chips are used in the SVEC
+board (which is the reference platform for this core). This would help
+people understand e.g. how open collector outputs are dealt with, or
+what the VME_LWORD_n_o and VME_ADDR_o outputs are for.
+
+VME_AS_n_i and VME_DS_n_i are passed to two different synchronizer
+blocks in parallel. The actual implementation of this will depend on
+how clever the synthesis tool is. If it is not clever, it will not
+notice it can tap the three-FF synchronizer to get the double-FF
+output, and we will have two parallel synchronizers: not good,
+especially considering that one of them will not use the I/O FFs. If
+these double-clocked signals are really needed, the triple-clocking
+block could deliver an extra ouput port for them. 
+
+
+
 TODO:
 - Check iack_in -> iack_out part.
 - Make sure no interrupts can be missed.
