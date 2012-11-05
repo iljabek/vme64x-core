@@ -20,9 +20,36 @@ There are a number of outputs which are supposed to go to the outside
 world (VME_DTACK_n_o, WE_o, VME_DATA_DIR_o...) and which are not using
 I/O FFs because they are the result of some combinational logic. This
 will result in tricky timing issues, and need complex constraints to
-P&R to guarantee consistent results. I would strongly advice to make
+P&R to guarantee consistent results. I would strongly advise to make
 sure all these signals are outputs of I/O FFs, with any necessary
-logic placed *before* these FFs. 
+logic placed *before* these FFs. In general, all inputs to the core
+should be sampled before using them, and all outputs should be the
+result of clocking in I/O FFs.
+
+VME_IRQ_Controller.vhd
+----------------------
+
+Text diagram in the initial comments not clear regarding state
+IACKOUT2.
+
+Line 69: "To avoid the time constraint" -> "To respect the timing
+constraint"
+
+Signal naming is not consistent. If the "s_" prefix is used, it should
+be used for all internal signals.
+
+Instantiation of many FlipFlopD components: a single clocked process
+would be more compact and easier to understand.
+
+Line 247: why should the interrupt controller not be allowed to go to
+the IRQ state when VME_IACKIN_n_i='0'? That line could be at '0'
+because of some other interrupt from another module in the
+crate. Because the INT_Req input (shouldn't this be called INT_Req_i?)
+is supposed to be a pulse, this can lead to interrupt requests being
+lost.
+
+
+
 
 TODO:
 - Check iack_in -> iack_out part.
