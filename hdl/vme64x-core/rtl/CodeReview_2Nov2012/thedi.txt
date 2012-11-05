@@ -1,0 +1,95 @@
+TODO (for me):
+- check comments vs. user manual before final commit
+- VMEAccessDecode: check specifications to see if WB process needs reset
+- check for VHDL comments and coding guidelines
+- synthesize design and check for latches in VMEAmMatch.vhd
+
+General stuff
+--------------------------------------------------------------------------------
+Really like the fact that you wrote a lot of comments in the file headers. These
+are very descriptive and very easy to read, which helps users quickly get up to
+speed on how they can use your core in their design.
+
+It might help to have some comments accompanying your entity ports. This can
+help users quickly instantiate your core (or components of your core), in case
+they need them.
+
+
+
+
+You have some more detailed comments below.
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+VME_Access_Decode.vhd
+--------------------------------------------------------------------------------
+- line 8: typo
+"This component check [...]"
+should be:
+"This component checkS [...]"
+
+- line 20: typo
+"[...] the block diagram the main component are two [...]"
+should be
+"[...] the block diagram the main componentS are two [...]"
+or
+"[...] there are two main components in the block diagram [...]"
+
+- line 66: the "!!!" at the end is a bit aggressive towards the reader :)
+I would advise you to change it to a full stop (".") or a simple exclamation 
+mark ("!")
+
+- line 71: typo:
+"corrisponding" -> "corresponding"
+
+- line 83: 
+typos:
+"corrisponding" -> "corresponding"
+"the VME Master need to know", should be either
+"the VME Masters need to know", or
+"the VME Master needs to know" 
+
+- line 87: typo
+"corrisponding" -> "corresponding"
+
+- line 91: typos
+"eg: lets imagine" -> "let's imagine"
+"we want be able to access" -> "we want to (be able TO) access"
+
+- line 93: typo:
+"corrisponding" -> "corresponding"
+
+- line 106: typo
+"[...] so we need of two functions [...]" -> "[...] so we need two functions 
+[...]"
+
+--------------------------------------------------------------------------------
+VME_Am_Decode.vhd
+--------------------------------------------------------------------------------
+I would not encourage using VHDL code in the comments to describe what you want
+to do. I mean here things like in line 13, where you say "AmMatch <= [...]",
+and particularly things like "to_integer(unsigned([...]))". 
+
+Comments are supposed to be verbose descriptions of what your design does, avoid 
+using code inside your comments. The reader can read and understand the code
+himself. If you *must* use code that you think makes your comments more 
+understandable, try to make your code as simple as possible. Using "to_integer"
+and its lengthy brothers adds unnecessary details that can otherwise be
+easily understood by the reader.
+
+- line 9: typo
+"corrispondent" -> "corresponding"
+
+- lines 11-13: maybe you could make the comments a little clearer; at the moment
+they seem a bit fuzzy to me, you have a bunch of unfinished sentences there that
+don't make too much sense.
+
+- line 14: typo
+"[...] different address wide [...]" -> "[...] different address widths [...]"
+
+- p_AMmatch:
+Are you sure the synthesis tool is not inferring latches here? You have a pretty
+large amount of conditions uncovered, is it capable of generating registers with
+enable from that? I will try to synthesize your design to see if it can...
+Expect an answer on this shortly. :)
+--------------------------------------------------------------------------------
