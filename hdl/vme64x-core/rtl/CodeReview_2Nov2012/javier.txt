@@ -38,23 +38,46 @@ constraint"
 Signal naming is not consistent. If the "s_" prefix is used, it should
 be used for all internal signals.
 
+Line 104: "reset" is clearly used as an active-low signal in this
+entity, and it is an input port, so its name should be "reset_n_i".
+
 Instantiation of many FlipFlopD components: a single clocked process
 would be more compact and easier to understand.
 
 Line 247: why should the interrupt controller not be allowed to go to
-the IRQ state when VME_IACKIN_n_i='0'? That line could be at '0'
-because of some other interrupt from another module in the
-crate. Because the INT_Req input (shouldn't this be called INT_Req_i?)
-is supposed to be a pulse, this can lead to interrupt requests being
-lost.
+the IRQ state when VME_IACKIN_n_i='0'?
 
+Line 256: once we have allowed going to the IRQ state even if
+VME_IACKIN_n_i is low, we should detect a falling edge of
+VME_IACKIN_n_i while in the IRQ state to proceed. A simple detection
+of '0' won't work anymore.
 
+Line 321: In the IDLE state this block should drive whatever it gets
+from IACKIN into IACKOUT. Otherwise it is blocking interrupt
+acknowledgement for any cards to the right of the module where it is
+instantiated. In general the IACKIN-IACKOUT daisy-chain needs to be
+looked at in detail. Driving IACKOUT with AS as is done in other
+states looks weird. IACKOUT should be driven by IACKIN when the IACK
+chain is not intercepted by this block.
 
+Line 445: these are active-low signals so their value after reset
+should be '1', not '0'.
+
+I don't understand the whole DS_LATCH thing. We detect in state
+WAIT_DS that there was some change in the DS lines. This makes us go
+to state LATCH_DS, where the DS lines are latched. Then we check if
+VME_DS_latched(0) is '0' in the ACK_INT state. Wouldn't it be simpler
+to just wait for DS(0) to become '0'?
+
+Line 467: s_enable opens the sampling gate for INT_Req only when
+either we have not latched a request (with INT_Req_sample) or when
+DTACK is being driven low. In this last case, we are in the DTACK
+state (until AS goes up) and any INT_Req pulse will go through the
+sampling but in a transient way, i.e. it will not "stick" and we will
+lose it. This behavior should be documented so that users of the core
+know.
 
 TODO:
-- Check iack_in -> iack_out part.
-- Make sure no interrupts can be missed.
 - Check licensing in sources.
-- Check sampling of DS0 and DS1.
 - Check the reset signals.
 - See if the main state machine can be stuck somewhere.
