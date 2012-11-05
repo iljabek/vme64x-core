@@ -16,7 +16,13 @@ especially considering that one of them will not use the I/O FFs. If
 these double-clocked signals are really needed, the triple-clocking
 block could deliver an extra ouput port for them. 
 
-
+There are a number of outputs which are supposed to go to the outside
+world (VME_DTACK_n_o, WE_o, VME_DATA_DIR_o...) and which are not using
+I/O FFs because they are the result of some combinational logic. This
+will result in tricky timing issues, and need complex constraints to
+P&R to guarantee consistent results. I would strongly advice to make
+sure all these signals are outputs of I/O FFs, with any necessary
+logic placed *before* these FFs. 
 
 TODO:
 - Check iack_in -> iack_out part.
