@@ -26,6 +26,21 @@ logic placed *before* these FFs. In general, all inputs to the core
 should be sampled before using them, and all outputs should be the
 result of clocking in I/O FFs.
 
+VME_bus.vhd
+-----------
+
+There is a comment at line 527 saying:
+-- If the S_FPGA will be provided to a core who drives these lines
+-- without
+-- erase the A_FPGA the above mentioned lines should be changed to 'Z'
+-- !!!
+This should probably change to become a generic so that people can
+decide on the behaviour they want. It will then be more visible, not
+hidden in the middle of the code. The sentence itself it quite
+cryptic. This core should not assume it is used in a board with a
+S_FPGA and a A_FPGA. 
+
+
 VME_IRQ_Controller.vhd
 ----------------------
 
@@ -76,8 +91,3 @@ state (until AS goes up) and any INT_Req pulse will go through the
 sampling but in a transient way, i.e. it will not "stick" and we will
 lose it. This behavior should be documented so that users of the core
 know.
-
-TODO:
-- Check licensing in sources.
-- Check the reset signals.
-- See if the main state machine can be stuck somewhere.
