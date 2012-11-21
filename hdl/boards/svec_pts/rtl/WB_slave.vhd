@@ -20,6 +20,7 @@ use work.wbgen2_pkg.all;
 entity wishbone_port_slave is
 generic(g_width      : integer := 32;
 	     g_addr_width : integer := 9;
+		  g_WB_memory_size : integer := 256;
 		  g_num_irq    : integer := 2
 	 );
   port (
@@ -242,7 +243,7 @@ end process;
   wbslave_ram_raminst : wbgen2_dpssram
     generic map (
       g_data_width         => g_width,
-      g_size               => 256,
+      g_size               => g_WB_memory_size,
       g_addr_width         => g_addr_width - 1,
       g_dual_clock         => false,
       g_use_bwsel          => true

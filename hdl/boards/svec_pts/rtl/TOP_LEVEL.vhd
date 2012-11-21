@@ -38,8 +38,8 @@
 -- To access these locations the VME Master should left shift these addresses of two or three 
 -- bits according with the wb data bus width which can be 32 or 64 bits.
 -- for example: we want write 1 in the ier register (irq_0 enabled):
--- if g_width = 32 --> A32_S access to the VME address 0x04
--- if g_width = 64 --> A32_S access to the VME address 0x0c
+-- if g_wb_data_width = 32 --> A32_S access to the VME address 0x04
+-- if g_wb_data_width = 64 --> A32_S access to the VME address 0x0c
 -- g_width refers to the wb data bus width and to the memory and registers width.
 -- See also the "Data organization in VME and WB bus" section of the vme64x_user_manual
 -- The irq lines are drived by two counters. 
@@ -88,12 +88,20 @@ use work.vme64x_pack.all;
 -- Entity declaration
 --===========================================================================
 entity TOP_LEVEL is
-generic(--WB data width:
-        g_width          : integer := 32;  -- 32 or 64
+generic(
+        g_clock          : integer := 10;
+        --WB data width:
+        g_wb_data_width  : integer := 32;  --c_width;
 		  -- WB addr width:
-	     g_addr_width     : integer := 9;   -- 64 or less
+	     g_wb_addr_width  : integer := 9;    --c_addr_width;
 		  --CRAM size in the CR/CSR space (bytes):
-		  g_CRAM_SIZE      : integer := 1024   
+		  g_cram_size      : integer := 1024;    --c_CRAM_SIZE;
+		  --My WB slave memory:
+		  g_WB_memory_size : integer := 256;      -- c_SIZE
+		  g_BoardID        : integer := 408;       -- 0x00000198
+		  g_ManufacturerID : integer := 524336;    -- 0x080030
+		  g_RevisionID     : integer := 1;         -- 0x00000001
+		  g_ProgramID      : integer := 90         -- 0x0000005a 
 	     );
 port(
     clk_i            : in    std_logic;    	 
@@ -133,9 +141,15 @@ end TOP_LEVEL;
 architecture Behavioral of TOP_LEVEL is
 
 component VME64xCore_Top is
-	generic(g_width      : integer := c_width;
-	        g_addr_width : integer := c_addr_width;
-			  g_CRAM_SIZE  : integer := c_CRAM_SIZE
+	generic(
+	        g_clock          : integer := c_clk_period;
+			  g_wb_data_width  : integer := c_width;
+	        g_wb_addr_width  : integer := c_addr_width;
+			  g_cram_size      : integer := c_CRAM_SIZE;
+			  g_BoardID        : integer := c_SVEC_ID;
+			  g_ManufacturerID : integer := c_CERN_ID;       -- 0x00080030
+			  g_RevisionID     : integer := c_RevisionID;    -- 0x00000001
+		     g_ProgramID      : integer := 96               -- 0x00000060 
 	        );
 	port(
 	   -- VME signals:
@@ -166,15 +180,15 @@ component VME64xCore_Top is
 		VME_ADDR_DIR_o  : out   std_logic;
 		VME_ADDR_OE_N_o : out   std_logic;
 		-- WB signals
-		DAT_i           : in    std_logic_vector(g_width - 1 downto 0);
+		DAT_i           : in    std_logic_vector(g_wb_data_width - 1 downto 0);
 		ERR_i           : in    std_logic;
 		RTY_i           : in    std_logic;
 		ACK_i           : in    std_logic;
 		STALL_i         : in    std_logic;
-		DAT_o           : out   std_logic_vector(g_width - 1 downto 0);
-		ADR_o           : out   std_logic_vector(g_addr_width - 1 downto 0);
+		DAT_o           : out   std_logic_vector(g_wb_data_width - 1 downto 0);
+		ADR_o           : out   std_logic_vector(g_wb_addr_width - 1 downto 0);
 		CYC_o           : out   std_logic;
-		SEL_o           : out   std_logic_vector(f_div8(g_width) - 1 downto 0);
+		SEL_o           : out   std_logic_vector(f_div8(g_wb_data_width) - 1 downto 0);
 		STB_o           : out   std_logic;
 		WE_o            : out   std_logic;
 		-- IRQ Generator
@@ -187,9 +201,10 @@ component VME64xCore_Top is
 end component VME64xCore_Top;
 
 component wishbone_port_slave
-   generic(g_width      : integer := c_width;
-	        g_addr_width : integer := c_addr_width;
-			  g_num_irq    : integer := 2
+   generic(g_width          : integer := c_width;
+	        g_addr_width     : integer := c_addr_width;
+			  g_WB_memory_size : integer := 256;
+			  g_num_irq        : integer := 2
 	        );
 	port(
 		rst_n_i : in std_logic;
@@ -217,13 +232,13 @@ component wishbone_port_slave
 	end component;
 
 	
-signal WbDat_i                   : std_logic_vector(g_width - 1 downto 0);
-signal WbDat_o                   : std_logic_vector(g_width - 1 downto 0);
-signal WbAdr_o                   : std_logic_vector(g_addr_width - 1 downto 0);
+signal WbDat_i                   : std_logic_vector(g_wb_data_width - 1 downto 0);
+signal WbDat_o                   : std_logic_vector(g_wb_data_width - 1 downto 0);
+signal WbAdr_o                   : std_logic_vector(g_wb_addr_width - 1 downto 0);
 signal WbCyc_o                   : std_logic;
 signal WbErr_i                   : std_logic;
 signal WbRty_i                   : std_logic;
-signal WbSel_o                   : std_logic_vector(f_div8(g_width) - 1 downto 0);
+signal WbSel_o                   : std_logic_vector(f_div8(g_wb_data_width) - 1 downto 0);
 signal WbStb_o                   : std_logic;
 signal WbAck_i                   : std_logic;	
 signal WbWe_o                    : std_logic;		
@@ -245,7 +260,7 @@ signal s_ris_edge                : std_logic;
 signal s_2                       : std_logic;
 signal s_fal_edge                : std_logic;
 signal s_int_counter             : unsigned(25 downto 0);
-signal s_int_counter_slv         : std_logic_vector(g_width - 1 downto 0);
+signal s_int_counter_slv         : std_logic_vector(g_wb_data_width - 1 downto 0);
 --mux
 signal s_VME_DATA_b_o            : std_logic_vector(31 downto 0);
 signal s_VME_DATA_DIR            : std_logic;
@@ -259,9 +274,14 @@ begin
 
 Inst_VME64xCore_Top: VME64xCore_Top 
 generic map(
-              g_width      => g_width,
-				  g_addr_width => g_addr_width,
-				  g_CRAM_SIZE  => g_CRAM_SIZE
+              g_clock          => g_clock,
+              g_wb_data_width  => g_wb_data_width,
+				  g_wb_addr_width  => g_wb_addr_width,
+				  g_cram_size      => g_cram_size,
+			     g_BoardID        => g_BoardID,
+				  g_ManufacturerID => g_ManufacturerID,
+				  g_RevisionID     => g_RevisionID,
+				  g_ProgramID      => g_ProgramID
            )
 port map(
       -- VME
@@ -307,7 +327,7 @@ port map(
 		--IRQ Generator
 		IRQ_i           => WbIrq_i,  
 		INT_ack_o       => s_INT_ack,
-		reset_o         => s_rst, --asserted when '1'
+		reset_o         => s_rst,
 		-- Add by Davide for debug:
 	   debug           => leds
 	);
@@ -315,8 +335,9 @@ port map(
 	
 Inst_wishbone_port_slave: wishbone_port_slave 
 generic map(
-              g_width      => g_width,
-				  g_addr_width => g_addr_width,
+              g_width      => g_wb_data_width,
+				  g_addr_width => g_wb_addr_width,
+				  g_WB_memory_size => g_WB_memory_size,
 				  g_num_irq    => 2
            )
 port map(
