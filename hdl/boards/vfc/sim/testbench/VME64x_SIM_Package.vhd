@@ -9,7 +9,7 @@
 --
 -- Company     : CERN
 --
--- Description : VME64x procedures for test the VME64x Slave
+-- Description : VME64x procedures for test the VME64x core
 
 library IEEE;
 library std;
@@ -236,7 +236,7 @@ begin
       assert(VME64xBus_In.Vme64xBerrN /= '1') report "THE SLAVE ASSERTED THE Berr LINE" severity error;
    else	  
       ShiftData(write_n => '1', s_dataTransferType => s_dataTransferType, s_dataToShift => VME64xBus_In.Vme64xDATA, v_dataToShiftOut => v_dataToReceiveOut);
-      assert (v_dataToReceiveOut /= s_dataToReceive)report "CORRECT DATA!!!" severity error;
+    --  assert (v_dataToReceiveOut /= s_dataToReceive)report "CORRECT DATA!!!" severity error;
       assert (v_dataToReceiveOut = s_dataToReceive)report "RECEIVED WRONG DATA!!!" severity failure;
    --assert (VME64xBus_In.Vme64xDATA = s_dataToReceive)report "Error Received Wrong Data" severity failure;
    --wait for 10 ns;
@@ -465,7 +465,7 @@ DataType : out std_logic_vector (3 downto 0)) is
       assert(VME64xBus_In.Vme64xBerrN /= '1') report "THE SLAVE ASSERTED THE Berr LINE" severity error;
    else	  
       ShiftData(write_n => '1', s_dataTransferType => s_dataTransferType, s_dataToShift => VME64xBus_In.Vme64xDATA, v_dataToShiftOut => v_dataToReceiveOut);
-      assert (v_dataToReceiveOut /= s_dataToReceive)report "CORRECT DATA!!!" severity error;
+     -- assert (v_dataToReceiveOut /= s_dataToReceive)report "CORRECT DATA!!!" severity error;
       assert (v_dataToReceiveOut = s_dataToReceive)report "RECEIVED WRONG DATA!!!" severity failure;
    
    end if;
@@ -529,7 +529,7 @@ DataType : out std_logic_vector (3 downto 0)) is
 	   exit;
 	  else	  
 	   v_dataToReceiveOut := VME64xBus_In.Vme64xDATA;
-      assert (v_dataToReceiveOut /= s_Buffer_BLT(n))report "CORRECT DATA!!!" severity error;
+     -- assert (v_dataToReceiveOut /= s_Buffer_BLT(n))report "CORRECT DATA!!!" severity error;
       assert (v_dataToReceiveOut = s_Buffer_BLT(n))report "RECEIVED WRONG DATA!!!" severity failure;
      end if;
       VME64xBus_Out.Vme64xDs0N <= '1';
@@ -739,7 +739,7 @@ DataType : out std_logic_vector (3 downto 0)) is
        v_dataToReceiveOut(31 downto 0) := VME64xBus_In.Vme64xDATA;  		
 		 v_dataToReceiveOut(32) := VME64xBus_In.Vme64xLWORDN;
 		 --assert (v_dataToReceiveOut /= s_Buffer_MBLT(n))report "CORRECT DATA!!!" severity error;
-       --assert (v_dataToReceiveOut = s_Buffer_MBLT(n))report "RECEIVED WRONG DATA!!!" severity failure;
+       assert (v_dataToReceiveOut = s_Buffer_MBLT(n))report "RECEIVED WRONG DATA!!!" severity failure;
 		 --NB start to read from the first location written otherwise use n + x
 		VME64xBus_Out.Vme64xDs0N <= '1';
       VME64xBus_Out.Vme64xDs1N <= '1';	
@@ -971,7 +971,7 @@ DataType : out std_logic_vector (3 downto 0)) is
       assert(VME64xBus_In.Vme64xBerrN /= '1') report "THE SLAVE ASSERTED THE Berr LINE" severity error;
      else	  
       ShiftData(write_n => '1', s_dataTransferType => s_dataTransferType, s_dataToShift => VME64xBus_In.Vme64xDATA, v_dataToShiftOut => v_dataToReceiveOut);
-      assert (v_dataToReceiveOut /= s_dataToReceive)report "CORRECT DATA!!!" severity error;
+      --assert (v_dataToReceiveOut /= s_dataToReceive)report "CORRECT DATA!!!" severity error;
       assert (v_dataToReceiveOut = s_dataToReceive)report "RECEIVED WRONG DATA!!!" severity failure;
       end if;
       VME64xBus_Out.Vme64xLWORDN <= '1';
@@ -1112,7 +1112,7 @@ DataType : out std_logic_vector (3 downto 0)) is
 	   exit;
 	  else	  
 	   v_dataToReceiveOut := VME64xBus_In.Vme64xDATA;
-      assert (v_dataToReceiveOut /= s_Buffer_BLT(n))report "CORRECT DATA!!!" severity error;
+      --assert (v_dataToReceiveOut /= s_Buffer_BLT(n))report "CORRECT DATA!!!" severity error;
       assert (v_dataToReceiveOut = s_Buffer_BLT(n))report "RECEIVED WRONG DATA!!!" severity failure;
      end if;
       VME64xBus_Out.Vme64xDs0N <= '1';
@@ -1265,7 +1265,7 @@ DataType : out std_logic_vector (3 downto 0)) is
 	    v_dataToReceiveOut(63 downto 33) := VME64xBus_In.Vme64xADDR;	
        v_dataToReceiveOut(31 downto 0) := VME64xBus_In.Vme64xDATA;  		
 		 v_dataToReceiveOut(32) := VME64xBus_In.Vme64xLWORDN;
-		 assert (v_dataToReceiveOut /= s_Buffer_MBLT(n))report "CORRECT DATA!!!" severity error;
+		 --assert (v_dataToReceiveOut /= s_Buffer_MBLT(n))report "CORRECT DATA!!!" severity error;
        assert (v_dataToReceiveOut = s_Buffer_MBLT(n))report "RECEIVED WRONG DATA!!!" severity failure;
 		 --NB start to read from the first location written otherwise use n + x
 		VME64xBus_Out.Vme64xDs0N <= '1';
@@ -1458,7 +1458,7 @@ DataType : out std_logic_vector (3 downto 0)) is
 	    v_dataToReceiveOut(63 downto 33) := VME64xBus_In.Vme64xADDR;	
        v_dataToReceiveOut(31 downto 0) := VME64xBus_In.Vme64xDATA;  		
 		 v_dataToReceiveOut(32) := VME64xBus_In.Vme64xLWORDN;
-		 assert (v_dataToReceiveOut /= s_Buffer_MBLT(n))report "CORRECT DATA!!!" severity error;
+		 --assert (v_dataToReceiveOut /= s_Buffer_MBLT(n))report "CORRECT DATA!!!" severity error;
        assert (v_dataToReceiveOut = s_Buffer_MBLT(n))report "RECEIVED WRONG DATA!!!" severity failure;
 		 --NB start to read from the first location written otherwise use n + x
 	    n := n + 1;

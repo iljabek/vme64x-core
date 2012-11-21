@@ -20,8 +20,8 @@
 -- Authors:  
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                                                            
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date         08/2012                                                                           
--- Version      v0.02  
+-- Date         11/2012                                                                           
+-- Version      v0.03  
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------       
@@ -45,8 +45,8 @@ use work.vme64x_pack.all;
 -- Entity declaration
 --===========================================================================
 entity WB_Bridge is
-generic(g_width      : integer := c_width;
-	     g_addr_width : integer := c_addr_width
+generic(g_wb_data_width : integer := c_width;
+	     g_wb_addr_width : integer := c_addr_width
 	    );
     Port ( clk_i     : in   std_logic;
            rst_i     : in   std_logic;
@@ -54,26 +54,26 @@ generic(g_width      : integer := c_width;
            Int_Req_o : out  std_logic;
            cyc_i     : in   std_logic;
            stb_i     : in   std_logic;
-           adr_i     : in   std_logic_vector (g_addr_width - 1 downto 0);
-           dat_i     : in   std_logic_vector (g_width - 1 downto 0);
-           sel_i     : in   std_logic_vector (f_div8(g_width) - 1 downto 0);
+           adr_i     : in   std_logic_vector (g_wb_addr_width - 1 downto 0);
+           dat_i     : in   std_logic_vector (g_wb_data_width - 1 downto 0);
+           sel_i     : in   std_logic_vector (f_div8(g_wb_data_width) - 1 downto 0);
            we_i      : in   std_logic;
            ack_o     : out  std_logic;
            err_o     : out  std_logic;
            rty_o     : out  std_logic;
 			  stall_o   : out  std_logic;
-           dat_o     : out  std_logic_vector (g_width - 1 downto 0);
+           dat_o     : out  std_logic_vector (g_wb_data_width - 1 downto 0);
            m_cyc_o   : out  std_logic;
            m_stb_o   : out  std_logic;
-           m_adr_o   : out  std_logic_vector (g_addr_width - 1 downto 0);
-           m_dat_o   : out  std_logic_vector (g_width - 1 downto 0);
-           m_sel_o   : out  std_logic_vector (f_div8(g_width) - 1 downto 0);
+           m_adr_o   : out  std_logic_vector (g_wb_addr_width - 1 downto 0);
+           m_dat_o   : out  std_logic_vector (g_wb_data_width - 1 downto 0);
+           m_sel_o   : out  std_logic_vector (f_div8(g_wb_data_width) - 1 downto 0);
            m_we_o    : out  std_logic;
            m_ack_i   : in   std_logic;
            m_err_i   : in   std_logic;
 			  m_stall_i : in   std_logic;
            m_rty_i   : in   std_logic;
-           m_dat_i   : in   std_logic_vector (g_width - 1 downto 0));
+           m_dat_i   : in   std_logic_vector (g_wb_data_width - 1 downto 0));
 end WB_Bridge;
 --===========================================================================
 -- Architecture declaration
@@ -89,11 +89,11 @@ signal s_ack_gen    : std_logic;
 signal s_err_gen    : std_logic;
 signal s_rty_gen    : std_logic;
 signal s_stall_gen  : std_logic;
-signal s_data_o_gen : std_logic_vector(g_width - 1 downto 0);
+signal s_data_o_gen : std_logic_vector(g_wb_data_width - 1 downto 0);
 
 	component IRQ_Generator_Top is
-	generic(g_width      : integer := c_width;
-	        g_addr_width : integer := c_addr_width
+	generic(g_wb_data_width : integer := c_width;
+	        g_wb_addr_width : integer := c_addr_width
 	    );
 	port(
 		clk_i     : in  std_logic;
@@ -101,16 +101,16 @@ signal s_data_o_gen : std_logic_vector(g_width - 1 downto 0);
 		Int_Ack_i : in  std_logic;
 		cyc_i     : in  std_logic;
 		stb_i     : in  std_logic;
-		adr_i     : in  std_logic_vector(g_addr_width - 1 downto 0);
-		sel_i     : in  std_logic_vector(f_div8(g_width) - 1 downto 0);
+		adr_i     : in  std_logic_vector(g_wb_addr_width - 1 downto 0);
+		sel_i     : in  std_logic_vector(f_div8(g_wb_data_width) - 1 downto 0);
 		we_i      : in  std_logic;
-		dat_i     : in  std_logic_vector(g_width - 1 downto 0);          
+		dat_i     : in  std_logic_vector(g_wb_data_width - 1 downto 0);          
 		Int_Req_o : out std_logic;
 		ack_o     : out std_logic;
 		err_o     : out std_logic;
 		rty_o     : out std_logic;
 		stall_o   : out std_logic;
-		dat_o     : out std_logic_vector(g_width - 1 downto 0)
+		dat_o     : out std_logic_vector(g_wb_data_width - 1 downto 0)
 		);
 	end component IRQ_Generator_Top;
 --===========================================================================
@@ -121,11 +121,11 @@ begin
 -- check if the IRQ Generator is addressed (0x00 or 0x04).
 -- if not s_WbAppl is '1' and the component work as a bridge 
 -- between the vme64x core and the Wb Application 
-genIRQGen64 : if (g_width = 64) generate
+genIRQGen64 : if (g_wb_data_width = 64) generate
            s_IRQGen <= '1' when (unsigned(adr_i) = 0) else '0';
 end generate genIRQGen64;
 
-genIRQGen32 : if (g_width = 32) generate
+genIRQGen32 : if (g_wb_data_width = 32) generate
            s_IRQGen <= '1' when unsigned(adr_i) = 0  or
 							           unsigned(adr_i) = 1 else '0';
 end generate genIRQGen32;
@@ -154,8 +154,8 @@ m_sel_o <= sel_i;
 m_we_o  <= we_i;
 ----------------------------------------------------------------------
 Inst_IRQ_Generator_Top: IRQ_Generator_Top 
-generic map(g_width      => g_width,
-	         g_addr_width => g_addr_width
+generic map(g_wb_data_width => g_wb_data_width,
+	         g_wb_addr_width => g_wb_addr_width
 	        )
 port map(
 		clk_i     => clk_i,

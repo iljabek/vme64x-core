@@ -241,7 +241,7 @@ NET "clk_i" LOC = B14;
 NET "clk_i" TNM_NET = "clk_i_group";
 #TIMESPEC TS_clk_i = PERIOD "clk_i" 50 ns HIGH 50%;
 #Created by Constraints Editor (xc6slx150t-fgg676-3) - 2011/06/30
-TIMESPEC "TS_clk_i" = PERIOD "clk_i_group" 40 ns HIGH 50%;
+TIMESPEC "TS_clk_i" = PERIOD "clk_i_group" 50 ns HIGH 50%;
 # Add by Davide for debug
 NET "leds[0]" LOC = P5;
 NET "leds[1]" LOC = R4;

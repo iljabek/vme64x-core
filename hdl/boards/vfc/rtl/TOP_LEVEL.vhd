@@ -60,8 +60,8 @@
 -- Authors:                                     
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date         08/2012                                                                           
--- Version      v0.02  
+-- Date         11/2012                                                                           
+-- Version      v0.03  
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------  
@@ -77,26 +77,33 @@
 ---------------------------------------------------------------------------------------
 
 -- uncomment to use the PLL 
---Library UNISIM;
---use UNISIM.vcomponents.all;
+Library UNISIM;
+use UNISIM.vcomponents.all;
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.numeric_std.all;
 use work.wishbone_pkg.all;
 use work.vme64x_pack.all;
 use work.genram_pkg.all;
+use work.VME_CR_pack.all;
 --===========================================================================
 -- Entity declaration
 --===========================================================================
 entity TOP_LEVEL is
-generic(--WB data width:
-        g_width          : integer := 64;  --c_width;
+generic(
+        g_clock          : integer := 10;
+        --WB data width:
+        g_wb_data_width  : integer := 64;  --c_width;
 		  -- WB addr width:
-	     g_addr_width     : integer := 11;    --c_addr_width;
+	     g_wb_addr_width  : integer := 11;    --c_addr_width;
 		  --CRAM size in the CR/CSR space (bytes):
-		  g_CRAM_SIZE      : integer := 1024;    --c_CRAM_SIZE;
+		  g_cram_size      : integer := 1024;    --c_CRAM_SIZE;
 		  --My WB slave memory:
-		  g_WB_memory_size : integer := 1024      -- c_SIZE
+		  g_WB_memory_size : integer := 1024;      -- c_SIZE
+		  g_BoardID        : integer := 408;       -- 0x00000198
+		  g_ManufacturerID : integer := 524336;    -- 0x080030
+		  g_RevisionID     : integer := 1;         -- 0x00000001
+		  g_ProgramID      : integer := 90         -- 0x0000005a 
 	     );
 port(
     clk_i            : in    std_logic;    	 
@@ -136,9 +143,15 @@ end TOP_LEVEL;
 architecture Behavioral of TOP_LEVEL is
 
 component VME64xCore_Top is
-	generic(g_width      : integer := c_width;
-	        g_addr_width : integer := c_addr_width;
-			  g_CRAM_SIZE  : integer := c_CRAM_SIZE
+	generic(
+	        g_clock          : integer := c_clk_period;
+			  g_wb_data_width  : integer := c_width;
+	        g_wb_addr_width  : integer := c_addr_width;
+			  g_cram_size      : integer := c_CRAM_SIZE;
+			  g_BoardID        : integer := c_SVEC_ID;
+			  g_ManufacturerID : integer := c_CERN_ID;       -- 0x00080030
+			  g_RevisionID     : integer := c_RevisionID;    -- 0x00000001
+		     g_ProgramID      : integer := 96               -- 0x00000060 
 	        );
 	port(
 	   -- VME signals:
@@ -169,15 +182,15 @@ component VME64xCore_Top is
 		VME_ADDR_DIR_o  : out   std_logic;
 		VME_ADDR_OE_N_o : out   std_logic;
 		-- WB signals
-		DAT_i           : in    std_logic_vector(g_width - 1 downto 0);
+		DAT_i           : in    std_logic_vector(g_wb_data_width - 1 downto 0);
 		ERR_i           : in    std_logic;
 		RTY_i           : in    std_logic;
 		ACK_i           : in    std_logic;
 		STALL_i         : in    std_logic;
-		DAT_o           : out   std_logic_vector(g_width - 1 downto 0);
-		ADR_o           : out   std_logic_vector(g_addr_width - 1 downto 0);
+		DAT_o           : out   std_logic_vector(g_wb_data_width - 1 downto 0);
+		ADR_o           : out   std_logic_vector(g_wb_addr_width - 1 downto 0);
 		CYC_o           : out   std_logic;
-		SEL_o           : out   std_logic_vector(f_div8(g_width) - 1 downto 0);
+		SEL_o           : out   std_logic_vector(f_div8(g_wb_data_width) - 1 downto 0);
 		STB_o           : out   std_logic;
 		WE_o            : out   std_logic;
 		-- IRQ Generator
@@ -205,8 +218,9 @@ component xwb_ram is
 end component xwb_ram;
 
 component WB_Bridge is
-generic(g_width      : integer := c_width;
-	     g_addr_width : integer := c_addr_width
+generic(
+        g_wb_data_width : integer := c_width;
+	     g_wb_addr_width : integer := c_addr_width
 	    );
 	port(
 		clk_i     : in  std_logic;
@@ -214,50 +228,50 @@ generic(g_width      : integer := c_width;
 		Int_Ack_i : in  std_logic;
 		cyc_i     : in  std_logic;
 		stb_i     : in  std_logic;
-		adr_i     : in  std_logic_vector(g_addr_width - 1 downto 0);
-		dat_i     : in  std_logic_vector(g_width - 1 downto 0);
-		sel_i     : in  std_logic_vector(f_div8(g_width) - 1 downto 0);
+		adr_i     : in  std_logic_vector(g_wb_addr_width - 1 downto 0);
+		dat_i     : in  std_logic_vector(g_wb_data_width - 1 downto 0);
+		sel_i     : in  std_logic_vector(f_div8(g_wb_data_width) - 1 downto 0);
 		we_i      : in  std_logic;
 		m_ack_i   : in  std_logic;
 		m_err_i   : in  std_logic;
 		m_stall_i : in  std_logic;
 		m_rty_i   : in  std_logic;
-		m_dat_i   : in  std_logic_vector(g_width - 1 downto 0);          
+		m_dat_i   : in  std_logic_vector(g_wb_data_width - 1 downto 0);          
 		Int_Req_o : out std_logic;
 		ack_o     : out std_logic;
 		err_o     : out std_logic;
 		rty_o     : out std_logic;
 		stall_o   : out std_logic;
-		dat_o     : out std_logic_vector(g_width - 1 downto 0);
+		dat_o     : out std_logic_vector(g_wb_data_width - 1 downto 0);
 		m_cyc_o   : out std_logic;
 		m_stb_o   : out std_logic;
-		m_adr_o   : out std_logic_vector(g_addr_width - 1 downto 0);
-		m_dat_o   : out std_logic_vector(g_width - 1 downto 0);
-		m_sel_o   : out std_logic_vector(f_div8(g_width) - 1 downto 0);
+		m_adr_o   : out std_logic_vector(g_wb_addr_width - 1 downto 0);
+		m_dat_o   : out std_logic_vector(g_wb_data_width - 1 downto 0);
+		m_sel_o   : out std_logic_vector(f_div8(g_wb_data_width) - 1 downto 0);
 		m_we_o    : out std_logic
 		);
 end component WB_Bridge;
 	
-signal WbDat_i                   : std_logic_vector(g_width - 1 downto 0);
-signal WbDat_o                   : std_logic_vector(g_width - 1 downto 0);
-signal WbAdr_o                   : std_logic_vector(g_addr_width - 1 downto 0);
+signal WbDat_i                   : std_logic_vector(g_wb_data_width - 1 downto 0);
+signal WbDat_o                   : std_logic_vector(g_wb_data_width - 1 downto 0);
+signal WbAdr_o                   : std_logic_vector(g_wb_addr_width - 1 downto 0);
 signal WbCyc_o                   : std_logic;
 signal WbErr_i                   : std_logic;
 signal WbRty_i                   : std_logic;
-signal WbSel_o                   : std_logic_vector(f_div8(g_width) - 1 downto 0);
+signal WbSel_o                   : std_logic_vector(f_div8(g_wb_data_width) - 1 downto 0);
 signal WbStb_o                   : std_logic;
 signal WbAck_i                   : std_logic;	
 signal WbWe_o                    : std_logic;		
 signal WbStall_i                 : std_logic;		
 signal WbIrq_i                   : std_logic;
 	
-signal WbMemDat_i                : std_logic_vector(g_width - 1 downto 0);
-signal WbMemDat_o                : std_logic_vector(g_width - 1 downto 0);
-signal WbMemAdr_i                : std_logic_vector(g_addr_width - 1 downto 0);
+signal WbMemDat_i                : std_logic_vector(g_wb_data_width - 1 downto 0);
+signal WbMemDat_o                : std_logic_vector(g_wb_data_width - 1 downto 0);
+signal WbMemAdr_i                : std_logic_vector(g_wb_addr_width - 1 downto 0);
 signal WbMemCyc_i                : std_logic;
 signal WbMemErr_o                : std_logic;
 signal WbMemRty_o                : std_logic;
-signal WbMemSel_i                : std_logic_vector(f_div8(g_width) - 1 downto 0);
+signal WbMemSel_i                : std_logic_vector(f_div8(g_wb_data_width) - 1 downto 0);
 signal WbMemStb_i                : std_logic;
 signal WbMemAck_o                : std_logic;	
 signal WbMemWe_i                 : std_logic;		
@@ -284,8 +298,14 @@ begin
 
 Inst_VME64xCore_Top: VME64xCore_Top 
 generic map(
-              g_width => g_width,
-				  g_addr_width => g_addr_width 
+              g_clock          => g_clock,
+              g_wb_data_width  => g_wb_data_width,
+				  g_wb_addr_width  => g_wb_addr_width,
+				  g_cram_size      => g_cram_size,
+			     g_BoardID        => g_BoardID,
+				  g_ManufacturerID => g_ManufacturerID,
+				  g_RevisionID     => g_RevisionID,
+				  g_ProgramID      => g_ProgramID
            )
 port map(
       -- VME
@@ -360,8 +380,8 @@ Inst_xwb_ram: xwb_ram
 	
 Inst_WB_Bridge: WB_Bridge 
 generic map(
-              g_width => g_width,
-				  g_addr_width => g_addr_width 
+              g_wb_data_width => g_wb_data_width,
+				  g_wb_addr_width => g_wb_addr_width 
            )
 port map(
 		clk_i     => clk_in,
@@ -404,63 +424,63 @@ port map(
 	 VME_DATA_DIR_o   <= s_VME_DATA_DIR;
 ---------------------------------------------------------------------------------	 
 
--- PLL_BASE_inst : PLL_BASE
---   generic map (
---      BANDWIDTH => "OPTIMIZED",   -- "HIGH", "LOW" or "OPTIMIZED" 
---      CLKFBOUT_MULT => 20,        -- Multiply value for all CLKOUT clock outputs (1-64)
---      CLKFBOUT_PHASE => 0.000,    -- Phase offset in degrees of the clock feedback output
---                                  -- (0.0-360.0).
---      CLKIN_PERIOD => 50.000,     -- Input clock period in ns to ps resolution (i.e. 33.333 is 30
---                                  -- MHz).
---      -- CLKOUT0_DIVIDE - CLKOUT5_DIVIDE: Divide amount for CLKOUT# clock output (1-128)
---      CLKOUT0_DIVIDE => 4,
---      CLKOUT1_DIVIDE => 1,
---      CLKOUT2_DIVIDE => 1,
---      CLKOUT3_DIVIDE => 1,
---      CLKOUT4_DIVIDE => 1,
---      CLKOUT5_DIVIDE => 1,
---      -- CLKOUT0_DUTY_CYCLE - CLKOUT5_DUTY_CYCLE: 
---      -- Duty cycle for CLKOUT# clock output (0.01-0.99).
---      CLKOUT0_DUTY_CYCLE => 0.500,
---      CLKOUT1_DUTY_CYCLE => 0.500,
---      CLKOUT2_DUTY_CYCLE => 0.500,
---      CLKOUT3_DUTY_CYCLE => 0.500,
---      CLKOUT4_DUTY_CYCLE => 0.500,
---      CLKOUT5_DUTY_CYCLE => 0.500,
---      -- CLKOUT0_PHASE - CLKOUT5_PHASE: 
---      -- Output phase relationship for CLKOUT# clock output (-360.0-360.0).
---      CLKOUT0_PHASE         => 0.000,
---      CLKOUT1_PHASE         => 0.000,
---      CLKOUT2_PHASE         => 0.000,
---      CLKOUT3_PHASE         => 0.000,
---      CLKOUT4_PHASE         => 0.000,
---      CLKOUT5_PHASE         => 0.000,
---      CLK_FEEDBACK          => "CLKFBOUT",           
---      COMPENSATION          => "SYSTEM_SYNCHRONOUS", 
---      DIVCLK_DIVIDE         => 1, -- Division value for all output clocks (1-52)
---      REF_JITTER            => 0.016,-- Reference Clock Jitter in UI (0.000-0.999).
---      RESET_ON_LOSS_OF_LOCK => FALSE -- Must be set to FALSE
---   )
---   port map (
---      CLKFBOUT => s_fb,     -- 1-bit output: PLL_BASE feedback output
---      -- CLKOUT0 - CLKOUT5: 1-bit (each) output: Clock outputs
---      CLKOUT0 => clk_in_buf,    --clk 100 MHz
---      CLKOUT1 => open,
---      CLKOUT2 => open,
---      CLKOUT3 => open,
---      CLKOUT4 => open,
---      CLKOUT5 => open,
---      LOCKED  => s_locked,   -- 1-bit output: PLL_BASE lock status output
---      CLKFBIN => s_fb,      -- 1-bit input: Feedback clock input
---      CLKIN   => clk_i,       -- 1-bit input: Clock input
---      RST     => '0'            -- 1-bit input: Reset input
---   );	
---cmp_clk_dmtd_buf : BUFG
---  port map
---    (O => clk_in,
---     I => clk_in_buf);
+ PLL_BASE_inst : PLL_BASE
+   generic map (
+      BANDWIDTH => "OPTIMIZED",   -- "HIGH", "LOW" or "OPTIMIZED" 
+      CLKFBOUT_MULT => 20,        -- Multiply value for all CLKOUT clock outputs (1-64)
+      CLKFBOUT_PHASE => 0.000,    -- Phase offset in degrees of the clock feedback output
+                                  -- (0.0-360.0).
+      CLKIN_PERIOD => 50.000,     -- Input clock period in ns to ps resolution (i.e. 33.333 is 30
+                                  -- MHz).
+      -- CLKOUT0_DIVIDE - CLKOUT5_DIVIDE: Divide amount for CLKOUT# clock output (1-128)
+      CLKOUT0_DIVIDE => 4,
+      CLKOUT1_DIVIDE => 1,
+      CLKOUT2_DIVIDE => 1,
+      CLKOUT3_DIVIDE => 1,
+      CLKOUT4_DIVIDE => 1,
+      CLKOUT5_DIVIDE => 1,
+      -- CLKOUT0_DUTY_CYCLE - CLKOUT5_DUTY_CYCLE: 
+      -- Duty cycle for CLKOUT# clock output (0.01-0.99).
+      CLKOUT0_DUTY_CYCLE => 0.500,
+      CLKOUT1_DUTY_CYCLE => 0.500,
+      CLKOUT2_DUTY_CYCLE => 0.500,
+      CLKOUT3_DUTY_CYCLE => 0.500,
+      CLKOUT4_DUTY_CYCLE => 0.500,
+      CLKOUT5_DUTY_CYCLE => 0.500,
+      -- CLKOUT0_PHASE - CLKOUT5_PHASE: 
+      -- Output phase relationship for CLKOUT# clock output (-360.0-360.0).
+      CLKOUT0_PHASE         => 0.000,
+      CLKOUT1_PHASE         => 0.000,
+      CLKOUT2_PHASE         => 0.000,
+      CLKOUT3_PHASE         => 0.000,
+      CLKOUT4_PHASE         => 0.000,
+      CLKOUT5_PHASE         => 0.000,
+      CLK_FEEDBACK          => "CLKFBOUT",           
+      COMPENSATION          => "SYSTEM_SYNCHRONOUS", 
+      DIVCLK_DIVIDE         => 1, -- Division value for all output clocks (1-52)
+      REF_JITTER            => 0.016,-- Reference Clock Jitter in UI (0.000-0.999).
+      RESET_ON_LOSS_OF_LOCK => FALSE -- Must be set to FALSE
+   )
+   port map (
+      CLKFBOUT => s_fb,     -- 1-bit output: PLL_BASE feedback output
+      -- CLKOUT0 - CLKOUT5: 1-bit (each) output: Clock outputs
+      CLKOUT0 => clk_in_buf,    --clk 100 MHz
+      CLKOUT1 => open,
+      CLKOUT2 => open,
+      CLKOUT3 => open,
+      CLKOUT4 => open,
+      CLKOUT5 => open,
+      LOCKED  => s_locked,   -- 1-bit output: PLL_BASE lock status output
+      CLKFBIN => s_fb,      -- 1-bit input: Feedback clock input
+      CLKIN   => clk_i,       -- 1-bit input: Clock input
+      RST     => '0'            -- 1-bit input: Reset input
+   );	
+cmp_clk_dmtd_buf : BUFG
+  port map
+    (O => clk_in,
+     I => clk_in_buf);
 -- comment the next line if the PLL is used:
-	clk_in <= clk_i;
+--	clk_in <= clk_i;
 end Behavioral;
 --===========================================================================
 -- Architecture end
