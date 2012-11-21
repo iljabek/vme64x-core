@@ -15,122 +15,122 @@
   <version xil_pn:ise_version="13.1" xil_pn:schema_version="2"/>
 
   <files>
-    <file xil_pn:name="../../../../vme64x-core/rtl/VME_Access_Decode.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../../../vme64x-core/rtl/VME_Access_Decode.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="12"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="12"/>
     </file>
-    <file xil_pn:name="../../../../vme64x-core/rtl/VME_Am_Match.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../../../vme64x-core/rtl/VME_Am_Match.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="4"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="4"/>
     </file>
-    <file xil_pn:name="../../../../vme64x-core/rtl/VME_bus.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../../../vme64x-core/rtl/VME_bus.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="18"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="18"/>
     </file>
-    <file xil_pn:name="../../../../vme64x-core/rtl/VME_CR_CSR_Space.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../../../vme64x-core/rtl/VME_CR_CSR_Space.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="17"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="17"/>
     </file>
-    <file xil_pn:name="../../../../vme64x-core/rtl/VME_CR_pack.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../../../vme64x-core/rtl/VME_CR_pack.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="10"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="10"/>
     </file>
-    <file xil_pn:name="../../../../vme64x-core/rtl/VME_CSR_pack.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../../../vme64x-core/rtl/VME_CSR_pack.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="9"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="9"/>
     </file>
-    <file xil_pn:name="../../../../vme64x-core/rtl/VME_Funct_Match.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../../../vme64x-core/rtl/VME_Funct_Match.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="3"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="3"/>
     </file>
-    <file xil_pn:name="../../../../vme64x-core/rtl/VME_Init.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../../../vme64x-core/rtl/VME_Init.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="8"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="8"/>
     </file>
-    <file xil_pn:name="../../../../vme64x-core/rtl/VME_IRQ_Controller.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../../../vme64x-core/rtl/VME_IRQ_Controller.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="16"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="16"/>
     </file>
-    <file xil_pn:name="../../../../vme64x-core/rtl/VME_SharedComps.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../../../vme64x-core/rtl/VME_SharedComps.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="2"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="2"/>
     </file>
-    <file xil_pn:name="../../../../vme64x-core/rtl/VME_swapper.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../../../vme64x-core/rtl/VME_swapper.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="7"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="7"/>
     </file>
-    <file xil_pn:name="../../../../vme64x-core/rtl/VME_Wb_master.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../../../vme64x-core/rtl/VME_Wb_master.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="6"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="6"/>
     </file>
-    <file xil_pn:name="../../../../vme64x-core/rtl/vme64x_pack.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../../../vme64x-core/rtl/vme64x_pack.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="1"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="1"/>
     </file>
-    <file xil_pn:name="../../../../vme64x-core/rtl/VME64xCore_Top.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../../../vme64x-core/rtl/VME64xCore_Top.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="21"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="21"/>
     </file>
-    <file xil_pn:name="../../rtl/genram_pkg.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="5"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="5"/>
-    </file>
-    <file xil_pn:name="../../rtl/IRQ_generator.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="15"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="15"/>
-    </file>
-    <file xil_pn:name="../../rtl/ram_8bits.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="14"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="14"/>
-    </file>
-    <file xil_pn:name="../../rtl/spram.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="19"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="19"/>
-    </file>
-    <file xil_pn:name="../../rtl/TOP_LEVEL.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="26"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="24"/>
-    </file>
-    <file xil_pn:name="../../rtl/wishbone_pkg.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="13"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="13"/>
-    </file>
-    <file xil_pn:name="../../rtl/xwb_ram.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="23"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="22"/>
-    </file>
-    <file xil_pn:name="../../sim/testbench/VME64x_Package.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="22"/>
-      <association xil_pn:name="PostMapSimulation" xil_pn:seqID="76"/>
-      <association xil_pn:name="PostRouteSimulation" xil_pn:seqID="76"/>
-      <association xil_pn:name="PostTranslateSimulation" xil_pn:seqID="76"/>
-    </file>
-    <file xil_pn:name="../../sim/testbench/VME64x_SIM_Package.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="25"/>
-      <association xil_pn:name="PostMapSimulation" xil_pn:seqID="77"/>
-      <association xil_pn:name="PostRouteSimulation" xil_pn:seqID="77"/>
-      <association xil_pn:name="PostTranslateSimulation" xil_pn:seqID="77"/>
-    </file>
-    <file xil_pn:name="../../sim/testbench/VME64x_TB.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="27"/>
-      <association xil_pn:name="PostMapSimulation" xil_pn:seqID="78"/>
-      <association xil_pn:name="PostRouteSimulation" xil_pn:seqID="78"/>
-      <association xil_pn:name="PostTranslateSimulation" xil_pn:seqID="78"/>
-    </file>
-    <file xil_pn:name="../../rtl/IRQ_Generator_Top.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="20"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="20"/>
-    </file>
-    <file xil_pn:name="../../rtl/WB_Bridge.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="24"/>
-      <association xil_pn:name="Implementation" xil_pn:seqID="23"/>
-    </file>
-    <file xil_pn:name="../../../../vme64x-core/rtl/VME_CRAM.vhd" xil_pn:type="FILE_VHDL">
+    <file xil_pn:name="../../../vme64x-core/rtl/VME_CRAM.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="11"/>
       <association xil_pn:name="Implementation" xil_pn:seqID="11"/>
     </file>
-    <file xil_pn:name="../../SVEC.ucf" xil_pn:type="FILE_UCF">
+    <file xil_pn:name="../rtl/IRQ_Generator_Top.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="20"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="20"/>
+    </file>
+    <file xil_pn:name="../rtl/IRQ_generator.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="15"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="15"/>
+    </file>
+    <file xil_pn:name="../rtl/ram_8bits.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="14"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="14"/>
+    </file>
+    <file xil_pn:name="../rtl/spram.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="19"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="19"/>
+    </file>
+    <file xil_pn:name="../rtl/TOP_LEVEL.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="26"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="24"/>
+    </file>
+    <file xil_pn:name="../rtl/WB_Bridge.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="24"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="23"/>
+    </file>
+    <file xil_pn:name="../rtl/wishbone_pkg.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="13"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="13"/>
+    </file>
+    <file xil_pn:name="../rtl/xwb_ram.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="23"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="22"/>
+    </file>
+    <file xil_pn:name="../rtl/genram_pkg.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="5"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="5"/>
+    </file>
+    <file xil_pn:name="../SVEC.ucf" xil_pn:type="FILE_UCF">
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+    </file>
+    <file xil_pn:name="../sim/testbench/VME64x_Package.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="22"/>
+      <association xil_pn:name="PostMapSimulation" xil_pn:seqID="39"/>
+      <association xil_pn:name="PostRouteSimulation" xil_pn:seqID="39"/>
+      <association xil_pn:name="PostTranslateSimulation" xil_pn:seqID="39"/>
+    </file>
+    <file xil_pn:name="../sim/testbench/VME64x_SIM_Package.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="25"/>
+      <association xil_pn:name="PostMapSimulation" xil_pn:seqID="40"/>
+      <association xil_pn:name="PostRouteSimulation" xil_pn:seqID="40"/>
+      <association xil_pn:name="PostTranslateSimulation" xil_pn:seqID="40"/>
+    </file>
+    <file xil_pn:name="../sim/testbench/VME64x_TB.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="27"/>
+      <association xil_pn:name="PostMapSimulation" xil_pn:seqID="41"/>
+      <association xil_pn:name="PostRouteSimulation" xil_pn:seqID="41"/>
+      <association xil_pn:name="PostTranslateSimulation" xil_pn:seqID="41"/>
     </file>
   </files>
 
@@ -247,7 +247,7 @@
     <property xil_pn:name="Ignore User Timing Constraints Map" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Ignore User Timing Constraints Par" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Implementation Top" xil_pn:value="Architecture|TOP_LEVEL|Behavioral" xil_pn:valueState="non-default"/>
-    <property xil_pn:name="Implementation Top File" xil_pn:value="../../rtl/TOP_LEVEL.vhd" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Implementation Top File" xil_pn:value="../rtl/TOP_LEVEL.vhd" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Implementation Top Instance Path" xil_pn:value="/TOP_LEVEL" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Include 'uselib Directive in Verilog File" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Include SIMPRIM Models in Verilog File" xil_pn:value="false" xil_pn:valueState="default"/>

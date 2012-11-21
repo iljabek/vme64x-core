@@ -17,7 +17,6 @@ add wave -noupdate -expand -group VME_TOP /vme64x_tb/uut/VME_RETRY_n_o
 add wave -noupdate -expand -group VME_TOP /vme64x_tb/uut/VME_LWORD_n_b
 add wave -noupdate -expand -group VME_TOP -radix hexadecimal /vme64x_tb/uut/VME_ADDR_b
 add wave -noupdate -expand -group VME_TOP -radix hexadecimal /vme64x_tb/uut/VME_DATA_b
-add wave -noupdate -expand -group VME_TOP /vme64x_tb/uut/VME_BBSY_n_i
 add wave -noupdate -expand -group VME_TOP /vme64x_tb/uut/VME_IRQ_n_o
 add wave -noupdate -expand -group VME_TOP /vme64x_tb/uut/VME_IACKIN_n_i
 add wave -noupdate -expand -group VME_TOP /vme64x_tb/uut/VME_IACKOUT_n_o
@@ -29,9 +28,6 @@ add wave -noupdate -expand -group VME_TOP /vme64x_tb/uut/VME_DATA_OE_N_o
 add wave -noupdate -expand -group VME_TOP /vme64x_tb/uut/VME_ADDR_DIR_o
 add wave -noupdate -expand -group VME_TOP /vme64x_tb/uut/VME_ADDR_OE_N_o
 add wave -noupdate -group DecodeAccess /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_VME_bus/Inst_Access_Decode/clk_i
-add wave -noupdate -group DecodeAccess /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_VME_bus/Inst_Access_Decode/s_reset
-add wave -noupdate -group DecodeAccess /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_VME_bus/Inst_Access_Decode/s_mainFSMreset
-add wave -noupdate -group DecodeAccess /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_VME_bus/Inst_Access_Decode/s_decode
 add wave -noupdate -group DecodeAccess /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_VME_bus/Inst_Access_Decode/ModuleEnable
 add wave -noupdate -group DecodeAccess /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_VME_bus/Inst_Access_Decode/InitInProgress
 add wave -noupdate -group DecodeAccess -radix hexadecimal /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_VME_bus/Inst_Access_Decode/Addr
@@ -87,7 +83,6 @@ add wave -noupdate -group VME_WB /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_VME_bus
 add wave -noupdate -group VME_WB /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_VME_bus/Inst_Wb_master/WbSel_o
 add wave -noupdate -group VME_WB /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_VME_bus/Inst_Wb_master/RW_o
 add wave -noupdate -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_VME_IRQ_Controller/clk_i
-add wave -noupdate -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_VME_IRQ_Controller/reset
 add wave -noupdate -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_VME_IRQ_Controller/VME_IACKIN_n_i
 add wave -noupdate -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_VME_IRQ_Controller/VME_AS_n_i
 add wave -noupdate -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_VME_IRQ_Controller/VME_DS_n_i
@@ -100,7 +95,6 @@ add wave -noupdate -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst
 add wave -noupdate -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_VME_IRQ_Controller/VME_IACKOUT_n_o
 add wave -noupdate -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_VME_IRQ_Controller/VME_DTACK_n_o
 add wave -noupdate -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_VME_IRQ_Controller/VME_DATA_o
-add wave -noupdate -group IRQ_Controller /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_VME_IRQ_Controller/currs
 add wave -noupdate -expand -group WB_Bridge_out /vme64x_tb/uut/Inst_WB_Bridge/m_cyc_o
 add wave -noupdate -expand -group WB_Bridge_out /vme64x_tb/uut/Inst_WB_Bridge/m_stb_o
 add wave -noupdate -expand -group WB_Bridge_out /vme64x_tb/uut/Inst_WB_Bridge/m_adr_o
@@ -112,6 +106,7 @@ add wave -noupdate -expand -group WB_Bridge_out /vme64x_tb/uut/Inst_WB_Bridge/m_
 add wave -noupdate -expand -group WB_Bridge_out /vme64x_tb/uut/Inst_WB_Bridge/m_stall_i
 add wave -noupdate -expand -group WB_Bridge_out /vme64x_tb/uut/Inst_WB_Bridge/m_rty_i
 add wave -noupdate -expand -group WB_Bridge_out /vme64x_tb/uut/Inst_WB_Bridge/m_dat_i
+add wave -noupdate /vme64x_tb/uut/Inst_VME64xCore_Top/Inst_VME_bus/s_VMEaddrInput
 TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {8963596 ps} 0}
 configure wave -namecolwidth 150
@@ -128,4 +123,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {34872407 ps} {35359347 ps}
+WaveRestoreZoom {7948848 ps} {10676982 ps}

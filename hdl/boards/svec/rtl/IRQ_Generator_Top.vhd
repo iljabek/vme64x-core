@@ -40,8 +40,8 @@
 -- Authors:                                     
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date         08/2012                                                                           
--- Version      v0.02  
+-- Date         11/2012                                                                           
+-- Version      v0.03  
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------   
@@ -64,8 +64,8 @@
 -- Entity declaration
 --=========================================================================== 
 entity IRQ_Generator_Top is
-generic(g_width      : integer := c_width;
-	     g_addr_width : integer := c_addr_width
+generic(g_wb_data_width : integer := c_width;
+	     g_wb_addr_width : integer := c_addr_width
 	    );
     port ( -- IRQ_Generator 
            clk_i     : in   std_logic;
@@ -75,15 +75,15 @@ generic(g_width      : integer := c_width;
 			  -- wb slave side
            cyc_i     : in   std_logic;
            stb_i     : in   std_logic;
-           adr_i     : in   std_logic_vector (g_addr_width - 1 downto 0);
-           sel_i     : in   std_logic_vector (f_div8(g_width) - 1 downto 0);
+           adr_i     : in   std_logic_vector (g_wb_addr_width - 1 downto 0);
+           sel_i     : in   std_logic_vector (f_div8(g_wb_data_width) - 1 downto 0);
            we_i      : in   std_logic;
-           dat_i     : in   std_logic_vector (g_width - 1 downto 0);
+           dat_i     : in   std_logic_vector (g_wb_data_width - 1 downto 0);
            ack_o     : out  std_logic;
            err_o     : out  std_logic;
            rty_o     : out  std_logic;
            stall_o   : out  std_logic;
-           dat_o     : out  std_logic_vector (g_width - 1 downto 0)
+           dat_o     : out  std_logic_vector (g_wb_data_width - 1 downto 0)
 			  );
 end IRQ_Generator_Top;
 --===========================================================================
@@ -99,7 +99,7 @@ signal s_Int_Count_o   : std_logic_vector(31 downto 0);
 signal s_Read_IntCount : std_logic;
 signal s_data          : std_logic_vector(31 downto 0);
 signal s_data_f        : std_logic_vector(31 downto 0);
-signal s_data_o        : std_logic_vector(g_width - 1 downto 0);
+signal s_data_o        : std_logic_vector(g_wb_data_width - 1 downto 0);
 signal s_IntCount_sel  : std_logic;
 signal s_Freq_sel      : std_logic;
 signal s_wea           : std_logic;
@@ -141,7 +141,7 @@ s_en_Freq       <= '1' when (s_Freq_sel = '1' and s_wea = '1') else '0';
 -- the WB data bus is 32 or 64 bit width, so the following processes have been
 -- added: 
 
-gen64 : if (g_width = 64) generate
+gen64 : if (g_wb_data_width = 64) generate
         s_data   <= dat_i(63 downto 32);
 		  s_data_f <= dat_i(31 downto 0);
 		  s_data_o <= s_INT_COUNT & s_FREQ;
@@ -151,7 +151,7 @@ gen64 : if (g_width = 64) generate
 		                    '0';						  				  
 end generate gen64;
 
-gen32 : if (g_width = 32) generate
+gen32 : if (g_wb_data_width = 32) generate
         s_data   <= dat_i;
 		  s_data_f <= dat_i;
 		  s_data_o <= s_INT_COUNT when s_IntCount_sel = '1' else

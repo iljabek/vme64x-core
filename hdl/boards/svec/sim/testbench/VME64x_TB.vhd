@@ -24,34 +24,35 @@ ARCHITECTURE behavior OF VME64x_TB IS
 
     -- Component Declaration for the Unit Under Test (UUT)
 
-   COMPONENT TOP_LEVEL
-      PORT(
-             clk_i           : IN    std_logic;
-             VME_AS_n_i      : IN    std_logic;
-             VME_RST_n_i     : IN    std_logic;
-             VME_WRITE_n_i   : IN    std_logic;
-             VME_AM_i        : IN    std_logic_vector(5 downto 0);
-             VME_DS_n_i      : IN    std_logic_vector(1 downto 0);
-             VME_GA_i        : IN    std_logic_vector(5 downto 0);
-             VME_BERR_o      : OUT   std_logic;
-             VME_DTACK_n_o   : OUT   std_logic;
-             VME_RETRY_n_o   : OUT   std_logic;
-             VME_RETRY_OE_o  : OUT   std_logic;
-             VME_LWORD_n_b   : INOUT std_logic;
-             VME_ADDR_b      : INOUT std_logic_vector(31 downto 1);
-             VME_DATA_b      : INOUT std_logic_vector(31 downto 0);
-             VME_IRQ_n_o     : OUT   std_logic_vector(6 downto 0);
-             VME_IACK_n_i    : IN    std_logic;
-             VME_IACKIN_n_i  : IN    std_logic;
-             VME_IACKOUT_n_o : OUT   std_logic;
-             VME_DTACK_OE_o  : OUT   std_logic;
-             VME_DATA_DIR_o  : OUT   std_logic;
-             VME_DATA_OE_N_o : OUT   std_logic;
-             VME_ADDR_DIR_o  : OUT   std_logic;
-             VME_ADDR_OE_N_o : OUT   std_logic;
-             Reset           : IN    std_logic
-          );
-   END COMPONENT;
+  COMPONENT TOP_LEVEL
+	PORT(
+		clk_i : IN std_logic;
+		Reset : IN std_logic;
+		VME_AS_n_i : IN std_logic;
+		VME_RST_n_i : IN std_logic;
+		VME_WRITE_n_i : IN std_logic;
+		VME_AM_i : IN std_logic_vector(5 downto 0);
+		VME_DS_n_i : IN std_logic_vector(1 downto 0);
+		VME_GA_i : IN std_logic_vector(5 downto 0);
+		VME_IACKIN_n_i : IN std_logic;
+		VME_IACK_n_i : IN std_logic;    
+		VME_LWORD_n_b : INOUT std_logic;
+		VME_ADDR_b : INOUT std_logic_vector(31 downto 1);
+		VME_DATA_b : INOUT std_logic_vector(31 downto 0);      
+		VME_BERR_o : OUT std_logic;
+		VME_DTACK_n_o : OUT std_logic;
+		VME_RETRY_n_o : OUT std_logic;
+		VME_IRQ_n_o : OUT std_logic_vector(6 downto 0);
+		VME_IACKOUT_n_o : OUT std_logic;
+		VME_RETRY_OE_o : OUT std_logic;
+		VME_DTACK_OE_o : OUT std_logic;
+		VME_DATA_DIR_o : OUT std_logic;
+		VME_DATA_OE_N_o : OUT std_logic;
+		VME_ADDR_DIR_o : OUT std_logic;
+		VME_ADDR_OE_N_o : OUT std_logic;
+		leds : OUT std_logic_vector(7 downto 0)
+		);
+	END COMPONENT;
 
 
    --Inputs
@@ -111,34 +112,35 @@ ARCHITECTURE behavior OF VME64x_TB IS
    constant clk_i_period : time := 10 ns;
 
 BEGIN
+-- Instantiate the Unit Under Test (UUT)
+   uut: TOP_LEVEL PORT MAP(
+		clk_i => clk_i,
+		Reset => Reset,
+		VME_AS_n_i => VME_AS_n_i,
+		VME_RST_n_i => VME_RST_n_i,
+		VME_WRITE_n_i => VME_WRITE_n_i,
+		VME_AM_i => VME_AM_i,
+		VME_DS_n_i => VME_DS_n_i,
+		VME_GA_i => VME_GA_i,
+		VME_BERR_o => VME_BERR_o,
+		VME_DTACK_n_o => VME_DTACK_n_o,
+		VME_RETRY_n_o => VME_RETRY_n_o,
+		VME_LWORD_n_b => VME_LWORD_n_b,
+		VME_ADDR_b => VME_ADDR_b,
+		VME_DATA_b => VME_DATA_b,
+		VME_IRQ_n_o => VME_IRQ_n_o,
+		VME_IACKIN_n_i => VME_IACKIN_n_i,
+		VME_IACKOUT_n_o => VME_IACKOUT_n_o,
+		VME_IACK_n_i => VME_IACK_n_i,
+		VME_RETRY_OE_o => VME_RETRY_OE_o,
+		VME_DTACK_OE_o => VME_DTACK_OE_o,
+		VME_DATA_DIR_o => VME_DATA_DIR_o,
+		VME_DATA_OE_N_o => VME_DATA_OE_N_o,
+		VME_ADDR_DIR_o => VME_ADDR_DIR_o,
+		VME_ADDR_OE_N_o => VME_ADDR_OE_N_o,
+		leds => open
+		);
 
-   -- Instantiate the Unit Under Test (UUT)
-   uut: TOP_LEVEL PORT MAP (
-                              clk_i => clk_i,
-                              VME_AS_n_i => VME_AS_n_i,
-                              VME_RST_n_i => VME_RST_n_i,
-                              VME_WRITE_n_i => VME_WRITE_n_i,
-                              VME_AM_i => VME_AM_i,
-                              VME_DS_n_i => VME_DS_n_i,
-                              VME_GA_i => VME_GA_i,
-                              VME_BERR_o => VME_BERR_o,
-                              VME_DTACK_n_o => VME_DTACK_n_o,
-                              VME_RETRY_n_o => VME_RETRY_n_o,
-                              VME_RETRY_OE_o => VME_RETRY_OE_o,
-                              VME_LWORD_n_b => VME_LWORD_n_b,
-                              VME_ADDR_b => VME_ADDR_b,
-                              VME_DATA_b => VME_DATA_b,
-                              VME_IRQ_n_o => VME_IRQ_n_o,
-                              VME_IACK_n_i => VME_IACK_n_i,
-                              VME_IACKIN_n_i => VME_IACKIN_n_i,
-                              VME_IACKOUT_n_o => VME_IACKOUT_n_o,
-                              VME_DTACK_OE_o => VME_DTACK_OE_o,
-                              VME_DATA_DIR_o => VME_DATA_DIR_o,
-                              VME_DATA_OE_N_o => VME_DATA_OE_N_o,
-                              VME_ADDR_DIR_o => VME_ADDR_DIR_o,
-                              VME_ADDR_OE_N_o => VME_ADDR_OE_N_o,
-                              Reset => Reset
-                           );
 
    VME_IACKIN_n_i <=  VME64xBus_out.Vme64xIACKIN;		
    VME_IACK_n_i   <=  VME64xBus_out.Vme64xIACK;

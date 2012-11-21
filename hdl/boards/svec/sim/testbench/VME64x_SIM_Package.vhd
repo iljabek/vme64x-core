@@ -9,7 +9,7 @@
 --
 -- Company     : CERN
 --
--- Description : VME64x procedures for test the VME64x Slave
+-- Description : VME64x procedures for test the VME64x core
 
 library IEEE;
 library std;
