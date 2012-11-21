@@ -6,9 +6,9 @@
 -- File:                           VME_CR_CSR_Space.vhd
 --________________________________________________________________________________________________
 -- Description:
--- Please note that only every fourth location in the CR/CSR space is used so is possible write 
+-- Please note that only every fourth location in the CR/CSR space is used so it is possible write 
 -- the CSR/CRAM selecting the data transfer mode D08_Byte3, D16_Byte23, D32. If other data transfer 
--- mode are selected the write operation will not be successful.
+-- modes are selected the write operation will not be successful.
 -- If the Master access the board for a reading operation with data transfer type different than 
 -- D08_Byte3, D16_Byte23, D32 the data that will be read is 0.
 --                                        width = 1 byte
@@ -44,14 +44,14 @@
 --                          |_________________________________| 0x00
 --
 -- If the size of the register is bigger than 1 byte, (eg: ADER is 4 bytes) these bytes are 
--- storaged in the BIG_ENDIAN ORDER!!
+-- stored in the BIG_ENDIAN ORDER.
 -- User CR and User CSR are not implemented.
 -- In addition to the registers of the table 10-13 in the CSR space you can find:
 --                        _
 -- IRQ_Vector --> 0x7FF5F  |--> for the Interrupter 
 -- IRQ_level  --> 0x7FF5B _|
 --                       
--- MBLT_Endian --> 0x7FF53  --> for the swapper
+-- Endian --> 0x7FF53  --> for the swapper
 --
 -- WB32bits  --> 0x7FF33 --> if the bit 0 is '1' it means that the WB data bus is 32 bit
 --                       _
@@ -96,8 +96,8 @@
 -- Authors:                                       
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date         08/2012                                                                           
--- Version      v0.02  
+-- Date         11/2012                                                                           
+-- Version      v0.03  
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------  
@@ -123,15 +123,20 @@ use work.VME_CSR_pack.all;
 --===========================================================================
 entity VME_CR_CSR_Space is
    generic(
-				   g_CRAM_SIZE  : integer := c_CRAM_SIZE;
-					g_width      : integer := c_width
+				   g_cram_size      : integer    := c_CRAM_SIZE;
+					g_wb_data_width  : integer    := c_width;
+					g_CRspace        : t_cr_array := c_cr_array;
+					g_BoardID        : integer    := c_SVEC_ID;
+					g_ManufacturerID : integer    := c_CERN_ID;       -- 0x00080030
+				   g_RevisionID     : integer    := c_RevisionID;    -- 0x00000001
+				   g_ProgramID      : integer    := 96               -- 0x00000060 
               );
    Port ( -- VMEbus.vhd signals
            clk_i              : in   std_logic;
            reset              : in   std_logic;
            CR_addr            : in   std_logic_vector (11 downto 0);  
            CR_data            : out  std_logic_vector (7 downto 0);
-           CRAM_addr          : in   std_logic_vector (f_log2_size(g_CRAM_SIZE)-1 downto 0);
+           CRAM_addr          : in   std_logic_vector (f_log2_size(g_cram_size)-1 downto 0);
            CRAM_data_o        : out  std_logic_vector (7 downto 0);
            CRAM_data_i        : in   std_logic_vector (7 downto 0);
            CRAM_Wen           : in   std_logic;
@@ -155,8 +160,7 @@ entity VME_CR_CSR_Space is
            Ader7              : out  std_logic_vector(31 downto 0);
            ModuleEnable       : out  std_logic;
            Sw_Reset           : out  std_logic;
-			  W32                : out  std_logic;
-           MBLT_Endian_o      : out  std_logic_vector(2 downto 0);
+           Endian_o           : out  std_logic_vector(2 downto 0);
            BAR_o              : out  std_logic_vector(4 downto 0);
          -- IRQ_controller signals
            INT_Level          : out  std_logic_vector(7 downto 0);
@@ -171,6 +175,7 @@ architecture Behavioral of VME_CR_CSR_Space is
    signal s_bar_written          : std_logic;
    signal s_CSRdata              : unsigned(7 downto 0);
    signal s_FUNC_ADER            : t_FUNC_32b_array;
+	signal s_CR_Space             : t_cr_array(2**12 downto 0);
    signal s_CrCsrOffsetAddr      : unsigned(18 downto 0);
    signal s_locDataIn            : unsigned(7 downto 0);
    signal s_CrCsrOffsetAderIndex : unsigned(18 downto 0);
@@ -190,11 +195,12 @@ s_odd_parity   <=  VME_GA_oversampled(5) xor VME_GA_oversampled(4) xor
 -- master accesses its  CR/CSR space and we can see a time out error in the VME bus.  
 s_BARerror <= not(s_BAR_o(4) or s_BAR_o(3)or s_BAR_o(2) or s_BAR_o(1) or s_BAR_o(0));		
 --------------------------------------------------------------------------------
+s_CR_Space <= f_set_CR_space(g_BoardID, g_CRspace, g_ManufacturerID, g_RevisionID, g_ProgramID);
 -- CR
    process(clk_i)
    begin
       if rising_edge(clk_i) then
-         CR_data <= c_cr_array(to_integer(unsigned(CR_addr)));
+         CR_data <= s_CR_Space(to_integer(unsigned(CR_addr)));  -- c_cr_array(to_integer(unsigned(CR_addr)));
       end if;
    end process;
 --------------------------------------------------------------------------------
@@ -270,14 +276,14 @@ s_BARerror <= not(s_BAR_o(4) or s_BAR_o(3)or s_BAR_o(2) or s_BAR_o(1) or s_BAR_o
                when to_integer("00" & c_IRQ_level_addr(18 downto 2)) =>
                   s_CSRarray(IRQ_level) <= s_locDataIn(7 downto 0);
                
-               when to_integer("00" & c_MBLT_Endian_addr(18 downto 2)) =>
-                  s_CSRarray(MBLT_Endian) <= s_locDataIn(7 downto 0);			
+               when to_integer("00" & c_Endian_addr(18 downto 2)) =>
+                  s_CSRarray(Endian) <= s_locDataIn(7 downto 0);			
 						
                when others => null;   
             end case;	
 
          else
-			   if g_width = 32 then
+			   if g_wb_data_width = 32 then
 				   s_CSRarray(WB32bits) <= x"01";
 				else
 				   s_CSRarray(WB32bits) <= x"00";
@@ -342,7 +348,7 @@ s_BARerror <= not(s_BAR_o(4) or s_BAR_o(3)or s_BAR_o(2) or s_BAR_o(1) or s_BAR_o
          when "00" & c_FUNC0_ADER_3_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC0_ADER_3);
          when "00" & c_IRQ_Vector_addr (18 downto 2)     => s_CSRdata <= s_CSRarray(IRQ_Vector);
          when "00" & c_IRQ_level_addr(18 downto 2)       => s_CSRdata <= s_CSRarray(IRQ_level);
-         when "00" & c_MBLT_Endian_addr(18 downto 2)     => s_CSRdata <= s_CSRarray(MBLT_Endian);
+         when "00" & c_Endian_addr(18 downto 2)          => s_CSRdata <= s_CSRarray(Endian);
          when "00" & c_TIME0_ns_addr(18 downto 2)        => s_CSRdata <= s_CSRarray(TIME0_ns);
          when "00" & c_TIME1_ns_addr(18 downto 2)        => s_CSRdata <= s_CSRarray(TIME1_ns);
          when "00" & c_TIME2_ns_addr(18 downto 2)        => s_CSRdata <= s_CSRarray(TIME2_ns);
@@ -360,13 +366,13 @@ s_BARerror <= not(s_BAR_o(4) or s_BAR_o(3)or s_BAR_o(2) or s_BAR_o(1) or s_BAR_o
    INT_Vector        <= std_logic_vector(s_CSRarray(IRQ_Vector));
    CSRdata           <= std_logic_vector(s_CSRdata);
    s_CrCsrOffsetAddr <= unsigned(CrCsrOffsetAddr);
-
+-- Generate a vector of 8 array (unsigned 32 bits).
    GADER_1 : for i in 0 to 7 generate
       GADER_2 : for h in 0 to 3 generate
          s_FUNC_ADER(i)(8*(4-h)-1 downto 8*(3-h)) <= s_CSRarray(FUNC0_ADER_3+(h+i*4));
       end generate GADER_2;
    end generate GADER_1;
-
+-- to the decoder
    Ader0         <= std_logic_vector(s_FUNC_ADER(0));
    Ader1         <= std_logic_vector(s_FUNC_ADER(1));
    Ader2         <= std_logic_vector(s_FUNC_ADER(2));
@@ -376,16 +382,15 @@ s_BARerror <= not(s_BAR_o(4) or s_BAR_o(3)or s_BAR_o(2) or s_BAR_o(1) or s_BAR_o
    Ader6         <= std_logic_vector(s_FUNC_ADER(6));
    Ader7         <= std_logic_vector(s_FUNC_ADER(7));
    ModuleEnable  <= s_CSRarray(BIT_SET_CLR_REG)(4);
-   MBLT_Endian_o <= std_logic_vector(s_CSRarray(MBLT_Endian)(2 downto 0));
+   Endian_o      <= std_logic_vector(s_CSRarray(Endian)(2 downto 0));
    Sw_Reset      <= s_CSRarray(BIT_SET_CLR_REG)(7);
-	W32           <= s_CSRarray(WB32bits)(0); 
    BAR_o	        <= s_BAR_o;
    s_BAR_o       <= std_logic_vector(s_CSRarray(BAR)(7 downto 3));
 ---------------------------------------------------------------------------------------------------------------
 -- CRAM:
    CRAM_1 : VME_CRAM
    generic map(dl => 8,                   
-               al => f_log2_size(g_CRAM_SIZE)
+               al => f_log2_size(g_cram_size)
                )					
    port map(clk => clk_i,            
             we  => CRAM_Wen,            

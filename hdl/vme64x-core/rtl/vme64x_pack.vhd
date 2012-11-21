@@ -8,8 +8,8 @@
 -- Authors:                                     
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date         06/2012                                                                           
--- Version      v0.02 
+-- Date         11/2012                                                                           
+-- Version      v0.03 
 --_______________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------    
@@ -26,6 +26,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.numeric_std.all;
+--use work.VME_CR_pack.all;
 package vme64x_pack is
 --__________________________________________________________________________________
 -- Records:
@@ -57,7 +58,17 @@ package vme64x_pack is
          s_berr           :  std_logic;
          s_BERR_out       :  std_logic;
       end record;
-
+		
+   type t_FSM_IRQ is
+      record
+			s_IACKOUT   :  std_logic;
+			s_DataDir   :  std_logic; 
+			s_DTACK     :  std_logic;
+			s_enableIRQ :  std_logic;
+			s_resetIRQ  :  std_logic;
+			s_DSlatch   :  std_logic;
+			s_DTACK_OE  :  std_logic;
+	end record;
   --_______________________________________________________________________________
   -- Constants:
   --WB data width:
@@ -71,35 +82,58 @@ package vme64x_pack is
    constant DFS              : integer := 2;    -- for accessing at the ADEM's bit 2
    constant XAM_MODE         : integer := 0;  -- for accessing at the ADER's bit 0
 	-- Tclk in ns used to calculate the data transfer rate
-   constant c_CLK_PERIOD     : std_logic_vector(19 downto 0) := "00000000000000001010";
-  --AM table:
-   constant c_A24_S_sup      : std_logic_vector(5 downto 0) := "111101";
-   constant c_A24_S          : std_logic_vector(5 downto 0) := "111001";
-   constant c_A24_BLT        : std_logic_vector(5 downto 0) := "111011";
-   constant c_A24_BLT_sup    : std_logic_vector(5 downto 0) := "111111";
-   constant c_A24_MBLT       : std_logic_vector(5 downto 0) := "111000";
-   constant c_A24_MBLT_sup   : std_logic_vector(5 downto 0) := "111100";
-   constant c_A24_LCK        : std_logic_vector(5 downto 0) := "110010";
-   constant c_CR_CSR         : std_logic_vector(5 downto 0) := "101111";
-   constant c_A16            : std_logic_vector(5 downto 0) := "101001";
-   constant c_A16_sup        : std_logic_vector(5 downto 0) := "101101";
-   constant c_A16_LCK        : std_logic_vector(5 downto 0) := "101100";
-   constant c_A32            : std_logic_vector(5 downto 0) := "001001";
-   constant c_A32_sup        : std_logic_vector(5 downto 0) := "001101";
-   constant c_A32_BLT        : std_logic_vector(5 downto 0) := "001011";
-   constant c_A32_BLT_sup    : std_logic_vector(5 downto 0) := "001111";
-   constant c_A32_MBLT       : std_logic_vector(5 downto 0) := "001000";
-   constant c_A32_MBLT_sup   : std_logic_vector(5 downto 0) := "001100";
-   constant c_A32_LCK        : std_logic_vector(5 downto 0) := "000101";
-   constant c_A64            : std_logic_vector(5 downto 0) := "000001";
-   constant c_A64_BLT        : std_logic_vector(5 downto 0) := "000011";
-   constant c_A64_MBLT       : std_logic_vector(5 downto 0) := "000000";
-   constant c_A64_LCK        : std_logic_vector(5 downto 0) := "000100";
-   constant c_TWOedge        : std_logic_vector(5 downto 0) := "100000";
-   constant c_A32_2eVME      : std_logic_vector(7 downto 0) := "00000001";
-   constant c_A64_2eVME      : std_logic_vector(7 downto 0) := "00000010";
-   constant c_A32_2eSST      : std_logic_vector(7 downto 0) := "00010001";
-   constant c_A64_2eSST      : std_logic_vector(7 downto 0) := "00010010";
+   constant c_clk_period     : integer := 10;   --c_CLK_PERIOD     : std_logic_vector(19 downto 0) := "00000000000000001010";
+	-- add here the default boards ID:
+	constant c_SVEC_ID        : integer := 408;        -- 0x00000198
+	constant c_CERN_ID        : integer := 524336;     -- 0x080030
+	constant c_RevisionID     : integer := 1;          -- 0x00000001
+ 	--BoardID positions:
+	constant c_BOARD_ID_p1    : integer := 12;
+	constant c_BOARD_ID_p2    : integer := 13;
+	constant c_BOARD_ID_p3    : integer := 14;
+	constant c_BOARD_ID_p4    : integer := 15;
+	--ManufacturerID positions:
+	constant c_Manuf_ID_p1    : integer := 9;
+	constant c_Manuf_ID_p2    : integer := 10;
+	constant c_Manuf_ID_p3    : integer := 11;
+	--RevisionID positions:
+	constant c_Rev_ID_p1    : integer := 16;
+	constant c_Rev_ID_p2    : integer := 17;
+	constant c_Rev_ID_p3    : integer := 18;
+	constant c_Rev_ID_p4    : integer := 19;
+	--ProgramID positions:
+	constant c_Prog_ID_p    : integer := 31;
+  -- AM table. 
+  -- References:
+  -- Table 2-3 "Address Modifier Codes" pages 21/22 VME64std ANSI/VITA 1-1994
+  -- Table 2.4 "Extended Address Modifier Code" page 12 2eSST ANSI/VITA 1.5-2003(R2009)
+   constant c_A24_S_sup      : std_logic_vector(5 downto 0) := "111101";     -- hex code 0x3d
+   constant c_A24_S          : std_logic_vector(5 downto 0) := "111001";     -- hex code 0x39
+   constant c_A24_BLT        : std_logic_vector(5 downto 0) := "111011";     -- hex code 0x3b
+   constant c_A24_BLT_sup    : std_logic_vector(5 downto 0) := "111111";     -- hex code 0x3f
+   constant c_A24_MBLT       : std_logic_vector(5 downto 0) := "111000";     -- hex code 0x38
+   constant c_A24_MBLT_sup   : std_logic_vector(5 downto 0) := "111100";     -- hex code 0x3c
+   constant c_A24_LCK        : std_logic_vector(5 downto 0) := "110010";     -- hex code 0x32
+   constant c_CR_CSR         : std_logic_vector(5 downto 0) := "101111";     -- hex code 0x2f
+   constant c_A16            : std_logic_vector(5 downto 0) := "101001";     -- hex code 0x29
+   constant c_A16_sup        : std_logic_vector(5 downto 0) := "101101";     -- hex code 0x2d
+   constant c_A16_LCK        : std_logic_vector(5 downto 0) := "101100";     -- hex code 0x2c
+   constant c_A32            : std_logic_vector(5 downto 0) := "001001";     -- hex code 0x09
+   constant c_A32_sup        : std_logic_vector(5 downto 0) := "001101";     -- hex code 0x0d
+   constant c_A32_BLT        : std_logic_vector(5 downto 0) := "001011";     -- hex code 0x0b  
+   constant c_A32_BLT_sup    : std_logic_vector(5 downto 0) := "001111";     -- hex code 0x0f
+   constant c_A32_MBLT       : std_logic_vector(5 downto 0) := "001000";     -- hex code 0x08
+   constant c_A32_MBLT_sup   : std_logic_vector(5 downto 0) := "001100";     -- hex code 0x0c
+   constant c_A32_LCK        : std_logic_vector(5 downto 0) := "000101";     -- hex code 0x05
+   constant c_A64            : std_logic_vector(5 downto 0) := "000001";     -- hex code 0x01
+   constant c_A64_BLT        : std_logic_vector(5 downto 0) := "000011";     -- hex code 0x03
+   constant c_A64_MBLT       : std_logic_vector(5 downto 0) := "000000";     -- hex code 0x00
+   constant c_A64_LCK        : std_logic_vector(5 downto 0) := "000100";     -- hex code 0x04
+   constant c_TWOedge        : std_logic_vector(5 downto 0) := "100000";     -- hex code 0x20
+   constant c_A32_2eVME      : std_logic_vector(7 downto 0) := "00000001";   -- hex code 0x21
+   constant c_A64_2eVME      : std_logic_vector(7 downto 0) := "00000010";   -- hex code 0x22
+   constant c_A32_2eSST      : std_logic_vector(7 downto 0) := "00010001";   -- hex code 0x11
+   constant c_A64_2eSST      : std_logic_vector(7 downto 0) := "00010010";   -- hex code 0x12
  --CSR array's index:
    constant BAR                 : integer := 255;
    constant BIT_SET_CLR_REG     : integer := 254;
@@ -147,7 +181,7 @@ package vme64x_pack is
    constant BYTES0              : integer := FUNC0_ADER_3 -10;
    constant BYTES1              : integer := FUNC0_ADER_3 -11;
 	constant WB32bits            : integer := FUNC0_ADER_3 -12;
-   constant MBLT_Endian         : integer := FUNC0_ADER_3 -4;
+   constant Endian              : integer := FUNC0_ADER_3 -4;
   
    -- Initialization CR:
    constant BEG_USER_CR  : integer := 1;  
@@ -201,6 +235,16 @@ package vme64x_pack is
    s_BERR_out       => '0'
 );
 
+   constant c_FSM_IRQ : t_FSM_IRQ :=(
+		s_IACKOUT   => '1',
+		s_DataDir   => '0', 
+		s_DTACK     => '1',
+		s_enableIRQ => '0',
+		s_resetIRQ  => '1',
+		s_DSlatch   => '0',
+		s_DTACK_OE  => '0'
+);
+
   -- CSR address:
   constant c_BAR_addr             : unsigned(19 downto 0) := x"7FFFF";   -- VME64x defined CSR
   constant c_BIT_SET_REG_addr     : unsigned(19 downto 0) := x"7FFFB";
@@ -250,7 +294,7 @@ package vme64x_pack is
   constant c_BYTES0_addr          : unsigned(19 downto 0) := x"7FF3b";
   constant c_BYTES1_addr          : unsigned(19 downto 0) := x"7FF37";
   constant c_WB32bits_addr        : unsigned(19 downto 0) := x"7FF33";
-  constant c_MBLT_Endian_addr     : unsigned(19 downto 0) := x"7FF53";  -- VME64x reserved CSR
+  constant c_Endian_addr          : unsigned(19 downto 0) := x"7FF53";  -- VME64x reserved CSR
 
 --___________________________________________________________________________________________
 -- TYPE:
@@ -303,7 +347,10 @@ package vme64x_pack is
    type t_mainFSMstates is (      IDLE,
                                   DECODE_ACCESS,
                                   WAIT_FOR_DS,
-                                  LATCH_DS,
+                                  LATCH_DS1,
+											 LATCH_DS2,
+											 LATCH_DS3,
+											 LATCH_DS4,
                                   CHECK_TRANSFER_TYPE,
                                   MEMORY_REQ,
                                   DATA_TO_BUS,
@@ -359,13 +406,16 @@ package vme64x_pack is
 -- functions
 function f_div8 (width : integer) return integer;
 function f_log2_size (A : natural) return natural;
+function f_set_CR_space (BoardID : integer; cr_default : t_cr_array;
+ManufacturerID : integer; RevisionID : integer; ProgramID : integer) return t_cr_array;
+function f_latchDS (clk_period : integer) return integer;
 --_____________________________________________________________________________________________________
 --COMPONENTS:
               component VME_bus is
-				  generic(
-                        g_width : integer := c_width;
-	                     g_addr_width : integer := c_addr_width;
-								g_CRAM_SIZE  : integer := c_CRAM_SIZE
+				  generic(  g_clock         : integer := c_clk_period;
+                        g_wb_data_width : integer := c_width;
+	                     g_wb_addr_width : integer := c_addr_width;
+								g_cram_size     : integer := c_CRAM_SIZE
                         );
                  port(
                         clk_i                : in std_logic;
@@ -380,7 +430,7 @@ function f_log2_size (A : natural) return natural;
                         VME_AM_i             : in std_logic_vector(5 downto 0);
                         VME_IACK_n_i         : in std_logic;
                         memAckWB_i           : in std_logic;
-                        wbData_i             : in std_logic_vector(g_width - 1 downto 0);
+                        wbData_i             : in std_logic_vector(g_wb_data_width - 1 downto 0);
                         err_i                : in std_logic;
                         rty_i                : in std_logic;
                         stall_i              : in std_logic;
@@ -397,11 +447,9 @@ function f_log2_size (A : natural) return natural;
                         Ader6                : in std_logic_vector(31 downto 0);
                         Ader7                : in std_logic_vector(31 downto 0);
                         ModuleEnable         : in std_logic;
-                        MBLT_Endian_i        : in std_logic_vector(2 downto 0);
+                        Endian_i             : in std_logic_vector(2 downto 0);
                         Sw_Reset             : in std_logic;
-								W32                  : in  std_logic;
-                        BAR_i                : in std_logic_vector(4 downto 0);
-                        transfer_done_i      : in std_logic;          
+                        BAR_i                : in std_logic_vector(4 downto 0);         
                         reset_o              : out std_logic;
                         VME_LWORD_n_o        : out std_logic;
                         VME_RETRY_n_o        : out std_logic;
@@ -416,16 +464,12 @@ function f_log2_size (A : natural) return natural;
                         VME_DATA_DIR_o       : out std_logic;
                         VME_DATA_OE_N_o      : out std_logic;
                         memReq_o             : out std_logic;
-                        wbData_o             : out std_logic_vector(g_width - 1 downto 0);
-                        locAddr_o            : out std_logic_vector(g_addr_width - 1 downto 0);
-                        wbSel_o              : out std_logic_vector(f_div8(g_width) - 1 downto 0);
+                        wbData_o             : out std_logic_vector(g_wb_data_width - 1 downto 0);
+                        locAddr_o            : out std_logic_vector(g_wb_addr_width - 1 downto 0);
+                        wbSel_o              : out std_logic_vector(f_div8(g_wb_data_width) - 1 downto 0);
                         RW_o                 : out std_logic;
-                        cyc_o                : out std_logic;
-                        psize_o              : out std_logic_vector(8 downto 0);
-                        VMEtoWB              : out std_logic;
-                        WBtoVME              : out std_logic;
-                        FifoMux              : out std_logic;
-                        CRAMaddr_o           : out std_logic_vector(f_log2_size(g_CRAM_SIZE)-1 downto 0);
+                        cyc_o                : out std_logic;         
+                        CRAMaddr_o           : out std_logic_vector(f_log2_size(g_cram_size)-1 downto 0);
                         CRAMdata_o           : out std_logic_vector(7 downto 0);
                         CRAMwea_o            : out std_logic;
                         CRaddr_o             : out std_logic_vector(11 downto 0);
@@ -435,8 +479,7 @@ function f_log2_size (A : natural) return natural;
                         err_flag_o           : out std_logic;
                         numBytes             : out std_logic_vector(12 downto 0);
                         transfTime           : out std_logic_vector(39 downto 0);
-                        leds                 : out std_logic_vector(7 downto 0);
-                        transfer_done_o      : out std_logic	
+                        leds                 : out std_logic_vector(7 downto 0)                 
                      );
               end component VME_bus;
 
@@ -525,14 +568,19 @@ function f_log2_size (A : natural) return natural;
 
               component VME_CR_CSR_Space is
 				  generic(
-								g_CRAM_SIZE  : integer := c_CRAM_SIZE;
-								g_width      : integer := c_width
+								g_cram_size      : integer := c_CRAM_SIZE;
+								g_wb_data_width  : integer := c_width;
+								g_CRspace        : t_cr_array; -- := c_cr_array;
+					         g_BoardID        : integer := c_SVEC_ID;
+								g_ManufacturerID : integer := c_CERN_ID;
+				            g_RevisionID     : integer := c_RevisionID;
+				            g_ProgramID      : integer := 96
                         );
                  port(
                         clk_i              : in  std_logic;
                         reset              : in  std_logic;
                         CR_addr            : in  std_logic_vector(11 downto 0);
-                        CRAM_addr          : in  std_logic_vector(f_log2_size(g_CRAM_SIZE)-1 downto 0);
+                        CRAM_addr          : in  std_logic_vector(f_log2_size(g_cram_size)-1 downto 0);
                         CRAM_data_i        : in  std_logic_vector(7 downto 0);
                         CRAM_Wen           : in  std_logic;
                         en_wr_CSR          : in  std_logic;
@@ -554,10 +602,9 @@ function f_log2_size (A : natural) return natural;
                         Ader7              : out std_logic_vector(31 downto 0);
                         ModuleEnable       : out std_logic;
                         Sw_Reset           : out std_logic;
-								W32                : out std_logic;
                         numBytes           : in  std_logic_vector(12 downto 0);
                         transfTime         : in  std_logic_vector(39 downto 0);
-                        MBLT_Endian_o      : out std_logic_vector(2 downto 0);
+                        Endian_o           : out std_logic_vector(2 downto 0);
                         BAR_o              : out std_logic_vector(4 downto 0);
                         INT_Level          : out std_logic_vector(7 downto 0);
                         INT_Vector         : out std_logic_vector(7 downto 0)
@@ -603,37 +650,33 @@ function f_log2_size (A : natural) return natural;
 
               component VME_Wb_master is
 				  generic(
-                        g_width : integer := c_width;
-	                     g_addr_width : integer := c_addr_width
+                        g_wb_data_width : integer := c_width;
+	                     g_wb_addr_width : integer := c_addr_width
                         );
                  port(
-                        s_memReq        : in  std_logic;
+                        memReq_i        : in  std_logic;
                         clk_i           : in  std_logic;
-                        cardSel         : in  std_logic;
-                        reset           : in  std_logic;
-                        mainFSMreset    : in  std_logic;
-                        BERRcondition   : in  std_logic;
-                        sel             : in  std_logic_vector(7 downto 0);
-                        beatCount       : in  std_logic_vector(8 downto 0);
-                        locDataInSwap   : in  std_logic_vector(63 downto 0);
-                        rel_locAddr     : in  std_logic_vector(63 downto 0);
-                        RW              : in  std_logic;
+                        cardSel_i       : in  std_logic;
+                        reset_i         : in  std_logic;
+                        BERRcondition_i : in  std_logic;
+                        sel_i           : in  std_logic_vector(7 downto 0);                   
+                        locDataInSwap_i : in  std_logic_vector(63 downto 0);
+                        rel_locAddr_i   : in  std_logic_vector(63 downto 0);
+                        RW_i            : in  std_logic;
                         stall_i         : in  std_logic;
                         rty_i           : in  std_logic;
                         err_i           : in  std_logic;
-                        wbData_i        : in  std_logic_vector(g_width - 1 downto 0);
+                        wbData_i        : in  std_logic_vector(g_wb_data_width - 1 downto 0);
                         memAckWB_i      : in  std_logic;          
-                        locDataOut      : out std_logic_vector(63 downto 0);
-                        memAckWb        : out std_logic;
-                        err             : out std_logic;
-								W32             : in  std_logic;
-                        rty             : out std_logic;
-                        psize_o         : out std_logic_vector(8 downto 0);
+                        locDataOut_o    : out std_logic_vector(63 downto 0);
+                        memAckWb_o      : out std_logic;
+                        err_o           : out std_logic;
+                        rty_o           : out std_logic;                 
                         cyc_o           : out std_logic;
                         memReq_o        : out std_logic;
-                        WBdata_o        : out std_logic_vector(g_width - 1 downto 0);
-                        locAddr_o       : out std_logic_vector(g_addr_width - 1 downto 0);
-                        WbSel_o         : out std_logic_vector(f_div8(g_width) - 1 downto 0);
+                        WBdata_o        : out std_logic_vector(g_wb_data_width - 1 downto 0);
+                        locAddr_o       : out std_logic_vector(g_wb_addr_width - 1 downto 0);
+                        WbSel_o         : out std_logic_vector(f_div8(g_wb_data_width) - 1 downto 0);
                         RW_o            : out std_logic
                      );
               end component VME_Wb_master;
@@ -641,11 +684,11 @@ function f_log2_size (A : natural) return natural;
               component VME_Init is
                  port(
                         clk_i          : in    std_logic;
-                        CRAddr         : in    std_logic_vector(18 downto 0);
+                        CRAddr_i       : in    std_logic_vector(18 downto 0);
                         CRdata_i       : in    std_logic_vector(7 downto 0);    
-                        RSTedge        : inout std_logic;      
-                        InitReadCount  : out   std_logic_vector(8 downto 0);
-                        InitInProgress : out   std_logic;
+                        RSTedge_i      : in    std_logic;      
+                        InitReadCount_o  : out   std_logic_vector(8 downto 0);
+                        InitInProgress_o : out   std_logic;
                         BEG_USR_CR_o   : out   std_logic_vector(23 downto 0);
                         END_USR_CR_o   : out   std_logic_vector(23 downto 0);
                         BEG_USR_CSR_o  : out   std_logic_vector(23 downto 0);
@@ -767,16 +810,16 @@ function f_log2_size (A : natural) return natural;
               component VME_IRQ_Controller is
                  port(
                         clk_i           : in  std_logic;
-                        reset           : in  std_logic;
+                        reset_n_i       : in  std_logic;
                         VME_IACKIN_n_i  : in  std_logic;
                         VME_AS_n_i      : in  std_logic;
 								VME_AS1_n_i     : in  std_logic;
                         VME_DS_n_i      : in  std_logic_vector(1 downto 0);
                         VME_LWORD_n_i   : in  std_logic;
-                        VME_ADDR_123    : in  std_logic_vector(2 downto 0);
-                        INT_Level       : in  std_logic_vector(7 downto 0);
-                        INT_Vector      : in  std_logic_vector(7 downto 0);
-                        INT_Req         : in  std_logic;          
+                        VME_ADDR_123_i  : in  std_logic_vector(2 downto 0);
+                        INT_Level_i     : in  std_logic_vector(7 downto 0);
+                        INT_Vector_i    : in  std_logic_vector(7 downto 0);
+                        INT_Req_i       : in  std_logic;          
                         VME_IRQ_n_o     : out std_logic_vector(6 downto 0);
                         VME_IACKOUT_n_o : out std_logic;
                         VME_DTACK_n_o   : out std_logic;
@@ -820,5 +863,77 @@ function f_log2_size (A : natural) return natural is
     end loop;
     return(63);
   end function f_log2_size;
+  
+ function f_set_CR_space(BoardID : integer; cr_default : t_cr_array;
+                        ManufacturerID : integer; RevisionID : integer;
+								ProgramID : integer) return t_cr_array is
+   variable v_CR_space       : t_cr_array(2**12 downto 0);
+	variable v_BoardID        : std_logic_vector(31 downto 0); 
+	variable v_ManufacturerID : std_logic_vector(23 downto 0);
+	variable v_RevisionID     : std_logic_vector(31 downto 0);
+	variable v_ProgramID      : std_logic_vector(7 downto 0);
+	
+	begin
+	 v_BoardID        := std_logic_vector(to_unsigned(BoardID,32));
+	 v_ManufacturerID := std_logic_vector(to_unsigned(ManufacturerID,24));
+	 v_RevisionID     := std_logic_vector(to_unsigned(RevisionID,32));
+	 v_ProgramID      := std_logic_vector(to_unsigned(ProgramID,8));
+	 for i in cr_default'range loop
+	     case i is
+				when c_BOARD_ID_p1 => v_CR_space(i) := v_BoardID(31 downto 24);
+				when c_BOARD_ID_p2 => v_CR_space(i) := v_BoardID(23 downto 16);
+				when c_BOARD_ID_p3 => v_CR_space(i) := v_BoardID(15 downto 8);
+				when c_BOARD_ID_p4 => v_CR_space(i) := v_BoardID(7 downto 0);
+				when c_Manuf_ID_p1 => v_CR_space(i) := v_ManufacturerID(23 downto 16);
+				when c_Manuf_ID_p2 => v_CR_space(i) := v_ManufacturerID(15 downto 8);
+				when c_Manuf_ID_p3 => v_CR_space(i) := v_ManufacturerID(7 downto 0);
+				when c_Rev_ID_p1   => v_CR_space(i) := v_RevisionID(31 downto 24);
+				when c_Rev_ID_p2   => v_CR_space(i) := v_RevisionID(23 downto 16);
+				when c_Rev_ID_p3   => v_CR_space(i) := v_RevisionID(15 downto 8);
+				when c_Rev_ID_p4   => v_CR_space(i) := v_RevisionID(7 downto 0);
+				when c_Prog_ID_p   => v_CR_space(i) := v_ProgramID(7 downto 0);
+				when others => v_CR_space(i) := cr_default(i);
+			end case;
+--	     if    i = c_BOARD_ID_p1 then
+--		     v_CR_space(i) := v_BoardID(31 downto 24);
+--		  elsif i = c_BOARD_ID_p2 then
+--		     v_CR_space(i) := v_BoardID(23 downto 16);
+--		  elsif i = c_BOARD_ID_p3 then
+--		     v_CR_space(i) := v_BoardID(15 downto 8);
+--		  elsif i = c_BOARD_ID_p4 then
+--		     v_CR_space(i) := v_BoardID(7 downto 0);	  
+--		  elsif i = c_Manuf_ID_p1 then
+--		     v_CR_space(i) := v_ManufacturerID(23 downto 16);	  
+--		  elsif i = c_Manuf_ID_p2 then
+--		     v_CR_space(i) := v_ManufacturerID(15 downto 8);
+--		  elsif i = c_Manuf_ID_p3 then
+--		     v_CR_space(i) := v_ManufacturerID(7 downto 0);	  
+--		  elsif i = c_Rev_ID_p1 then
+--		     v_CR_space(i) := v_RevisionID(31 downto 24);
+--		  elsif i = c_Rev_ID_p2 then
+--		     v_CR_space(i) := v_RevisionID(23 downto 16);
+--		  elsif i = c_Rev_ID_p3 then
+--		     v_CR_space(i) := v_RevisionID(15 downto 8);	  
+--		  elsif i = c_Rev_ID_p4 then
+--		     v_CR_space(i) := v_RevisionID(7 downto 0);	 
+--		  elsif i = c_Prog_ID_p then
+--		     v_CR_space(i) := v_ProgramID(7 downto 0);	  
+--		  else 
+--	        v_CR_space(i) := cr_default(i);	  
+--		  end if;
+	  end loop;
+	return(v_CR_space);
+ end function f_set_CR_space;
+  
+  function f_latchDS(clk_period : integer) return integer is
+  begin
+    for I in 1 to 4 loop               
+      if (clk_period * I >= 20) then   -- 20 is the max time between the assertion
+		                                 -- of the DS lines.
+        return(I);
+      end if;
+    end loop;
+    return(4);                         -- works for up to 200 MHz
+  end function f_latchDS;
   
 end vme64x_pack;

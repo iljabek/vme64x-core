@@ -33,7 +33,7 @@ use IEEE.numeric_std.all;
 
 use work.vme64x_pack.all;
 package VME_CR_pack is
-
+ --  type t_cr_array is array (natural range <>) of std_logic_vector(7 downto 0);
    constant c_amcap : std_logic_vector(63 downto 0) :=
    "1111111100000000001100100000000000000000000100001111111100001011";
    constant c_amcap0 : std_logic_vector(63 downto 0) :=
@@ -138,26 +138,26 @@ package VME_CR_pack is
    16#07#  => x"43", 
       --Ascii "R"
    16#08#  => x"52",
-      --Manufacturer's ID
-   16#09#  => x"01",
-   16#0A#  => x"02",
-   16#0B#  => x"03",
-      --board id
+      --Manufacturer's ID   -- for CERN: 0x080030
+   16#09#  => x"08",
+   16#0A#  => x"00",
+   16#0B#  => x"30",
+      --board id            -- eg: SVEC ID = 0x000198
    16#0C#  => x"03",
    16#0D#  => x"04",
    16#0E#  => x"04",
    16#0F#  => x"03",
       --Rev id
-   16#10#  => x"03",
-   16#11#  => x"04",
-   16#12#  => x"04",
-   16#13#  => x"03",
+   16#10#  => x"00",
+   16#11#  => x"00",
+   16#12#  => x"00",
+   16#13#  => x"02",
   --Point to ascii null terminatied
    16#14#  => x"00",
    16#15#  => x"00",
    16#16#  => x"00",  
   --Program Id code
-   16#1F#  => x"59",
+   16#1F#  => x"5a",
    --Offset to BEG_USER_CR    
    16#20#  => x"00",
    16#21#  => x"00",

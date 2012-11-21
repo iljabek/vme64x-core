@@ -6,12 +6,13 @@
 -- File:                       VME_Am_Match.vhd
 --______________________________________________________________________________________
 -- Description: this component checks if the AM match. 
--- If it is the corrispondent AmMatch's bit is asserted. This condition is necessary but 
+-- If it is the correspondent AmMatch's bit is asserted. This condition is necessary but 
 -- not sufficient to select the function and access the board.
 -- If DFS = '0' the function supports only access modes with the same address width; 
 -- 1 function --> only 1 address width;
+-- with address width I mean A16, A24, A32 or A64.
 -- is sufficient check the AMCAP; AmMatch(i) <= s_FUNC_AMCAP(i)(to_integer(unsigned(Am))).
--- If DFS = '1' the function supports access modes with different address wide so AmMatch(i)
+-- If DFS = '1' the function supports access modes with different address widths so AmMatch(i)
 -- is asserted only if ADER[7:2] = AM and s_FUNC_AMCAP(i)(to_integer(unsigned(Am)))='1'.
 -- If ADER(i)'s XAM bit is asserted than AmMatch(i) is asserted only if AM = 0x20 and if the 
 -- XAMCAP(i)(to_integer(unsigned(XAm))) = '1' and if DFS = '1' also ADER[9:2] must be equal 
@@ -20,8 +21,8 @@
 -- Authors:                                   
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date         08/2012                                                                           
--- Version      v0.02 
+-- Date         11/2012                                                                           
+-- Version      v0.03 
 --______________________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------    
@@ -89,7 +90,6 @@ architecture Behavioral of VME_Am_Match is
    signal s_FUNC_XAMCAP  : t_FUNC_256b_array;
    signal s_amcap_match  : std_logic_vector(7 downto 0);
    signal s_xamcap_match : std_logic_vector(7 downto 0);
-   signal debugAm        : integer;
 --===========================================================================
 -- Architecture begin
 --===========================================================================
@@ -127,32 +127,27 @@ begin
       if rising_edge(clk_i) then  
          if mainFSMreset = '1' or reset = '1' then
             AmMatch <= (others => '0');
-            debugAm <= 0;
          elsif decode = '1' then	  
             for i in AmMatch'range loop
                if DFS_i(i) = '1' then
                   if s_FUNC_ADER(i)(XAM_MODE) = '0' then
                      if unsigned(s_FUNC_ADER(i)(7 downto 2)) = unsigned(Am) then
-                        AmMatch(i) <= s_amcap_match(i);
-                        debugAm <= 1;
+                        AmMatch(i) <= s_amcap_match(i);                   
                      else
                         AmMatch(i) <= '0';
                      end if;
                   else
                      if (unsigned(XAm) = unsigned(s_FUNC_ADER(i)(9 downto 2))) then
-                        AmMatch(i) <= s_xamcap_match(i) and s_amcap_match(i);
-                        debugAm <= 2;
+                        AmMatch(i) <= s_xamcap_match(i) and s_amcap_match(i);                 
                      else
                         AmMatch(i) <= '0';
                      end if;
                   end if;
                else  
                   if s_FUNC_ADER(i)(XAM_MODE) = '1' then
-                     AmMatch(i) <= s_xamcap_match(i) and s_amcap_match(i);      
-                     debugAm <= 3;					
+                     AmMatch(i) <= s_xamcap_match(i) and s_amcap_match(i);                        				
                   else
-                     AmMatch(i) <= s_amcap_match(i);
-                     debugAm <= 4;
+                     AmMatch(i) <= s_amcap_match(i);              
                   end if;
                end if;		
             end loop;

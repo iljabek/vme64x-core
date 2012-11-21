@@ -5,7 +5,7 @@
 --_________________________________________________________________________________
 -- File:                      VME_Access_Decode.vhd
 --_________________________________________________________________________________
--- Description: This component check if the board is addressed and if it is, allows 
+-- Description: This component checks if the board is addressed and if it is, allows 
 -- the access to CR/CSR space by asserting the Confaccess signal, or allows the access 
 -- to WB bus by asserting the CardSel signal.
 --
@@ -17,7 +17,7 @@
 -- To Access the Wb bus we have 7 functions; only one at time can be selected. If one of 
 -- these functions is selected the CardSel signal is asserted (this is the responding Slave).
 -- To access the Wb bus we need to decode the AM and the address lines; so as shown in 
--- the block diagram the main component are two: VME_Funct_Match, VME_Am_Match.
+-- the block diagram the main components are two: VME_Funct_Match, VME_Am_Match.
 
 --                                ___________________________________________
 --                               |            VME_Access_Decode.vhd          |
@@ -63,12 +63,12 @@
 --               This bit is '1' during A64 and 2e access.
 --         DFS = Dynamic Function Decoder: a '1' here means this function can be used 
 --               to decode different address length (eg. A16 or A24 or A32) so the mask bits 
---               should be all '1' !!!
+--               should be all '1'.
 --
 --          AMCAP[63:0]
 --         6 AM lines --> 2**6 = 64 different configurations
 --         This register is 64 bits wide and each bit rappresents one AM configuration. 
---         If the bit is '1' it means that the corrisponding AM is supported by this function.
+--         If the bit is '1' it means that the corresponding AM is supported by this function.
 --         If the corresponding ADEM's DFS is 0, only the AMCAP's bits with the same address 
 --         width must be '1'.
 --         If the corresponding ADEM's DFS is 1, one or more AMCAP's bits can be '1'  
@@ -80,17 +80,17 @@
 --          XAMCAP[255:0]
 --         8 XAM lines --> 2**8 = 256 different configurations
 --         This register is 256 bits wide and each bit rappresents one XAM configuration. 
---         If the bit is '1' it means that the corrisponding XAM is supported
+--         If the bit is '1' it means that the corresponding XAM is supported
 --         by this function.
 --         This register is used during the decode phase if the XAM bit is asserted (1).
 -- Before accessing the board the VME Master must write the ADER registers. Of course for 
--- writing properly the ADER the VME Master need to know the corrisponding ADEM and check if 
+-- writing properly the ADER the VME Master needs to know the corresponding ADEM and check if 
 -- EFM or DFS bits are asserted. The VME Master can read also 
 -- the AMCAP and XAMCAP and check the access mode supported by each function.
 -- 
--- eg.1 lets imagine that we want be able to access different storage device; we can assign 
+-- eg.1 let's imagine that we want to access different storage device; we can assign 
 -- one base address and one function at each storage.
--- Now the VME Master has to write the base address of each storage in the corrisponding 
+-- Now the VME Master has to write the base address of each storage in the corresponding 
 -- ADER's compare bits and after this operation each function decodes the access to 
 -- the corresponding storage.
 -- eg.2 this example is relative to our application; the vme64x interface has to transfer 
@@ -103,7 +103,7 @@
 --       function3 and function4 --> A64, A64_BLT, A64_MBLT
 --       function5 and function6 --> 2eVME and 2eSST modes
 -- Note that if the address is 64 bits wide we need of two ADER and two ADEM to decode the 
--- address so we need of two functions! (see also EFM bit definition)
+-- address so we need two functions. (see also EFM bit definition)
 -- Of course you can mix these two example and set up one system with more storage devices 
 -- each with its base address and to assign each storage more than one function to access it 
 -- with all the access modes.
@@ -118,8 +118,8 @@
 -- Authors:                                     
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date         08/2012                                                                           
--- Version      v0.02  
+-- Date         11/2012                                                                           
+-- Version      v0.03 
 --________________________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------    
@@ -286,7 +286,7 @@ begin
                if s_func_sel(i) = '1' then
                   CardSel <= '1';
                   Base_Addr <= s_nx_base_addr;
-                  exit;
+                  -- exit; in this case the exit statement is useless
                end if;
             end loop;
          end if;

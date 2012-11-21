@@ -11,8 +11,8 @@
 -- Authors:                                     
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date         08/2012                                                                           
--- Version      v0.02  
+-- Date         11/2012                                                                           
+-- Version      v0.03  
 --________________________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------    
@@ -37,42 +37,42 @@ use work.vme64x_pack.all;
 -- Entity declaration
 --===========================================================================
 entity VME_Init is
-   Port ( clk_i          : in    std_logic;
-          RSTedge        : inout std_logic;
-          CRAddr         : in    std_logic_vector (18 downto 0);
-          CRdata_i       : in    std_logic_vector (7 downto 0);
-          InitReadCount  : out   std_logic_vector (8 downto 0);
-          InitInProgress : out   std_logic;
-          BEG_USR_CR_o   : out   std_logic_vector (23 downto 0);
-          END_USR_CR_o   : out   std_logic_vector (23 downto 0);
-          BEG_USR_CSR_o  : out   std_logic_vector (23 downto 0);
-          END_USR_CSR_o  : out   std_logic_vector (23 downto 0);
-          BEG_CRAM_o     : out   std_logic_vector (23 downto 0);
-          END_CRAM_o     : out   std_logic_vector (23 downto 0);
-          FUNC0_ADEM_o   : out   std_logic_vector (31 downto 0);
-          FUNC1_ADEM_o   : out   std_logic_vector (31 downto 0);
-          FUNC2_ADEM_o   : out   std_logic_vector (31 downto 0);
-          FUNC3_ADEM_o   : out   std_logic_vector (31 downto 0);
-          FUNC4_ADEM_o   : out   std_logic_vector (31 downto 0);
-          FUNC5_ADEM_o   : out   std_logic_vector (31 downto 0);
-          FUNC6_ADEM_o   : out   std_logic_vector (31 downto 0);
-          FUNC7_ADEM_o   : out   std_logic_vector (31 downto 0);
-          FUNC0_AMCAP_o  : out   std_logic_vector (63 downto 0);
-          FUNC1_AMCAP_o  : out   std_logic_vector (63 downto 0);
-          FUNC2_AMCAP_o  : out   std_logic_vector (63 downto 0);
-          FUNC3_AMCAP_o  : out   std_logic_vector (63 downto 0);
-          FUNC4_AMCAP_o  : out   std_logic_vector (63 downto 0);
-          FUNC5_AMCAP_o  : out   std_logic_vector (63 downto 0);
-          FUNC6_AMCAP_o  : out   std_logic_vector (63 downto 0);
-          FUNC7_AMCAP_o  : out   std_logic_vector (63 downto 0);
-          FUNC0_XAMCAP_o : out   std_logic_vector (255 downto 0);
-          FUNC1_XAMCAP_o : out   std_logic_vector (255 downto 0);
-          FUNC2_XAMCAP_o : out   std_logic_vector (255 downto 0);
-          FUNC3_XAMCAP_o : out   std_logic_vector (255 downto 0);
-          FUNC4_XAMCAP_o : out   std_logic_vector (255 downto 0);
-          FUNC5_XAMCAP_o : out   std_logic_vector (255 downto 0);
-          FUNC6_XAMCAP_o : out   std_logic_vector (255 downto 0);
-          FUNC7_XAMCAP_o : out   std_logic_vector (255 downto 0));
+   Port ( clk_i            : in    std_logic;
+          RSTedge_i        : in    std_logic;
+          CRAddr_i         : in    std_logic_vector (18 downto 0);
+          CRdata_i         : in    std_logic_vector (7 downto 0);
+          InitReadCount_o  : out   std_logic_vector (8 downto 0);
+          InitInProgress_o : out   std_logic;
+          BEG_USR_CR_o     : out   std_logic_vector (23 downto 0);
+          END_USR_CR_o     : out   std_logic_vector (23 downto 0);
+          BEG_USR_CSR_o    : out   std_logic_vector (23 downto 0);
+          END_USR_CSR_o    : out   std_logic_vector (23 downto 0);
+          BEG_CRAM_o       : out   std_logic_vector (23 downto 0);
+          END_CRAM_o       : out   std_logic_vector (23 downto 0);
+          FUNC0_ADEM_o     : out   std_logic_vector (31 downto 0);
+          FUNC1_ADEM_o     : out   std_logic_vector (31 downto 0);
+          FUNC2_ADEM_o     : out   std_logic_vector (31 downto 0);
+          FUNC3_ADEM_o     : out   std_logic_vector (31 downto 0);
+          FUNC4_ADEM_o     : out   std_logic_vector (31 downto 0);
+          FUNC5_ADEM_o     : out   std_logic_vector (31 downto 0);
+          FUNC6_ADEM_o     : out   std_logic_vector (31 downto 0);
+          FUNC7_ADEM_o     : out   std_logic_vector (31 downto 0);
+          FUNC0_AMCAP_o    : out   std_logic_vector (63 downto 0);
+          FUNC1_AMCAP_o    : out   std_logic_vector (63 downto 0);
+          FUNC2_AMCAP_o    : out   std_logic_vector (63 downto 0);
+          FUNC3_AMCAP_o    : out   std_logic_vector (63 downto 0);
+          FUNC4_AMCAP_o    : out   std_logic_vector (63 downto 0);
+          FUNC5_AMCAP_o    : out   std_logic_vector (63 downto 0);
+          FUNC6_AMCAP_o    : out   std_logic_vector (63 downto 0);
+          FUNC7_AMCAP_o    : out   std_logic_vector (63 downto 0);
+          FUNC0_XAMCAP_o   : out   std_logic_vector (255 downto 0);
+          FUNC1_XAMCAP_o   : out   std_logic_vector (255 downto 0);
+          FUNC2_XAMCAP_o   : out   std_logic_vector (255 downto 0);
+          FUNC3_XAMCAP_o   : out   std_logic_vector (255 downto 0);
+          FUNC4_XAMCAP_o   : out   std_logic_vector (255 downto 0);
+          FUNC5_XAMCAP_o   : out   std_logic_vector (255 downto 0);
+          FUNC6_XAMCAP_o   : out   std_logic_vector (255 downto 0);
+          FUNC7_XAMCAP_o   : out   std_logic_vector (255 downto 0));
 end VME_Init;
 
 --===========================================================================
@@ -103,13 +103,13 @@ architecture Behavioral of VME_Init is
 -- Architecture begin
 --===========================================================================
 begin
-   InitReadCount <= std_logic_vector(s_initReadCounter);
-   s_CRaddr <= unsigned(CRAddr);
+   InitReadCount_o <= std_logic_vector(s_initReadCounter);
+   s_CRaddr <= unsigned(CRAddr_i);
 
    p_coreInit : process(clk_i)  
    begin
       if rising_edge(clk_i) then
-         if RSTedge = '1' then
+         if RSTedge_i = '1' then
             s_initState       <= IDLE;
             s_initReadCounter <= to_unsigned(0, s_initReadCounter'length);
             s_latchCRdata     <= '0';
@@ -151,7 +151,7 @@ begin
    end process;
 
    s_initInProgress <= '1' when (s_initReadCounter <= (424)) else '0';      
-   InitInProgress   <= s_initInProgress;
+   InitInProgress_o <= s_initInProgress;
    s_CRadd_offset   <= s_CRaddr - s_CRaddr_base;
 
    process(s_latchCRdata, s_initReadCounter)

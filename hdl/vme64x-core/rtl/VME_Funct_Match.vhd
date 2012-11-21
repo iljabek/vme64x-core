@@ -6,11 +6,11 @@
 -- File:                      VME_Funct_Match.vhd
 --_________________________________________________________________________________________
 -- Description: this component compares the Address with the ADER using the mask bits and 
--- if the base address match it asserts the corrisponding bit in the FunctMatch vector and it
--- latches the base address that will be subtract to the Address before accessing the WB bus. 
+-- if the base address match it asserts the corresponding bit in the FunctMatch vector and it
+-- latches the base address that will be subtracted to the Address before accessing the WB bus. 
 -- FunctMatch  /= 0 is necessary but not sufficient to select one function and to access the board, 
 -- indeed also the AM has to be checked (VME_AM_Match.vhd component).
--- For better understanding how this component works here one example:
+-- For better understanding how this component works here is one example:
 --  base address = 0xc0
 --  access mode: A32_S  --> AM = 0x09
 --  The Master writes the ADERi = 0xc0000024
@@ -26,11 +26,11 @@
 --                                 |_______| 
 --                               No |     |yes
 --         FunctMatch(i) <= '0'_____|     |______FunctMatch(i) <= '1'   
---  Now with the same ADEMi the master access with A16 mode:
+--  Now with the same ADEMi the master accesses with A16 mode:
 --  base address = 0xc0
 --  access mode: A16_S  --> AM = 0x29
---  The Master write the ADERi = 0x0000c0a4
--- The Master want access at the location 0x08: Address= 0x0000c008
+--  The Master writes the ADERi = 0x0000c0a4
+-- The Master wants to access the location 0x08: Address= 0x0000c008
 --  For i = 0 to 7 check:
 --  Check if the ADEMi is compatible with the AM selected: ADEMi[15:8] /= 0
 --  Address[31:8] and ADEMi[31:8]              ADERi[31:8] and ADEMi[31:8] 
@@ -49,7 +49,7 @@
 --  base address = 0xc0
 --  access mode: A32_S  --> AM = 0x09
 --  The Master write the ADERi = 0xc0000024
--- The Master want access at the location 0x4008: Address= 0xc0004008
+-- The Master wants to access the location 0x4008: Address= 0xc0004008
 --  For i = 0 to 7 check:
 --  Check if the ADEMi is compatible with the AM selected: ADEMi[31:8] /= 0
 --  Address[31:8] and ADEMi[31:8]              ADERi[31:8] and ADEMi[31:8] 
@@ -66,7 +66,7 @@
 --  access mode: A32_S  --> AM = 0x09
 --  The Master write the ADERi = 0xc0000024
 --  ADEMi = 0xff000000 --> DFS = '0'
---  The Master want access at the location 0x4008: Address= 0xc0004008
+--  The Master wants to access the location 0x4008: Address= 0xc0004008
 --  For i = 0 to 7 check:
 --  Check if the ADEMi is compatible with the AM selected: ADEM[31:8] /= 0
 --  Address[31:8] and ADEMi[31:8]              ADERi[31:8] and ADEMi[31:8] 
@@ -80,9 +80,9 @@
 --  The Master can access!
 --  base address = 0xc0
 --  access mode: A16_S  --> AM = 0x29
---  The Master write the ADERi = 0x0000c0a4
+--  The Master writes the ADERi = 0x0000c0a4
 --  ADEMi = 0xff000000 --> DFS = '0'  -- The Master can't change the CR space!!
---  The Master want access at the location 0x08: Address= 0x0000c008
+--  The Master wants to access the location 0x08: Address= 0x0000c008
 --  For i = 0 to 7 check:
 --  Check if the ADEMi is compatible with the AM selected: 
 --  ADEM[15:8] = 0 --> FunctMatch(i) <= '0'
@@ -97,7 +97,7 @@
 --  A VME Master takes the ownership of the VMEbus for accessing another board:
 --  base address = 0xc0
 --  access mode: A32_S  --> AM = 0x09
---  The Master want access at the location 0x0008: Address= 0xc0000008
+--  The Master wants to access the location 0x0008: Address= 0xc0000008
 --  For i = 0 to 7 check:
 --  Check if the ADEMi is compatible with the AM selected: ADEMi[31:8] /= 0
 --   Address[31:8] and ADEMi[31:8]              ADERi[31:8] and ADEMi[31:8] 
@@ -144,8 +144,8 @@
 -- Authors:                                   
 --               Pablo Alvarez Sanchez (Pablo.Alvarez.Sanchez@cern.ch)                             
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
--- Date         08/2012                                                                           
--- Version      v0.01  
+-- Date         11/2012                                                                           
+-- Version      v0.03  
 --______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------    
@@ -205,7 +205,6 @@ architecture Behavioral of VME_Funct_Match is
    signal s_FUNC_ADER_64, s_FUNC_ADEM_64: t_FUNC_64b_array;
    signal s_isprev_func64               : std_logic_vector(7 downto 0);
    signal s_locAddr                     : unsigned(63 downto 0);
-   signal debugfunct                    : integer;
 --===========================================================================
 -- Architecture begin
 --===========================================================================
@@ -218,7 +217,6 @@ begin
          if mainFSMreset = '1' or reset = '1' then
             FunctMatch <= (others => '0');
             Nx_Base_Addr <= (others => '0');
-            debugfunct <= 0;
          elsif decode = '1' then	 
             for i in FunctMatch'range loop
 
@@ -228,8 +226,7 @@ begin
                         (s_FUNC_ADEM_64(i)(63 downto 10) /= 0) then  
 
                         if (s_FUNC_ADER_64(i)(63 downto 10) and s_FUNC_ADEM_64(i)(63 downto 10)) = 
-                           ((s_locAddr(63 downto 10)) and s_FUNC_ADEM_64(i)(63 downto 10)) then
-                           debugfunct                 <= 1;
+                           ((s_locAddr(63 downto 10)) and s_FUNC_ADEM_64(i)(63 downto 10)) then            
                            FunctMatch(i)              <= '1';
                            Nx_Base_Addr(63 downto 10) <= std_logic_vector(s_FUNC_ADER_64(i)(63 downto 10));
                            Nx_Base_Addr(9 downto 0)   <= (others => '0');
@@ -244,8 +241,7 @@ begin
                            FunctMatch(i)              <= '1';
                            Nx_Base_Addr(31 downto 8)  <= std_logic_vector(s_FUNC_ADER(i)(31 downto 8));
                            Nx_Base_Addr(63 downto 32) <= (others => '0');
-                           Nx_Base_Addr(7 downto 0)   <= (others => '0');
-                           debugfunct                 <= 2;
+                           Nx_Base_Addr(7 downto 0)   <= (others => '0');                
                         end if;
                      end if;
 
@@ -256,8 +252,7 @@ begin
                            FunctMatch(i)              <= '1';
                            Nx_Base_Addr(23 downto 8)  <= std_logic_vector(s_FUNC_ADER(i)(23 downto 8));
                            Nx_Base_Addr(63 downto 24) <= (others => '0');
-                           Nx_Base_Addr(7 downto 0)   <= (others => '0');
-                           debugfunct                 <= 3;
+                           Nx_Base_Addr(7 downto 0)   <= (others => '0');                   
                         end if;
                      end if;
 
@@ -268,8 +263,7 @@ begin
                            FunctMatch(i)              <= '1';
                            Nx_Base_Addr(15 downto 8)  <= std_logic_vector(s_FUNC_ADER(i)(15 downto 8));
                            Nx_Base_Addr(63 downto 16) <= (others => '0');
-                           Nx_Base_Addr(7 downto 0)   <= (others => '0');
-                           debugfunct                 <= 4;
+                           Nx_Base_Addr(7 downto 0)   <= (others => '0');                  
                         end if;
                      end if;
 
