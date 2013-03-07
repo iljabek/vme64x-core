@@ -29,8 +29,8 @@
 -- All the output signals are registered   
 -- To implement the 5 phases before mentioned the follow FSM has been implemented:
 
---	     __________
---	 |--| IACKOUT2 |<-|
+--           __________
+--       |--| IACKOUT2 |<-|
 --  |  |__________|  |
 --  |                |
 --  |    _________   |  _________     _________     _________              
@@ -99,229 +99,249 @@
 -- http://www.gnu.org/licenses/lgpl-2.1.html                     
 ---------------------------------------------------------------------------------------
 library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_1164.all;
 use IEEE.numeric_std.all;
 use work.vme64x_pack.all;
 --===========================================================================
 -- Entity declaration
 --===========================================================================
 entity VME_IRQ_Controller is
-   Port ( clk_i            : in   std_logic;
-          reset_n_i        : in   std_logic;  
-          VME_IACKIN_n_i   : in   std_logic;
-          VME_AS_n_i       : in   std_logic;
-			 VME_AS1_n_i      : in   std_logic;  -- this is the AS* not triple sampled
-          VME_DS_n_i       : in   std_logic_vector (1 downto 0);
-          VME_LWORD_n_i    : in   std_logic;
-          VME_ADDR_123_i   : in   std_logic_vector (2 downto 0);
-          INT_Level_i      : in   std_logic_vector (7 downto 0);
-          INT_Vector_i     : in   std_logic_vector (7 downto 0);
-          INT_Req_i        : in   std_logic;
-          VME_IRQ_n_o      : out  std_logic_vector (6 downto 0);
-          VME_IACKOUT_n_o  : out  std_logic;
-          VME_DTACK_n_o    : out  std_logic;
-          VME_DTACK_OE_o   : out  std_logic;
-          VME_DATA_o       : out  std_logic_vector (31 downto 0);
-          VME_DATA_DIR_o   : out  std_logic);
+  port (
+    clk_i           : in  std_logic;
+    reset_n_i       : in  std_logic;
+    VME_IACKIN_n_i  : in  std_logic;
+    VME_AS_n_i      : in  std_logic;
+    VME_AS1_n_i     : in  std_logic;    -- this is the AS* not triple sampled
+    VME_DS_n_i      : in  std_logic_vector (1 downto 0);
+    VME_LWORD_n_i   : in  std_logic;
+    VME_ADDR_123_i  : in  std_logic_vector (2 downto 0);
+    INT_Level_i     : in  std_logic_vector (7 downto 0);
+    INT_Vector_i    : in  std_logic_vector (7 downto 0);
+    INT_Req_i       : in  std_logic;
+    VME_IRQ_n_o     : out std_logic_vector (6 downto 0);
+    VME_IACKOUT_n_o : out std_logic;
+    VME_DTACK_n_o   : out std_logic;
+    VME_DTACK_OE_o  : out std_logic;
+    VME_DATA_o      : out std_logic_vector (31 downto 0);
+    VME_DATA_DIR_o  : out std_logic);
 end VME_IRQ_Controller;
 --===========================================================================
 -- Architecture declaration
 --===========================================================================
 architecture Behavioral of VME_IRQ_Controller is
 --input signals
-   signal s_INT_Req_sample          : std_logic;
+  signal s_INT_Req_sample       : std_logic;
 --output signals
-	signal s_DTACK_OE_o              : std_logic;
-	signal s_enable                  : std_logic;
-   signal s_IRQ                     : std_logic_vector(6 downto 0);
-   signal s_Data                    : std_logic_vector(31 downto 0);
+  signal s_DTACK_OE_o           : std_logic;
+  signal s_enable               : std_logic;
+  signal s_IRQ                  : std_logic_vector(6 downto 0);
+  signal s_Data                 : std_logic_vector(31 downto 0);
 --
-   signal s_AS_FallingEdge          : std_logic;
-	signal s_AS_RisingEdge           : std_logic;     
-   type t_MainFSM is (IDLE, IRQ, WAIT_AS, WAIT_DS, LATCH_DS, CHECK, DATA_OUT, DTACK,IACKOUT1,IACKOUT2);
-   signal s_currs, s_nexts          : t_MainFSM;
-   signal s_ack_int                 : std_logic;
-   signal s_VME_ADDR_123_latched    : std_logic_vector(2 downto 0);
-   signal s_VME_DS_latched          : std_logic_vector(1 downto 0);
-   signal s_ADDRmatch               : std_logic;
-	signal s_FSM_IRQ                 : t_FSM_IRQ;
+  signal s_AS_FallingEdge       : std_logic;
+  signal s_AS_RisingEdge        : std_logic;
+  type   t_MainFSM is (IDLE, IRQ, WAIT_AS, WAIT_DS, CHECK, DATA_OUT, DTACK, IACKOUT1, IACKOUT2);
+  signal s_currs, s_nexts       : t_MainFSM;
+  signal s_ack_int              : std_logic;
+  signal s_VME_ADDR_123_latched : std_logic_vector(2 downto 0);
+  signal s_VME_DS_latched       : std_logic_vector(1 downto 0);
+  signal s_ADDRmatch            : std_logic;
+  signal s_FSM_IRQ              : t_FSM_IRQ;
 --===========================================================================
 -- Architecture begin
 --===========================================================================
 begin
 
 -- Input sampling and edge detection
-   ASrisingEdge : RisEdgeDetection
-      port map (
-               sig_i      => VME_AS_n_i,
-               clk_i      => clk_i,
-               RisEdge_o  => s_AS_RisingEdge
-             );
-				 
-   ASfallingEdge : FallingEdgeDetection
-      port map (
-               sig_i      => VME_AS_n_i,
-               clk_i      => clk_i,
-               FallEdge_o => s_AS_FallingEdge
-             );
+  ASrisingEdge : RisEdgeDetection
+    port map (
+      sig_i     => VME_AS_n_i,
+      clk_i     => clk_i,
+      RisEdge_o => s_AS_RisingEdge
+      );
 
-   INT_ReqinputSample : process(clk_i)
-	begin
-		if rising_edge(clk_i) then
-		 if s_enable = '1' then	
-			s_INT_Req_sample <= INT_Req_i;
-		 end if;
-		end if;	
-	end process;
-	
+  ASfallingEdge : FallingEdgeDetection
+    port map (
+      sig_i      => VME_AS_n_i,
+      clk_i      => clk_i,
+      FallEdge_o => s_AS_FallingEdge
+      );
+
+  INT_ReqinputSample : process(clk_i)
+  begin
+    if rising_edge(clk_i) then
+      s_INT_Req_sample <= INT_Req_i;
+    end if;
+  end process;
+
 --Output registers:
-   DTACKOutputSample : process(clk_i)
-	begin
-		if rising_edge(clk_i) then	 
-			VME_DTACK_n_o <= s_FSM_IRQ.s_DTACK;
-		end if;	
-	end process;
+  DTACKOutputSample : process(clk_i)
+  begin
+    if rising_edge(clk_i) then
+      VME_DTACK_n_o <= s_FSM_IRQ.s_DTACK;
+    end if;
+  end process;
 
-   DataDirOutputSample : process(clk_i)
-	begin
-		if rising_edge(clk_i) then	 
-			VME_DATA_DIR_o <= s_FSM_IRQ.s_DataDir;
-		end if;	
-	end process; 
-	
-   DTACKOEOutputSample : process(clk_i)
-	begin
-		if rising_edge(clk_i) then	 
-			s_DTACK_OE_o <= s_FSM_IRQ.s_DTACK_OE;
-		end if;	
-	end process;
+  DataDirOutputSample : process(clk_i)
+  begin
+    if rising_edge(clk_i) then
+      VME_DATA_DIR_o <= s_FSM_IRQ.s_DataDir;
+    end if;
+  end process;
 
-   process(clk_i)
-   begin
-      if rising_edge(clk_i) then
-         if s_FSM_IRQ.s_resetIRQ = '1' then
-            VME_IRQ_n_o <= (others => '1');
-         elsif s_FSM_IRQ.s_enableIRQ = '1' then	 
-            VME_IRQ_n_o <= s_IRQ; 
-         end if;
-      end if;	 
-   end process;		
+  DTACKOEOutputSample : process(clk_i)
+  begin
+    if rising_edge(clk_i) then
+      s_DTACK_OE_o <= s_FSM_IRQ.s_DTACK_OE;
+    end if;
+  end process;
 
-   process(clk_i)
-   begin
-      if rising_edge(clk_i) then
-         VME_DATA_o <= s_Data; 
+  process(clk_i)
+  begin
+    if rising_edge(clk_i) then
+      if s_FSM_IRQ.s_resetIRQ = '1' then
+        VME_IRQ_n_o <= (others => '1');
+      elsif s_FSM_IRQ.s_enableIRQ = '1' then
+        VME_IRQ_n_o <= s_IRQ;
       end if;
-   end process;		
+    end if;
+  end process;
+
+  process(clk_i)
+  begin
+    if rising_edge(clk_i) then
+      VME_DATA_o <= s_Data;
+    end if;
+  end process;
 
 -- Update current state
-   process(clk_i)
-   begin
-      if rising_edge(clk_i) then
-         if reset_n_i = '0' then
-            s_currs <= IDLE;
-         else
-            s_currs <= s_nexts;
-         end if;	
-     end if;
-  end process;		
--- Update next state
-  process(s_currs,s_INT_Req_sample,VME_AS_n_i,VME_DS_n_i,s_ack_int,VME_IACKIN_n_i,s_AS_RisingEdge)
+  process(clk_i)
   begin
-    case s_currs is 
+    if rising_edge(clk_i) then
+      if reset_n_i = '0' then
+        s_currs <= IDLE;
+      else
+        s_currs <= s_nexts;
+      end if;
+    end if;
+  end process;
+-- Update next state
+  process(s_currs, s_INT_Req_sample, VME_AS_n_i, VME_DS_n_i, s_ack_int, VME_IACKIN_n_i, s_AS_RisingEdge)
+  begin
+    case s_currs is
       when IDLE =>
-         if s_INT_Req_sample = '1' and VME_IACKIN_n_i = '1' then
-            s_nexts <= IRQ;
-         elsif VME_IACKIN_n_i = '0' then
-            s_nexts <= IACKOUT2;
-			else
-			   s_nexts <= IDLE;
-         end if;
+        if s_INT_Req_sample = '1' and VME_IACKIN_n_i = '1' then
+          s_nexts <= IRQ;
+        elsif VME_IACKIN_n_i = '0' then
+          s_nexts <= IACKOUT2;
+        else
+          s_nexts <= IDLE;
+        end if;
 
-      when IRQ => 
-         if VME_IACKIN_n_i = '0' then  -- Each Interrupter who is driving an interrupt request line
-                                       -- low waits for a falling edge on IACKIN input -->
-                                       -- the IRQ_Controller have to detect a falling edge on the IACKIN.
-            s_nexts <= WAIT_AS;
-         else 
-            s_nexts <= IRQ;
-         end if;
+      when IRQ =>
+        if VME_IACKIN_n_i = '0' then  -- Each Interrupter who is driving an interrupt request line
+          -- low waits for a falling edge on IACKIN input -->
+          -- the IRQ_Controller have to detect a falling edge on the IACKIN.
+          s_nexts <= WAIT_AS;
+        else
+          s_nexts <= IRQ;
+        end if;
 
       when WAIT_AS =>
-         if VME_AS_n_i = '0' then  -- NOT USE FALLING EDGE HERE!
-            s_nexts <= WAIT_DS;
-         else 
-            s_nexts <= WAIT_AS;
-         end if;
+        if VME_AS_n_i = '0' then        -- NOT USE FALLING EDGE HERE!
+          s_nexts <= WAIT_DS;
+        else
+          s_nexts <= WAIT_AS;
+        end if;
 
       when WAIT_DS =>
-         if VME_DS_n_i /= "11" then
-            s_nexts <= CHECK;
-         else 
-            s_nexts <= WAIT_DS;
-         end if;
---      when LATCH_DS =>	      -- this state is necessary only for D16 ans D32 Interrupters
+        if VME_DS_n_i /= "11" then
+          s_nexts <= CHECK;
+        else
+          s_nexts <= WAIT_DS;
+        end if;
+--      when LATCH_DS =>              -- this state is necessary only for D16 ans D32 Interrupters
 --         s_nexts <= CHECK;
 -- If the interrupter is D16 or D32 add a generic number of LATCH_DS state like in the VME_bus component.
-      when CHECK =>	  
-         if s_ack_int = '1' then
-            s_nexts <= DATA_OUT;  -- The Interrupter send the INT_Vector
-         else 
-            s_nexts <= IACKOUT1;   -- the Interrupter must pass a falling edge on the IACKOUT output
-         end if;
+      when CHECK =>
+        if s_ack_int = '1' then
+          s_nexts <= DATA_OUT;          -- The Interrupter send the INT_Vector
+        else
+          s_nexts <= IACKOUT1;  -- the Interrupter must pass a falling edge on the IACKOUT output
+        end if;
 
-      when IACKOUT1 =>	 
-		   if s_AS_RisingEdge = '1' then  
-            s_nexts <= IRQ;
-         else 
-            s_nexts <= IACKOUT1;
-         end if;	
-          
-			
-      when  DATA_OUT=>	  
-         s_nexts <= DTACK;	 
-      
-		when IACKOUT2 =>	
-         if s_AS_RisingEdge = '1' then  
-            s_nexts <= IDLE;
-         else 
-            s_nexts <= IACKOUT2;
-         end if;			         
-      	
-      when  DTACK=>	
-         if s_AS_RisingEdge = '1' then  
-            s_nexts <= IDLE;
-         else 
-            s_nexts <= DTACK;
-         end if;		 	  
+      when IACKOUT1 =>
+        if s_AS_RisingEdge = '1' then
+          s_nexts <= IRQ;
+        else
+          s_nexts <= IACKOUT1;
+        end if;
+        
+        
+      when DATA_OUT =>
+        s_nexts <= DTACK;
+        
+      when IACKOUT2 =>
+        if s_AS_RisingEdge = '1' then
+          s_nexts <= IDLE;
+        else
+          s_nexts <= IACKOUT2;
+        end if;
+        
+      when DTACK =>
+        if s_AS_RisingEdge = '1' then
+          s_nexts <= IDLE;
+        else
+          s_nexts <= DTACK;
+        end if;
       when others => null;
     end case;
 
   end process;
 -- Update Outputs
 -- Mealy FSM
-  process(s_currs,VME_AS1_n_i)
+  process(s_currs, VME_AS1_n_i)
   begin
-	 s_FSM_IRQ   <= c_FSM_IRQ;
-	 
-    case s_currs is 
+
+    case s_currs is
       when IDLE =>
-		    s_FSM_IRQ   <= c_FSM_IRQ;
-      
-       when IRQ => 
-		    s_FSM_IRQ             <= c_FSM_IRQ;
-			 s_FSM_IRQ.s_enableIRQ <= '1';
-			 s_FSM_IRQ.s_resetIRQ  <= '0';
+
+        s_FSM_IRQ.s_IACKOUT   <= '1';
+        s_FSM_IRQ.s_DataDir   <= '0';
+        s_FSM_IRQ.s_DTACK     <= '1';
+        s_FSM_IRQ.s_enableIRQ <= '0';
+        s_FSM_IRQ.s_resetIRQ  <= '1';
+        s_FSM_IRQ.s_DSlatch   <= '0';
+        s_FSM_IRQ.s_DTACK_OE  <= '0';
+
+      when IRQ =>
+        s_FSM_IRQ.s_IACKOUT   <= '1';
+        s_FSM_IRQ.s_DataDir   <= '0';
+        s_FSM_IRQ.s_DTACK     <= '1';
+        s_FSM_IRQ.s_DSlatch   <= '0';
+        s_FSM_IRQ.s_DTACK_OE  <= '0';
+        s_FSM_IRQ.s_enableIRQ <= '1';
+        s_FSM_IRQ.s_resetIRQ  <= '0';
 
       when WAIT_AS =>
-		    s_FSM_IRQ             <= c_FSM_IRQ;
-		    s_FSM_IRQ.s_resetIRQ  <= '0';
-			 
+
+        s_FSM_IRQ.s_IACKOUT   <= '1';
+        s_FSM_IRQ.s_DataDir   <= '0';
+        s_FSM_IRQ.s_DTACK     <= '1';
+        s_FSM_IRQ.s_enableIRQ <= '0';
+        s_FSM_IRQ.s_DSlatch   <= '0';
+        s_FSM_IRQ.s_DTACK_OE  <= '0';
+        s_FSM_IRQ.s_resetIRQ  <= '0';
+        
       when WAIT_DS =>
-		    s_FSM_IRQ             <= c_FSM_IRQ;
-			 s_FSM_IRQ.s_resetIRQ  <= '0';
-			 
---      when LATCH_DS =>	  
+        s_FSM_IRQ.s_IACKOUT   <= '1';
+        s_FSM_IRQ.s_DataDir   <= '0';
+        s_FSM_IRQ.s_DTACK     <= '1';
+        s_FSM_IRQ.s_enableIRQ <= '0';
+        s_FSM_IRQ.s_DSlatch   <= '0';
+        s_FSM_IRQ.s_DTACK_OE  <= '0';
+        s_FSM_IRQ.s_resetIRQ  <= '0';
+
+--      when LATCH_DS =>          
 --          s_IACKOUT   <= '1';
 --          s_DataDir   <= '0'; 
 --          s_DTACK     <= '1';
@@ -330,33 +350,52 @@ begin
 --          s_DSlatch   <= '1';
 --          s_DTACK_OE  <= '0';
 
-      when CHECK =>	
-          s_FSM_IRQ             <= c_FSM_IRQ;
-			 s_FSM_IRQ.s_resetIRQ  <= '0';	
+      when CHECK =>
+        s_FSM_IRQ.s_IACKOUT   <= '1';
+        s_FSM_IRQ.s_DataDir   <= '0';
+        s_FSM_IRQ.s_DTACK     <= '1';
+        s_FSM_IRQ.s_enableIRQ <= '0';
+        s_FSM_IRQ.s_DSlatch   <= '0';
+        s_FSM_IRQ.s_DTACK_OE  <= '0';
+        s_FSM_IRQ.s_resetIRQ  <= '0';
 
-      when  IACKOUT1 =>
-		    s_FSM_IRQ             <= c_FSM_IRQ;
-			 s_FSM_IRQ.s_resetIRQ  <= '0';
-		    s_FSM_IRQ.s_IACKOUT   <= VME_AS1_n_i; 
-			 
-		when  IACKOUT2 =>
-		    s_FSM_IRQ             <= c_FSM_IRQ;
-			 s_FSM_IRQ.s_resetIRQ  <= '0';
-		    s_FSM_IRQ.s_IACKOUT   <= VME_AS1_n_i; 
-          
-      when  DATA_OUT=>	  
-		    s_FSM_IRQ             <= c_FSM_IRQ;
-		    s_FSM_IRQ.s_DataDir   <= '1';
-			 s_FSM_IRQ.s_resetIRQ  <= '0';
-			 s_FSM_IRQ.s_DTACK_OE   <= '1';
+      when IACKOUT1 =>
+        s_FSM_IRQ. s_DataDir   <= '0';
+        s_FSM_IRQ. s_DTACK     <= '1';
+        s_FSM_IRQ. s_enableIRQ <= '0';
+        s_FSM_IRQ. s_DSlatch   <= '0';
+        s_FSM_IRQ. s_DTACK_OE  <= '0';
+        s_FSM_IRQ.s_resetIRQ   <= '0';
+        s_FSM_IRQ.s_IACKOUT    <= '0';
+        
+      when IACKOUT2 =>
+        s_FSM_IRQ. s_DataDir   <= '0';
+        s_FSM_IRQ. s_DTACK     <= '1';
+        s_FSM_IRQ. s_enableIRQ <= '0';
+        s_FSM_IRQ. s_DSlatch   <= '0';
+        s_FSM_IRQ. s_DTACK_OE  <= '0';
+        s_FSM_IRQ.s_resetIRQ   <= '0';
+        s_FSM_IRQ.s_IACKOUT    <= '0';
+        
+      when DATA_OUT =>
+        s_FSM_IRQ.s_IACKOUT    <= '1';
+        s_FSM_IRQ. s_DTACK     <= '1';
+        s_FSM_IRQ. s_enableIRQ <= '0';
+        s_FSM_IRQ. s_DSlatch   <= '0';
+        s_FSM_IRQ.s_DataDir    <= '1';
+        s_FSM_IRQ.s_resetIRQ   <= '0';
+        s_FSM_IRQ.s_DTACK_OE   <= '1';
 
-      when  DTACK=>	
-	     	 s_FSM_IRQ             <= c_FSM_IRQ;
-			 s_FSM_IRQ.s_DataDir   <= '1';
-			 s_FSM_IRQ.s_DTACK     <= '0';
-			 s_FSM_IRQ.s_DTACK_OE   <= '1';
-			 		
-      when others => null;
+      when DTACK =>
+        s_FSM_IRQ.s_IACKOUT    <= '1';
+        s_FSM_IRQ. s_enableIRQ <= '0';
+        s_FSM_IRQ. s_resetIRQ  <= '1';
+        s_FSM_IRQ. s_DSlatch   <= '0';
+        s_FSM_IRQ.s_DataDir    <= '1';
+        s_FSM_IRQ.s_DTACK      <= '0';
+        s_FSM_IRQ.s_DTACK_OE   <= '1';
+
+--      when others => null;
     end case;
   end process;
 
@@ -379,45 +418,45 @@ begin
   process(clk_i)
   begin
     if rising_edge(clk_i) then
-      if reset_n_i = '0' then 
-         s_VME_ADDR_123_latched <= (others => '0');
-      elsif s_AS_FallingEdge = '1' then  
-         s_VME_ADDR_123_latched <= VME_ADDR_123_i;
-      end if;	
+      if reset_n_i = '0' then
+        s_VME_ADDR_123_latched <= (others => '0');
+      elsif s_AS_FallingEdge = '1' then
+        s_VME_ADDR_123_latched <= VME_ADDR_123_i;
+      end if;
     end if;
-  end process;	
+  end process;
 
 -- Data strobo latch 
   process(clk_i)
   begin
     if rising_edge(clk_i) then
-      if reset_n_i = '0' then 
-         s_VME_DS_latched <= (others => '0');
-      elsif s_FSM_IRQ.s_DSlatch = '1' then  
-         s_VME_DS_latched <= VME_DS_n_i;
-      end if;	
+      if reset_n_i = '0' then
+        s_VME_DS_latched <= (others => '0');
+      elsif s_FSM_IRQ.s_DSlatch = '1' then
+        s_VME_DS_latched <= VME_DS_n_i;
+      end if;
     end if;
-  end process;	
+  end process;
 
 --This process check the A01 A02 A03:
   process(clk_i)
   begin
     if rising_edge(clk_i) then
-      if reset_n_i = '0' then 
-         s_ADDRmatch <= '0';
-      elsif unsigned(INT_Level_i) = unsigned(s_VME_ADDR_123_latched) then  
-         s_ADDRmatch <= '1';
-		else 	
-		   s_ADDRmatch <= '0';
-      end if;	
+      if reset_n_i = '0' then
+        s_ADDRmatch <= '0';
+      elsif unsigned(INT_Level_i) = unsigned(s_VME_ADDR_123_latched) then
+        s_ADDRmatch <= '1';
+      else
+        s_ADDRmatch <= '0';
+      end if;
     end if;
-  end process;	
-  s_ack_int <= s_ADDRmatch;  --D08 Interrupter
+  end process;
+  s_ack_int <= s_ADDRmatch;             --D08 Interrupter
   -- s_ack_int <= (not(s_VME_DS_latched(1))) and s_ADDRmatch and (not(VME_LWORD_n_i)) 
   -- for a D32 Interrupter
-     
-  s_Data <= x"000000" & INT_Vector_i;  
-  s_enable <= (not s_INT_Req_sample) or ((not s_FSM_IRQ.s_DTACK) and (s_AS_RisingEdge)); 
+
+  s_Data          <= x"000000" & INT_Vector_i;
+  s_enable        <= ((not s_FSM_IRQ.s_DTACK) and (s_AS_RisingEdge));
   -- the INT_Vector is in the D0:D7 lines (byte3 in big endian order)  
   VME_DTACK_OE_o  <= s_DTACK_OE_o;
   VME_IACKOUT_n_o <= s_FSM_IRQ.s_IACKOUT;

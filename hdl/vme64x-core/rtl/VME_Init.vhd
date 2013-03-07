@@ -38,7 +38,7 @@ use work.vme64x_pack.all;
 --===========================================================================
 entity VME_Init is
    Port ( clk_i            : in    std_logic;
-          RSTedge_i        : in    std_logic;
+          rst_n_i        : in    std_logic;
           CRAddr_i         : in    std_logic_vector (18 downto 0);
           CRdata_i         : in    std_logic_vector (7 downto 0);
           InitReadCount_o  : out   std_logic_vector (8 downto 0);
@@ -109,7 +109,7 @@ begin
    p_coreInit : process(clk_i)  
    begin
       if rising_edge(clk_i) then
-         if RSTedge_i = '1' then
+         if rst_n_i = '0' then
             s_initState       <= IDLE;
             s_initReadCounter <= to_unsigned(0, s_initReadCounter'length);
             s_latchCRdata     <= '0';
