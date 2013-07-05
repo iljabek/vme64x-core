@@ -37,6 +37,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
 use IEEE.NUMERIC_STD.all;
+use WORK.wishbone_pkg.all;
 
 package xvme64x_core_pkg is
 
