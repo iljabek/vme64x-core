@@ -1,4 +1,6 @@
-files = [ "VME64xCore_Top.vhd",
+files = [ "xvme64x_core.vhd",
+          "xvme64x_core_pkg.vhd",
+          "VME64xCore_Top.vhd",
           "vme64x_pack.vhd",
           "VME_Access_Decode.vhd",
           "VME_Am_Match.vhd",
