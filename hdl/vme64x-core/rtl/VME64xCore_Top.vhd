@@ -414,14 +414,15 @@ begin
 --------------------------------------------------------------------------------
   --  Interrupter
   Inst_VME_IRQ_Controller : VME_IRQ_Controller
+    generic map (
+      g_retry_timeout => 62500 -- 1ms timeout
+      )
     port map(
       clk_i           => clk_i,
       reset_n_i       => s_reset_IRQ,   -- asserted when low
       VME_IACKIN_n_i  => VME_IACKIN_n_oversampled,
       VME_AS_n_i      => VME_AS_n_oversampled,
-      VME_AS1_n_i     => VME_AS_n_i,
       VME_DS_n_i      => VME_DS_n_oversampled,
-      VME_LWORD_n_i   => VME_LWORD_n_i,
       VME_ADDR_123_i  => VME_ADDR_i(3 downto 1),
       INT_Level_i     => s_INT_Level,
       INT_Vector_i    => s_INT_Vector ,

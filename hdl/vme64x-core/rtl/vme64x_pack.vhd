@@ -358,6 +358,7 @@ package vme64x_pack is
                                  DECIDE_NEXT_CYCLE,
                                  INCREMENT_ADDR,
                                  SET_DATA_PHASE
+--                           UGLY_WAIT_TO_MAKE_DECODING_WORK
                                         -- uncomment for using 2e modes:
 --                                  WAIT_FOR_DS_2e,
 --                                  ADDR_PHASE_1,
@@ -807,28 +808,27 @@ package vme64x_pack is
       );
   end component SingleRegInputSample;
 
-
-  component VME_IRQ_Controller is
-    port(
+  component VME_IRQ_Controller
+    generic (
+      g_retry_timeout : integer range 1024 to 16777215);
+    port (
       clk_i           : in  std_logic;
       reset_n_i       : in  std_logic;
       VME_IACKIN_n_i  : in  std_logic;
       VME_AS_n_i      : in  std_logic;
-      VME_AS1_n_i     : in  std_logic;
-      VME_DS_n_i      : in  std_logic_vector(1 downto 0);
-      VME_LWORD_n_i   : in  std_logic;
-      VME_ADDR_123_i  : in  std_logic_vector(2 downto 0);
-      INT_Level_i     : in  std_logic_vector(7 downto 0);
-      INT_Vector_i    : in  std_logic_vector(7 downto 0);
+      VME_DS_n_i      : in  std_logic_vector (1 downto 0);
+      VME_ADDR_123_i  : in  std_logic_vector (2 downto 0);
+      INT_Level_i     : in  std_logic_vector (7 downto 0);
+      INT_Vector_i    : in  std_logic_vector (7 downto 0);
       INT_Req_i       : in  std_logic;
-      VME_IRQ_n_o     : out std_logic_vector(6 downto 0);
+      VME_IRQ_n_o     : out std_logic_vector (6 downto 0);
       VME_IACKOUT_n_o : out std_logic;
       VME_DTACK_n_o   : out std_logic;
       VME_DTACK_OE_o  : out std_logic;
-      VME_DATA_o      : out std_logic_vector(31 downto 0);
-      VME_DATA_DIR_o  : out std_logic
-      );
-  end component VME_IRQ_Controller;
+      VME_DATA_o      : out std_logic_vector (31 downto 0);
+      VME_DATA_DIR_o  : out std_logic);
+  end component;
+
 
   component VME_CRAM is
     generic (dl : integer := 8;
