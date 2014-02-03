@@ -866,7 +866,7 @@ s_VMEdataInput <= unsigned(VME_DATA_i);
 p_addrLatching : process(clk_i)
 begin
   if rising_edge(clk_i) then
-    if s_reset = '1' then
+    if s_reset = '1' or s_mainFSMreset = '1' then
       s_VMEaddrLatched <= (others => '0');
       s_LWORDlatched   <= '0';
       s_AMlatched      <= (others => '0');
@@ -875,10 +875,6 @@ begin
         s_VMEaddrLatched <= s_VMEdataInput & s_VMEaddrInput;
         s_LWORDlatched   <= s_LWORDinput;
         s_AMlatched      <= VME_AM_i;
-      else
-        s_VMEaddrLatched <= s_VMEaddrLatched;
-        s_LWORDlatched   <= s_LWORDlatched;
-        s_AMlatched      <= s_AMlatched;
       end if;
     end if;
   end if;
