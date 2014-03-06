@@ -541,7 +541,7 @@ package VME_CR_pack is
    16#18B#  => x"00", -- Fun 0 --DFS = '0'
 
    16#18c#  => x"ff", -- Fun 1 
-   16#18d#  => x"f0", -- Fun 1 
+   16#18d#  => x"f8", -- Fun 1 
    16#18e#  => x"00", -- Fun 1 
    16#18f#  => x"00", -- Fun 1 --DFS = '0'
 
