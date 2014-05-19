@@ -40,6 +40,10 @@ use WORK.wishbone_pkg.all;
 use work.vme64x_pack.all;
 
 entity xvme64x_core is
+  generic (
+    g_adem_a24 : std_logic_vector(31 downto 0) := x"fff80000";
+    g_adem_a32 : std_logic_vector(31 downto 0) := x"ff000000"
+    );
   port (
     clk_i   : in std_logic;
     rst_n_i : in std_logic;
@@ -85,7 +89,10 @@ architecture wrapper of xvme64x_core is
     generic (
       g_wb_data_width : integer := 32;
       g_wb_addr_width : integer := 64;
-      g_CRAM_SIZE     : integer := 1024);
+      g_CRAM_SIZE     : integer := 1024;
+      g_adem_a24      : std_logic_vector(31 downto 0);
+      g_adem_a32      : std_logic_vector(31 downto 0)
+      );
     port (
       clk_i           : in  std_logic;
       rst_n_i         : in  std_logic;
@@ -136,6 +143,9 @@ architecture wrapper of xvme64x_core is
 begin  -- wrapper
 
   U_Wrapped_VME : VME64xCore_Top
+    generic map (
+      g_adem_a32 => g_adem_a32,
+      g_adem_a24 => g_adem_a24)
     port map (
       clk_i           => clk_i,
       rst_n_i         => rst_n_i,

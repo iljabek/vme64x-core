@@ -104,26 +104,29 @@ use work.VME_CR_pack.all;
 entity VME64xCore_Top is
   generic(
     -- clock period (ns)
-    g_clock          : integer := c_clk_period;  -- 100 MHz 
+    g_clock          : integer                       := c_clk_period;  -- 100 MHz 
     --WB data width:
-    g_wb_data_width  : integer := c_width;       -- must be 32 or 64
+    g_wb_data_width  : integer                       := c_width;  -- must be 32 or 64
     --WB address width:
-    g_wb_addr_width  : integer := c_addr_width;  -- 64 or less
+    g_wb_addr_width  : integer                       := c_addr_width;  -- 64 or less
     -- CRAM 
-    g_cram_size      : integer := c_CRAM_SIZE;
+    g_cram_size      : integer                       := c_CRAM_SIZE;
     -- Board ID; each board shall have an unique ID. eg: SVEC_ID = 408.
     -- loc: 0x33, 0x37, 0x3B, 0x3F   CR space
-    g_BoardID        : integer := c_SVEC_ID;     -- 4 bytes: 0x00000198
+    g_BoardID        : integer                       := c_SVEC_ID;  -- 4 bytes: 0x00000198
     -- Manufacturer ID: eg the CERN ID is 0x080030
     -- loc: 0x27, 0x2B, 0x2F   CR space
-    g_ManufacturerID : integer := c_CERN_ID;     -- 3 bytes: 0x080030
+    g_ManufacturerID : integer                       := c_CERN_ID;  -- 3 bytes: 0x080030
     -- Revision ID
     -- loc: 0x43, 0x47, 0x4B, 0x4F   CR space
-    g_RevisionID     : integer := c_RevisionID;  -- 4 bytes: 0x00000001
+    g_RevisionID     : integer                       := c_RevisionID;  -- 4 bytes: 0x00000001
     -- Program ID: this is the firmware ID
     -- loc: 0x7f    CR space
-    g_ProgramID      : integer := 90             -- 1 byte : 0x5a 
-    -- The default values can be found in the vme64x_pack
+    g_ProgramID      : integer                       := 90;  -- 1 byte : 0x5a 
+    -- The default values can be found in the vme64x_pack;
+    g_adem_a24       : std_logic_vector(31 downto 0) := x"ff800000";
+    g_adem_a32       : std_logic_vector(31 downto 0) := x"ff000000"
+
     );
   port(
     clk_i   : in std_logic;
@@ -190,7 +193,22 @@ end VME64xCore_Top;
 --===========================================================================
 
 architecture RTL of VME64xCore_Top is
-  
+
+  impure function f_setup_window_sizes(cr : t_cr_array) return t_cr_array is
+    variable tmp : t_cr_array(2**12 downto 0);
+  begin
+    tmp          := cr;
+    tmp(16#188#) := g_adem_a32(31 downto 24);
+    tmp(16#189#) := g_adem_a32(23 downto 16);
+    tmp(16#18A#) := g_adem_a32(15 downto 8);
+    tmp(16#18B#) := g_adem_a32(7 downto 0);
+    tmp(16#18c#) := g_adem_a24(31 downto 24);
+    tmp(16#18d#) := g_adem_a24(23 downto 16);
+    tmp(16#18e#) := g_adem_a24(15 downto 8);
+    tmp(16#18f#) := g_adem_a24(7 downto 0);
+    return tmp;
+  end function;
+
   signal s_CRAMdataOut         : std_logic_vector(7 downto 0);
   signal s_CRAMaddr            : std_logic_vector(f_log2_size(g_cram_size)-1 downto 0);
   signal s_CRAMdataIn          : std_logic_vector(7 downto 0);
@@ -326,9 +344,9 @@ begin
       g_cram_size     => g_cram_size
       )
     port map(
-      clk_i           => clk_i,
+      clk_i   => clk_i,
       rst_n_i => rst_n_i,
-      
+
       reset_o         => s_reset,       -- asserted when '1'
       -- VME 
       VME_RST_n_i     => VME_RST_n_oversampled,
@@ -415,7 +433,7 @@ begin
   --  Interrupter
   Inst_VME_IRQ_Controller : VME_IRQ_Controller
     generic map (
-      g_retry_timeout => 62500 -- 1ms timeout
+      g_retry_timeout => 62500          -- 1ms timeout
       )
     port map(
       clk_i           => clk_i,
@@ -425,7 +443,7 @@ begin
       VME_DS_n_i      => VME_DS_n_oversampled,
       VME_ADDR_123_i  => VME_ADDR_i(3 downto 1),
       INT_Level_i     => s_INT_Level,
-      INT_Vector_i    => s_INT_Vector ,
+      INT_Vector_i    => s_INT_Vector,
       INT_Req_i       => irq_i,
       VME_IRQ_n_o     => s_VME_IRQ_n_o,
       VME_IACKOUT_n_o => VME_IACKOUT_n_o,
@@ -442,7 +460,7 @@ begin
     generic map(
       g_cram_size      => g_cram_size,
       g_wb_data_width  => g_wb_data_width,
-      g_CRspace        => c_cr_array,
+      g_CRspace        => f_setup_window_sizes(c_cr_array),
       g_BoardID        => g_BoardID,
       g_ManufacturerID => g_ManufacturerID,
       g_RevisionID     => g_RevisionID,
