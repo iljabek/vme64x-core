@@ -13,7 +13,7 @@ use work.VME_CR_pack.all;
 use work.VME_CSR_pack.all; 
 use work.VME64xSim.all;
 use work.VME64x.all;
-use work.wishbone_pkg.all;
+--use work.wishbone_pkg.all;
 use std.textio.all; 
 use work.vme64x_pack.all; 
 
@@ -173,7 +173,9 @@ BEGIN
    test_VME64x : process
       
    begin
-
+     wait for 100ns;
+     Reset <= '0';
+     
       wait for 8800 ns;  -- wait until the initialization finish (wait more than 8705 ns)
                          -- Write in CSR:
       VME64xBus_Out.Vme64xIACK <= '1';
