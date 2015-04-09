@@ -279,34 +279,18 @@ architecture RTL of VME_bus is
   signal s_func_sel     : std_logic_vector(7 downto 0);
   signal s_VMEdata64In  : unsigned(63 downto 0);
 
-  signal s_counter      : unsigned(25 downto 0);
-  signal s_countcyc     : unsigned(9 downto 0);
   signal s_BERR_out     : std_logic;
   signal s_errorflag    : std_logic;
   signal s_resetflag    : std_logic;
-  signal s_led1         : std_logic;
-  signal s_led2         : std_logic;
-  signal s_led3         : std_logic;
-  signal s_led4         : std_logic;
-  signal s_led5         : std_logic;
   signal s_sw_reset     : std_logic;
   signal s_decode       : std_logic;
   signal s_AckWb        : std_logic;
   signal s_CRCSRtype    : std_logic;
   signal s_err          : std_logic;
   signal s_rty          : std_logic;
-  -- transfer rate signals:
-  signal s_countertime  : unsigned(39 downto 0);
-  signal s_time         : std_logic_vector(39 downto 0);
-  signal s_counterbytes : unsigned(12 downto 0);
-  signal s_bytes        : std_logic_vector(12 downto 0);
-  signal s_datawidth    : unsigned(3 downto 0);
   -- 
   signal s_wbMaster_rst : std_logic;
   signal s_num_latchDS  : integer;
---===========================================================================
--- Architecture begin
---=========================================================================== 
 begin
   -- calculate the number of LATCH DS states necessary to match the timing 
   -- rule 2.39 page 113 VMEbus specification ANSI/IEEE STD1014-1987.
@@ -426,22 +410,7 @@ begin
     TWOe                     when TWOedge,
     error                    when others;
   
-  process(clk_i)
-  begin
-    if rising_edge(clk_i) then
-      if s_typeOfDataTransfer = D08_0 or s_typeOfDataTransfer = D08_1 or
-        s_typeOfDataTransfer = D08_2 or s_typeOfDataTransfer = D08_3 then
-        s_datawidth <= "0001";
-      elsif s_typeOfDataTransfer = D16_01 or s_typeOfDataTransfer = D16_23 then
-        s_datawidth <= "0010";
-      elsif s_typeOfDataTransfer = D32 or (s_typeOfDataTransfer = D64 and
-                                           (s_transferType = SINGLE or s_transferType = BLT)) then
-        s_datawidth <= "0100";
-      else
-        s_datawidth <= "1000";
-      end if;
-    end if;
-  end process;
+
 
   s_addrWidth <= s_addrWidth1;
 
@@ -1282,52 +1251,6 @@ begin
   end if;
 end process;
 
--- The following process are used to calculate the transfer time in ns 
--- (time between the As falling edge and the AS rising edge), and
--- the number of bytes transferred. 
-process(clk_i)
-begin
-  if rising_edge(clk_i) then
-    if s_reset = '1' or s_mainFSMreset = '1' then
-      s_countertime <= (others => '0');
-    elsif VME_AS_n_i = '0' then
-      s_countertime <= s_countertime + to_unsigned(g_clock, 40);
-    end if;
-  end if;
-end process;
-
-process(clk_i)
-begin
-  if rising_edge(clk_i) then
-    if (s_mainFSMreset = '1' and s_cardSel = '1') or s_reset = '1' then
-      s_time <= std_logic_vector(s_countertime + 30);
-    end if;
-  end if;
-end process;
-
-process(clk_i)
-begin
-  if rising_edge(clk_i) then
-    if s_reset = '1' or s_mainFSMreset = '1' then
-      s_counterbytes <= (others => '0');
-    elsif s_memReq = '1' and s_cardSel = '1' then
-      s_counterbytes <= s_counterbytes + s_datawidth;
-    end if;
-  end if;
-end process;
-
-process(clk_i)
-begin
-  if rising_edge(clk_i) then
-    if (s_mainFSMreset = '1' and s_cardSel = '1') or s_reset = '1' then
-      s_bytes <= std_logic_vector(s_counterbytes);
-    end if;
-  end if;
-end process;
-
-numBytes   <= s_bytes;
-transfTime <= s_time;
-
 ---------------------------INITIALIZATION-------------------------------------|  
 -- Initialization procedure (about 8800 ns)   
 -- Read important CR data (like FUNC_ADEMs etc.) and store it locally
@@ -1374,6 +1297,8 @@ Inst_VME_Init : VME_Init
 
 ------------------EDGE DETECTION and SAMPLING-----------------------------------------
 
+
+
 ASfallingEdge : FallingEdgeDetection
   port map (
     sig_i      => VME_AS_n_i,
@@ -1407,43 +1332,6 @@ CRAMinputSample : SingleRegInputSample
     reg_o => s_CRAMdataIn,
     clk_i => clk_i
     );
-
-------------------------------LEDS------------------------------------------------|
--- Debug
-
-process(clk_i)
-begin
-  if rising_edge(clk_i) then
-    if s_reset = '1' then
-      s_led5 <= '1';
-    elsif g_wb_data_width = 32 then
-      s_led5 <= '0';
-    end if;
-  end if;
-end process;
-
-leds(6) <= not ModuleEnable;
-leds(2) <= '1';
-leds(7) <= s_counter(25);
-leds(5) <= s_led5;
-leds(4) <= not s_errorflag;
-leds(1) <= '1';
-leds(3) <= '1';
-leds(0) <= '1';
-
--------------------------------------------------------------------------------------------  
--- This process implements a simple 26 bit counter. If the bitstream file has been downloaded
--- correctly and the clock is working properly you can see a led flash on the board.
-process(clk_i)
-begin
-  if rising_edge(clk_i) then
-    if VME_RST_n_i = '0' then
-      s_counter <= (others => '0');
-    else
-      s_counter <= s_counter + 1;
-    end if;
-  end if;
-end process;
 
 end RTL;
 --===========================================================================

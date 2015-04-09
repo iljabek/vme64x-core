@@ -83,7 +83,8 @@ package xvme64x_core_pkg is
   ------------------------------------------------------------------------------
   component xvme64x_core
     generic (
-      g_adem_a24 : std_logic_vector(31 downto 0) := x"ff800000";
+      g_clock_freq : integer := 62500000;
+      g_adem_a24 : std_logic_vector(31 downto 0) := x"fff80000";
       g_adem_a32 : std_logic_vector(31 downto 0) := x"ff000000"
       );
     port (

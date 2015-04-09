@@ -131,7 +131,6 @@ entity VME64xCore_Top is
   port(
     clk_i   : in std_logic;
     rst_n_i : in std_logic;
-
     -- VME                            
     VME_AS_n_i      : in  std_logic;
     VME_RST_n_i     : in  std_logic;    -- asserted when '0'
@@ -346,7 +345,6 @@ begin
     port map(
       clk_i   => clk_i,
       rst_n_i => rst_n_i,
-
       reset_o         => s_reset,       -- asserted when '1'
       -- VME 
       VME_RST_n_i     => VME_RST_n_oversampled,
