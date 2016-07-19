@@ -131,7 +131,7 @@ package VME_CR_pack is
       --CSR data acces width
    16#05#  => x"84",  --D32, D16, D08
       --CR/CSR Space Specification ID
-   16#06#  => x"01", 		
+   16#06#  => x"02",
       --Ascii "C"
    16#07#  => x"43", 
       --Ascii "R"
