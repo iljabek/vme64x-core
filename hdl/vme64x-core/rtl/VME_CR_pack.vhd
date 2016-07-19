@@ -183,15 +183,15 @@ package VME_CR_pack is
       --CRAM_ACCESS_WIDTH
    16#3f#  => x"84", --D32, D16, D08
       --Function data access width
-   16#40#  => x"86", -- Fun 0 accepts D64, D32, D16, D08(EO) cycles
-   16#41#  => x"86", -- Fun 1 
-   16#42#  => x"86", -- Fun 2 
-   16#43#  => x"86", -- Fun 3
+   16#40#  => x"84", -- Fun 0 accepts D64, D32, D16, D08(EO) cycles
+   16#41#  => x"84", -- Fun 1
+   16#42#  => x"84", -- Fun 2
+   16#43#  => x"84", -- Fun 3
 
-   16#44#  => x"86", -- Fun 4
-   16#45#  => x"86", -- Fun 5
-   16#46#  => x"86", -- Fun 6
-   16#47#  => x"86", -- Fun 7
+   16#44#  => x"84", -- Fun 4
+   16#45#  => x"84", -- Fun 5
+   16#46#  => x"84", -- Fun 6
+   16#47#  => x"84", -- Fun 7
 
 
       --Function AM code Mask
