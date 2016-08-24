@@ -853,6 +853,7 @@ package body vme64x_pack is
         return(I);
       end if;
     end loop;
+    return -1;
   end function f_div8;
 
   function f_log2_size (A : natural) return natural is
