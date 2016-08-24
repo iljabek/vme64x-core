@@ -80,9 +80,9 @@ end VME_Init;
 --===========================================================================
 architecture Behavioral of VME_Init is
 
-   signal s_initReadCounter : unsigned(8 downto 0);
+   signal s_initReadCounter : unsigned(8 downto 0) := to_unsigned(0, InitReadCount_o'length);
    signal s_initState       : t_initState;
-   signal s_latchCRdata     : std_logic;  -- Stores read CR data
+   signal s_latchCRdata     : std_logic := '0';  -- Stores read CR data
    signal s_initInProgress  : std_logic;
    signal s_CRadd_offset    : unsigned(18 downto 0);
    signal s_CRaddr_base     : unsigned(18 downto 0);
@@ -92,12 +92,12 @@ architecture Behavioral of VME_Init is
    signal s_FUNC_ADEM       : t_FUNC_32b_array;
    signal s_FUNC_AMCAP      : t_FUNC_64b_array;
    signal s_FUNC_XAMCAP     : t_FUNC_256b_array;
-   signal s_BEG_USER_CSR    : unsigned(23 downto 0);
-   signal s_END_USER_CSR    : unsigned(23 downto 0);
-   signal s_BEG_USER_CR     : unsigned(23 downto 0);
-   signal s_END_USER_CR     : unsigned(23 downto 0);
-   signal s_BEG_CRAM        : unsigned(23 downto 0);
-   signal s_END_CRAM        : unsigned(23 downto 0); 
+   signal s_BEG_USER_CSR    : unsigned(23 downto 0) := (others => '0');
+   signal s_END_USER_CSR    : unsigned(23 downto 0) := (others => '0');
+   signal s_BEG_USER_CR     : unsigned(23 downto 0) := (others => '0');
+   signal s_END_USER_CR     : unsigned(23 downto 0) := (others => '0');
+   signal s_BEG_CRAM        : unsigned(23 downto 0) := (others => '0');
+   signal s_END_CRAM        : unsigned(23 downto 0) := (others => '0');
 	
 --===========================================================================
 -- Architecture begin

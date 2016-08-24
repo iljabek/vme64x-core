@@ -89,7 +89,7 @@ entity VME_bus is
     -- VME signals                                                              
     VME_RST_n_i     : in  std_logic;
     VME_AS_n_i      : in  std_logic;
-    VME_LWORD_n_o   : out std_logic;
+    VME_LWORD_n_o   : out std_logic := '0';
     VME_LWORD_n_i   : in  std_logic;
     VME_RETRY_n_o   : out std_logic;
     VME_RETRY_OE_o  : out std_logic;
@@ -100,11 +100,11 @@ entity VME_bus is
     VME_DTACK_OE_o  : out std_logic;
     VME_BERR_o      : out std_logic;
     VME_ADDR_i      : in  std_logic_vector(31 downto 1);
-    VME_ADDR_o      : out std_logic_vector(31 downto 1);
+    VME_ADDR_o      : out std_logic_vector(31 downto 1) := (others => '0');
     VME_ADDR_DIR_o  : out std_logic;
     VME_ADDR_OE_N_o : out std_logic;
     VME_DATA_i      : in  std_logic_vector(31 downto 0);
-    VME_DATA_o      : out std_logic_vector(31 downto 0);
+    VME_DATA_o      : out std_logic_vector(31 downto 0) := (others => '0');
     VME_DATA_DIR_o  : out std_logic;
     VME_DATA_OE_N_o : out std_logic;
     VME_AM_i        : in  std_logic_vector(5 downto 0);
@@ -149,10 +149,10 @@ entity VME_bus is
     Endian_i        : in  std_logic_vector(2 downto 0);
     Sw_Reset        : in  std_logic;
     BAR_i           : in  std_logic_vector(4 downto 0);
-    numBytes        : out std_logic_vector(12 downto 0);
-    transfTime      : out std_logic_vector(39 downto 0);
+    numBytes        : out std_logic_vector(12 downto 0) := (others => '0'); -- TODO: what's this?
+    transfTime      : out std_logic_vector(39 downto 0) := (others => '0'); -- TODO: what's this?
     -- Debug 
-    leds            : out std_logic_vector(7 downto 0)
+    leds            : out std_logic_vector(7 downto 0) := (others => '0') -- not used
     );
 end VME_bus;
 --===========================================================================
@@ -181,11 +181,11 @@ architecture RTL of VME_bus is
   signal s_locAddr, s_rel_locAddr : unsigned(63 downto 0);  -- Local address
   signal s_locAddr2e              : unsigned(63 downto 0);  -- for 2e transfers
   signal s_locAddrBeforeOffset    : unsigned(63 downto 0);
-  signal s_phase1addr             : unsigned(63 downto 0);  -- for 2e transfers
-  signal s_phase2addr             : unsigned(63 downto 0);  --
+  signal s_phase1addr             : unsigned(63 downto 0) := (others => '0');  -- for 2e transfers
+  signal s_phase2addr             : unsigned(63 downto 0) := (others => '0');  --
   -- signal s_phase3addr             : unsigned(63 downto 0);  --
   signal s_addrOffset             : unsigned(17 downto 0);  -- block transfers|
-  signal s_CrCsrOffsetAddr        : unsigned(18 downto 0);  -- CR/CSR address 
+  signal s_CrCsrOffsetAddr        : unsigned(18 downto 0) := (others => '0');  -- CR/CSR address
   signal s_DataShift              : unsigned(5 downto 0);
   -- uncomment if 2e is implemented:
   --signal s_2eLatchAddr            : std_logic_vector(1 downto 0);  -- for 2e transfers
@@ -196,9 +196,9 @@ architecture RTL of VME_bus is
   -- Latched signals
   signal s_VMEaddrLatched : unsigned(63 downto 1);  --Latch on AS falling edge
   signal s_LWORDlatched   : std_logic;  -- Stores LWORD on falling edge of AS
-  signal s_DSlatched      : std_logic_vector(1 downto 0);  -- Stores DS
+  signal s_DSlatched      : std_logic_vector(1 downto 0) := (others => '0');  -- Stores DS
   signal s_AMlatched      : std_logic_vector(5 downto 0);  --Latch on AS f. edge 
-  signal s_XAM            : unsigned(7 downto 0);   -- Stores received XAM  
+  signal s_XAM            : unsigned(7 downto 0) := (others => '0');   -- Stores received XAM  -- TODO: what's this?
 
   -- Type of data transfer (depending on VME_DS_n, VME_LWORD_n and VME_ADDR(1))
   signal s_typeOfDataTransfer       : t_typeOfDataTransfer;

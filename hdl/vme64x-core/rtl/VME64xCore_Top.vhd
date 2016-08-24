@@ -264,8 +264,8 @@ architecture RTL of VME64xCore_Top is
   signal VME_GA_oversampled       : std_logic_vector(5 downto 0);
   signal VME_IACK_n_oversampled   : std_logic;
   signal VME_IACKIN_n_oversampled : std_logic;
-  signal s_reg_1                  : std_logic_vector(1 downto 0);
-  signal s_reg_2                  : std_logic_vector(1 downto 0);
+  signal s_reg_1                  : std_logic_vector(1 downto 0) := (others => '0');
+  signal s_reg_2                  : std_logic_vector(1 downto 0) := (others => '0');
 --===========================================================================
 -- Architecture begin
 --===========================================================================
