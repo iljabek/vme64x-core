@@ -175,13 +175,13 @@ architecture Behavioral of VME_CR_CSR_Space is
    signal s_bar_written          : std_logic;
    signal s_CSRdata              : unsigned(7 downto 0);
    signal s_FUNC_ADER            : t_FUNC_32b_array;
-	signal s_CR_Space             : t_cr_array(2**12 downto 0);
+   signal s_CR_Space             : t_cr_array(2**12 downto 0);
    signal s_CrCsrOffsetAddr      : unsigned(18 downto 0);
    signal s_locDataIn            : unsigned(7 downto 0);
    signal s_CrCsrOffsetAderIndex : unsigned(18 downto 0);
    signal s_odd_parity           : std_logic;
-	signal s_BARerror             : std_logic;
-	signal s_BAR_o                : std_logic_vector(4 downto 0);
+   --signal s_BARerror             : std_logic;
+   signal s_BAR_o                : std_logic_vector(4 downto 0);
 --===========================================================================
 -- Architecture begin
 --===========================================================================
@@ -193,7 +193,7 @@ s_odd_parity   <=  VME_GA_oversampled(5) xor VME_GA_oversampled(4) xor
 -- If the crate is not driving the GA lines or the parity is even the BAR register
 -- is set to 0x00 and the following flag is asserted; the board will not answer if the 
 -- master accesses its  CR/CSR space and we can see a time out error in the VME bus.  
-s_BARerror <= not(s_BAR_o(4) or s_BAR_o(3)or s_BAR_o(2) or s_BAR_o(1) or s_BAR_o(0));		
+--s_BARerror <= not(s_BAR_o(4) or s_BAR_o(3)or s_BAR_o(2) or s_BAR_o(1) or s_BAR_o(0));
 --------------------------------------------------------------------------------
 s_CR_Space <= f_set_CR_space(g_BoardID, g_CRspace, g_ManufacturerID, g_RevisionID, g_ProgramID);
 -- CR

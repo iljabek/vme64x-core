@@ -220,8 +220,8 @@ architecture RTL of VME64xCore_Top is
   signal s_FIFOreset           : std_logic;
   signal s_VME_DATA_IRQ        : std_logic_vector(31 downto 0);
   signal s_VME_DATA_VMEbus     : std_logic_vector(31 downto 0);
-  signal s_VME_DATA_b          : std_logic_vector(31 downto 0);
-  signal s_fifo                : std_logic;
+  -- signal s_VME_DATA_b          : std_logic_vector(31 downto 0);
+  -- signal s_fifo                : std_logic;
   signal s_VME_DTACK_VMEbus    : std_logic;
   signal s_VME_DTACK_IRQ       : std_logic;
   signal s_VME_DTACK_OE_VMEbus : std_logic;
@@ -256,7 +256,7 @@ architecture RTL of VME64xCore_Top is
   -- Oversampled input signals 
   signal VME_RST_n_oversampled    : std_logic;
   signal VME_AS_n_oversampled     : std_logic;
-  signal VME_AS_n_oversampled1    : std_logic;  -- for the IRQ_Controller
+  --signal VME_AS_n_oversampled1    : std_logic;  -- for the IRQ_Controller
   --signal VME_LWORD_n_oversampled   : std_logic;
   signal VME_WRITE_n_oversampled  : std_logic;
   signal VME_DS_n_oversampled     : std_logic_vector(1 downto 0);

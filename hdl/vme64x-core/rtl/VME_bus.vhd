@@ -183,11 +183,12 @@ architecture RTL of VME_bus is
   signal s_locAddrBeforeOffset    : unsigned(63 downto 0);
   signal s_phase1addr             : unsigned(63 downto 0);  -- for 2e transfers
   signal s_phase2addr             : unsigned(63 downto 0);  --
-  signal s_phase3addr             : unsigned(63 downto 0);  --
+  -- signal s_phase3addr             : unsigned(63 downto 0);  --
   signal s_addrOffset             : unsigned(17 downto 0);  -- block transfers|
   signal s_CrCsrOffsetAddr        : unsigned(18 downto 0);  -- CR/CSR address 
   signal s_DataShift              : unsigned(5 downto 0);
-  signal s_2eLatchAddr            : std_logic_vector(1 downto 0);  -- for 2e transfers
+  -- uncomment if 2e is implemented:
+  --signal s_2eLatchAddr            : std_logic_vector(1 downto 0);  -- for 2e transfers
   signal s_locDataSwap            : std_logic_vector(63 downto 0);
   signal s_locDataInSwap          : std_logic_vector(63 downto 0);
   signal s_locDataOutWb           : std_logic_vector(63 downto 0);
@@ -230,9 +231,10 @@ architecture RTL of VME_bus is
   signal s_transferActive     : std_logic;  -- active VME transfer
 --   signal s_retry                     : std_logic;  -- RETRY signal
   signal s_retry_out          : std_logic;
-  signal s_berr               : std_logic;  -- BERR signal
-  signal s_berr_1             : std_logic;  --                            
-  signal s_berr_2             : std_logic;  --    
+  -- uncomment if 2e is implemented:
+  --signal s_berr               : std_logic;  -- BERR signal
+  -- signal s_berr_1             : std_logic;  --               -- uncomment if 2e is implemented:
+  -- signal s_berr_2             : std_logic;  --               -- uncomment if 2e is implemented:
 
   -- Access decode signals
   signal s_confAccess : std_logic;      -- Asserted when CR or CSR is addressed
@@ -442,9 +444,11 @@ begin
   s_dataToOutput   <= s_FSM.s_dataToOutput;
   s_dataToAddrBus  <= s_FSM.s_dataToAddrBus;
   s_transferActive <= s_FSM.s_transferActive;
-  s_2eLatchAddr    <= s_FSM.s_2eLatchAddr;
+  -- uncomment if 2e is implemented:
+  --s_2eLatchAddr    <= s_FSM.s_2eLatchAddr;
   s_retry_out      <= s_FSM.s_retry;
-  s_berr           <= s_FSM.s_berr;
+  -- uncomment if 2e is implemented:
+  --s_berr           <= s_FSM.s_berr;
   s_BERR_out       <= s_FSM.s_BERR_out;
 
   p_VMEmainFSM : process(clk_i)
