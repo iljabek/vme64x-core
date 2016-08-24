@@ -99,6 +99,10 @@
 -- Date         11/2012                                                                           
 -- Version      v0.03  
 --______________________________________________________________________________
+--  Modifications:
+--      2016-08-24: by Jan Pospisil (j.pospisil@cern.ch)
+--          * commented out unused code
+--______________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------  
 -- Copyright (c) 2009 - 2011 CERN                            

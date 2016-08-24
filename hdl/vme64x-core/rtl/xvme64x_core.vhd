@@ -17,6 +17,10 @@
 -- dependencies:
 --
 --------------------------------------------------------------------------------
+--  Modifications:
+--      2016-08-24: by Jan Pospisil (j.pospisil@cern.ch)
+--          * fixed typo (address <-> data)
+--------------------------------------------------------------------------------
 -- GNU LESSER GENERAL PUBLIC LICENSE
 --------------------------------------------------------------------------------
 -- This source file is free software; you can redistribute it and/or modify it

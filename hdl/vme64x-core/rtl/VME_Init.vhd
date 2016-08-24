@@ -13,6 +13,10 @@
 --               Davide Pedretti       (Davide.Pedretti@cern.ch)  
 -- Date         11/2012                                                                           
 -- Version      v0.03  
+--______________________________________________________________________________
+--  Modifications:
+--      2016-08-24: by Jan Pospisil (j.pospisil@cern.ch)
+--          * added default values for determined start-up state
 --________________________________________________________________________________________
 --                               GNU LESSER GENERAL PUBLIC LICENSE                                
 --                              ------------------------------------    
