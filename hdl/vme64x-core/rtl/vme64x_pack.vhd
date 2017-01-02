@@ -482,10 +482,7 @@ package vme64x_pack is
       en_wr_CSR       : out std_logic;
       CrCsrOffsetAddr : out std_logic_vector(18 downto 0);
       CSRData_o       : out std_logic_vector(7 downto 0);
-      err_flag_o      : out std_logic;
-      numBytes        : out std_logic_vector(12 downto 0);
-      transfTime      : out std_logic_vector(39 downto 0);
-      leds            : out std_logic_vector(7 downto 0)
+      err_flag_o      : out std_logic
       );
   end component VME_bus;
 

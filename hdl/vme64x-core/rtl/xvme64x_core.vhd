@@ -138,8 +138,7 @@ architecture wrapper of xvme64x_core is
       WE_o            : out std_logic;
       STALL_i         : in  std_logic;
       INT_ack_o       : out std_logic;
-      IRQ_i           : in  std_logic;
-      debug           : out std_logic_vector(7 downto 0));
+      IRQ_i           : in  std_logic);
   end component;
 
   signal dat_out, dat_in : std_logic_vector(31 downto 0);

@@ -183,11 +183,9 @@ entity VME64xCore_Top is
     -- IRQ Generator
     INT_ack_o : out std_logic;  -- when the IRQ controller acknowledges the Interrupt
     -- cycle it sends a pulse to the IRQ Generator
-    IRQ_i     : in  std_logic;  -- Interrupt request; the IRQ Generator/your Wb application
+    IRQ_i     : in  std_logic   -- Interrupt request; the IRQ Generator/your Wb application
     -- sends a pulse to the IRQ Controller which asserts one of 
     -- the IRQ lines.
-    -- Added by Davide for debug:
-    debug     : out std_logic_vector(7 downto 0)
     );
 
 end VME64xCore_Top;
@@ -255,8 +253,6 @@ architecture RTL of VME64xCore_Top is
   signal s_ModuleEnable        : std_logic;
   signal s_Endian              : std_logic_vector(2 downto 0);
   signal s_BAR                 : std_logic_vector(4 downto 0);
-  signal s_time                : std_logic_vector(39 downto 0);
-  signal s_bytes               : std_logic_vector(12 downto 0);
 
   -- Oversampled input signals 
   signal VME_RST_n_oversampled    : std_logic;
@@ -410,11 +406,7 @@ begin
       ModuleEnable    => s_ModuleEnable,
       Endian_i        => s_Endian,
       Sw_Reset        => s_Sw_Reset,
-      BAR_i           => s_BAR,
-      numBytes        => s_bytes,
-      transfTime      => s_time,
-      -- debug
-      leds            => debug
+      BAR_i           => s_BAR
       );
 
 ---------------------------------------------------------------------------------
@@ -498,8 +490,8 @@ begin
       Endian_o           => s_Endian,
       BAR_o              => s_BAR,
       INT_Level          => s_INT_Level,
-      numBytes           => s_bytes,
-      transfTime         => s_time,
+      numBytes           => (others => '0'),
+      transfTime         => (others => '0'),
       INT_Vector         => s_INT_Vector
       );
 

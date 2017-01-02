@@ -34,15 +34,6 @@
 -- one Slave can answer to the Master!                                          |
 -- In the right side you can see the WB Master who implements the Wb Pipelined  |
 -- single read/write protocol.   
---      
--- led 0  <-- error flag
--- led 1  <-- last access: CR/CSR
--- led 2  <-- last access: WB SINGLE access
--- led 3  <-- last access: WB BLT access
--- led 4  <-- last access: WB MBLT access
--- led 5  <-- WB data bus 32 bits
--- led 6  <-- Module enable
--- led 7  <-- flashing
 -- Each VME board plugged in a slot acts as a VME slave module and it has only
 -- one CR/CSR space (conforming with the specification) so only one FPGA at time 
 -- must drive the output lines on the VME bus; only one FPGA at time can carry
@@ -153,11 +144,7 @@ entity VME_bus is
     ModuleEnable    : in  std_logic;
     Endian_i        : in  std_logic_vector(2 downto 0);
     Sw_Reset        : in  std_logic;
-    BAR_i           : in  std_logic_vector(4 downto 0);
-    numBytes        : out std_logic_vector(12 downto 0) := (others => '0'); -- TODO: what's this?
-    transfTime      : out std_logic_vector(39 downto 0) := (others => '0'); -- TODO: what's this?
-    -- Debug 
-    leds            : out std_logic_vector(7 downto 0) := (others => '0') -- not used
+    BAR_i           : in  std_logic_vector(4 downto 0)
     );
 end VME_bus;
 --===========================================================================
