@@ -1,25 +1,17 @@
 --------------------------------------------------------------------------------
 -- CERN (BE-CO-HT)
--- 
+-- VME64x Core
 -- http://www.ohwr.org/projects/vme64x-core
 --------------------------------------------------------------------------------
 --
--- unit name: xvme64x_core.vhd
+-- unit name:     xvme64x_core (xvme64x_core.vhd)
 --
--- author: 
+-- author:        Tomasz Wlostowski <tomasz.wlostowski@cern.ch>
 --
--- date: 11-07-2012
---
--- version: 1.0
---
--- description: 
+-- description:   Wrapped VME64x Core
 --
 -- dependencies:
 --
---------------------------------------------------------------------------------
---  Modifications:
---      2016-08-24: by Jan Pospisil (j.pospisil@cern.ch)
---          * fixed typo (address <-> data)
 --------------------------------------------------------------------------------
 -- GNU LESSER GENERAL PUBLIC LICENSE
 --------------------------------------------------------------------------------
@@ -35,12 +27,12 @@
 --------------------------------------------------------------------------------
 -- last changes: see log.
 --------------------------------------------------------------------------------
--- TODO: - 
+-- TODO: -
 --------------------------------------------------------------------------------
 
 library ieee;
-use ieee.STD_LOGIC_1164.all;
-use WORK.wishbone_pkg.all;
+use ieee.std_logic_1164.all;
+use work.wishbone_pkg.all;
 use work.vme64x_pack.all;
 
 entity xvme64x_core is
@@ -48,10 +40,11 @@ entity xvme64x_core is
     g_clock_freq : integer := 62500000;
     g_adem_a24 : std_logic_vector(31 downto 0) := x"fff80000";
     g_adem_a32 : std_logic_vector(31 downto 0) := x"ff000000"
-    );
+  );
   port (
     clk_i   : in std_logic;
     rst_n_i : in std_logic;
+
     VME_AS_n_i      : in  std_logic;
     VME_RST_n_i     : in  std_logic;
     VME_WRITE_n_i   : in  std_logic;
@@ -83,7 +76,7 @@ entity xvme64x_core is
 
     irq_i     : in  std_logic;
     irq_ack_o : out std_logic
-    );
+  );
 
 end xvme64x_core;
 
@@ -97,7 +90,7 @@ architecture wrapper of xvme64x_core is
       g_adem_a24      : std_logic_vector(31 downto 0);
       g_adem_a32      : std_logic_vector(31 downto 0);
       g_clock : integer
-      );
+    );
     port (
       clk_i           : in  std_logic;
       rst_n_i         : in  std_logic;
@@ -126,13 +119,13 @@ architecture wrapper of xvme64x_core is
       VME_ADDR_DIR_o  : out std_logic;
       VME_ADDR_OE_N_o : out std_logic;
       VME_RETRY_OE_o  : out std_logic;
-      DAT_i           : in  std_logic_vector(g_wb_data_width - 1 downto 0);
-      DAT_o           : out std_logic_vector(g_wb_data_width - 1 downto 0);
-      ADR_o           : out std_logic_vector(g_wb_addr_width - 1 downto 0);
+      DAT_i           : in  std_logic_vector(g_wb_data_width-1 downto 0);
+      DAT_o           : out std_logic_vector(g_wb_data_width-1 downto 0);
+      ADR_o           : out std_logic_vector(g_wb_addr_width-1 downto 0);
       CYC_o           : out std_logic;
       ERR_i           : in  std_logic;
       RTY_i           : in  std_logic;
-      SEL_o           : out std_logic_vector(f_div8(g_wb_data_width) - 1 downto 0);
+      SEL_o           : out std_logic_vector(f_div8(g_wb_data_width)-1 downto 0);
       STB_o           : out std_logic;
       ACK_i           : in  std_logic;
       WE_o            : out std_logic;
@@ -150,7 +143,8 @@ begin  -- wrapper
     generic map (
       g_adem_a32 => g_adem_a32,
       g_adem_a24 => g_adem_a24,
-      g_clock => g_clock_freq)
+      g_clock => g_clock_freq
+    )
     port map (
       clk_i           => clk_i,
       rst_n_i         => rst_n_i,
@@ -193,7 +187,7 @@ begin  -- wrapper
       STALL_i   => master_i.stall,
       IRQ_i     => irq_i,
       INT_ack_o => irq_ack_o
-      );
+    );
 
   master_o.dat <= dat_out(31 downto 0);
   master_o.sel <= (others => '1');

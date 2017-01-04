@@ -1,18 +1,14 @@
 --------------------------------------------------------------------------------
 -- CERN (BE-CO-HT)
--- VME64x core package
+-- VME64x Core
 -- http://www.ohwr.org/projects/vme64x-core
 --------------------------------------------------------------------------------
 --
--- unit name: xvme64x_core_pkg.vhd (xvme64x_core_pkg.vhd)
+-- unit name:     xvme64x_core_pkg (xvme64x_core_pkg.vhd)
 --
--- author: Tomasz Wlostowski
+-- author:        Tomasz Wlostowski <tomasz.wlostowski@cern.ch>
 --
--- date: 05-07-2013
---
--- version: 1.0
---
--- description: Package for VME64x core
+-- description:   Package for wrapped VME64x Core
 --
 -- dependencies:
 --
@@ -31,20 +27,19 @@
 --------------------------------------------------------------------------------
 -- last changes: see svn log.
 --------------------------------------------------------------------------------
--- TODO: - 
+-- TODO: -
 --------------------------------------------------------------------------------
 
-library IEEE;
-use IEEE.STD_LOGIC_1164.all;
-use IEEE.NUMERIC_STD.all;
-use WORK.wishbone_pkg.all;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use work.wishbone_pkg.all;
 
 package xvme64x_core_pkg is
 
   ------------------------------------------------------------------------------
   -- Types declaration
   ------------------------------------------------------------------------------
-
   type t_vme64x_in is record
     as_n     : std_logic;
     rst_n    : std_logic;
@@ -86,7 +81,7 @@ package xvme64x_core_pkg is
       g_clock_freq : integer := 62500000;
       g_adem_a24 : std_logic_vector(31 downto 0) := x"fff80000";
       g_adem_a32 : std_logic_vector(31 downto 0) := x"ff000000"
-      );
+    );
     port (
       clk_i   : in std_logic;
       rst_n_i : in std_logic;
@@ -122,7 +117,7 @@ package xvme64x_core_pkg is
 
       irq_i     : in  std_logic;
       irq_ack_o : out std_logic
-      );
+    );
   end component xvme64x_core;
 
   component xvme64x_core_structs is
@@ -131,7 +126,8 @@ package xvme64x_core_pkg is
       g_wb_addr_width   : integer                       := 64;
       g_cram_size       : integer                       := 1024;
       g_window_size_a24 : std_logic_vector(31 downto 0) := x"00080000";
-      g_window_size_a32 : std_logic_vector(31 downto 0) := x"00080000");
+      g_window_size_a32 : std_logic_vector(31 downto 0) := x"00080000"
+    );
     port (
       clk_i     : in    std_logic;
       rst_n_i   : in    std_logic;
@@ -141,9 +137,10 @@ package xvme64x_core_pkg is
       master_o  : out   t_wishbone_master_out;
       master_i  : in    t_wishbone_master_in;
       irq_i     : in    std_logic;
-      irq_ack_o : out   std_logic);
+      irq_ack_o : out   std_logic
+    );
   end component xvme64x_core_structs;
-  
+
 end xvme64x_core_pkg;
 
 package body xvme64x_core_pkg is
