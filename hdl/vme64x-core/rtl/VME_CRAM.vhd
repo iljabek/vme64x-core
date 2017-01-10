@@ -39,7 +39,7 @@ use work.vme64x_pack.all;
 entity VME_CRAM is
   generic (
     dl : integer;
-    al : integer := f_log2_size(c_CRAM_SIZE)
+    al : integer
   );
   port (
     clk : in  std_logic;

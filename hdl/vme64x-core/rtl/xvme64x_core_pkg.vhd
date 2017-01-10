@@ -78,9 +78,54 @@ package xvme64x_core_pkg is
   ------------------------------------------------------------------------------
   component xvme64x_core
     generic (
-      g_clock_freq : integer := 62500000;
-      g_adem_a24 : std_logic_vector(31 downto 0) := x"fff80000";
-      g_adem_a32 : std_logic_vector(31 downto 0) := x"ff000000"
+      g_clock           : integer;
+      g_wb_data_width   : integer;
+      g_wb_addr_width   : integer;
+      g_manufacturer_id : std_logic_vector(23 downto 0);
+      g_board_id        : std_logic_vector(31 downto 0);
+      g_revision_id     : std_logic_vector(31 downto 0);
+      g_program_id      : std_logic_vector(7 downto 0);
+      g_ascii_ptr       : std_logic_vector(23 downto 0);
+      g_beg_user_cr     : std_logic_vector(23 downto 0);
+      g_end_user_cr     : std_logic_vector(23 downto 0);
+      g_beg_cram        : std_logic_vector(23 downto 0);
+      g_end_cram        : std_logic_vector(23 downto 0);
+      g_beg_user_csr    : std_logic_vector(23 downto 0);
+      g_end_user_csr    : std_logic_vector(23 downto 0);
+      g_beg_sn          : std_logic_vector(23 downto 0);
+      g_end_sn          : std_logic_vector(23 downto 0);
+      g_f0_adem         : std_logic_vector( 31 downto 0);
+      g_f0_amcap        : std_logic_vector( 63 downto 0);
+      g_f0_xamcap       : std_logic_vector(255 downto 0);
+      g_f0_dawpr        : std_logic_vector(  7 downto 0);
+      g_f1_adem         : std_logic_vector( 31 downto 0);
+      g_f1_amcap        : std_logic_vector( 63 downto 0);
+      g_f1_xamcap       : std_logic_vector(255 downto 0);
+      g_f1_dawpr        : std_logic_vector(  7 downto 0);
+      g_f2_adem         : std_logic_vector( 31 downto 0);
+      g_f2_amcap        : std_logic_vector( 63 downto 0);
+      g_f2_xamcap       : std_logic_vector(255 downto 0);
+      g_f2_dawpr        : std_logic_vector(  7 downto 0);
+      g_f3_adem         : std_logic_vector( 31 downto 0);
+      g_f3_amcap        : std_logic_vector( 63 downto 0);
+      g_f3_xamcap       : std_logic_vector(255 downto 0);
+      g_f3_dawpr        : std_logic_vector(  7 downto 0);
+      g_f4_adem         : std_logic_vector( 31 downto 0);
+      g_f4_amcap        : std_logic_vector( 63 downto 0);
+      g_f4_xamcap       : std_logic_vector(255 downto 0);
+      g_f4_dawpr        : std_logic_vector(  7 downto 0);
+      g_f5_adem         : std_logic_vector( 31 downto 0);
+      g_f5_amcap        : std_logic_vector( 63 downto 0);
+      g_f5_xamcap       : std_logic_vector(255 downto 0);
+      g_f5_dawpr        : std_logic_vector(  7 downto 0);
+      g_f6_adem         : std_logic_vector( 31 downto 0);
+      g_f6_amcap        : std_logic_vector( 63 downto 0);
+      g_f6_xamcap       : std_logic_vector(255 downto 0);
+      g_f6_dawpr        : std_logic_vector(  7 downto 0);
+      g_f7_adem         : std_logic_vector( 31 downto 0);
+      g_f7_amcap        : std_logic_vector( 63 downto 0);
+      g_f7_xamcap       : std_logic_vector(255 downto 0);
+      g_f7_dawpr        : std_logic_vector(  7 downto 0)
     );
     port (
       clk_i   : in std_logic;
@@ -119,27 +164,6 @@ package xvme64x_core_pkg is
       irq_ack_o : out std_logic
     );
   end component xvme64x_core;
-
-  component xvme64x_core_structs is
-    generic (
-      g_wb_data_width   : integer                       := 32;
-      g_wb_addr_width   : integer                       := 64;
-      g_cram_size       : integer                       := 1024;
-      g_window_size_a24 : std_logic_vector(31 downto 0) := x"00080000";
-      g_window_size_a32 : std_logic_vector(31 downto 0) := x"00080000"
-    );
-    port (
-      clk_i     : in    std_logic;
-      rst_n_i   : in    std_logic;
-      vme_i     : in    t_vme64x_in;
-      vme_o     : out   t_vme64x_out;
-      vme_b     : inout t_vme64x_bidir;
-      master_o  : out   t_wishbone_master_out;
-      master_i  : in    t_wishbone_master_in;
-      irq_i     : in    std_logic;
-      irq_ack_o : out   std_logic
-    );
-  end component xvme64x_core_structs;
 
 end xvme64x_core_pkg;
 

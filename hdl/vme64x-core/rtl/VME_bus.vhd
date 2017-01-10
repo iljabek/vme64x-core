@@ -72,10 +72,10 @@ use work.vme64x_pack.all;
 
 entity VME_bus is
   generic (
-    g_clock         : integer := c_clk_period;
-    g_wb_data_width : integer := c_width;
-    g_wb_addr_width : integer := c_addr_width;
-    g_cram_size     : integer := c_CRAM_SIZE
+    g_clock         : integer;
+    g_wb_data_width : integer;
+    g_wb_addr_width : integer;
+    g_cram_size     : integer
   );
   port (
     clk_i           : in  std_logic;

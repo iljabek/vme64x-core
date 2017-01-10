@@ -136,18 +136,12 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 use work.vme64x_pack.all;
-use work.VME_CR_pack.all;
-use work.VME_CSR_pack.all;
 
 entity VME_CR_CSR_Space is
   generic (
-    g_cram_size         : integer    := c_CRAM_SIZE;
-    g_wb_data_width     : integer    := c_width;
-    g_CRspace           : t_cr_array := c_cr_array;
-    g_BoardID           : integer    := c_SVEC_ID;
-    g_ManufacturerID    : integer    := c_CERN_ID;      -- 0x00080030
-    g_RevisionID        : integer    := c_RevisionID;   -- 0x00000001
-    g_ProgramID         : integer    := 96              -- 0x00000060
+    g_cram_size         : integer;
+    g_wb_data_width     : integer;
+    g_cr_space          : t_cr_array
   );
   port (
     -- VMEbus.vhd signals
@@ -189,11 +183,10 @@ end VME_CR_CSR_Space;
 
 architecture Behavioral of VME_CR_CSR_Space is
 
-  signal s_CSRarray             : t_CSRarray;   -- Array of CSR registers
+  signal s_CSRarray             : t_csr_array;   -- Array of CSR registers
   signal s_bar_written          : std_logic;
   signal s_CSRdata              : unsigned(7 downto 0);
   signal s_FUNC_ADER            : t_FUNC_32b_array;
-  signal s_CR_Space             : t_cr_array(2**12 downto 0);
   signal s_CrCsrOffsetAddr      : unsigned(18 downto 0);
   signal s_locDataIn            : unsigned(7 downto 0);
   signal s_CrCsrOffsetAderIndex : unsigned(18 downto 0);
@@ -213,13 +206,11 @@ begin
   -- out error in the VME bus.
   --s_BARerror <= not(s_BAR_o(4) or s_BAR_o(3)or s_BAR_o(2) or s_BAR_o(1) or s_BAR_o(0));
 
-  s_CR_Space <= f_set_CR_space(g_BoardID, g_CRspace, g_ManufacturerID, g_RevisionID, g_ProgramID);
-
   -- CR
   process(clk_i)
   begin
     if rising_edge(clk_i) then
-      CR_data <= s_CR_Space(to_integer(unsigned(CR_addr)));
+      CR_data <= g_cr_space(to_integer(unsigned(CR_addr)));
     end if;
   end process;
 
@@ -236,8 +227,8 @@ begin
       if reset = '1' then
         s_CSRarray(BAR) <= (others => '0');
         s_bar_written   <= '0';
-        for i in 254 downto WB32bits loop -- Initialization of the CSR memory
-          s_CSRarray(i) <= c_csr_array(i);
+        for i in BAR-1 downto WB32bits loop -- Initialization of the CSR memory
+          s_CSRarray(i) <= x"00";
         end loop;
       elsif s_bar_written = '0' and s_odd_parity = '1' then
         -- initialization of BAR reg to access the CR/CSR space

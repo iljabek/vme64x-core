@@ -73,8 +73,8 @@ use work.vme64x_pack.all;
 
 entity VME_Wb_master is
   generic (
-    g_wb_data_width : integer := c_width;
-    g_wb_addr_width : integer := c_addr_width
+    g_wb_data_width : integer;
+    g_wb_addr_width : integer
   );
   port (
     memReq_i        : in  std_logic;

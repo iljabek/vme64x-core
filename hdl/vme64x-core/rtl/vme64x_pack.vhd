@@ -88,42 +88,20 @@ package vme64x_pack is
   --WB data width:
   constant c_width        : integer := 64;    -- must be 32 or 64!
 
-  --CRAM size in the CR/CSR space (bytes):
-  constant c_CRAM_SIZE    : integer := 1024;  -- remember to set properly the
-                                              -- "END_CRAM" register in the CR space
   -- WB addr width:
   constant c_addr_width   : integer := 9;
-
-  constant DFS            : integer := 2;     -- for accessing at the ADEM's bit 2
-  constant XAM_MODE       : integer := 0;     -- for accessing at the ADER's bit 0
 
   -- Tclk in ns used to calculate the data transfer rate
   constant c_clk_period   : integer := 10;
 
   -- add here the default boards ID:
-  constant c_SVEC_ID      : integer := 408;     -- 0x00000198
-  constant c_CERN_ID      : integer := 524336;  -- 0x080030
-  constant c_RevisionID   : integer := 1;       -- 0x00000001
+  constant c_svec_id      : std_logic_vector(31 downto 0) := x"00000198";
+  constant c_cern_id      : std_logic_vector(23 downto 0) := x"080030";
+  constant c_revision_id  : std_logic_vector(31 downto 0) := x"00000001";
+  constant c_program_id   : std_logic_vector( 7 downto 0) := x"5a";
 
-  --BoardID positions:
-  constant c_BOARD_ID_p1  : integer := 12;
-  constant c_BOARD_ID_p2  : integer := 13;
-  constant c_BOARD_ID_p3  : integer := 14;
-  constant c_BOARD_ID_p4  : integer := 15;
-
-  --ManufacturerID positions:
-  constant c_Manuf_ID_p1  : integer := 9;
-  constant c_Manuf_ID_p2  : integer := 10;
-  constant c_Manuf_ID_p3  : integer := 11;
-
-  --RevisionID positions:
-  constant c_Rev_ID_p1    : integer := 16;
-  constant c_Rev_ID_p2    : integer := 17;
-  constant c_Rev_ID_p3    : integer := 18;
-  constant c_Rev_ID_p4    : integer := 19;
-
-  --ProgramID positions:
-  constant c_Prog_ID_p    : integer := 31;
+  constant DFS            : integer := 2;     -- for accessing at the ADEM's bit 2
+  constant XAM_MODE       : integer := 0;     -- for accessing at the ADER's bit 0
 
   -- AM table.
   -- References:
@@ -446,7 +424,7 @@ package vme64x_pack is
   type t_FUNC_256b_array_std is
       array (0 to 7) of std_logic_vector(255 downto 0); -- XAMCAP register array
 
-  type t_CSRarray is
+  type t_csr_array is
       array(BAR downto WB32bits) of unsigned(7 downto 0);
 
   type t_cr_array is
@@ -460,16 +438,61 @@ package vme64x_pack is
     A : natural
   ) return natural;
 
-  function f_set_CR_space (
-    BoardID         : integer;
-    cr_default      : t_cr_array;
-    ManufacturerID  : integer;
-    RevisionID      : integer;
-    ProgramID       : integer
-  ) return t_cr_array;
-
   function f_latchDS (
     clk_period : integer
+  ) return integer;
+
+  function f_vme_cr_encode (
+    manufacturer_id : std_logic_vector( 23 downto 0);
+    board_id        : std_logic_vector( 31 downto 0);
+    revision_id     : std_logic_vector( 31 downto 0);
+    program_id      : std_logic_vector(  7 downto 0);
+    ascii_ptr       : std_logic_vector( 23 downto 0);
+    beg_user_cr     : std_logic_vector( 23 downto 0);
+    end_user_cr     : std_logic_vector( 23 downto 0);
+    beg_cram        : std_logic_vector( 23 downto 0);
+    end_cram        : std_logic_vector( 23 downto 0);
+    beg_user_csr    : std_logic_vector( 23 downto 0);
+    end_user_csr    : std_logic_vector( 23 downto 0);
+    beg_sn          : std_logic_vector( 23 downto 0);
+    end_sn          : std_logic_vector( 23 downto 0);
+    f0_adem         : std_logic_vector( 31 downto 0);
+    f0_amcap        : std_logic_vector( 63 downto 0);
+    f0_xamcap       : std_logic_vector(255 downto 0);
+    f0_dawpr        : std_logic_vector(  7 downto 0);
+    f1_adem         : std_logic_vector( 31 downto 0);
+    f1_amcap        : std_logic_vector( 63 downto 0);
+    f1_xamcap       : std_logic_vector(255 downto 0);
+    f1_dawpr        : std_logic_vector(  7 downto 0);
+    f2_adem         : std_logic_vector( 31 downto 0);
+    f2_amcap        : std_logic_vector( 63 downto 0);
+    f2_xamcap       : std_logic_vector(255 downto 0);
+    f2_dawpr        : std_logic_vector(  7 downto 0);
+    f3_adem         : std_logic_vector( 31 downto 0);
+    f3_amcap        : std_logic_vector( 63 downto 0);
+    f3_xamcap       : std_logic_vector(255 downto 0);
+    f3_dawpr        : std_logic_vector(  7 downto 0);
+    f4_adem         : std_logic_vector( 31 downto 0);
+    f4_amcap        : std_logic_vector( 63 downto 0);
+    f4_xamcap       : std_logic_vector(255 downto 0);
+    f4_dawpr        : std_logic_vector(  7 downto 0);
+    f5_adem         : std_logic_vector( 31 downto 0);
+    f5_amcap        : std_logic_vector( 63 downto 0);
+    f5_xamcap       : std_logic_vector(255 downto 0);
+    f5_dawpr        : std_logic_vector(  7 downto 0);
+    f6_adem         : std_logic_vector( 31 downto 0);
+    f6_amcap        : std_logic_vector( 63 downto 0);
+    f6_xamcap       : std_logic_vector(255 downto 0);
+    f6_dawpr        : std_logic_vector(  7 downto 0);
+    f7_adem         : std_logic_vector( 31 downto 0);
+    f7_amcap        : std_logic_vector( 63 downto 0);
+    f7_xamcap       : std_logic_vector(255 downto 0);
+    f7_dawpr        : std_logic_vector(  7 downto 0)
+  ) return t_cr_array;
+
+  function f_size (
+    A : std_logic_vector;
+    B : std_logic_vector
   ) return integer;
 
   ------------------------------------------------------------------------------
@@ -478,12 +501,54 @@ package vme64x_pack is
 
   component VME64xCore_Top
     generic (
-      g_wb_data_width : integer := 32;
-      g_wb_addr_width : integer := 64;
-      g_CRAM_SIZE     : integer := 1024;
-      g_adem_a24      : std_logic_vector(31 downto 0);
-      g_adem_a32      : std_logic_vector(31 downto 0);
-      g_clock         : integer
+      g_clock           : integer;
+      g_wb_data_width   : integer;
+      g_wb_addr_width   : integer;
+      g_manufacturer_id : std_logic_vector(23 downto 0);
+      g_board_id        : std_logic_vector(31 downto 0);
+      g_revision_id     : std_logic_vector(31 downto 0);
+      g_program_id      : std_logic_vector(7 downto 0);
+      g_ascii_ptr       : std_logic_vector(23 downto 0);
+      g_beg_user_cr     : std_logic_vector(23 downto 0);
+      g_end_user_cr     : std_logic_vector(23 downto 0);
+      g_beg_cram        : std_logic_vector(23 downto 0);
+      g_end_cram        : std_logic_vector(23 downto 0);
+      g_beg_user_csr    : std_logic_vector(23 downto 0);
+      g_end_user_csr    : std_logic_vector(23 downto 0);
+      g_beg_sn          : std_logic_vector(23 downto 0);
+      g_end_sn          : std_logic_vector(23 downto 0);
+      g_f0_adem         : std_logic_vector( 31 downto 0);
+      g_f0_amcap        : std_logic_vector( 63 downto 0);
+      g_f0_xamcap       : std_logic_vector(255 downto 0);
+      g_f0_dawpr        : std_logic_vector(  7 downto 0);
+      g_f1_adem         : std_logic_vector( 31 downto 0);
+      g_f1_amcap        : std_logic_vector( 63 downto 0);
+      g_f1_xamcap       : std_logic_vector(255 downto 0);
+      g_f1_dawpr        : std_logic_vector(  7 downto 0);
+      g_f2_adem         : std_logic_vector( 31 downto 0);
+      g_f2_amcap        : std_logic_vector( 63 downto 0);
+      g_f2_xamcap       : std_logic_vector(255 downto 0);
+      g_f2_dawpr        : std_logic_vector(  7 downto 0);
+      g_f3_adem         : std_logic_vector( 31 downto 0);
+      g_f3_amcap        : std_logic_vector( 63 downto 0);
+      g_f3_xamcap       : std_logic_vector(255 downto 0);
+      g_f3_dawpr        : std_logic_vector(  7 downto 0);
+      g_f4_adem         : std_logic_vector( 31 downto 0);
+      g_f4_amcap        : std_logic_vector( 63 downto 0);
+      g_f4_xamcap       : std_logic_vector(255 downto 0);
+      g_f4_dawpr        : std_logic_vector(  7 downto 0);
+      g_f5_adem         : std_logic_vector( 31 downto 0);
+      g_f5_amcap        : std_logic_vector( 63 downto 0);
+      g_f5_xamcap       : std_logic_vector(255 downto 0);
+      g_f5_dawpr        : std_logic_vector(  7 downto 0);
+      g_f6_adem         : std_logic_vector( 31 downto 0);
+      g_f6_amcap        : std_logic_vector( 63 downto 0);
+      g_f6_xamcap       : std_logic_vector(255 downto 0);
+      g_f6_dawpr        : std_logic_vector(  7 downto 0);
+      g_f7_adem         : std_logic_vector( 31 downto 0);
+      g_f7_amcap        : std_logic_vector( 63 downto 0);
+      g_f7_xamcap       : std_logic_vector(255 downto 0);
+      g_f7_dawpr        : std_logic_vector(  7 downto 0)
     );
     port (
       clk_i           : in  std_logic;
@@ -531,10 +596,10 @@ package vme64x_pack is
 
   component VME_bus is
     generic (
-      g_clock         : integer := c_clk_period;
-      g_wb_data_width : integer := c_width;
-      g_wb_addr_width : integer := c_addr_width;
-      g_cram_size     : integer := c_CRAM_SIZE
+      g_clock         : integer;
+      g_wb_data_width : integer;
+      g_wb_addr_width : integer;
+      g_cram_size     : integer
     );
     port (
       clk_i           : in  std_logic;
@@ -684,13 +749,9 @@ package vme64x_pack is
 
   component VME_CR_CSR_Space is
     generic (
-      g_cram_size      : integer := c_CRAM_SIZE;
-      g_wb_data_width  : integer := c_width;
-      g_CRspace        : t_cr_array;
-      g_BoardID        : integer := c_SVEC_ID;
-      g_ManufacturerID : integer := c_CERN_ID;
-      g_RevisionID     : integer := c_RevisionID;
-      g_ProgramID      : integer := 96
+      g_cram_size        : integer;
+      g_wb_data_width    : integer;
+      g_cr_space         : t_cr_array
     );
     port (
       clk_i              : in  std_logic;
@@ -766,8 +827,8 @@ package vme64x_pack is
 
   component VME_Wb_master is
     generic (
-      g_wb_data_width : integer := c_width;
-      g_wb_addr_width : integer := c_addr_width
+      g_wb_data_width : integer;
+      g_wb_addr_width : integer
     );
     port (
       memReq_i        : in  std_logic;
@@ -871,8 +932,8 @@ package vme64x_pack is
 
   component VME_CRAM is
     generic (
-      dl : integer := 8;
-      al : integer := f_log2_size(c_CRAM_SIZE)
+      dl : integer;
+      al : integer
     );
     port (
       clk : in  std_logic;
@@ -897,43 +958,6 @@ package body vme64x_pack is
     return(63);
   end function f_log2_size;
 
-  function f_set_CR_space (
-    BoardID         : integer;
-    cr_default      : t_cr_array;
-    ManufacturerID  : integer;
-    RevisionID      : integer;
-    ProgramID       : integer
-  ) return t_cr_array is
-    variable v_CR_space       : t_cr_array(2**12 downto 0);
-    variable v_BoardID        : std_logic_vector(31 downto 0);
-    variable v_ManufacturerID : std_logic_vector(23 downto 0);
-    variable v_RevisionID     : std_logic_vector(31 downto 0);
-    variable v_ProgramID      : std_logic_vector(7 downto 0);
-  begin
-    v_BoardID        := std_logic_vector(to_unsigned(BoardID, 32));
-    v_ManufacturerID := std_logic_vector(to_unsigned(ManufacturerID, 24));
-    v_RevisionID     := std_logic_vector(to_unsigned(RevisionID, 32));
-    v_ProgramID      := std_logic_vector(to_unsigned(ProgramID, 8));
-    for i in cr_default'range loop
-      case i is
-        when c_BOARD_ID_p1 => v_CR_space(i) := v_BoardID(31 downto 24);
-        when c_BOARD_ID_p2 => v_CR_space(i) := v_BoardID(23 downto 16);
-        when c_BOARD_ID_p3 => v_CR_space(i) := v_BoardID(15 downto 8);
-        when c_BOARD_ID_p4 => v_CR_space(i) := v_BoardID(7 downto 0);
-        when c_Manuf_ID_p1 => v_CR_space(i) := v_ManufacturerID(23 downto 16);
-        when c_Manuf_ID_p2 => v_CR_space(i) := v_ManufacturerID(15 downto 8);
-        when c_Manuf_ID_p3 => v_CR_space(i) := v_ManufacturerID(7 downto 0);
-        when c_Rev_ID_p1   => v_CR_space(i) := v_RevisionID(31 downto 24);
-        when c_Rev_ID_p2   => v_CR_space(i) := v_RevisionID(23 downto 16);
-        when c_Rev_ID_p3   => v_CR_space(i) := v_RevisionID(15 downto 8);
-        when c_Rev_ID_p4   => v_CR_space(i) := v_RevisionID(7 downto 0);
-        when c_Prog_ID_p   => v_CR_space(i) := v_ProgramID(7 downto 0);
-        when others        => v_CR_space(i) := cr_default(i);
-      end case;
-    end loop;
-    return(v_CR_space);
-  end function f_set_CR_space;
-
   function f_latchDS (clk_period : integer) return integer is
   begin
     for I in 1 to 4 loop
@@ -943,5 +967,523 @@ package body vme64x_pack is
     end loop;
     return(4);                        -- works for up to 200 MHz
   end function f_latchDS;
+
+  function f_vme_cr_encode (
+    manufacturer_id : std_logic_vector( 23 downto 0);
+    board_id        : std_logic_vector( 31 downto 0);
+    revision_id     : std_logic_vector( 31 downto 0);
+    program_id      : std_logic_vector(  7 downto 0);
+    ascii_ptr       : std_logic_vector( 23 downto 0);
+    beg_user_cr     : std_logic_vector( 23 downto 0);
+    end_user_cr     : std_logic_vector( 23 downto 0);
+    beg_cram        : std_logic_vector( 23 downto 0);
+    end_cram        : std_logic_vector( 23 downto 0);
+    beg_user_csr    : std_logic_vector( 23 downto 0);
+    end_user_csr    : std_logic_vector( 23 downto 0);
+    beg_sn          : std_logic_vector( 23 downto 0);
+    end_sn          : std_logic_vector( 23 downto 0);
+    f0_adem         : std_logic_vector( 31 downto 0);
+    f0_amcap        : std_logic_vector( 63 downto 0);
+    f0_xamcap       : std_logic_vector(255 downto 0);
+    f0_dawpr        : std_logic_vector(  7 downto 0);
+    f1_adem         : std_logic_vector( 31 downto 0);
+    f1_amcap        : std_logic_vector( 63 downto 0);
+    f1_xamcap       : std_logic_vector(255 downto 0);
+    f1_dawpr        : std_logic_vector(  7 downto 0);
+    f2_adem         : std_logic_vector( 31 downto 0);
+    f2_amcap        : std_logic_vector( 63 downto 0);
+    f2_xamcap       : std_logic_vector(255 downto 0);
+    f2_dawpr        : std_logic_vector(  7 downto 0);
+    f3_adem         : std_logic_vector( 31 downto 0);
+    f3_amcap        : std_logic_vector( 63 downto 0);
+    f3_xamcap       : std_logic_vector(255 downto 0);
+    f3_dawpr        : std_logic_vector(  7 downto 0);
+    f4_adem         : std_logic_vector( 31 downto 0);
+    f4_amcap        : std_logic_vector( 63 downto 0);
+    f4_xamcap       : std_logic_vector(255 downto 0);
+    f4_dawpr        : std_logic_vector(  7 downto 0);
+    f5_adem         : std_logic_vector( 31 downto 0);
+    f5_amcap        : std_logic_vector( 63 downto 0);
+    f5_xamcap       : std_logic_vector(255 downto 0);
+    f5_dawpr        : std_logic_vector(  7 downto 0);
+    f6_adem         : std_logic_vector( 31 downto 0);
+    f6_amcap        : std_logic_vector( 63 downto 0);
+    f6_xamcap       : std_logic_vector(255 downto 0);
+    f6_dawpr        : std_logic_vector(  7 downto 0);
+    f7_adem         : std_logic_vector( 31 downto 0);
+    f7_amcap        : std_logic_vector( 63 downto 0);
+    f7_xamcap       : std_logic_vector(255 downto 0);
+    f7_dawpr        : std_logic_vector(  7 downto 0)
+  ) return t_cr_array
+  is
+    variable cr  : t_cr_array(1023 downto 0) := (others => x"00");
+    variable crc : unsigned(7 downto 0)      := x"00";
+  begin
+
+    cr(16#001#) := x"00";  -- Length of CR (excluding CRC)
+    cr(16#002#) := x"03";
+    cr(16#003#) := x"ff";
+    cr(16#004#) := x"81";  -- CR data access width
+    cr(16#005#) := x"81";  -- CSR data access width
+    cr(16#006#) := x"02";  -- CR/CSR Space Specification ID
+    cr(16#007#) := x"43";  -- ASCII "C"
+    cr(16#008#) := x"52";  -- ASCII "R"
+
+    cr(16#009#) := manufacturer_id(23 downto 16);
+    cr(16#00A#) := manufacturer_id(15 downto  8);
+    cr(16#00B#) := manufacturer_id( 7 downto  0);
+
+    cr(16#00C#) := board_id(31 downto 24);
+    cr(16#00D#) := board_id(23 downto 16);
+    cr(16#00E#) := board_id(15 downto  8);
+    cr(16#00F#) := board_id( 7 downto  0);
+
+    cr(16#010#) := revision_id(31 downto 24);
+    cr(16#011#) := revision_id(23 downto 16);
+    cr(16#012#) := revision_id(15 downto  8);
+    cr(16#013#) := revision_id( 7 downto  0);
+
+    cr(16#014#) := ascii_ptr(23 downto 16);
+    cr(16#015#) := ascii_ptr(15 downto  8);
+    cr(16#016#) := ascii_ptr( 7 downto  0);
+
+    cr(16#01F#) := program_id;
+
+    cr(16#020#) := beg_user_cr(23 downto 16);
+    cr(16#021#) := beg_user_cr(15 downto  8);
+    cr(16#022#) := beg_user_cr( 7 downto  0);
+
+    cr(16#023#) := end_user_cr(23 downto 16);
+    cr(16#024#) := end_user_cr(15 downto  8);
+    cr(16#025#) := end_user_cr( 7 downto  0);
+
+    cr(16#026#) := beg_cram(23 downto 16);
+    cr(16#027#) := beg_cram(15 downto  8);
+    cr(16#028#) := beg_cram( 7 downto  0);
+
+    cr(16#029#) := end_cram(23 downto 16);
+    cr(16#02A#) := end_cram(15 downto  8);
+    cr(16#02B#) := end_cram( 7 downto  0);
+
+    cr(16#02C#) := beg_user_csr(23 downto 16);
+    cr(16#02D#) := beg_user_csr(15 downto  8);
+    cr(16#02E#) := beg_user_csr( 7 downto  0);
+
+    cr(16#02F#) := end_user_csr(23 downto 16);
+    cr(16#030#) := end_user_csr(15 downto  8);
+    cr(16#031#) := end_user_csr( 7 downto  0);
+
+    cr(16#032#) := beg_sn(23 downto 16);
+    cr(16#033#) := beg_sn(15 downto  8);
+    cr(16#034#) := beg_sn( 7 downto  0);
+
+    cr(16#035#) := end_sn(23 downto 16);
+    cr(16#036#) := end_sn(15 downto  8);
+    cr(16#037#) := end_sn( 7 downto  0);
+
+    cr(16#03F#) := x"81";  -- CRAM data access width
+
+    cr(16#040#) := f0_dawpr;
+    cr(16#041#) := f1_dawpr;
+    cr(16#042#) := f2_dawpr;
+    cr(16#043#) := f3_dawpr;
+    cr(16#044#) := f4_dawpr;
+    cr(16#045#) := f5_dawpr;
+    cr(16#046#) := f6_dawpr;
+    cr(16#047#) := f7_dawpr;
+
+    cr(16#048#) := f0_amcap(63 downto 56);
+    cr(16#049#) := f0_amcap(55 downto 48);
+    cr(16#04A#) := f0_amcap(47 downto 40);
+    cr(16#04B#) := f0_amcap(39 downto 32);
+    cr(16#04C#) := f0_amcap(31 downto 24);
+    cr(16#04D#) := f0_amcap(23 downto 16);
+    cr(16#04E#) := f0_amcap(15 downto  8);
+    cr(16#04F#) := f0_amcap( 7 downto  0);
+
+    cr(16#050#) := f1_amcap(63 downto 56);
+    cr(16#051#) := f1_amcap(55 downto 48);
+    cr(16#052#) := f1_amcap(47 downto 40);
+    cr(16#053#) := f1_amcap(39 downto 32);
+    cr(16#054#) := f1_amcap(31 downto 24);
+    cr(16#055#) := f1_amcap(23 downto 16);
+    cr(16#056#) := f1_amcap(15 downto  8);
+    cr(16#057#) := f1_amcap( 7 downto  0);
+
+    cr(16#058#) := f2_amcap(63 downto 56);
+    cr(16#059#) := f2_amcap(55 downto 48);
+    cr(16#05A#) := f2_amcap(47 downto 40);
+    cr(16#05B#) := f2_amcap(39 downto 32);
+    cr(16#05C#) := f2_amcap(31 downto 24);
+    cr(16#05D#) := f2_amcap(23 downto 16);
+    cr(16#05E#) := f2_amcap(15 downto  8);
+    cr(16#05F#) := f2_amcap( 7 downto  0);
+
+    cr(16#060#) := f3_amcap(63 downto 56);
+    cr(16#061#) := f3_amcap(55 downto 48);
+    cr(16#062#) := f3_amcap(47 downto 40);
+    cr(16#063#) := f3_amcap(39 downto 32);
+    cr(16#064#) := f3_amcap(31 downto 24);
+    cr(16#065#) := f3_amcap(23 downto 16);
+    cr(16#066#) := f3_amcap(15 downto  8);
+    cr(16#067#) := f3_amcap( 7 downto  0);
+
+    cr(16#068#) := f4_amcap(63 downto 56);
+    cr(16#069#) := f4_amcap(55 downto 48);
+    cr(16#06A#) := f4_amcap(47 downto 40);
+    cr(16#06B#) := f4_amcap(39 downto 32);
+    cr(16#06C#) := f4_amcap(31 downto 24);
+    cr(16#06D#) := f4_amcap(23 downto 16);
+    cr(16#06E#) := f4_amcap(15 downto  8);
+    cr(16#06F#) := f4_amcap( 7 downto  0);
+
+    cr(16#070#) := f5_amcap(63 downto 56);
+    cr(16#071#) := f5_amcap(55 downto 48);
+    cr(16#072#) := f5_amcap(47 downto 40);
+    cr(16#073#) := f5_amcap(39 downto 32);
+    cr(16#074#) := f5_amcap(31 downto 24);
+    cr(16#075#) := f5_amcap(23 downto 16);
+    cr(16#076#) := f5_amcap(15 downto  8);
+    cr(16#077#) := f5_amcap( 7 downto  0);
+
+    cr(16#078#) := f6_amcap(63 downto 56);
+    cr(16#079#) := f6_amcap(55 downto 48);
+    cr(16#07A#) := f6_amcap(47 downto 40);
+    cr(16#07B#) := f6_amcap(39 downto 32);
+    cr(16#07C#) := f6_amcap(31 downto 24);
+    cr(16#07D#) := f6_amcap(23 downto 16);
+    cr(16#07E#) := f6_amcap(15 downto  8);
+    cr(16#07F#) := f6_amcap( 7 downto  0);
+
+    cr(16#080#) := f7_amcap(63 downto 56);
+    cr(16#081#) := f7_amcap(55 downto 48);
+    cr(16#082#) := f7_amcap(47 downto 40);
+    cr(16#083#) := f7_amcap(39 downto 32);
+    cr(16#084#) := f7_amcap(31 downto 24);
+    cr(16#085#) := f7_amcap(23 downto 16);
+    cr(16#086#) := f7_amcap(15 downto  8);
+    cr(16#087#) := f7_amcap( 7 downto  0);
+
+    cr(16#088#) := f0_xamcap(255 downto 248);
+    cr(16#089#) := f0_xamcap(247 downto 240);
+    cr(16#08A#) := f0_xamcap(239 downto 232);
+    cr(16#08B#) := f0_xamcap(231 downto 224);
+    cr(16#08C#) := f0_xamcap(223 downto 216);
+    cr(16#08D#) := f0_xamcap(215 downto 208);
+    cr(16#08E#) := f0_xamcap(207 downto 200);
+    cr(16#08F#) := f0_xamcap(199 downto 192);
+    cr(16#090#) := f0_xamcap(191 downto 184);
+    cr(16#091#) := f0_xamcap(183 downto 176);
+    cr(16#092#) := f0_xamcap(175 downto 168);
+    cr(16#093#) := f0_xamcap(167 downto 160);
+    cr(16#094#) := f0_xamcap(159 downto 152);
+    cr(16#095#) := f0_xamcap(151 downto 144);
+    cr(16#096#) := f0_xamcap(143 downto 136);
+    cr(16#097#) := f0_xamcap(135 downto 128);
+    cr(16#098#) := f0_xamcap(127 downto 120);
+    cr(16#099#) := f0_xamcap(119 downto 112);
+    cr(16#09A#) := f0_xamcap(111 downto 104);
+    cr(16#09B#) := f0_xamcap(103 downto  96);
+    cr(16#09C#) := f0_xamcap( 95 downto  88);
+    cr(16#09D#) := f0_xamcap( 87 downto  80);
+    cr(16#09E#) := f0_xamcap( 79 downto  72);
+    cr(16#09F#) := f0_xamcap( 71 downto  64);
+    cr(16#0A0#) := f0_xamcap( 63 downto  56);
+    cr(16#0A1#) := f0_xamcap( 55 downto  48);
+    cr(16#0A2#) := f0_xamcap( 47 downto  40);
+    cr(16#0A3#) := f0_xamcap( 39 downto  32);
+    cr(16#0A4#) := f0_xamcap( 31 downto  24);
+    cr(16#0A5#) := f0_xamcap( 23 downto  16);
+    cr(16#0A6#) := f0_xamcap( 15 downto   8);
+    cr(16#0A7#) := f0_xamcap(  7 downto   0);
+
+    cr(16#0A8#) := f1_xamcap(255 downto 248);
+    cr(16#0A9#) := f1_xamcap(247 downto 240);
+    cr(16#0AA#) := f1_xamcap(239 downto 232);
+    cr(16#0AB#) := f1_xamcap(231 downto 224);
+    cr(16#0AC#) := f1_xamcap(223 downto 216);
+    cr(16#0AD#) := f1_xamcap(215 downto 208);
+    cr(16#0AE#) := f1_xamcap(207 downto 200);
+    cr(16#0AF#) := f1_xamcap(199 downto 192);
+    cr(16#0B0#) := f1_xamcap(191 downto 184);
+    cr(16#0B1#) := f1_xamcap(183 downto 176);
+    cr(16#0B2#) := f1_xamcap(175 downto 168);
+    cr(16#0B3#) := f1_xamcap(167 downto 160);
+    cr(16#0B4#) := f1_xamcap(159 downto 152);
+    cr(16#0B5#) := f1_xamcap(151 downto 144);
+    cr(16#0B6#) := f1_xamcap(143 downto 136);
+    cr(16#0B7#) := f1_xamcap(135 downto 128);
+    cr(16#0B8#) := f1_xamcap(127 downto 120);
+    cr(16#0B9#) := f1_xamcap(119 downto 112);
+    cr(16#0BA#) := f1_xamcap(111 downto 104);
+    cr(16#0BB#) := f1_xamcap(103 downto  96);
+    cr(16#0BC#) := f1_xamcap( 95 downto  88);
+    cr(16#0BD#) := f1_xamcap( 87 downto  80);
+    cr(16#0BE#) := f1_xamcap( 79 downto  72);
+    cr(16#0BF#) := f1_xamcap( 71 downto  64);
+    cr(16#0C0#) := f1_xamcap( 63 downto  56);
+    cr(16#0C1#) := f1_xamcap( 55 downto  48);
+    cr(16#0C2#) := f1_xamcap( 47 downto  40);
+    cr(16#0C3#) := f1_xamcap( 39 downto  32);
+    cr(16#0C4#) := f1_xamcap( 31 downto  24);
+    cr(16#0C5#) := f1_xamcap( 23 downto  16);
+    cr(16#0C6#) := f1_xamcap( 15 downto   8);
+    cr(16#0C7#) := f1_xamcap(  7 downto   0);
+
+    cr(16#0C8#) := f2_xamcap(255 downto 248);
+    cr(16#0C9#) := f2_xamcap(247 downto 240);
+    cr(16#0CA#) := f2_xamcap(239 downto 232);
+    cr(16#0CB#) := f2_xamcap(231 downto 224);
+    cr(16#0CC#) := f2_xamcap(223 downto 216);
+    cr(16#0CD#) := f2_xamcap(215 downto 208);
+    cr(16#0CE#) := f2_xamcap(207 downto 200);
+    cr(16#0CF#) := f2_xamcap(199 downto 192);
+    cr(16#0D0#) := f2_xamcap(191 downto 184);
+    cr(16#0D1#) := f2_xamcap(183 downto 176);
+    cr(16#0D2#) := f2_xamcap(175 downto 168);
+    cr(16#0D3#) := f2_xamcap(167 downto 160);
+    cr(16#0D4#) := f2_xamcap(159 downto 152);
+    cr(16#0D5#) := f2_xamcap(151 downto 144);
+    cr(16#0D6#) := f2_xamcap(143 downto 136);
+    cr(16#0D7#) := f2_xamcap(135 downto 128);
+    cr(16#0D8#) := f2_xamcap(127 downto 120);
+    cr(16#0D9#) := f2_xamcap(119 downto 112);
+    cr(16#0DA#) := f2_xamcap(111 downto 104);
+    cr(16#0DB#) := f2_xamcap(103 downto  96);
+    cr(16#0DC#) := f2_xamcap( 95 downto  88);
+    cr(16#0DD#) := f2_xamcap( 87 downto  80);
+    cr(16#0DE#) := f2_xamcap( 79 downto  72);
+    cr(16#0DF#) := f2_xamcap( 71 downto  64);
+    cr(16#0E0#) := f2_xamcap( 63 downto  56);
+    cr(16#0E1#) := f2_xamcap( 55 downto  48);
+    cr(16#0E2#) := f2_xamcap( 47 downto  40);
+    cr(16#0E3#) := f2_xamcap( 39 downto  32);
+    cr(16#0E4#) := f2_xamcap( 31 downto  24);
+    cr(16#0E5#) := f2_xamcap( 23 downto  16);
+    cr(16#0E6#) := f2_xamcap( 15 downto   8);
+    cr(16#0E7#) := f2_xamcap(  7 downto   0);
+
+    cr(16#0E8#) := f3_xamcap(255 downto 248);
+    cr(16#0E9#) := f3_xamcap(247 downto 240);
+    cr(16#0EA#) := f3_xamcap(239 downto 232);
+    cr(16#0EB#) := f3_xamcap(231 downto 224);
+    cr(16#0EC#) := f3_xamcap(223 downto 216);
+    cr(16#0ED#) := f3_xamcap(215 downto 208);
+    cr(16#0EE#) := f3_xamcap(207 downto 200);
+    cr(16#0EF#) := f3_xamcap(199 downto 192);
+    cr(16#0F0#) := f3_xamcap(191 downto 184);
+    cr(16#0F1#) := f3_xamcap(183 downto 176);
+    cr(16#0F2#) := f3_xamcap(175 downto 168);
+    cr(16#0F3#) := f3_xamcap(167 downto 160);
+    cr(16#0F4#) := f3_xamcap(159 downto 152);
+    cr(16#0F5#) := f3_xamcap(151 downto 144);
+    cr(16#0F6#) := f3_xamcap(143 downto 136);
+    cr(16#0F7#) := f3_xamcap(135 downto 128);
+    cr(16#0F8#) := f3_xamcap(127 downto 120);
+    cr(16#0F9#) := f3_xamcap(119 downto 112);
+    cr(16#0FA#) := f3_xamcap(111 downto 104);
+    cr(16#0FB#) := f3_xamcap(103 downto  96);
+    cr(16#0FC#) := f3_xamcap( 95 downto  88);
+    cr(16#0FD#) := f3_xamcap( 87 downto  80);
+    cr(16#0FE#) := f3_xamcap( 79 downto  72);
+    cr(16#0FF#) := f3_xamcap( 71 downto  64);
+    cr(16#100#) := f3_xamcap( 63 downto  56);
+    cr(16#101#) := f3_xamcap( 55 downto  48);
+    cr(16#102#) := f3_xamcap( 47 downto  40);
+    cr(16#103#) := f3_xamcap( 39 downto  32);
+    cr(16#104#) := f3_xamcap( 31 downto  24);
+    cr(16#105#) := f3_xamcap( 23 downto  16);
+    cr(16#106#) := f3_xamcap( 15 downto   8);
+    cr(16#107#) := f3_xamcap(  7 downto   0);
+
+    cr(16#108#) := f4_xamcap(255 downto 248);
+    cr(16#109#) := f4_xamcap(247 downto 240);
+    cr(16#10A#) := f4_xamcap(239 downto 232);
+    cr(16#10B#) := f4_xamcap(231 downto 224);
+    cr(16#10C#) := f4_xamcap(223 downto 216);
+    cr(16#10D#) := f4_xamcap(215 downto 208);
+    cr(16#10E#) := f4_xamcap(207 downto 200);
+    cr(16#10F#) := f4_xamcap(199 downto 192);
+    cr(16#110#) := f4_xamcap(191 downto 184);
+    cr(16#111#) := f4_xamcap(183 downto 176);
+    cr(16#112#) := f4_xamcap(175 downto 168);
+    cr(16#113#) := f4_xamcap(167 downto 160);
+    cr(16#114#) := f4_xamcap(159 downto 152);
+    cr(16#115#) := f4_xamcap(151 downto 144);
+    cr(16#116#) := f4_xamcap(143 downto 136);
+    cr(16#117#) := f4_xamcap(135 downto 128);
+    cr(16#118#) := f4_xamcap(127 downto 120);
+    cr(16#119#) := f4_xamcap(119 downto 112);
+    cr(16#11A#) := f4_xamcap(111 downto 104);
+    cr(16#11B#) := f4_xamcap(103 downto  96);
+    cr(16#11C#) := f4_xamcap( 95 downto  88);
+    cr(16#11D#) := f4_xamcap( 87 downto  80);
+    cr(16#11E#) := f4_xamcap( 79 downto  72);
+    cr(16#11F#) := f4_xamcap( 71 downto  64);
+    cr(16#120#) := f4_xamcap( 63 downto  56);
+    cr(16#121#) := f4_xamcap( 55 downto  48);
+    cr(16#122#) := f4_xamcap( 47 downto  40);
+    cr(16#123#) := f4_xamcap( 39 downto  32);
+    cr(16#124#) := f4_xamcap( 31 downto  24);
+    cr(16#125#) := f4_xamcap( 23 downto  16);
+    cr(16#126#) := f4_xamcap( 15 downto   8);
+    cr(16#127#) := f4_xamcap(  7 downto   0);
+
+    cr(16#128#) := f5_xamcap(255 downto 248);
+    cr(16#129#) := f5_xamcap(247 downto 240);
+    cr(16#12A#) := f5_xamcap(239 downto 232);
+    cr(16#12B#) := f5_xamcap(231 downto 224);
+    cr(16#12C#) := f5_xamcap(223 downto 216);
+    cr(16#12D#) := f5_xamcap(215 downto 208);
+    cr(16#12E#) := f5_xamcap(207 downto 200);
+    cr(16#12F#) := f5_xamcap(199 downto 192);
+    cr(16#130#) := f5_xamcap(191 downto 184);
+    cr(16#131#) := f5_xamcap(183 downto 176);
+    cr(16#132#) := f5_xamcap(175 downto 168);
+    cr(16#133#) := f5_xamcap(167 downto 160);
+    cr(16#134#) := f5_xamcap(159 downto 152);
+    cr(16#135#) := f5_xamcap(151 downto 144);
+    cr(16#136#) := f5_xamcap(143 downto 136);
+    cr(16#137#) := f5_xamcap(135 downto 128);
+    cr(16#138#) := f5_xamcap(127 downto 120);
+    cr(16#139#) := f5_xamcap(119 downto 112);
+    cr(16#13A#) := f5_xamcap(111 downto 104);
+    cr(16#13B#) := f5_xamcap(103 downto  96);
+    cr(16#13C#) := f5_xamcap( 95 downto  88);
+    cr(16#13D#) := f5_xamcap( 87 downto  80);
+    cr(16#13E#) := f5_xamcap( 79 downto  72);
+    cr(16#13F#) := f5_xamcap( 71 downto  64);
+    cr(16#140#) := f5_xamcap( 63 downto  56);
+    cr(16#141#) := f5_xamcap( 55 downto  48);
+    cr(16#142#) := f5_xamcap( 47 downto  40);
+    cr(16#143#) := f5_xamcap( 39 downto  32);
+    cr(16#144#) := f5_xamcap( 31 downto  24);
+    cr(16#145#) := f5_xamcap( 23 downto  16);
+    cr(16#146#) := f5_xamcap( 15 downto   8);
+    cr(16#147#) := f5_xamcap(  7 downto   0);
+
+    cr(16#148#) := f6_xamcap(255 downto 248);
+    cr(16#149#) := f6_xamcap(247 downto 240);
+    cr(16#14A#) := f6_xamcap(239 downto 232);
+    cr(16#14B#) := f6_xamcap(231 downto 224);
+    cr(16#14C#) := f6_xamcap(223 downto 216);
+    cr(16#14D#) := f6_xamcap(215 downto 208);
+    cr(16#14E#) := f6_xamcap(207 downto 200);
+    cr(16#14F#) := f6_xamcap(199 downto 192);
+    cr(16#150#) := f6_xamcap(191 downto 184);
+    cr(16#151#) := f6_xamcap(183 downto 176);
+    cr(16#152#) := f6_xamcap(175 downto 168);
+    cr(16#153#) := f6_xamcap(167 downto 160);
+    cr(16#154#) := f6_xamcap(159 downto 152);
+    cr(16#155#) := f6_xamcap(151 downto 144);
+    cr(16#156#) := f6_xamcap(143 downto 136);
+    cr(16#157#) := f6_xamcap(135 downto 128);
+    cr(16#158#) := f6_xamcap(127 downto 120);
+    cr(16#159#) := f6_xamcap(119 downto 112);
+    cr(16#15A#) := f6_xamcap(111 downto 104);
+    cr(16#15B#) := f6_xamcap(103 downto  96);
+    cr(16#15C#) := f6_xamcap( 95 downto  88);
+    cr(16#15D#) := f6_xamcap( 87 downto  80);
+    cr(16#15E#) := f6_xamcap( 79 downto  72);
+    cr(16#15F#) := f6_xamcap( 71 downto  64);
+    cr(16#160#) := f6_xamcap( 63 downto  56);
+    cr(16#161#) := f6_xamcap( 55 downto  48);
+    cr(16#162#) := f6_xamcap( 47 downto  40);
+    cr(16#163#) := f6_xamcap( 39 downto  32);
+    cr(16#164#) := f6_xamcap( 31 downto  24);
+    cr(16#165#) := f6_xamcap( 23 downto  16);
+    cr(16#166#) := f6_xamcap( 15 downto   8);
+    cr(16#167#) := f6_xamcap(  7 downto   0);
+
+    cr(16#168#) := f7_xamcap(255 downto 248);
+    cr(16#169#) := f7_xamcap(247 downto 240);
+    cr(16#16A#) := f7_xamcap(239 downto 232);
+    cr(16#16B#) := f7_xamcap(231 downto 224);
+    cr(16#16C#) := f7_xamcap(223 downto 216);
+    cr(16#16D#) := f7_xamcap(215 downto 208);
+    cr(16#16E#) := f7_xamcap(207 downto 200);
+    cr(16#16F#) := f7_xamcap(199 downto 192);
+    cr(16#170#) := f7_xamcap(191 downto 184);
+    cr(16#171#) := f7_xamcap(183 downto 176);
+    cr(16#172#) := f7_xamcap(175 downto 168);
+    cr(16#173#) := f7_xamcap(167 downto 160);
+    cr(16#174#) := f7_xamcap(159 downto 152);
+    cr(16#175#) := f7_xamcap(151 downto 144);
+    cr(16#176#) := f7_xamcap(143 downto 136);
+    cr(16#177#) := f7_xamcap(135 downto 128);
+    cr(16#178#) := f7_xamcap(127 downto 120);
+    cr(16#179#) := f7_xamcap(119 downto 112);
+    cr(16#17A#) := f7_xamcap(111 downto 104);
+    cr(16#17B#) := f7_xamcap(103 downto  96);
+    cr(16#17C#) := f7_xamcap( 95 downto  88);
+    cr(16#17D#) := f7_xamcap( 87 downto  80);
+    cr(16#17E#) := f7_xamcap( 79 downto  72);
+    cr(16#17F#) := f7_xamcap( 71 downto  64);
+    cr(16#180#) := f7_xamcap( 63 downto  56);
+    cr(16#181#) := f7_xamcap( 55 downto  48);
+    cr(16#182#) := f7_xamcap( 47 downto  40);
+    cr(16#183#) := f7_xamcap( 39 downto  32);
+    cr(16#184#) := f7_xamcap( 31 downto  24);
+    cr(16#185#) := f7_xamcap( 23 downto  16);
+    cr(16#186#) := f7_xamcap( 15 downto   8);
+    cr(16#187#) := f7_xamcap(  7 downto   0);
+
+    cr(16#188#) := f0_adem(31 downto 24);
+    cr(16#189#) := f0_adem(23 downto 16);
+    cr(16#18A#) := f0_adem(15 downto  8);
+    cr(16#18B#) := f0_adem( 7 downto  0);
+
+    cr(16#18C#) := f1_adem(31 downto 24);
+    cr(16#18D#) := f1_adem(23 downto 16);
+    cr(16#18E#) := f1_adem(15 downto  8);
+    cr(16#18F#) := f1_adem( 7 downto  0);
+
+    cr(16#190#) := f2_adem(31 downto 24);
+    cr(16#191#) := f2_adem(23 downto 16);
+    cr(16#192#) := f2_adem(15 downto  8);
+    cr(16#193#) := f2_adem( 7 downto  0);
+
+    cr(16#194#) := f3_adem(31 downto 24);
+    cr(16#195#) := f3_adem(23 downto 16);
+    cr(16#196#) := f3_adem(15 downto  8);
+    cr(16#197#) := f3_adem( 7 downto  0);
+
+    cr(16#198#) := f4_adem(31 downto 24);
+    cr(16#199#) := f4_adem(23 downto 16);
+    cr(16#19A#) := f4_adem(15 downto  8);
+    cr(16#19B#) := f4_adem( 7 downto  0);
+
+    cr(16#19C#) := f5_adem(31 downto 24);
+    cr(16#19D#) := f5_adem(23 downto 16);
+    cr(16#19E#) := f5_adem(15 downto  8);
+    cr(16#19F#) := f5_adem( 7 downto  0);
+
+    cr(16#1A0#) := f6_adem(31 downto 24);
+    cr(16#1A1#) := f6_adem(23 downto 16);
+    cr(16#1A2#) := f6_adem(15 downto  8);
+    cr(16#1A3#) := f6_adem( 7 downto  0);
+
+    cr(16#1A4#) := f7_adem(31 downto 24);
+    cr(16#1A5#) := f7_adem(23 downto 16);
+    cr(16#1A6#) := f7_adem(15 downto  8);
+    cr(16#1A7#) := f7_adem( 7 downto  0);
+
+    -- Calculate CRC
+    for i in 1 to cr'length-1 loop
+      crc := crc + unsigned(cr(i));
+    end loop;
+
+    cr(16#000#) := std_logic_vector(crc);
+
+    return cr;
+  end;
+
+  function f_size (
+    A : std_logic_vector;
+    B : std_logic_vector
+  ) return integer is
+  begin
+    return ((to_integer(unsigned(B)) - to_integer(unsigned(A))) / 4) + 1;
+  end;
 
 end vme64x_pack;

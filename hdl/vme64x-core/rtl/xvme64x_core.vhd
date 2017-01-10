@@ -37,9 +37,69 @@ use work.vme64x_pack.all;
 
 entity xvme64x_core is
   generic (
-    g_clock_freq : integer := 62500000;
-    g_adem_a24 : std_logic_vector(31 downto 0) := x"fff80000";
-    g_adem_a32 : std_logic_vector(31 downto 0) := x"ff000000"
+    g_clock_period    : integer                         := c_clk_period;
+    g_wb_data_width   : integer                         := c_wishbone_data_width;
+    g_wb_addr_width   : integer                         := c_wishbone_addr_width;
+
+    -- CR/CSR
+    g_manufacturer_id : std_logic_vector(23 downto 0)   := c_cern_id;
+    g_board_id        : std_logic_vector(31 downto 0)   := c_svec_id;
+    g_revision_id     : std_logic_vector(31 downto 0)   := c_revision_id;
+    g_program_id      : std_logic_vector(7 downto 0)    := c_program_id;
+
+    g_ascii_ptr       : std_logic_vector(23 downto 0)   := x"000000";
+
+    g_beg_user_cr     : std_logic_vector(23 downto 0)   := x"000000";
+    g_end_user_cr     : std_logic_vector(23 downto 0)   := x"000000";
+
+    g_beg_cram        : std_logic_vector(23 downto 0)   := x"001000";
+    g_end_cram        : std_logic_vector(23 downto 0)   := x"0013ff";
+
+    g_beg_user_csr    : std_logic_vector(23 downto 0)   := x"000000";
+    g_end_user_csr    : std_logic_vector(23 downto 0)   := x"000000";
+
+    g_beg_sn          : std_logic_vector(23 downto 0)   := x"000000";
+    g_end_sn          : std_logic_vector(23 downto 0)   := x"000000";
+
+    g_f0_adem         : std_logic_vector( 31 downto 0)  := x"ff000000";
+    g_f0_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_0000bb00";
+    g_f0_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_f0_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+
+    g_f1_adem         : std_logic_vector( 31 downto 0)  := x"fff80000";
+    g_f1_amcap        : std_logic_vector( 63 downto 0)  := x"bb000000_00000000";
+    g_f1_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_f1_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+
+    g_f2_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
+    g_f2_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+    g_f2_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_f2_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+
+    g_f3_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
+    g_f3_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+    g_f3_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_f3_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+
+    g_f4_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
+    g_f4_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+    g_f4_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_f4_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+
+    g_f5_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
+    g_f5_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+    g_f5_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_f5_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+
+    g_f6_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
+    g_f6_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+    g_f6_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_f6_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+
+    g_f7_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
+    g_f7_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+    g_f7_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_f7_dawpr        : std_logic_vector(  7 downto 0)  := x"84"
   );
   port (
     clk_i   : in std_logic;
@@ -89,9 +149,54 @@ begin  -- wrapper
 
   U_Wrapped_VME : VME64xCore_Top
     generic map (
-      g_adem_a32 => g_adem_a32,
-      g_adem_a24 => g_adem_a24,
-      g_clock => g_clock_freq
+      g_clock           => g_clock_period,
+      g_wb_data_width   => g_wb_data_width,
+      g_wb_addr_width   => g_wb_addr_width,
+      g_manufacturer_id => g_manufacturer_id,
+      g_board_id        => g_board_id,
+      g_revision_id     => g_revision_id,
+      g_program_id      => g_program_id,
+      g_ascii_ptr       => g_ascii_ptr,
+      g_beg_user_cr     => g_beg_user_cr,
+      g_end_user_cr     => g_end_user_cr,
+      g_beg_cram        => g_beg_cram,
+      g_end_cram        => g_end_cram,
+      g_beg_user_csr    => g_beg_user_csr,
+      g_end_user_csr    => g_end_user_csr,
+      g_beg_sn          => g_beg_sn,
+      g_end_sn          => g_end_sn,
+      g_f0_adem         => g_f0_adem,
+      g_f0_amcap        => g_f0_amcap,
+      g_f0_xamcap       => g_f0_xamcap,
+      g_f0_dawpr        => g_f0_dawpr,
+      g_f1_adem         => g_f1_adem,
+      g_f1_amcap        => g_f1_amcap,
+      g_f1_xamcap       => g_f1_xamcap,
+      g_f1_dawpr        => g_f1_dawpr,
+      g_f2_adem         => g_f2_adem,
+      g_f2_amcap        => g_f2_amcap,
+      g_f2_xamcap       => g_f2_xamcap,
+      g_f2_dawpr        => g_f2_dawpr,
+      g_f3_adem         => g_f3_adem,
+      g_f3_amcap        => g_f3_amcap,
+      g_f3_xamcap       => g_f3_xamcap,
+      g_f3_dawpr        => g_f3_dawpr,
+      g_f4_adem         => g_f4_adem,
+      g_f4_amcap        => g_f4_amcap,
+      g_f4_xamcap       => g_f4_xamcap,
+      g_f4_dawpr        => g_f4_dawpr,
+      g_f5_adem         => g_f5_adem,
+      g_f5_amcap        => g_f5_amcap,
+      g_f5_xamcap       => g_f5_xamcap,
+      g_f5_dawpr        => g_f5_dawpr,
+      g_f6_adem         => g_f6_adem,
+      g_f6_amcap        => g_f6_amcap,
+      g_f6_xamcap       => g_f6_xamcap,
+      g_f6_dawpr        => g_f6_dawpr,
+      g_f7_adem         => g_f7_adem,
+      g_f7_amcap        => g_f7_amcap,
+      g_f7_xamcap       => g_f7_xamcap,
+      g_f7_dawpr        => g_f7_dawpr
     )
     port map (
       clk_i           => clk_i,
