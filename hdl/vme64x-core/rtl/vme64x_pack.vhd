@@ -456,10 +456,6 @@ package vme64x_pack is
   -- Functions
   ------------------------------------------------------------------------------
 
-  function f_div8 (
-    width : integer
-  ) return integer;
-
   function f_log2_size (
     A : natural
   ) return natural;
@@ -537,7 +533,7 @@ package vme64x_pack is
       memReq_o        : out std_logic;
       wbData_o        : out std_logic_vector(g_wb_data_width-1 downto 0);
       locAddr_o       : out std_logic_vector(g_wb_addr_width-1 downto 0);
-      wbSel_o         : out std_logic_vector(f_div8(g_wb_data_width)-1 downto 0);
+      wbSel_o         : out std_logic_vector(g_wb_data_width/8-1 downto 0);
       RW_o            : out std_logic;
       cyc_o           : out std_logic;
       CRAMaddr_o      : out std_logic_vector(f_log2_size(g_cram_size)-1 downto 0);
@@ -743,7 +739,7 @@ package vme64x_pack is
       memReq_o        : out std_logic;
       WBdata_o        : out std_logic_vector(g_wb_data_width-1 downto 0);
       locAddr_o       : out std_logic_vector(g_wb_addr_width-1 downto 0);
-      WbSel_o         : out std_logic_vector(f_div8(g_wb_data_width)-1 downto 0);
+      WbSel_o         : out std_logic_vector(g_wb_data_width/8-1 downto 0);
       RW_o            : out std_logic
     );
   end component VME_Wb_master;
@@ -930,16 +926,6 @@ package vme64x_pack is
 end vme64x_pack;
 
 package body vme64x_pack is
-
-  function f_div8 (width : integer) return integer is
-  begin
-    for I in 1 to 8 loop
-      if (8*I >= width) then
-        return(I);
-      end if;
-    end loop;
-    return -1;
-  end function f_div8;
 
   function f_log2_size (A : natural) return natural is
   begin

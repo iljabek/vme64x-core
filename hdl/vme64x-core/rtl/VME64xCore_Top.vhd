@@ -192,7 +192,7 @@ entity VME64xCore_Top is
     CYC_o   : out std_logic;
     ERR_i   : in  std_logic;
     RTY_i   : in  std_logic;
-    SEL_o   : out std_logic_vector(f_div8(g_wb_data_width)-1 downto 0);
+    SEL_o   : out std_logic_vector(g_wb_data_width/8-1 downto 0);
     STB_o   : out std_logic;
     ACK_i   : in  std_logic;
     WE_o    : out std_logic;

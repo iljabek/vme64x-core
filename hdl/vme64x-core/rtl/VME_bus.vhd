@@ -113,7 +113,7 @@ entity VME_bus is
     wbData_o        : out std_logic_vector(g_wb_data_width-1 downto 0);
     wbData_i        : in  std_logic_vector(g_wb_data_width-1 downto 0);
     locAddr_o       : out std_logic_vector(g_wb_addr_width-1 downto 0);
-    wbSel_o         : out std_logic_vector(f_div8(g_wb_data_width)-1 downto 0);
+    wbSel_o         : out std_logic_vector(g_wb_data_width/8-1 downto 0);
     RW_o            : out std_logic;
     cyc_o           : out std_logic;
     err_i           : in  std_logic;

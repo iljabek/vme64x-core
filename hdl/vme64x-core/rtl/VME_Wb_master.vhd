@@ -99,7 +99,7 @@ entity VME_Wb_master is
     wbData_i        : in  std_logic_vector(g_wb_data_width-1 downto 0);
     locAddr_o       : out std_logic_vector(g_wb_addr_width-1 downto 0);
     memAckWB_i      : in  std_logic;
-    WbSel_o         : out std_logic_vector(f_div8(g_wb_data_width)-1 downto 0);
+    WbSel_o         : out std_logic_vector(g_wb_data_width/8-1 downto 0);
     RW_o            : out std_logic
   );
 end VME_Wb_master;
