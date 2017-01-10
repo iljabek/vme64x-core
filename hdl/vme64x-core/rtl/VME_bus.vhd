@@ -15,25 +15,23 @@
 --   WBbus.
 --
 --                      _____________VME_bus________________
---                     |                    _______         |
---                     |         ______    | M     |        |
---                     |        | A  D |   | A   F |    ____|
---                     |        | C  E |   | I   S |   |  W |
---                     |        | C  C |   | N   M |   |  B |
---             VME     |        | E  O |   |       |   |    |
---             BUS     |        | S  D |   |_______|   |  M |
---                     |        | S  E |               |  A |
---                     |        |______|               |  S |
---                     |         ______    ___________ |  T |
---                     |        |   I  |  |  OTHER    ||  E |
---                     |        |   N  |  |  DATA &   ||  R |
---                     |        |   I  |  |  ADDR     ||____|
---                     |        |   T  |  |  PROCESS  |     |
---                     |        |______|  |___________|     |
+--                     |                                    |
+--                     |         ______     _______         |
+--                     |        | A  D |   |       |    ____|
+--                     |        | C  E |   | M   F |   |  W |
+--                     |        | C  C |   | A   S |   |  B |
+--             VME     |        | E  O |   | I   M |   |    |
+--             BUS     |        | S  D |   | N     |   |  M |
+--                     |        | S  E |   |       |   |  A |
+--                     |        |______|   |_______|   |  S |
+--                     |         __________________    |  T |
+--                     |        |                  |   |  E |
+--                     |        |   OTHER DATA &   |   |  R |
+--                     |        |   ADDR PROCESS   |   |____|
+--                     |        |                  |        |
+--                     |        |__________________|        |
 --                     |____________________________________|
 --
---   The INIT component performs the initialization of the core after the
---   power-up or reset.
 --   The Access decode component decodes the address to check if the board is
 --   the responding Slave. This component is of fundamental importance, indeed
 --   only one Slave can answer to the Master!
@@ -75,7 +73,36 @@ entity VME_bus is
     g_clock         : integer;
     g_wb_data_width : integer;
     g_wb_addr_width : integer;
-    g_cram_size     : integer
+    g_beg_user_cr   : std_logic_vector( 23 downto 0);
+    g_end_user_cr   : std_logic_vector( 23 downto 0);
+    g_beg_cram      : std_logic_vector( 23 downto 0);
+    g_end_cram      : std_logic_vector( 23 downto 0);
+    g_beg_user_csr  : std_logic_vector( 23 downto 0);
+    g_end_user_csr  : std_logic_vector( 23 downto 0);
+    g_f0_adem       : std_logic_vector( 31 downto 0);
+    g_f0_amcap      : std_logic_vector( 63 downto 0);
+    g_f0_xamcap     : std_logic_vector(255 downto 0);
+    g_f1_adem       : std_logic_vector( 31 downto 0);
+    g_f1_amcap      : std_logic_vector( 63 downto 0);
+    g_f1_xamcap     : std_logic_vector(255 downto 0);
+    g_f2_adem       : std_logic_vector( 31 downto 0);
+    g_f2_amcap      : std_logic_vector( 63 downto 0);
+    g_f2_xamcap     : std_logic_vector(255 downto 0);
+    g_f3_adem       : std_logic_vector( 31 downto 0);
+    g_f3_amcap      : std_logic_vector( 63 downto 0);
+    g_f3_xamcap     : std_logic_vector(255 downto 0);
+    g_f4_adem       : std_logic_vector( 31 downto 0);
+    g_f4_amcap      : std_logic_vector( 63 downto 0);
+    g_f4_xamcap     : std_logic_vector(255 downto 0);
+    g_f5_adem       : std_logic_vector( 31 downto 0);
+    g_f5_amcap      : std_logic_vector( 63 downto 0);
+    g_f5_xamcap     : std_logic_vector(255 downto 0);
+    g_f6_adem       : std_logic_vector( 31 downto 0);
+    g_f6_amcap      : std_logic_vector( 63 downto 0);
+    g_f6_xamcap     : std_logic_vector(255 downto 0);
+    g_f7_adem       : std_logic_vector( 31 downto 0);
+    g_f7_amcap      : std_logic_vector( 63 downto 0);
+    g_f7_xamcap     : std_logic_vector(255 downto 0)
   );
   port (
     clk_i           : in  std_logic;
@@ -121,7 +148,7 @@ entity VME_bus is
     stall_i         : in  std_logic;
 
     --CR/CSR space signals:
-    CRAMaddr_o      : out std_logic_vector(f_log2_size(g_cram_size)-1 downto 0);
+    CRAMaddr_o      : out std_logic_vector(f_log2_size(f_size(g_beg_cram, g_end_cram))-1 downto 0);
     CRAMdata_o      : out std_logic_vector(7 downto 0);
     CRAMdata_i      : in  std_logic_vector(7 downto 0);
     CRAMwea_o       : out std_logic;
@@ -244,17 +271,6 @@ architecture RTL of VME_bus is
   signal s_CRdataIn                 : std_logic_vector(7 downto 0);   -- CR data bus
   signal s_CRdataIn1                : std_logic_vector(7 downto 0);   --
   signal s_CRAMdataIn               : std_logic_vector(7 downto 0);   -- CRAM data bus
-  signal s_FUNC_ADEM                : t_FUNC_32b_array_std;
-  signal s_FUNC_AMCAP               : t_FUNC_64b_array_std;
-  signal s_FUNC_XAMCAP              : t_FUNC_256b_array_std;
-
-  -- CR image registers
-  signal s_BEG_USER_CSR             : std_logic_vector(23 downto 0);
-  signal s_END_USER_CSR             : std_logic_vector(23 downto 0);
-  signal s_BEG_USER_CR              : std_logic_vector(23 downto 0);
-  signal s_END_USER_CR              : std_logic_vector(23 downto 0);
-  signal s_BEG_CRAM                 : std_logic_vector(23 downto 0);
-  signal s_END_CRAM                 : std_logic_vector(23 downto 0);
 
   -- Error signals
   signal s_BERRcondition            : std_logic;                      -- Condition for asserting BERR
@@ -262,9 +278,6 @@ architecture RTL of VME_bus is
   signal s_rty1                     : std_logic;
 
   -- Initialization signals
-  signal s_initInProgress           : std_logic;                      -- The initialization is in progress
-  signal s_initReadCounter          : unsigned(8 downto 0);           -- Counts read operations
-  signal s_initReadCounter1         : std_logic_vector(8 downto 0);
   signal s_CRaddr                   : unsigned(18 downto 0);
 
   signal s_prev_VME_AS_n            : std_logic;
@@ -953,13 +966,11 @@ begin
                        when s_mainFSMreset = '0'
                        else (others => '0');
 
-  s_CRaddr <= s_CrCsrOffsetAddr
-              when s_initInProgress = '0'
-              else resize(s_initReadCounter, s_CRaddr'length);
+  s_CRaddr <= s_CrCsrOffsetAddr;
 
   CRaddr_o   <= std_logic_vector(s_CRaddr(11 downto 0));
-  CRAMaddr_o <= std_logic_vector(resize(s_CrCsrOffsetAddr - unsigned(s_BEG_CRAM(18 downto 0)),
-                                        f_log2_size(g_cram_size)));
+  CRAMaddr_o <= std_logic_vector(resize(s_CrCsrOffsetAddr - unsigned(g_beg_cram(18 downto 0)),
+                                        f_log2_size(f_size(g_beg_cram, g_end_cram))));
 
   ------------------------------------------------------------------------------
   -- Data Handler Process
@@ -1195,7 +1206,6 @@ begin
       mainFSMreset   => s_mainFSMreset,
       decode         => s_decode,
       ModuleEnable   => ModuleEnable,
-      InitInProgress => s_initInProgress,
       Addr           => std_logic_vector(s_locAddr),
       Ader0          => Ader0,
       Ader1          => Ader1,
@@ -1205,30 +1215,30 @@ begin
       Ader5          => Ader5,
       Ader6          => Ader6,
       Ader7          => Ader7,
-      Adem0          => s_FUNC_ADEM(0),
-      Adem1          => s_FUNC_ADEM(1),
-      Adem2          => s_FUNC_ADEM(2),
-      Adem3          => s_FUNC_ADEM(3),
-      Adem4          => s_FUNC_ADEM(4),
-      Adem5          => s_FUNC_ADEM(5),
-      Adem6          => s_FUNC_ADEM(6),
-      Adem7          => s_FUNC_ADEM(7),
-      AmCap0         => s_FUNC_AMCAP(0),
-      AmCap1         => s_FUNC_AMCAP(1),
-      AmCap2         => s_FUNC_AMCAP(2),
-      AmCap3         => s_FUNC_AMCAP(3),
-      AmCap4         => s_FUNC_AMCAP(4),
-      AmCap5         => s_FUNC_AMCAP(5),
-      AmCap6         => s_FUNC_AMCAP(6),
-      AmCap7         => s_FUNC_AMCAP(7),
-      XAmCap0        => s_FUNC_XAMCAP(0),
-      XAmCap1        => s_FUNC_XAMCAP(1),
-      XAmCap2        => s_FUNC_XAMCAP(2),
-      XAmCap3        => s_FUNC_XAMCAP(3),
-      XAmCap4        => s_FUNC_XAMCAP(4),
-      XAmCap5        => s_FUNC_XAMCAP(5),
-      XAmCap6        => s_FUNC_XAMCAP(6),
-      XAmCap7        => s_FUNC_XAMCAP(7),
+      Adem0          => g_f0_adem,
+      Adem1          => g_f1_adem,
+      Adem2          => g_f2_adem,
+      Adem3          => g_f3_adem,
+      Adem4          => g_f4_adem,
+      Adem5          => g_f5_adem,
+      Adem6          => g_f6_adem,
+      Adem7          => g_f7_adem,
+      AmCap0         => g_f0_amcap,
+      AmCap1         => g_f1_amcap,
+      AmCap2         => g_f2_amcap,
+      AmCap3         => g_f3_amcap,
+      AmCap4         => g_f4_amcap,
+      AmCap5         => g_f5_amcap,
+      AmCap6         => g_f6_amcap,
+      AmCap7         => g_f7_amcap,
+      XAmCap0        => g_f0_xamcap,
+      XAmCap1        => g_f1_xamcap,
+      XAmCap2        => g_f2_xamcap,
+      XAmCap3        => g_f3_xamcap,
+      XAmCap4        => g_f4_xamcap,
+      XAmCap5        => g_f5_xamcap,
+      XAmCap6        => g_f6_xamcap,
+      XAmCap7        => g_f7_xamcap,
       Am             => s_AMlatched,
       XAm            => std_logic_vector(s_XAM),
       BAR_i          => BAR_i,
@@ -1249,24 +1259,24 @@ begin
                        s_locAddr(18 downto 0) <= x"7FFFF" and
                        s_locAddr(18 downto 0) >= x"7FC00"
                      ) xor (
-                       s_locAddr(18 downto 0) >= unsigned(s_BEG_USER_CSR(18 downto 0)) and
-                       s_locAddr(18 downto 0) <= unsigned(s_END_USER_CSR(18 downto 0)) and
-                       unsigned(s_BEG_USER_CSR) < unsigned(s_END_USER_CSR)
+                       s_locAddr(18 downto 0) >= unsigned(g_beg_user_csr(18 downto 0)) and
+                       s_locAddr(18 downto 0) <= unsigned(g_end_user_csr(18 downto 0)) and
+                       unsigned(g_beg_user_csr) < unsigned(g_end_user_csr)
                      ) else '0';
 
   s_CRaddressed   <= '1' when (
                        s_locAddr(18 downto 0) <= x"00FFF" and
                        s_locAddr(18 downto 0) >= x"00000"
                      ) xor (
-                       s_locAddr(18 downto 0) >= unsigned(s_BEG_USER_CR(18 downto 0)) and
-                       s_locAddr(18 downto 0) <= unsigned(s_END_USER_CR(18 downto 0)) and
-                       unsigned(s_BEG_USER_CR) < unsigned(s_END_USER_CR)
+                       s_locAddr(18 downto 0) >= unsigned(g_beg_user_cr(18 downto 0)) and
+                       s_locAddr(18 downto 0) <= unsigned(g_end_user_cr(18 downto 0)) and
+                       unsigned(g_beg_user_cr) < unsigned(g_end_user_cr)
                      ) else '0';
 
   s_CRAMaddressed <= '1' when (
-                       s_locAddr(18 downto 0) >= unsigned(s_BEG_CRAM(18 downto 0)) and
-                       s_locAddr(18 downto 0) <= unsigned(s_END_CRAM(18 downto 0)) and
-                       unsigned(s_BEG_CRAM) < unsigned(s_END_CRAM)
+                       s_locAddr(18 downto 0) >= unsigned(g_beg_cram(18 downto 0)) and
+                       s_locAddr(18 downto 0) <= unsigned(g_end_cram(18 downto 0)) and
+                       unsigned(g_beg_cram) < unsigned(g_end_cram)
                      ) else '0';
 
   ------------------------------------------------------------------------------
@@ -1327,53 +1337,6 @@ begin
       end if;
     end if;
   end process;
-
-  ------------------------------------------------------------------------------
-  -- Initialization
-  ------------------------------------------------------------------------------
-  -- Initialization procedure (about 8800 ns)
-  -- Read important CR data (like FUNC_ADEMs etc.) and store it locally
-  s_initReadCounter <= unsigned(s_initReadCounter1);
-
-  Inst_VME_Init : VME_Init
-    port map (
-      clk_i            => clk_i,
-      rst_n_i          => rst_n_i,
-      CRAddr_i         => std_logic_vector(s_CRaddr),
-      CRdata_i         => CRdata_i,
-      InitReadCount_o  => s_initReadCounter1,
-      InitInProgress_o => s_initInProgress,
-      BEG_USR_CR_o     => s_BEG_USER_CR,
-      END_USR_CR_o     => s_END_USER_CR,
-      BEG_USR_CSR_o    => s_BEG_USER_CSR,
-      END_USR_CSR_o    => s_END_USER_CSR,
-      BEG_CRAM_o       => s_BEG_CRAM,
-      END_CRAM_o       => s_END_CRAM,
-      FUNC0_ADEM_o     => s_FUNC_ADEM(0),
-      FUNC1_ADEM_o     => s_FUNC_ADEM(1),
-      FUNC2_ADEM_o     => s_FUNC_ADEM(2),
-      FUNC3_ADEM_o     => s_FUNC_ADEM(3),
-      FUNC4_ADEM_o     => s_FUNC_ADEM(4),
-      FUNC5_ADEM_o     => s_FUNC_ADEM(5),
-      FUNC6_ADEM_o     => s_FUNC_ADEM(6),
-      FUNC7_ADEM_o     => s_FUNC_ADEM(7),
-      FUNC0_AMCAP_o    => s_FUNC_AMCAP(0),
-      FUNC1_AMCAP_o    => s_FUNC_AMCAP(1),
-      FUNC2_AMCAP_o    => s_FUNC_AMCAP(2),
-      FUNC3_AMCAP_o    => s_FUNC_AMCAP(3),
-      FUNC4_AMCAP_o    => s_FUNC_AMCAP(4),
-      FUNC5_AMCAP_o    => s_FUNC_AMCAP(5),
-      FUNC6_AMCAP_o    => s_FUNC_AMCAP(6),
-      FUNC7_AMCAP_o    => s_FUNC_AMCAP(7),
-      FUNC0_XAMCAP_o   => s_FUNC_XAMCAP(0),
-      FUNC1_XAMCAP_o   => s_FUNC_XAMCAP(1),
-      FUNC2_XAMCAP_o   => s_FUNC_XAMCAP(2),
-      FUNC3_XAMCAP_o   => s_FUNC_XAMCAP(3),
-      FUNC4_XAMCAP_o   => s_FUNC_XAMCAP(4),
-      FUNC5_XAMCAP_o   => s_FUNC_XAMCAP(5),
-      FUNC6_XAMCAP_o   => s_FUNC_XAMCAP(6),
-      FUNC7_XAMCAP_o   => s_FUNC_XAMCAP(7)
-    );
 
   ------------------------------------------------------------------------------
   -- Edge Detection and Sampling

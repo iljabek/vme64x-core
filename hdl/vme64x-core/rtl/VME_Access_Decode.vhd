@@ -165,7 +165,6 @@ entity VME_Access_Decode is
     mainFSMreset    : in  std_logic;
     decode          : in  std_logic;
     ModuleEnable    : in  std_logic;
-    InitInProgress  : in  std_logic;
     Addr            : in  std_logic_vector(63 downto 0);
     Ader0           : in  std_logic_vector(31 downto 0);
     Ader1           : in  std_logic_vector(31 downto 0);
@@ -293,7 +292,7 @@ begin
     if rising_edge(clk_i) then
       CardSel   <= '0';
       Base_Addr <= (others => '0');
-      if ModuleEnable = '1' and InitInProgress = '0' then
+      if ModuleEnable = '1' then
         for I in 0 to 7 loop
           if s_func_sel(i) = '1' then
             CardSel   <= '1';
@@ -308,7 +307,8 @@ begin
   s_func_sel <= s_Func_Match and s_Am_Match;
 
   -- Check if the CR/CSR space is addressed
-  Confaccess <= '1' when unsigned(BAR_i) = unsigned(Addr(23 downto 19)) and
-                         Am = c_CR_CSR and InitInProgress = '0' else '0';
+  Confaccess <= '1'
+    when unsigned(BAR_i) = unsigned(Addr(23 downto 19)) and Am = c_CR_CSR
+    else '0';
 
 end Behavioral;

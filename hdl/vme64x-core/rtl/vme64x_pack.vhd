@@ -184,32 +184,6 @@ package vme64x_pack is
   constant WB32bits            : integer  := FUNC0_ADER_3 - 12;
   constant Endian              : integer  := FUNC0_ADER_3 - 4;
 
-  -- Initialization CR:
-  constant BEG_USER_CR  : integer := 1;
-  constant END_USER_CR  : integer := 2;
-  constant BEG_CRAM     : integer := 3;
-  constant END_CRAM     : integer := 4;
-  constant BEG_USER_CSR : integer := 5;
-  constant END_USER_CSR : integer := 6;
-  constant FUNC_AMCAP   : integer := 7;
-  constant FUNC_XAMCAP  : integer := 8;
-  constant FUNC_ADEM    : integer := 9;
-
-  constant c_CRinitAddr : t_cr_add_table(BEG_USER_CR to FUNC_ADEM) := (
-    BEG_USER_CR   => (add => 16#020#, len => 3),
-    END_USER_CR   => (add => 16#023#, len => 3),
-
-    BEG_CRAM      => (add => 16#26#, len => 3),
-    END_CRAM      => (add => 16#29#, len => 3),
-
-    BEG_USER_CSR  => (add => 16#02C#, len => 3),
-    END_USER_CSR  => (add => 16#02F#, len => 3),
-
-    FUNC_AMCAP    => (add => 16#048#, len => 64),
-    FUNC_XAMCAP   => (add => 16#088#, len => 256),
-    FUNC_ADEM     => (add => 16#188#, len => 32)
-  );
-
   -- Main Finite State machine signals default:
   -- When the S_FPGA detects the magic sequency, it erases the A_FPGA so
   -- I don't need to drive the s_dtackOE, s_dataOE, s_addrOE, s_addrDir, s_dataDir
@@ -415,15 +389,6 @@ package vme64x_pack is
   type t_FUNC_256b_array is
       array (0 to 7) of unsigned(255 downto 0);         -- XAMCAP register array
 
-  type t_FUNC_32b_array_std is
-      array (0 to 7) of std_logic_vector(31 downto 0);  -- ADER register array
-
-  type t_FUNC_64b_array_std is
-      array (0 to 7) of std_logic_vector(63 downto 0);  -- AMCAP register array
-
-  type t_FUNC_256b_array_std is
-      array (0 to 7) of std_logic_vector(255 downto 0); -- XAMCAP register array
-
   type t_csr_array is
       array(BAR downto WB32bits) of unsigned(7 downto 0);
 
@@ -599,7 +564,36 @@ package vme64x_pack is
       g_clock         : integer;
       g_wb_data_width : integer;
       g_wb_addr_width : integer;
-      g_cram_size     : integer
+      g_beg_user_cr   : std_logic_vector( 23 downto 0);
+      g_end_user_cr   : std_logic_vector( 23 downto 0);
+      g_beg_cram      : std_logic_vector( 23 downto 0);
+      g_end_cram      : std_logic_vector( 23 downto 0);
+      g_beg_user_csr  : std_logic_vector( 23 downto 0);
+      g_end_user_csr  : std_logic_vector( 23 downto 0);
+      g_f0_adem       : std_logic_vector( 31 downto 0);
+      g_f0_amcap      : std_logic_vector( 63 downto 0);
+      g_f0_xamcap     : std_logic_vector(255 downto 0);
+      g_f1_adem       : std_logic_vector( 31 downto 0);
+      g_f1_amcap      : std_logic_vector( 63 downto 0);
+      g_f1_xamcap     : std_logic_vector(255 downto 0);
+      g_f2_adem       : std_logic_vector( 31 downto 0);
+      g_f2_amcap      : std_logic_vector( 63 downto 0);
+      g_f2_xamcap     : std_logic_vector(255 downto 0);
+      g_f3_adem       : std_logic_vector( 31 downto 0);
+      g_f3_amcap      : std_logic_vector( 63 downto 0);
+      g_f3_xamcap     : std_logic_vector(255 downto 0);
+      g_f4_adem       : std_logic_vector( 31 downto 0);
+      g_f4_amcap      : std_logic_vector( 63 downto 0);
+      g_f4_xamcap     : std_logic_vector(255 downto 0);
+      g_f5_adem       : std_logic_vector( 31 downto 0);
+      g_f5_amcap      : std_logic_vector( 63 downto 0);
+      g_f5_xamcap     : std_logic_vector(255 downto 0);
+      g_f6_adem       : std_logic_vector( 31 downto 0);
+      g_f6_amcap      : std_logic_vector( 63 downto 0);
+      g_f6_xamcap     : std_logic_vector(255 downto 0);
+      g_f7_adem       : std_logic_vector( 31 downto 0);
+      g_f7_amcap      : std_logic_vector( 63 downto 0);
+      g_f7_xamcap     : std_logic_vector(255 downto 0)
     );
     port (
       clk_i           : in  std_logic;
@@ -654,7 +648,7 @@ package vme64x_pack is
       wbSel_o         : out std_logic_vector(g_wb_data_width/8-1 downto 0);
       RW_o            : out std_logic;
       cyc_o           : out std_logic;
-      CRAMaddr_o      : out std_logic_vector(f_log2_size(g_cram_size)-1 downto 0);
+      CRAMaddr_o      : out std_logic_vector(f_log2_size(f_size(g_beg_cram, g_end_cram))-1 downto 0);
       CRAMdata_o      : out std_logic_vector(7 downto 0);
       CRAMwea_o       : out std_logic;
       CRaddr_o        : out std_logic_vector(11 downto 0);
@@ -672,7 +666,6 @@ package vme64x_pack is
       mainFSMreset   : in  std_logic;
       decode         : in  std_logic;
       ModuleEnable   : in  std_logic;
-      InitInProgress : in  std_logic;
       Addr           : in  std_logic_vector(63 downto 0);
       Ader0          : in  std_logic_vector(31 downto 0);
       Ader1          : in  std_logic_vector(31 downto 0);
@@ -764,8 +757,8 @@ package vme64x_pack is
       CrCsrOffsetAddr    : in  std_logic_vector(18 downto 0);
       VME_GA_oversampled : in  std_logic_vector(5 downto 0);
       locDataIn          : in  std_logic_vector(7 downto 0);
-      err_flag           : in  std_logic;
       CR_data            : out std_logic_vector(7 downto 0);
+      err_flag           : in  std_logic;
       CRAM_data_o        : out std_logic_vector(7 downto 0);
       reset_flag         : out std_logic;
       CSRdata            : out std_logic_vector(7 downto 0);
@@ -857,47 +850,6 @@ package vme64x_pack is
       RW_o            : out std_logic
     );
   end component VME_Wb_master;
-
-  component VME_Init is
-    port (
-      clk_i            : in  std_logic;
-      rst_n_i          : in  std_logic;
-      CRAddr_i         : in  std_logic_vector(18 downto 0);
-      CRdata_i         : in  std_logic_vector(7 downto 0);
-      InitReadCount_o  : out std_logic_vector(8 downto 0);
-      InitInProgress_o : out std_logic;
-      BEG_USR_CR_o     : out std_logic_vector(23 downto 0);
-      END_USR_CR_o     : out std_logic_vector(23 downto 0);
-      BEG_USR_CSR_o    : out std_logic_vector(23 downto 0);
-      END_USR_CSR_o    : out std_logic_vector(23 downto 0);
-      BEG_CRAM_o       : out std_logic_vector(23 downto 0);
-      END_CRAM_o       : out std_logic_vector(23 downto 0);
-      FUNC0_ADEM_o     : out std_logic_vector(31 downto 0);
-      FUNC1_ADEM_o     : out std_logic_vector(31 downto 0);
-      FUNC2_ADEM_o     : out std_logic_vector(31 downto 0);
-      FUNC3_ADEM_o     : out std_logic_vector(31 downto 0);
-      FUNC4_ADEM_o     : out std_logic_vector(31 downto 0);
-      FUNC5_ADEM_o     : out std_logic_vector(31 downto 0);
-      FUNC6_ADEM_o     : out std_logic_vector(31 downto 0);
-      FUNC7_ADEM_o     : out std_logic_vector(31 downto 0);
-      FUNC0_AMCAP_o    : out std_logic_vector(63 downto 0);
-      FUNC1_AMCAP_o    : out std_logic_vector(63 downto 0);
-      FUNC2_AMCAP_o    : out std_logic_vector(63 downto 0);
-      FUNC3_AMCAP_o    : out std_logic_vector(63 downto 0);
-      FUNC4_AMCAP_o    : out std_logic_vector(63 downto 0);
-      FUNC5_AMCAP_o    : out std_logic_vector(63 downto 0);
-      FUNC6_AMCAP_o    : out std_logic_vector(63 downto 0);
-      FUNC7_AMCAP_o    : out std_logic_vector(63 downto 0);
-      FUNC0_XAMCAP_o   : out std_logic_vector(255 downto 0);
-      FUNC1_XAMCAP_o   : out std_logic_vector(255 downto 0);
-      FUNC2_XAMCAP_o   : out std_logic_vector(255 downto 0);
-      FUNC3_XAMCAP_o   : out std_logic_vector(255 downto 0);
-      FUNC4_XAMCAP_o   : out std_logic_vector(255 downto 0);
-      FUNC5_XAMCAP_o   : out std_logic_vector(255 downto 0);
-      FUNC6_XAMCAP_o   : out std_logic_vector(255 downto 0);
-      FUNC7_XAMCAP_o   : out std_logic_vector(255 downto 0)
-    );
-  end component VME_Init;
 
   component VME_swapper is
     port (
