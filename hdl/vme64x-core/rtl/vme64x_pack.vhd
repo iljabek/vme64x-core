@@ -476,6 +476,59 @@ package vme64x_pack is
   -- Components
   ------------------------------------------------------------------------------
 
+  component VME64xCore_Top
+    generic (
+      g_wb_data_width : integer := 32;
+      g_wb_addr_width : integer := 64;
+      g_CRAM_SIZE     : integer := 1024;
+      g_adem_a24      : std_logic_vector(31 downto 0);
+      g_adem_a32      : std_logic_vector(31 downto 0);
+      g_clock         : integer
+    );
+    port (
+      clk_i           : in  std_logic;
+      rst_n_i         : in  std_logic;
+      VME_AS_n_i      : in  std_logic;
+      VME_RST_n_i     : in  std_logic;
+      VME_WRITE_n_i   : in  std_logic;
+      VME_AM_i        : in  std_logic_vector(5 downto 0);
+      VME_DS_n_i      : in  std_logic_vector(1 downto 0);
+      VME_GA_i        : in  std_logic_vector(5 downto 0);
+      VME_BERR_o      : out std_logic;
+      VME_DTACK_n_o   : out std_logic;
+      VME_RETRY_n_o   : out std_logic;
+      VME_LWORD_n_i   : in  std_logic;
+      VME_LWORD_n_o   : out std_logic;
+      VME_ADDR_i      : in  std_logic_vector(31 downto 1);
+      VME_ADDR_o      : out std_logic_vector(31 downto 1);
+      VME_DATA_i      : in  std_logic_vector(31 downto 0);
+      VME_DATA_o      : out std_logic_vector(31 downto 0);
+      VME_IRQ_o       : out std_logic_vector(6 downto 0);
+      VME_IACKIN_n_i  : in  std_logic;
+      VME_IACK_n_i    : in  std_logic;
+      VME_IACKOUT_n_o : out std_logic;
+      VME_DTACK_OE_o  : out std_logic;
+      VME_DATA_DIR_o  : out std_logic;
+      VME_DATA_OE_N_o : out std_logic;
+      VME_ADDR_DIR_o  : out std_logic;
+      VME_ADDR_OE_N_o : out std_logic;
+      VME_RETRY_OE_o  : out std_logic;
+      DAT_i           : in  std_logic_vector(g_wb_data_width-1 downto 0);
+      DAT_o           : out std_logic_vector(g_wb_data_width-1 downto 0);
+      ADR_o           : out std_logic_vector(g_wb_addr_width-1 downto 0);
+      CYC_o           : out std_logic;
+      ERR_i           : in  std_logic;
+      RTY_i           : in  std_logic;
+      SEL_o           : out std_logic_vector(g_wb_data_width/8-1 downto 0);
+      STB_o           : out std_logic;
+      ACK_i           : in  std_logic;
+      WE_o            : out std_logic;
+      STALL_i         : in  std_logic;
+      INT_ack_o       : out std_logic;
+      IRQ_i           : in  std_logic
+    );
+  end component;
+
   component VME_bus is
     generic (
       g_clock         : integer := c_clk_period;
