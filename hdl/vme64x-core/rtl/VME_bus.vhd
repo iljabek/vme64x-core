@@ -242,6 +242,7 @@ architecture RTL of VME_bus is
   signal s_CSRaddressed             : std_logic;                      -- CSR space is addressed
   signal s_CSRdata                  : unsigned(7 downto 0);           -- CSR data write/read
   signal s_CRdataIn                 : std_logic_vector(7 downto 0);   -- CR data bus
+  signal s_CRdataIn1                : std_logic_vector(7 downto 0);   --
   signal s_CRAMdataIn               : std_logic_vector(7 downto 0);   -- CRAM data bus
   signal s_FUNC_ADEM                : t_FUNC_32b_array_std;
   signal s_FUNC_AMCAP               : t_FUNC_64b_array_std;
@@ -266,6 +267,7 @@ architecture RTL of VME_bus is
   signal s_initReadCounter1         : std_logic_vector(8 downto 0);
   signal s_CRaddr                   : unsigned(18 downto 0);
 
+  signal s_prev_VME_AS_n            : std_logic;
   signal s_is_d64                   : std_logic;
   signal s_base_addr                : unsigned(63 downto 0);
   signal s_nx_base_addr             : std_logic_vector(63 downto 0);
@@ -1376,38 +1378,36 @@ begin
   ------------------------------------------------------------------------------
   -- Edge Detection and Sampling
   ------------------------------------------------------------------------------
-  ASfallingEdge : FallingEdgeDetection
-    port map (
-      sig_i      => VME_AS_n_i,
-      clk_i      => clk_i,
-      FallEdge_o => s_VMEaddrLatch
-    );
+  process (clk_i)
+  begin
+    if rising_edge(clk_i) then
+      s_prev_VME_AS_n <= VME_AS_n_i;
+      s_VMEaddrLatch  <= '0';
+      s_mainFSMreset  <= '0';
 
-  ASrisingEdge : RisEdgeDetection
-    port map (
-      sig_i     => VME_AS_n_i,
-      clk_i     => clk_i,
-      RisEdge_o => s_mainFSMreset
-    );
+      if VME_AS_n_i = '0' and s_prev_VME_AS_n = '1' then
+        s_VMEaddrLatch <= '1';
+      end if;
 
-  CRinputSample : DoubleRegInputSample
-    generic map (
-      width => 8
-    )
-    port map (
-      reg_i => CRdata_i,
-      reg_o => s_CRdataIn,
-      clk_i => clk_i
-    );
+      if VME_AS_n_i = '1' and s_prev_VME_AS_n = '0' then
+        s_mainFSMreset <= '1';
+      end if;
+    end if;
+  end process;
 
-  CRAMinputSample : SingleRegInputSample
-    generic map (
-      width => 8
-    )
-    port map (
-      reg_i => CRAMdata_i,
-      reg_o => s_CRAMdataIn,
-      clk_i => clk_i
-    );
+  process (clk_i)
+  begin
+    if rising_edge(clk_i) then
+        s_CRdataIn1 <= CRdata_i;
+        s_CRdataIn  <= s_CRdataIn1;
+    end if;
+  end process;
+
+  process (clk_i)
+  begin
+    if rising_edge(clk_i) then
+        s_CRAMdataIn <= CRAMdata_i;
+    end if;
+  end process;
 
 end RTL;

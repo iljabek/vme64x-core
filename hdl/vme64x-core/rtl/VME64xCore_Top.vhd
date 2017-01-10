@@ -272,18 +272,12 @@ architecture RTL of VME64xCore_Top is
   signal s_BAR                 : std_logic_vector(4 downto 0);
 
   -- Oversampled input signals
-  signal VME_RST_n_oversampled    : std_logic;
-  signal VME_AS_n_oversampled     : std_logic;
-  --signal VME_AS_n_oversampled1    : std_logic;  -- for the IRQ_Controller
-  --signal VME_LWORD_n_oversampled  : std_logic;
-  signal VME_WRITE_n_oversampled  : std_logic;
-  signal VME_DS_n_oversampled     : std_logic_vector(1 downto 0);
-  signal VME_DS_n_oversampled_1   : std_logic_vector(1 downto 0);
-  signal VME_GA_oversampled       : std_logic_vector(5 downto 0);
-  signal VME_IACK_n_oversampled   : std_logic;
-  signal VME_IACKIN_n_oversampled : std_logic;
-  signal s_reg_1                  : std_logic_vector(1 downto 0) := (others => '0');
-  signal s_reg_2                  : std_logic_vector(1 downto 0) := (others => '0');
+  signal s_VME_RST_n              : std_logic_vector(2 downto 0);
+  signal s_VME_AS_n               : std_logic_vector(2 downto 0);
+  signal s_VME_WRITE_n            : std_logic_vector(2 downto 0);
+  signal s_VME_DS_n               : std_logic_vector(5 downto 0);
+  signal s_VME_IACK_n             : std_logic_vector(2 downto 0);
+  signal s_VME_IACKIN_n           : std_logic_vector(2 downto 0);
 
 begin
 
@@ -294,62 +288,17 @@ begin
   -- necessary to avoid metastability problems. With 3 samples the probability
   -- of metastability problem will be very low but of course the transfer rate
   -- will be slow down a little.
-
-  GAinputSample : RegInputSample
-    generic map (
-      width => 6
-    )
-    port map (
-      reg_i => VME_GA_i,
-      reg_o => VME_GA_oversampled,
-      clk_i => clk_i
-    );
-
-  RegInputSample : process(clk_i)
+  process (clk_i)
   begin
     if rising_edge(clk_i) then
-      s_reg_1              <= VME_DS_n_i;
-      s_reg_2              <= s_reg_1;
-      VME_DS_n_oversampled <= s_reg_2;
+      s_VME_RST_n    <= s_VME_RST_n(1 downto 0)    & VME_RST_n_i;
+      s_VME_AS_n     <= s_VME_AS_n(1 downto 0)     & VME_AS_n_i;
+      s_VME_WRITE_n  <= s_VME_WRITE_n(1 downto 0)  & VME_WRITE_n_i;
+      s_VME_DS_n     <= s_VME_DS_n(3 downto 0)     & VME_DS_n_i;
+      s_VME_IACK_n   <= s_VME_IACK_n(1 downto 0)   & VME_IACK_n_i;
+      s_VME_IACKIN_n <= s_VME_IACKIN_n(1 downto 0) & VME_IACKIN_n_i;
     end if;
   end process;
-
-  VME_DS_n_oversampled_1 <= s_reg_2;  -- to avoid timing problem during BLT and
-                                      -- MBLT accesses
-  WRITEinputSample : SigInputSample
-    port map (
-      sig_i => VME_WRITE_n_i,
-      sig_o => VME_WRITE_n_oversampled,
-      clk_i => clk_i
-    );
-
-  ASinputSample : SigInputSample
-    port map (
-      sig_i => VME_AS_n_i,
-      sig_o => VME_AS_n_oversampled,
-      clk_i => clk_i
-    );
-
-  RSTinputSample : SigInputSample
-    port map (
-      sig_i => VME_RST_n_i,
-      sig_o => VME_RST_n_oversampled,
-      clk_i => clk_i
-    );
-
-  IACKinputSample : SigInputSample
-    port map (
-      sig_i => VME_IACK_n_i,
-      sig_o => VME_IACK_n_oversampled,
-      clk_i => clk_i
-    );
-
-  IACKINinputSample : SigInputSample
-    port map (
-      sig_i => VME_IACKIN_n_i,
-      sig_o => VME_IACKIN_n_oversampled,
-      clk_i => clk_i
-    );
 
   ------------------------------------------------------------------------------
   -- VME Bus
@@ -367,15 +316,15 @@ begin
       reset_o         => s_reset,       -- asserted when '1'
 
       -- VME
-      VME_RST_n_i     => VME_RST_n_oversampled,
-      VME_AS_n_i      => VME_AS_n_oversampled,
+      VME_RST_n_i     => s_VME_RST_n(2),
+      VME_AS_n_i      => s_VME_AS_n(2),
       VME_LWORD_n_o   => VME_LWORD_n_o,
       VME_LWORD_n_i   => VME_LWORD_n_i,
       VME_RETRY_n_o   => VME_RETRY_n_o,
       VME_RETRY_OE_o  => VME_RETRY_OE_o,
-      VME_WRITE_n_i   => VME_WRITE_n_oversampled,
-      VME_DS_n_i      => VME_DS_n_oversampled,
-      VME_DS_ant_n_i  => VME_DS_n_oversampled_1,
+      VME_WRITE_n_i   => s_VME_WRITE_n(2),
+      VME_DS_n_i      => s_VME_DS_n(5 downto 4),
+      VME_DS_ant_n_i  => s_VME_DS_n(3 downto 2),
       VME_DTACK_n_o   => s_VME_DTACK_VMEbus,
       VME_DTACK_OE_o  => s_VME_DTACK_OE_VMEbus,
       VME_BERR_o      => VME_BERR_o,
@@ -388,7 +337,7 @@ begin
       VME_DATA_DIR_o  => s_VME_DATA_DIR_VMEbus,
       VME_DATA_OE_N_o => VME_DATA_OE_N_o,
       VME_AM_i        => VME_AM_i,
-      VME_IACK_n_i    => VME_IACK_n_oversampled,
+      VME_IACK_n_i    => s_VME_IACK_n(2),
 
       -- WB
       memReq_o        => STB_o,
@@ -440,19 +389,19 @@ begin
   -- Multiplexer added on the output signal used by either VMEbus.vhd and the
   -- IRQ_controller.vhd
   VME_DATA_o     <= s_VME_DATA_VMEbus
-                    when VME_IACK_n_oversampled = '1'
+                    when s_VME_IACK_n(2) = '1'
                     else s_VME_DATA_IRQ;
 
   VME_DTACK_n_o  <= s_VME_DTACK_VMEbus and s_VME_DTACK_IRQ;
-                    --when VME_IACK_n_oversampled = '1'
+                    --when s_VME_IACK_n(2) = '1'
                     --else s_VME_DTACK_IRQ;
 
   VME_DTACK_OE_o <= s_VME_DTACK_OE_VMEbus or s_VME_DTACK_OE_IRQ;
-                    --when VME_IACK_n_oversampled = '1'
+                    --when s_VME_IACK_n(2) = '1'
                     --else s_VME_DTACK_OE_IRQ;
 
   VME_DATA_DIR_o <= s_VME_DATA_DIR_VMEbus
-                    when VME_IACK_n_oversampled = '1'
+                    when s_VME_IACK_n(2) = '1'
                     else s_VME_DATA_DIR_IRQ;
 
   ------------------------------------------------------------------------------
@@ -465,9 +414,9 @@ begin
     port map (
       clk_i           => clk_i,
       reset_n_i       => s_reset_IRQ,   -- asserted when low
-      VME_IACKIN_n_i  => VME_IACKIN_n_oversampled,
-      VME_AS_n_i      => VME_AS_n_oversampled,
-      VME_DS_n_i      => VME_DS_n_oversampled,
+      VME_IACKIN_n_i  => s_VME_IACKIN_n(2),
+      VME_AS_n_i      => s_VME_AS_n(2),
+      VME_DS_n_i      => s_VME_DS_n(5 downto 4),
       VME_ADDR_123_i  => VME_ADDR_i(3 downto 1),
       INT_Level_i     => s_INT_Level,
       INT_Vector_i    => s_INT_Vector,
@@ -506,7 +455,7 @@ begin
       CRAM_Wen           => s_CRAMwea,
       en_wr_CSR          => s_en_wr_CSR,
       CrCsrOffsetAddr    => s_CrCsrOffsetAddr,
-      VME_GA_oversampled => VME_GA_oversampled,
+      VME_GA_oversampled => VME_GA_i,
       locDataIn          => s_CSRData_o,
       err_flag           => s_err_flag,
       reset_flag         => s_reset_flag,

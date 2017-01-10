@@ -12,6 +12,5 @@ files = [ "xvme64x_core.vhd",
           "VME_Funct_Match.vhd",
           "VME_Init.vhd",
           "VME_IRQ_Controller.vhd",
-          "VME_SharedComps.vhd",
           "VME_swapper.vhd",
           "VME_Wb_master.vhd"]
