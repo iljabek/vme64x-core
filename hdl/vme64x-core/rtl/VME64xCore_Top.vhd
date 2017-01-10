@@ -446,11 +446,11 @@ begin
   ------------------------------------------------------------------------------
   Inst_VME_IRQ_Controller : VME_IRQ_Controller
     generic map (
-      g_retry_timeout => 62500          -- 1ms timeout
+      g_retry_timeout => 1000000/g_clock    -- 1ms timeout
     )
     port map (
       clk_i           => clk_i,
-      reset_n_i       => s_reset_IRQ,   -- asserted when low
+      reset_n_i       => s_reset_IRQ,       -- asserted when low
       VME_IACKIN_n_i  => s_VME_IACKIN_n(2),
       VME_AS_n_i      => s_VME_AS_n(2),
       VME_DS_n_i      => s_VME_DS_n(5 downto 4),

@@ -129,7 +129,7 @@ use work.vme64x_pack.all;
 
 entity VME_IRQ_Controller is
   generic (
-    g_retry_timeout : integer range 1024 to 16777215 := 62500
+    g_retry_timeout : integer range 1024 to 16777215
   );
   port (
     clk_i           : in  std_logic;
