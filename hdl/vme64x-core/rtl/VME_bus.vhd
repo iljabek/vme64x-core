@@ -121,7 +121,7 @@ entity VME_bus is
     VME_DS_ant_n_i  : in  std_logic_vector(1 downto 0);
     VME_DTACK_n_o   : out std_logic;
     VME_DTACK_OE_o  : out std_logic;
-    VME_BERR_o      : out std_logic;
+    VME_BERR_n_o    : out std_logic;
     VME_ADDR_i      : in  std_logic_vector(31 downto 1);
     VME_ADDR_o      : out std_logic_vector(31 downto 1) := (others => '0');
     VME_ADDR_DIR_o  : out std_logic;
@@ -135,49 +135,42 @@ entity VME_bus is
                                       -- because VME_IACKIN_n_i is delayed the
                                       -- more you are away from Slots 0
     -- WB signals
-    memReq_o        : out std_logic;
-    memAckWB_i      : in  std_logic;
-    wbData_o        : out std_logic_vector(g_wb_data_width-1 downto 0);
-    wbData_i        : in  std_logic_vector(g_wb_data_width-1 downto 0);
-    locAddr_o       : out std_logic_vector(g_wb_addr_width-1 downto 0);
-    wbSel_o         : out std_logic_vector(g_wb_data_width/8-1 downto 0);
-    RW_o            : out std_logic;
+    stb_o           : out std_logic;
+    ack_i           : in  std_logic;
+    dat_o           : out std_logic_vector(g_wb_data_width-1 downto 0);
+    dat_i           : in  std_logic_vector(g_wb_data_width-1 downto 0);
+    adr_o           : out std_logic_vector(g_wb_addr_width-1 downto 0);
+    sel_o           : out std_logic_vector(g_wb_data_width/8-1 downto 0);
+    we_o            : out std_logic;
     cyc_o           : out std_logic;
     err_i           : in  std_logic;
     rty_i           : in  std_logic;
     stall_i         : in  std_logic;
 
     --CR/CSR space signals:
-    CRAMaddr_o      : out std_logic_vector(f_log2_size(f_size(g_beg_cram, g_end_cram))-1 downto 0);
-    CRAMdata_o      : out std_logic_vector(7 downto 0);
-    CRAMdata_i      : in  std_logic_vector(7 downto 0);
-    CRAMwea_o       : out std_logic;
-    CRaddr_o        : out std_logic_vector(11 downto 0);
-    CRdata_i        : in  std_logic_vector(7 downto 0);
-    en_wr_CSR       : out std_logic;
-    CrCsrOffsetAddr : out std_logic_vector(18 downto 0);
-    CSRData_o       : out std_logic_vector(7 downto 0);
-    CSRData_i       : in  std_logic_vector(7 downto 0);
-    err_flag_o      : out std_logic;
-    reset_flag_i    : in  std_logic;
-    Ader0           : in  std_logic_vector(31 downto 0);
-    Ader1           : in  std_logic_vector(31 downto 0);
-    Ader2           : in  std_logic_vector(31 downto 0);
-    Ader3           : in  std_logic_vector(31 downto 0);
-    Ader4           : in  std_logic_vector(31 downto 0);
-    Ader5           : in  std_logic_vector(31 downto 0);
-    Ader6           : in  std_logic_vector(31 downto 0);
-    Ader7           : in  std_logic_vector(31 downto 0);
-    ModuleEnable    : in  std_logic;
-    Endian_i        : in  std_logic_vector(2 downto 0);
-    Sw_Reset        : in  std_logic;
-    BAR_i           : in  std_logic_vector(4 downto 0)
+    cr_csr_addr_o   : out std_logic_vector(18 downto 2);
+    cr_csr_data_i   : in  std_logic_vector( 7 downto 0);
+    cr_csr_data_o   : out std_logic_vector( 7 downto 0);
+    cr_csr_we_o     : out std_logic;
+    ader0_i         : in  std_logic_vector(31 downto 0);
+    ader1_i         : in  std_logic_vector(31 downto 0);
+    ader2_i         : in  std_logic_vector(31 downto 0);
+    ader3_i         : in  std_logic_vector(31 downto 0);
+    ader4_i         : in  std_logic_vector(31 downto 0);
+    ader5_i         : in  std_logic_vector(31 downto 0);
+    ader6_i         : in  std_logic_vector(31 downto 0);
+    ader7_i         : in  std_logic_vector(31 downto 0);
+    endian_i        : in  std_logic_vector(2 downto 0);
+    module_enable_i : in  std_logic;
+    module_reset_i  : in  std_logic;
+    bar_i           : in  std_logic_vector(4 downto 0)
   );
 end VME_bus;
 
 architecture RTL of VME_bus is
 
   signal s_reset                    : std_logic;
+  signal s_rw                       : std_logic;
 
   -- Input signals
   signal s_VMEaddrInput             : unsigned(31 downto 1);
@@ -202,7 +195,6 @@ architecture RTL of VME_bus is
   signal s_phase2addr               : unsigned(63 downto 0) := (others => '0'); --
   -- signal s_phase3addr              : unsigned(63 downto 0);                    --
   signal s_addrOffset               : unsigned(17 downto 0);                    -- block transfers|
-  signal s_CrCsrOffsetAddr          : unsigned(18 downto 0) := (others => '0'); -- CR/CSR address
   signal s_DataShift                : unsigned(5 downto 0);
   -- uncomment if 2e is implemented:
   --signal s_2eLatchAddr              : std_logic_vector(1 downto 0);             -- for 2e transfers
@@ -261,16 +253,6 @@ architecture RTL of VME_bus is
   -- WishBone signals
   signal s_sel                      : unsigned(7 downto 0);           -- SEL WB signal
   signal s_nx_sel                   : std_logic_vector(7 downto 0);
-  signal s_RW                       : std_logic;                      -- RW WB signal
-
-  -- CR/CSR related signals
-  signal s_CRaddressed              : std_logic;                      -- CR is addressed
-  signal s_CRAMaddressed            : std_logic;                      -- CRAM is addressed
-  signal s_CSRaddressed             : std_logic;                      -- CSR space is addressed
-  signal s_CSRdata                  : unsigned(7 downto 0);           -- CSR data write/read
-  signal s_CRdataIn                 : std_logic_vector(7 downto 0);   -- CR data bus
-  signal s_CRdataIn1                : std_logic_vector(7 downto 0);   --
-  signal s_CRAMdataIn               : std_logic_vector(7 downto 0);   -- CRAM data bus
 
   -- Error signals
   signal s_BERRcondition            : std_logic;                      -- Condition for asserting BERR
@@ -278,8 +260,6 @@ architecture RTL of VME_bus is
   signal s_rty1                     : std_logic;
 
   -- Initialization signals
-  signal s_CRaddr                   : unsigned(18 downto 0);
-
   signal s_prev_VME_AS_n            : std_logic;
   signal s_is_d64                   : std_logic;
   signal s_base_addr                : unsigned(63 downto 0);
@@ -288,12 +268,9 @@ architecture RTL of VME_bus is
   signal s_VMEdata64In              : unsigned(63 downto 0);
 
   signal s_BERR_out                 : std_logic;
-  signal s_errorflag                : std_logic;
-  signal s_resetflag                : std_logic;
   signal s_sw_reset                 : std_logic;
   signal s_decode                   : std_logic;
   signal s_AckWb                    : std_logic;
-  signal s_CRCSRtype                : std_logic;
   signal s_err                      : std_logic;
   signal s_rty                      : std_logic;
 
@@ -308,8 +285,6 @@ begin
 
   -- Used to drive the VME_ADDR_DIR_o
   s_is_d64      <= '1' when s_sel = "11111111" else '0';
-
-  s_RW          <= VME_WRITE_n_i;
 
   -- HW and SW reset
   s_reset       <= (not rst_n_i) or (not VME_RST_n_i) or s_sw_reset;
@@ -615,9 +590,9 @@ begin
             s_FSM.s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
             s_FSM.s_dataPhase      <= s_dataPhase;
             s_FSM.s_transferActive <= '1';
-            if s_memAck = '1' and s_RW = '0' then
+            if s_memAck = '1' and VME_WRITE_n_i = '0' then
               s_mainFSMstate <= DTACK_LOW;
-            elsif s_memAck = '1' and s_RW = '1' then
+            elsif s_memAck = '1' and VME_WRITE_n_i = '1' then
               if s_transferType = MBLT then
                 s_FSM.s_dataToAddrBus <= '1';
               else
@@ -755,24 +730,9 @@ begin
       --    s_berr_1      <= s_berr;
       --    s_berr_2      <= s_berr and s_berr_1;
       if (s_BERR_out = '1') then
-        VME_BERR_o <= '1';  -- The VME_BERR is asserted when '1' becouse
-        -- the buffers on the board invert the logic
+        VME_BERR_n_o <= '0';
       else
-        VME_BERR_o <= '0';
-      end if;
-    end if;
-  end process;
-
-  -- When the VME_BERR line is asserted this process asserts the error flag;
-  -- This flag acts as the BERR flag --> BIT SET REGISTER's bit 3 in the CSR
-  -- space
-  FlagError : process (clk_i)
-  begin
-    if rising_edge (clk_i) then
-      if s_resetflag = '1' or s_reset = '1' then
-        s_errorflag <= '0';
-      elsif (s_BERR_out = '1') then
-        s_errorflag <= '1';
+        VME_BERR_n_o <= '1';
       end if;
     end if;
   end process;
@@ -787,12 +747,9 @@ begin
   process (clk_i)
   begin
     if rising_edge(clk_i) then
-      if s_reset = '1' then s_BERRcondition <= '0';
+      if s_reset = '1' then
+        s_BERRcondition <= '0';
       elsif
-        (s_CRAMaddressed = '1' and s_CRaddressed = '1') or
-        (s_CRAMaddressed = '1' and s_CSRaddressed = '1') or
-        (s_CRaddressed = '1' and s_confAccess = '1' and s_RW = '0') or
-        (s_CSRaddressed = '1' and s_CRaddressed = '1') or
         ((s_transferType = error or s_wberr1 = '1') and s_transferActive = '1') or
         (s_typeOfDataTransfer = TypeError) or
         (s_addressingType = AM_Error) or
@@ -962,16 +919,6 @@ begin
     end if;
   end process;
 
-  s_CrCsrOffsetAddr <= "00" & s_locAddr(18 downto 2)
-                       when s_mainFSMreset = '0'
-                       else (others => '0');
-
-  s_CRaddr <= s_CrCsrOffsetAddr;
-
-  CRaddr_o   <= std_logic_vector(s_CRaddr(11 downto 0));
-  CRAMaddr_o <= std_logic_vector(resize(s_CrCsrOffsetAddr - unsigned(g_beg_cram(18 downto 0)),
-                                        f_log2_size(f_size(g_beg_cram, g_end_cram))));
-
   ------------------------------------------------------------------------------
   -- Data Handler Process
   ------------------------------------------------------------------------------
@@ -997,28 +944,6 @@ begin
     end if;
   end process;
 
-  CSRData_o <= std_logic_vector(s_locDataIn(7 downto 0));
-
-  process (clk_i)
-  begin
-    if rising_edge(clk_i) then
-      CRAMdata_o <= std_logic_vector(s_locDataIn(7 downto 0));
-      if (
-        s_confAccess = '1' and s_CRAMaddressed = '1' and s_memReq = '1' and
-        s_RW = '0' and (
-          s_typeOfDataTransfer = D08_3 or s_typeOfDataTransfer = D32 or
-          s_typeOfDataTransfer = D16_23 or (
-            s_typeOfDataTransfer = D64 and s_transferType /= MBLT
-          )
-        )
-      ) then
-        CRAMwea_o <= '1';
-      else
-        CRAMwea_o <= '0';
-      end if;
-    end if;
-  end process;
-
   -- Swap the data during read or write operation
   -- sel= 000 --> No swap
   -- sel= 001 --> Swap Byte                      eg: 01234567 become 10325476
@@ -1028,45 +953,27 @@ begin
   swapper_write : VME_swapper
     port map (
       d_i => std_logic_vector(s_locDataIn),
-      sel => Endian_i,
+      sel => endian_i,
       d_o => s_locDataInSwap
     );
 
   swapper_read : VME_swapper
     port map (
       d_i => std_logic_vector(s_locData),
-      sel => Endian_i,
+      sel => endian_i,
       d_o => s_locDataSwap
     );
 
   -- Data from WB or CR/CSR to VME bus
-  s_CRCSRtype <= '1' when (
-                   s_typeOfDataTransfer = D08_3 or
-                   s_typeOfDataTransfer = D32 or
-                   s_typeOfDataTransfer = D16_23 or
-                   (s_typeOfDataTransfer = D64 and s_transferType /= MBLT)
-                 ) else '0';
+
 
   process (clk_i)
   begin
     if rising_edge(clk_i) then
       if s_cardSel = '1' then
         s_locDataOut <= unsigned(s_locDataOutWb);
-      elsif s_confAccess = '1' and s_CSRaddressed = '1' and
-            s_CRAMaddressed = '0' and s_CRaddressed = '0' and
-            s_CRCSRtype = '1'
-      then
-        s_locDataOut <= resize(s_CSRdata, s_locDataOut'length);
-      elsif s_confAccess = '1' and s_CRaddressed = '1' and
-            s_CRAMaddressed = '0' and s_CSRaddressed = '0' and
-            s_CRCSRtype = '1'
-      then
-        s_locDataOut <= resize(unsigned(s_CRdataIn), s_locDataOut'length);
-      elsif s_confAccess = '1' and s_CRAMaddressed = '1' and
-            s_CRaddressed = '0' and s_CSRaddressed = '0' and
-            s_CRCSRtype = '1'
-      then
-        s_locDataOut <= resize(unsigned(s_CRAMdataIn), s_locDataOut'length);
+      elsif s_confAccess = '1' then
+        s_locDataOut <= resize(unsigned(cr_csr_data_i), s_locDataOut'length);
       else
         s_locDataOut <= (others => '0');
       end if;
@@ -1074,7 +981,6 @@ begin
   end process;
 
   s_locData(63 downto 0) <= s_locDataOut(63 downto 0) sll to_integer(unsigned(s_DataShift));
-  s_CSRdata              <= unsigned(CSRData_i);
 
   ------------------------------------------------------------------------------
   -- Memory Mapping
@@ -1178,19 +1084,21 @@ begin
       memAckWb_o      => s_AckWb,
       err_o           => s_err,
       rty_o           => s_rty,
-      RW_i            => s_RW,
+      RW_i            => VME_WRITE_n_i,
       stall_i         => stall_i,
       rty_i           => rty_i,
       err_i           => err_i,
       cyc_o           => cyc_o,
-      memReq_o        => memReq_o,
-      WBdata_o        => wbData_o,
-      wbData_i        => wbData_i,
-      locAddr_o       => locAddr_o,
-      memAckWB_i      => memAckWB_i,
-      WbSel_o         => wbSel_o,
-      RW_o            => RW_o
+      memReq_o        => stb_o,
+      WBdata_o        => dat_o,
+      wbData_i        => dat_i,
+      locAddr_o       => adr_o,
+      memAckWB_i      => ack_i,
+      WbSel_o         => sel_o,
+      RW_o            => s_rw
     );
+
+  we_o <= not s_rw;
 
   ------------------------------------------------------------------------------
   -- Decoder
@@ -1205,16 +1113,16 @@ begin
       reset          => s_reset,
       mainFSMreset   => s_mainFSMreset,
       decode         => s_decode,
-      ModuleEnable   => ModuleEnable,
+      ModuleEnable   => module_enable_i,
       Addr           => std_logic_vector(s_locAddr),
-      Ader0          => Ader0,
-      Ader1          => Ader1,
-      Ader2          => Ader2,
-      Ader3          => Ader3,
-      Ader4          => Ader4,
-      Ader5          => Ader5,
-      Ader6          => Ader6,
-      Ader7          => Ader7,
+      Ader0          => ader0_i,
+      Ader1          => ader1_i,
+      Ader2          => ader2_i,
+      Ader3          => ader3_i,
+      Ader4          => ader4_i,
+      Ader5          => ader5_i,
+      Ader6          => ader6_i,
+      Ader7          => ader7_i,
       Adem0          => g_f0_adem,
       Adem1          => g_f1_adem,
       Adem2          => g_f2_adem,
@@ -1241,7 +1149,7 @@ begin
       XAmCap7        => g_f7_xamcap,
       Am             => s_AMlatched,
       XAm            => std_logic_vector(s_XAM),
-      BAR_i          => BAR_i,
+      BAR_i          => bar_i,
       AddrWidth      => s_addrWidth,
       Funct_Sel      => s_func_sel,
       Base_Addr      => s_nx_base_addr,
@@ -1250,34 +1158,6 @@ begin
     );
 
   s_base_addr <= unsigned(s_nx_base_addr);
-
-  -- CR/CSR addressing
-  -- Please note that the location of the user defined CR and CSR regions as
-  -- well as the CRAM region are programmable. If these regions are overlapped
-  -- the vme64x core asserts the BERR* line
-  s_CSRaddressed  <= '1' when (
-                       s_locAddr(18 downto 0) <= x"7FFFF" and
-                       s_locAddr(18 downto 0) >= x"7FC00"
-                     ) xor (
-                       s_locAddr(18 downto 0) >= unsigned(g_beg_user_csr(18 downto 0)) and
-                       s_locAddr(18 downto 0) <= unsigned(g_end_user_csr(18 downto 0)) and
-                       unsigned(g_beg_user_csr) < unsigned(g_end_user_csr)
-                     ) else '0';
-
-  s_CRaddressed   <= '1' when (
-                       s_locAddr(18 downto 0) <= x"00FFF" and
-                       s_locAddr(18 downto 0) >= x"00000"
-                     ) xor (
-                       s_locAddr(18 downto 0) >= unsigned(g_beg_user_cr(18 downto 0)) and
-                       s_locAddr(18 downto 0) <= unsigned(g_end_user_cr(18 downto 0)) and
-                       unsigned(g_beg_user_cr) < unsigned(g_end_user_cr)
-                     ) else '0';
-
-  s_CRAMaddressed <= '1' when (
-                       s_locAddr(18 downto 0) >= unsigned(g_beg_cram(18 downto 0)) and
-                       s_locAddr(18 downto 0) <= unsigned(g_end_cram(18 downto 0)) and
-                       unsigned(g_beg_cram) < unsigned(g_end_cram)
-                     ) else '0';
 
   ------------------------------------------------------------------------------
   -- Acknowledge
@@ -1309,29 +1189,25 @@ begin
   ------------------------------------------------------------------------------
   -- CR/CSR In/Out
   ------------------------------------------------------------------------------
-  en_wr_CSR <= '1'
-               when (
-                 (s_typeOfDataTransfer = D08_3 or
-                  s_typeOfDataTransfer = D32 or
-                  s_typeOfDataTransfer = D16_23 or
-                  (s_typeOfDataTransfer = D64 and s_transferType /= MBLT)
-                 ) and s_memReq = '1' and s_confAccess = '1' and s_RW = '0'
-               ) else '0';
+  cr_csr_data_o <= std_logic_vector(s_locDataIn(7 downto 0));
+  cr_csr_addr_o <= std_logic_vector(s_locAddr(18 downto 2));
 
-  CrCsrOffsetAddr <= std_logic_vector(s_CrCsrOffsetAddr);
+  cr_csr_we_o   <= '1' when s_memReq      = '1' and
+                            s_confAccess  = '1' and
+                            s_RW          = '0'
+                            else '0';
 
-  err_flag_o <= s_errorflag;
-
-  s_resetflag <= reset_flag_i;
-
-  -- Software reset: the VME Master assert the BIT SET REGISTER's bit 7. The
-  -- reset will be effective the next AS rising edge at the end of the write
-  -- operation in this register. The sw reset is a pulse
+  ------------------------------------------------------------------------------
+  -- Software Reset
+  ------------------------------------------------------------------------------
+  -- The VME Master assert the BIT SET REGISTER's bit 7. The reset will be
+  -- effective the next AS rising edge at the end of the write operation in this
+  -- register.
   process (clk_i)
   begin
     if rising_edge(clk_i) then
       if s_mainFSMreset = '1' then
-        s_sw_reset <= Sw_Reset;
+        s_sw_reset <= module_reset_i;
       else
         s_sw_reset <= '0';
       end if;
@@ -1355,21 +1231,6 @@ begin
       if VME_AS_n_i = '1' and s_prev_VME_AS_n = '0' then
         s_mainFSMreset <= '1';
       end if;
-    end if;
-  end process;
-
-  process (clk_i)
-  begin
-    if rising_edge(clk_i) then
-        s_CRdataIn1 <= CRdata_i;
-        s_CRdataIn  <= s_CRdataIn1;
-    end if;
-  end process;
-
-  process (clk_i)
-  begin
-    if rising_edge(clk_i) then
-        s_CRAMdataIn <= CRAMdata_i;
     end if;
   end process;
 

@@ -9,7 +9,7 @@
 -- author:        Pablo Alvarez Sanchez <pablo.alvarez.sanchez@cern.ch>
 --                Davide Pedretti       <davide.pedretti@cern.ch>
 --
--- description:   RAM memory
+-- description:   CRAM memory
 --
 -- dependencies:
 --
@@ -38,32 +38,40 @@ use work.vme64x_pack.all;
 
 entity VME_CRAM is
   generic (
-    dl : integer;
-    al : integer
+    g_beg_cram : std_logic_vector(23 downto 0);
+    g_end_cram : std_logic_vector(23 downto 0)
   );
   port (
-    clk : in  std_logic;
-    we  : in  std_logic;
-    aw  : in  std_logic_vector(al-1 downto 0);
-    di  : in  std_logic_vector(dl-1 downto 0);
-    dw  : out std_logic_vector(dl-1 downto 0)
+    clk_i   : in  std_logic;
+    we_i    : in  std_logic;
+    addr_i  : in  std_logic_vector(18 downto 2);
+    data_i  : in  std_logic_vector( 7 downto 0);
+    data_o  : out std_logic_vector( 7 downto 0)
   );
 end VME_CRAM;
 
-architecture syn of VME_CRAM is
+architecture rtl of VME_CRAM is
 
-  type ram_type is array (2**al-1 downto 0) of std_logic_vector (dl-1 downto 0);
-  signal CRAM : ram_type;
+  type t_cram is array (f_size(g_beg_cram, g_end_cram)-1 downto 0)
+                 of std_logic_vector(7 downto 0);
+
+  signal s_cram   : t_cram;
+  signal s_addr   : unsigned(18 downto 2);
+  signal s_addr_1 : unsigned(18 downto 2);
 
 begin
 
-  process (clk) begin
-    if rising_edge(clk) then
-      if (we = '1') then
-        CRAM(to_integer(unsigned(aw))) <= di;
+  s_addr <= unsigned(addr_i(18 downto 2));
+
+  process (clk_i) begin
+    if rising_edge(clk_i) then
+      if we_i = '1' then
+        s_cram(to_integer(s_addr)) <= data_i;
       end if;
-      dw <= CRAM(to_integer(unsigned(aw)));
+      s_addr_1 <= s_addr;
     end if;
   end process;
 
-end syn;
+  data_o <= s_cram(to_integer(s_addr_1));
+
+end rtl;

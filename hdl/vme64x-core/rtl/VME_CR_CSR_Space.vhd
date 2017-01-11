@@ -11,105 +11,76 @@
 --
 -- description:
 --
---   Please note that only every fourth location in the CR/CSR space is used so
---   it is possible write the CSR/CRAM selecting the data transfer mode
---   D08_Byte3, D16_Byte23, D32. If other data transfer modes are selected the
---   write operation will not be successful. If the Master access the board for
---   a reading operation with data transfer type different than D08_Byte3,
---   D16_Byte23, D32 the data that will be read is 0.
+--   Implementation of CR/CSR space.
 --
---                              width = 1 byte
+--                            width = 1 byte
 --                 /---------------------------------/
 --                 _________________________________
---                |                                 |0x7ffff
---                |                                 |
+--                |                                 | 0x7ffff
 --                |     Defined and Reserved CSR    |
 --                |                                 |
 --                |   Table 10-13 "Defined Control  |
 --                |   Status register Assignments"  |
 --                |       ANSI/VITA 1.1-1997        |
 --                |        VME64 Extensions         |
---                |_________________________________|0x7fc00
---                |                                 |0x013ff
---                |                                 |
---                |                                 |
+--                |_________________________________| 0x7fc00
+--                |_________________________________|
+--                |                                 | 0xXXXXX
+--                |            User CSR             |
+--                |_________________________________| 0xXXXXX
+--                |_________________________________|
+--                |                                 | 0xXXXXX
 --                |              CRAM               |
---                |                                 |
---                |                                 |
---                |                                 |
---                |                                 |
---                |_________________________________|0x01000
---                |                                 |0x00fff
---                |                                 |
+--                |_________________________________| 0xXXXXX
+--                |_________________________________|
+--                |                                 | 0xXXXXX
+--                |             User CR             |
+--                |_________________________________| 0xXXXXX
+--                |_________________________________|
+--                |                                 | 0x00fff
 --                |     Defined and reserved CR     |
 --                |                                 |
 --                |     Table 10-12 "Defined        |
 --                |  Configuration ROM Assignments" |
 --                |       ANSI/VITA 1.1-1997        |
 --                |        VME64 Extensions         |
---                |                                 |
---                |_________________________________|0x00000
+--                |_________________________________| 0x00000
 --
---   If the size of the register is bigger than 1 byte, (eg: ADER is 4 bytes)
---   these bytes are stored in the BIG_ENDIAN ORDER.
---   User CR and User CSR are not implemented.
+--   Please note that only every fourth location in the CR/CSR space is used,
+--   so it is possible read and write the CR/CSR by selecting the data transfer
+--   mode D08 (byte 3), D16 (bytes 2 & 3) or D32. If other data transfer modes
+--   are used the operation will not be successful.
 --
---   In addition to the registers of the table 10-13 in the CSR space you can
---   find:
---                            _
---     IRQ_Vector --> 0x7FF5F  |--> for the Interrupter
---     IRQ_level  --> 0x7FF5B _|
+--   If the size of the register is bigger than 1 byte, (e.g. ADER is 4 bytes)
+--   these bytes are stored in BIG ENDIAN order.
 --
---     Endian     --> 0x7FF53   --> for the swapper
+--   How to use the CRAM:
 --
---     WB32bits   --> 0x7FF33   --> if the bit 0 is '1' it means that the WB
---                                  data bus is 32 bit
---                            _
---     TIME0_ns   --> 0x7FF4f  |
---     TIME1_ns   --> 0x7FF4b  |
---     TIME2_ns   --> 0x7FF47  |
---     TIME3_ns   --> 0x7FF43  |--> to calculate the transfer rate
---     TIME4_ns   --> 0x7FF3f  |
---     BYTES0     --> 0x7FF3b  |
---     BYTES1     --> 0x7FF37 _|
+--     1) The Master first reads the CRAM_OWNER register (location 0x7fff3).
+--        If it is zero the CRAM is available.
+--     2) The Master writes his ID to the CRAM_OWNER register.
+--     3) If the Master can readback his ID from the CRAM_OWNER register it
+--        means that he is the owner of the CRAM and has exclusive access.
+--     4) If other Masters write their ID to the CRAM_OWNER register when it
+--        contains a non-zero value, the write operation will not be successful.
+--        This allows the first Master that writes a non-zero value to acquire
+--        ownership.
+--     5) When a Master has ownership of the CRAM, bit 2 of the Bit Set Register
+--        (location 0x7fffb) will be set.
+--     6) The Master can release the ownership by writing '1' to bit 2 of the
+--        Bit Clr Register (location 0x7fff7).
 --
---   CRAM memory Added. How to use the CRAM:  (1KB)
+--   Bit Set Register control bits (location 0x7fffb):
 --
---     1) The Master read the CRAM_OWNER Register location 0x7fff3; if 0 the
---        CRAM is free
---     2) The Master write his ID in the CRAM_OWNER Register location 0x7fff3
---     3) If the Master can read his ID in the CRAM_OWNER Register it means that it
---        is the owner of the CRAM.
---        If other Masters write their ID in the CRAM_OWNER Register when it
---        contains a non-zero value, the write operation will not be successful
---        --> this allows the first Master that writes a non-zero value to
---        acquire ownership.
---     4) When a Master has the ownership of the CRAM the Bit Set Register's
---        bit 2, location 0x7fffb, should be setted.
---     5) The Master can release the ownership by writing '1' in the bit 2 to
---        the Bit Set Register location 0x7fffb.
+--     7: RESET -----------> When high the module is held in reset.
+--     6: SYSFAIL ENABLE --> When high the VME_SYSFAIL output driver is enabled.
+--     5: FAILED ----------> When high the module has failed.
+--     4: ENABLE ----------> When high the WB accesses are enabled.
+--     3: BERR ------------> When high the module has asserted BERR.
+--     2: CRAM OWNER ------> When high the CRAM is owned.
 --
---   Other flags:
---
---     Module Enable --> Bit Set Register's bit 4 location 0x7fffb
---                       If this bit is '0' the slave module's address decoder
---                       is not enable and the Wb bus can't be accessed.
---     Error flag    --> Bit Set Register's bit 3 location 0x7fffb
---                       When the Slave asserts the BERR* line should asserts
---                       also this bit.
---     CRAM_OWNER flag --> Bit Set Register's bit 2  location 0x7fffb
---
---   The Master can clear these flags by writing '1' in the corresponding bits
---   to the Bit Clr Register location 0x7fff7.
---
---   Software reset  --> Bit Set Register's bit 7 location 0x7fffb
---                       This bit acts as software reset, indeed if the Master
---                       writes '1' here, the module will be resetted and
---                       reinitializated. The reset condition is temporary
---                       because during the initialization the default
---                       configuration is uploaded again, so the Master don't
---                       need to remove the module from reset mode by writing
---                       '1' in the bit 7 to the Bit Clr Register.
+--   The Master can clear these bits by writing '1' in the corresponding bits
+--   to the Bit Clr Register (location 0x7fff7).
 --
 -- dependencies:
 --
@@ -134,283 +105,371 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-
 use work.vme64x_pack.all;
 
 entity VME_CR_CSR_Space is
   generic (
-    g_cram_size         : integer;
-    g_wb_data_width     : integer;
-    g_cr_space          : t_cr_array
+    g_beg_user_cr   : std_logic_vector(23 downto 0);
+    g_end_user_cr   : std_logic_vector(23 downto 0);
+    g_beg_cram      : std_logic_vector(23 downto 0);
+    g_end_cram      : std_logic_vector(23 downto 0);
+    g_beg_user_csr  : std_logic_vector(23 downto 0);
+    g_end_user_csr  : std_logic_vector(23 downto 0);
+    g_cr_space      : t_cr_array
   );
   port (
-    -- VMEbus.vhd signals
     clk_i               : in  std_logic;
-    reset               : in  std_logic;
-    CR_addr             : in  std_logic_vector (11 downto 0);
-    CR_data             : out std_logic_vector (7 downto 0);
-    CRAM_addr           : in  std_logic_vector (f_log2_size(g_cram_size)-1 downto 0);
-    CRAM_data_o         : out std_logic_vector (7 downto 0);
-    CRAM_data_i         : in  std_logic_vector (7 downto 0);
-    CRAM_Wen            : in  std_logic;
-    en_wr_CSR           : in  std_logic;
-    CrCsrOffsetAddr     : in  std_logic_vector (18 downto 0);
-    VME_GA_oversampled  : in  std_logic_vector (5 downto 0);
-    locDataIn           : in  std_logic_vector (7 downto 0);
-    err_flag            : in  std_logic;
-    reset_flag          : out std_logic;
-    CSRdata             : out std_logic_vector(7 downto 0);
-    numBytes            : in  std_logic_vector(12 downto 0);
-    transfTime          : in  std_logic_vector(39 downto 0);
-    -- VMEbus.vhd DECODER signals
-    Ader0               : out std_logic_vector(31 downto 0);
-    Ader1               : out std_logic_vector(31 downto 0);
-    Ader2               : out std_logic_vector(31 downto 0);
-    Ader3               : out std_logic_vector(31 downto 0);
-    Ader4               : out std_logic_vector(31 downto 0);
-    Ader5               : out std_logic_vector(31 downto 0);
-    Ader6               : out std_logic_vector(31 downto 0);
-    Ader7               : out std_logic_vector(31 downto 0);
-    ModuleEnable        : out std_logic;
-    Sw_Reset            : out std_logic;
-    Endian_o            : out std_logic_vector(2 downto 0);
-    BAR_o               : out std_logic_vector(4 downto 0);
-    -- IRQ_controller signals
-    INT_Level           : out std_logic_vector(7 downto 0);
-    INT_Vector          : out std_logic_vector(7 downto 0)
+    reset_i             : in  std_logic;
+
+    vme_ga_i            : in  std_logic_vector(5 downto 0);
+    vme_berr_n_i        : in  std_logic;
+    bar_o               : out std_logic_vector(4 downto 0);
+    vme_sysfail_i       : in  std_logic;
+    vme_sysfail_ena_o   : out std_logic;
+    module_enable_o     : out std_logic;
+    module_reset_o      : out std_logic;
+
+    addr_i              : in  std_logic_vector(18 downto 2);
+    data_i              : in  std_logic_vector( 7 downto 0);
+    data_o              : out std_logic_vector( 7 downto 0);
+    we_i                : in  std_logic;
+
+    user_csr_addr_o     : out std_logic_vector(18 downto 2);
+    user_csr_data_i     : in  std_logic_vector( 7 downto 0);
+    user_csr_data_o     : out std_logic_vector( 7 downto 0);
+    user_csr_we_o       : out std_logic;
+
+    user_cr_addr_o      : out std_logic_vector(18 downto 2);
+    user_cr_data_i      : in  std_logic_vector( 7 downto 0);
+
+    ader0_o             : out std_logic_vector(31 downto 0);
+    ader1_o             : out std_logic_vector(31 downto 0);
+    ader2_o             : out std_logic_vector(31 downto 0);
+    ader3_o             : out std_logic_vector(31 downto 0);
+    ader4_o             : out std_logic_vector(31 downto 0);
+    ader5_o             : out std_logic_vector(31 downto 0);
+    ader6_o             : out std_logic_vector(31 downto 0);
+    ader7_o             : out std_logic_vector(31 downto 0)
   );
 end VME_CR_CSR_Space;
 
-architecture Behavioral of VME_CR_CSR_Space is
+architecture rtl of VME_CR_CSR_Space is
 
-  signal s_CSRarray             : t_csr_array;   -- Array of CSR registers
-  signal s_bar_written          : std_logic;
-  signal s_CSRdata              : unsigned(7 downto 0);
-  signal s_FUNC_ADER            : t_FUNC_32b_array;
-  signal s_CrCsrOffsetAddr      : unsigned(18 downto 0);
-  signal s_locDataIn            : unsigned(7 downto 0);
-  signal s_CrCsrOffsetAderIndex : unsigned(18 downto 0);
-  signal s_odd_parity           : std_logic;
-  --signal s_BARerror             : std_logic;
-  signal s_BAR_o                : std_logic_vector(4 downto 0);
+  signal s_addr                 : unsigned(18 downto 2);
+
+  signal s_ga_parity            : std_logic;
+
+  signal s_cr_access            : std_logic;
+  signal s_csr_access           : std_logic;
+  signal s_cram_access          : std_logic;
+  signal s_user_cr_access       : std_logic;
+  signal s_user_csr_access      : std_logic;
+
+  signal s_cr_data              : std_logic_vector(7 downto 0);
+  signal s_csr_data             : std_logic_vector(7 downto 0);
+  signal s_cram_data            : std_logic_vector(7 downto 0);
+
+  signal s_cram_addr            : std_logic_vector(18 downto 2);
+  signal s_cram_we              : std_logic;
+
+  signal s_reg_bar              : std_logic_vector(7 downto 0);
+  signal s_reg_bit_reg          : std_logic_vector(7 downto 0);
+  signal s_reg_cram_owner       : std_logic_vector(7 downto 0);
+  signal s_reg_usr_bit_reg      : std_logic_vector(7 downto 0);
+
+  signal s_reg_ader0            : std_logic_vector(31 downto 0);
+  signal s_reg_ader1            : std_logic_vector(31 downto 0);
+  signal s_reg_ader2            : std_logic_vector(31 downto 0);
+  signal s_reg_ader3            : std_logic_vector(31 downto 0);
+  signal s_reg_ader4            : std_logic_vector(31 downto 0);
+  signal s_reg_ader5            : std_logic_vector(31 downto 0);
+  signal s_reg_ader6            : std_logic_vector(31 downto 0);
+  signal s_reg_ader7            : std_logic_vector(31 downto 0);
+
+  signal s_cr_rom               : t_cr_array(g_cr_space'range)  := g_cr_space;
 
 begin
 
-  -- check the parity:
-  s_odd_parity  <= VME_GA_oversampled(5) xor VME_GA_oversampled(4) xor
-                   VME_GA_oversampled(3) xor VME_GA_oversampled(2) xor
-                   VME_GA_oversampled(1) xor VME_GA_oversampled(0);
-  -- If the crate is not driving the GA lines or the parity is even the BAR
-  -- register is set to 0x00 and the following flag is asserted; the board will
-  -- not answer if the master accesses its  CR/CSR space and we can see a time
-  -- out error in the VME bus.
-  --s_BARerror <= not(s_BAR_o(4) or s_BAR_o(3)or s_BAR_o(2) or s_BAR_o(1) or s_BAR_o(0));
+  s_addr <= unsigned(addr_i);
 
-  -- CR
-  process(clk_i)
+  ------------------------------------------------------------------------------
+  -- Defined CR
+  ------------------------------------------------------------------------------
+  s_cr_access  <= '1' when s_addr >= c_beg_cr(18 downto 2) and
+                           s_addr <= c_end_cr(18 downto 2)
+                      else '0';
+
+  process (clk_i)
   begin
     if rising_edge(clk_i) then
-      CR_data <= g_cr_space(to_integer(unsigned(CR_addr)));
+      s_cr_data <= s_cr_rom(to_integer(s_addr));
     end if;
   end process;
 
-  -- CSR Write
-  s_locDataIn <= unsigned(locDataIn);
+  ------------------------------------------------------------------------------
+  -- Defined CSR
+  ------------------------------------------------------------------------------
+  s_csr_access <= '1' when s_addr >= c_beg_csr(18 downto 2) and
+                           s_addr <= c_end_csr(18 downto 2)
+                      else '0';
 
-  s_CrCsrOffsetAderIndex <= s_CrCsrOffsetAddr -
-                            (c_FUNC0_ADER_3_addr(18 downto 0) srl 2) +
-                            FUNC0_ADER_3;
+  -- If the crate is not driving the GA lines or the parity is even the BAR
+  -- register is set to 0x00 and the board will not answer CR/CSR accesses.
+  s_ga_parity  <= vme_ga_i(5) xor vme_ga_i(4) xor vme_ga_i(3) xor
+                  vme_ga_i(2) xor vme_ga_i(1) xor vme_ga_i(0);
 
-  p_CSR_Write : process(clk_i)
+  -- Write
+  process (clk_i)
   begin
     if rising_edge(clk_i) then
-      if reset = '1' then
-        s_CSRarray(BAR) <= (others => '0');
-        s_bar_written   <= '0';
-        for i in BAR-1 downto WB32bits loop -- Initialization of the CSR memory
-          s_CSRarray(i) <= x"00";
-        end loop;
-      elsif s_bar_written = '0' and s_odd_parity = '1' then
-        -- initialization of BAR reg to access the CR/CSR space
-        s_CSRarray(BAR)(7 downto 3) <= unsigned(not VME_GA_oversampled(4 downto 0));
-        s_CSRarray(BAR)(2 downto 0) <= "000";
-        s_bar_written <= '1';
-      elsif s_odd_parity = '0' then
-        s_CSRarray(BAR) <= (others => '0');
-      elsif (en_wr_CSR = '1') then
-        case to_integer(s_CrCsrOffsetAddr) is
-          when to_integer("00" & c_BAR_addr(18 downto 2)) =>
-            s_CSRarray(BAR) <= s_locDataIn(7 downto 0);
-            s_bar_written   <= '1';
-
-          when to_integer("00" & c_BIT_SET_REG_addr(18 downto 2)) =>
-            for i in 0 to 7 loop
-              s_CSRarray(BIT_SET_CLR_REG)(i) <= s_locDataIn(i);
-            end loop;
-
-          when to_integer("00" & c_BIT_CLR_REG_addr(18 downto 2)) =>
-            for i in 0 to 7 loop
-              if s_locDataIn(i) = '1' and i = 2 then
-                s_CSRarray(BIT_SET_CLR_REG)(i) <= '0';
-                s_CSRarray(CRAM_OWNER)       <= x"00";
-              elsif  s_locDataIn(i) = '1' and i = 3 then
-                reset_flag <= '1';
-              else
-                if s_locDataIn(i) = '1' then
-                  s_CSRarray(BIT_SET_CLR_REG)(i) <= '0';
-                end if;
-              end if;
-            end loop;
-
-          when to_integer("00" & c_CRAM_OWNER_addr(18 downto 2)) =>
-            if s_CSRarray(CRAM_OWNER) = x"00" and s_locDataIn(7 downto 0) /= x"00" then
-              -- Write register give ownership only if register value is 0
-              s_CSRarray(CRAM_OWNER) <= s_locDataIn(7 downto 0);
-              s_CSRarray(BIT_SET_CLR_REG)(2) <= '1';
-            end if;
-
-          when to_integer("00" & c_USR_BIT_SET_REG_addr(18 downto 2)) =>
-            s_CSRarray(USR_BIT_SET_CLR_REG) <= s_locDataIn(7 downto 0);
-
-          when to_integer("00" & c_USR_BIT_CLR_REG_addr(18 downto 2)) =>
-            for i in 0 to 7 loop
-              if s_locDataIn(i) = '1' then
-                s_CSRarray(USR_BIT_SET_CLR_REG)(i) <= '0';
-              end if;
-            end loop;
-
-          when to_integer("00" & c_FUNC0_ADER_3_addr(18 downto 2)) to
-              to_integer("00" & c_FUNC7_ADER_0_addr(18 downto 2)) =>
-            s_CSRarray(to_integer(s_CrCsrOffsetAderIndex)) <= s_locDataIn(7 downto 0);
-
-          when to_integer("00" & c_IRQ_Vector_addr(18 downto 2)) =>
-            s_CSRarray(IRQ_Vector) <= s_locDataIn(7 downto 0);
-
-          when to_integer("00" & c_IRQ_level_addr(18 downto 2)) =>
-            s_CSRarray(IRQ_level) <= s_locDataIn(7 downto 0);
-
-          when to_integer("00" & c_Endian_addr(18 downto 2)) =>
-            s_CSRarray(Endian) <= s_locDataIn(7 downto 0);
-
-          when others => null;
-        end case;
-
-      else
-        if g_wb_data_width = 32 then
-          s_CSRarray(WB32bits) <= x"01";
+      if reset_i = '1' then
+        if s_ga_parity = '1' then
+          s_reg_bar       <= (not vme_ga_i(4 downto 0)) & "000";
         else
-          s_CSRarray(WB32bits) <= x"00";
+          s_reg_bar       <= x"00";
         end if;
-        reset_flag           <= '0';
-        s_CSRarray(BYTES0)   <= unsigned(numBytes(7 downto 0));
-        s_CSRarray(BYTES1)   <= resize(unsigned(numBytes(12 downto 8)), 8);
-        s_CSRarray(TIME0_ns) <= unsigned(transfTime(7 downto 0));
-        s_CSRarray(TIME1_ns) <= unsigned(transfTime(15 downto 8));
-        s_CSRarray(TIME2_ns) <= unsigned(transfTime(23 downto 16));
-        s_CSRarray(TIME3_ns) <= unsigned(transfTime(31 downto 24));
-        s_CSRarray(TIME4_ns) <= unsigned(transfTime(39 downto 32));
+        s_reg_bit_reg     <= x"00";
+        s_reg_cram_owner  <= x"00";
+        s_reg_usr_bit_reg <= x"00";
+        s_reg_ader0       <= x"00000000";
+        s_reg_ader1       <= x"00000000";
+        s_reg_ader2       <= x"00000000";
+        s_reg_ader3       <= x"00000000";
+        s_reg_ader4       <= x"00000000";
+        s_reg_ader5       <= x"00000000";
+        s_reg_ader6       <= x"00000000";
+        s_reg_ader7       <= x"00000000";
+      else
+        if we_i = '1' and s_csr_access = '1' then
+          case s_addr is
+            when c_addr_bar(18 downto 2) =>
+              s_reg_bar <= data_i;
+
+            when c_addr_bit_set_reg(18 downto 2) =>
+              for i in 0 to 7 loop
+                s_reg_bit_reg(i) <= s_reg_bit_reg(i) or data_i(i);
+              end loop;
+
+            when c_addr_bit_clr_reg(18 downto 2) =>
+              for i in 0 to 7 loop
+                s_reg_bit_reg(i) <= s_reg_bit_reg(i) and (not data_i(i));
+              end loop;
+              if data_i(2) = '1' then
+                s_reg_cram_owner <= x"00";
+              end if;
+
+            when c_addr_cram_owner(18 downto 2) =>
+              if s_reg_cram_owner = x"00" then
+                s_reg_cram_owner <= data_i;
+                s_reg_bit_reg(2) <= '1';
+              end if;
+
+            when c_addr_usr_set_reg(18 downto 2) =>
+              for i in 0 to 7 loop
+                s_reg_usr_bit_reg(i) <= s_reg_usr_bit_reg(i) or data_i(i);
+              end loop;
+
+            when c_addr_usr_clr_reg(18 downto 2) =>
+              for i in 0 to 7 loop
+                s_reg_usr_bit_reg(i) <= s_reg_usr_bit_reg(i) and (not data_i(i));
+              end loop;
+
+            when c_addr_func7_ader_0(18 downto 2) => s_reg_ader7( 7 downto  0) <= data_i;
+            when c_addr_func7_ader_1(18 downto 2) => s_reg_ader7(15 downto  8) <= data_i;
+            when c_addr_func7_ader_2(18 downto 2) => s_reg_ader7(23 downto 16) <= data_i;
+            when c_addr_func7_ader_3(18 downto 2) => s_reg_ader7(31 downto 24) <= data_i;
+            when c_addr_func6_ader_0(18 downto 2) => s_reg_ader6( 7 downto  0) <= data_i;
+            when c_addr_func6_ader_1(18 downto 2) => s_reg_ader6(15 downto  8) <= data_i;
+            when c_addr_func6_ader_2(18 downto 2) => s_reg_ader6(23 downto 16) <= data_i;
+            when c_addr_func6_ader_3(18 downto 2) => s_reg_ader6(31 downto 24) <= data_i;
+            when c_addr_func5_ader_0(18 downto 2) => s_reg_ader5( 7 downto  0) <= data_i;
+            when c_addr_func5_ader_1(18 downto 2) => s_reg_ader5(15 downto  8) <= data_i;
+            when c_addr_func5_ader_2(18 downto 2) => s_reg_ader5(23 downto 16) <= data_i;
+            when c_addr_func5_ader_3(18 downto 2) => s_reg_ader5(31 downto 24) <= data_i;
+            when c_addr_func4_ader_0(18 downto 2) => s_reg_ader4( 7 downto  0) <= data_i;
+            when c_addr_func4_ader_1(18 downto 2) => s_reg_ader4(15 downto  8) <= data_i;
+            when c_addr_func4_ader_2(18 downto 2) => s_reg_ader4(23 downto 16) <= data_i;
+            when c_addr_func4_ader_3(18 downto 2) => s_reg_ader4(31 downto 24) <= data_i;
+            when c_addr_func3_ader_0(18 downto 2) => s_reg_ader3( 7 downto  0) <= data_i;
+            when c_addr_func3_ader_1(18 downto 2) => s_reg_ader3(15 downto  8) <= data_i;
+            when c_addr_func3_ader_2(18 downto 2) => s_reg_ader3(23 downto 16) <= data_i;
+            when c_addr_func3_ader_3(18 downto 2) => s_reg_ader3(31 downto 24) <= data_i;
+            when c_addr_func2_ader_0(18 downto 2) => s_reg_ader2( 7 downto  0) <= data_i;
+            when c_addr_func2_ader_1(18 downto 2) => s_reg_ader2(15 downto  8) <= data_i;
+            when c_addr_func2_ader_2(18 downto 2) => s_reg_ader2(23 downto 16) <= data_i;
+            when c_addr_func2_ader_3(18 downto 2) => s_reg_ader2(31 downto 24) <= data_i;
+            when c_addr_func1_ader_0(18 downto 2) => s_reg_ader1( 7 downto  0) <= data_i;
+            when c_addr_func1_ader_1(18 downto 2) => s_reg_ader1(15 downto  8) <= data_i;
+            when c_addr_func1_ader_2(18 downto 2) => s_reg_ader1(23 downto 16) <= data_i;
+            when c_addr_func1_ader_3(18 downto 2) => s_reg_ader1(31 downto 24) <= data_i;
+            when c_addr_func0_ader_0(18 downto 2) => s_reg_ader0( 7 downto  0) <= data_i;
+            when c_addr_func0_ader_1(18 downto 2) => s_reg_ader0(15 downto  8) <= data_i;
+            when c_addr_func0_ader_2(18 downto 2) => s_reg_ader0(23 downto 16) <= data_i;
+            when c_addr_func0_ader_3(18 downto 2) => s_reg_ader0(31 downto 24) <= data_i;
+
+            when others => null;
+          end case;
+        end if;
+
+        if vme_berr_n_i = '0' then
+          s_reg_bit_reg(3) <= '1';
+        end if;
+
+        if vme_sysfail_i = '1' then
+          s_reg_bit_reg(5) <= '1';
+        end if;
       end if;
     end if;
   end process;
 
-  -- CSR Read
-  process(s_CSRarray, s_CrCsrOffsetAddr, err_flag)
+  bar_o             <= s_reg_bar(7 downto 3);
+  ader0_o           <= s_reg_ader0;
+  ader1_o           <= s_reg_ader1;
+  ader2_o           <= s_reg_ader2;
+  ader3_o           <= s_reg_ader3;
+  ader4_o           <= s_reg_ader4;
+  ader5_o           <= s_reg_ader5;
+  ader6_o           <= s_reg_ader6;
+  ader7_o           <= s_reg_ader7;
+  module_enable_o   <= s_reg_bit_reg(4);
+  vme_sysfail_ena_o <= s_reg_bit_reg(6);
+  module_reset_o    <= s_reg_bit_reg(7);
+
+  -- Read
+  process (clk_i)
   begin
-    s_CSRdata <= (others => '0');
-    case (s_CrCsrOffsetAddr) is
-      when "00" & c_BAR_addr(18 downto 2)             => s_CSRdata <= s_CSRarray(BAR);
-      when "00" & c_BIT_SET_REG_addr(18 downto 2)     => s_CSRdata <= s_CSRarray(
-        BIT_SET_CLR_REG)(7 downto 4) & err_flag & s_CSRarray(BIT_SET_CLR_REG)(2 downto 0);
-      when "00" & c_BIT_CLR_REG_addr(18 downto 2)     => s_CSRdata <= s_CSRarray(
-        BIT_SET_CLR_REG)(7 downto 4) & err_flag & s_CSRarray(BIT_SET_CLR_REG)(2 downto 0);
-      when "00" & c_CRAM_OWNER_addr(18 downto 2)      => s_CSRdata <= s_CSRarray(CRAM_OWNER);
-      when "00" & c_USR_BIT_SET_REG_addr(18 downto 2) => s_CSRdata <= s_CSRarray(USR_BIT_SET_CLR_REG);
-      when "00" & c_USR_BIT_CLR_REG_addr(18 downto 2) => s_CSRdata <= s_CSRarray(USR_BIT_SET_CLR_REG);
-      when "00" & c_FUNC7_ADER_0_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC7_ADER_0);
-      when "00" & c_FUNC7_ADER_1_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC7_ADER_1);
-      when "00" & c_FUNC7_ADER_2_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC7_ADER_2);
-      when "00" & c_FUNC7_ADER_3_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC7_ADER_3);
-      when "00" & c_FUNC6_ADER_0_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC6_ADER_0);
-      when "00" & c_FUNC6_ADER_1_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC6_ADER_1);
-      when "00" & c_FUNC6_ADER_2_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC6_ADER_2);
-      when "00" & c_FUNC6_ADER_3_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC6_ADER_3);
-      when "00" & c_FUNC5_ADER_0_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC5_ADER_0);
-      when "00" & c_FUNC5_ADER_1_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC5_ADER_1);
-      when "00" & c_FUNC5_ADER_2_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC5_ADER_2);
-      when "00" & c_FUNC5_ADER_3_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC5_ADER_3);
-      when "00" & c_FUNC4_ADER_0_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC4_ADER_0);
-      when "00" & c_FUNC4_ADER_1_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC4_ADER_1);
-      when "00" & c_FUNC4_ADER_2_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC4_ADER_2);
-      when "00" & c_FUNC4_ADER_3_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC4_ADER_3);
-      when "00" & c_FUNC3_ADER_0_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC3_ADER_0);
-      when "00" & c_FUNC3_ADER_1_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC3_ADER_1);
-      when "00" & c_FUNC3_ADER_3_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC3_ADER_3);
-      when "00" & c_FUNC2_ADER_0_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC2_ADER_0);
-      when "00" & c_FUNC2_ADER_1_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC2_ADER_1);
-      when "00" & c_FUNC2_ADER_2_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC2_ADER_2);
-      when "00" & c_FUNC2_ADER_3_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC2_ADER_3);
-      when "00" & c_FUNC1_ADER_0_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC1_ADER_0);
-      when "00" & c_FUNC1_ADER_1_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC1_ADER_1);
-      when "00" & c_FUNC1_ADER_2_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC1_ADER_2);
-      when "00" & c_FUNC1_ADER_3_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC1_ADER_3);
-      when "00" & c_FUNC0_ADER_0_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC0_ADER_0);
-      when "00" & c_FUNC0_ADER_1_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC0_ADER_1);
-      when "00" & c_FUNC0_ADER_2_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC0_ADER_2);
-      when "00" & c_FUNC0_ADER_3_addr(18 downto 2)    => s_CSRdata <= s_CSRarray(FUNC0_ADER_3);
-      when "00" & c_IRQ_Vector_addr (18 downto 2)     => s_CSRdata <= s_CSRarray(IRQ_Vector);
-      when "00" & c_IRQ_level_addr(18 downto 2)       => s_CSRdata <= s_CSRarray(IRQ_level);
-      when "00" & c_Endian_addr(18 downto 2)          => s_CSRdata <= s_CSRarray(Endian);
-      when "00" & c_TIME0_ns_addr(18 downto 2)        => s_CSRdata <= s_CSRarray(TIME0_ns);
-      when "00" & c_TIME1_ns_addr(18 downto 2)        => s_CSRdata <= s_CSRarray(TIME1_ns);
-      when "00" & c_TIME2_ns_addr(18 downto 2)        => s_CSRdata <= s_CSRarray(TIME2_ns);
-      when "00" & c_TIME3_ns_addr(18 downto 2)        => s_CSRdata <= s_CSRarray(TIME3_ns);
-      when "00" & c_TIME4_ns_addr(18 downto 2)        => s_CSRdata <= s_CSRarray(TIME4_ns);
-      when "00" & c_BYTES0_addr(18 downto 2)          => s_CSRdata <= s_CSRarray(BYTES0);
-      when "00" & c_BYTES1_addr(18 downto 2)          => s_CSRdata <= s_CSRarray(BYTES1);
-      when "00" & c_WB32bits_addr(18 downto 2)        => s_CSRdata <= s_CSRarray(WB32bits);
-      when others                                     => s_CSRdata <= (others => '0');
-    end case;
+    if rising_edge(clk_i) then
+      if reset_i = '1' then
+        s_csr_data <= x"ff";
+      else
+        case s_addr is
+          when c_addr_bar(18 downto 2)          => s_csr_data <= s_reg_bar;
+          when c_addr_bit_set_reg(18 downto 2)  => s_csr_data <= s_reg_bit_reg;
+          when c_addr_bit_clr_reg(18 downto 2)  => s_csr_data <= s_reg_bit_reg;
+          when c_addr_cram_owner(18 downto 2)   => s_csr_data <= s_reg_cram_owner;
+          when c_addr_usr_set_reg(18 downto 2)  => s_csr_data <= s_reg_usr_bit_reg;
+          when c_addr_usr_clr_reg(18 downto 2)  => s_csr_data <= s_reg_usr_bit_reg;
+          when c_addr_func7_ader_0(18 downto 2) => s_csr_data <= s_reg_ader7( 7 downto  0);
+          when c_addr_func7_ader_1(18 downto 2) => s_csr_data <= s_reg_ader7(15 downto  8);
+          when c_addr_func7_ader_2(18 downto 2) => s_csr_data <= s_reg_ader7(23 downto 16);
+          when c_addr_func7_ader_3(18 downto 2) => s_csr_data <= s_reg_ader7(31 downto 24);
+          when c_addr_func6_ader_0(18 downto 2) => s_csr_data <= s_reg_ader6( 7 downto  0);
+          when c_addr_func6_ader_1(18 downto 2) => s_csr_data <= s_reg_ader6(15 downto  8);
+          when c_addr_func6_ader_2(18 downto 2) => s_csr_data <= s_reg_ader6(23 downto 16);
+          when c_addr_func6_ader_3(18 downto 2) => s_csr_data <= s_reg_ader6(31 downto 24);
+          when c_addr_func5_ader_0(18 downto 2) => s_csr_data <= s_reg_ader5( 7 downto  0);
+          when c_addr_func5_ader_1(18 downto 2) => s_csr_data <= s_reg_ader5(15 downto  8);
+          when c_addr_func5_ader_2(18 downto 2) => s_csr_data <= s_reg_ader5(23 downto 16);
+          when c_addr_func5_ader_3(18 downto 2) => s_csr_data <= s_reg_ader5(31 downto 24);
+          when c_addr_func4_ader_0(18 downto 2) => s_csr_data <= s_reg_ader4( 7 downto  0);
+          when c_addr_func4_ader_1(18 downto 2) => s_csr_data <= s_reg_ader4(15 downto  8);
+          when c_addr_func4_ader_2(18 downto 2) => s_csr_data <= s_reg_ader4(23 downto 16);
+          when c_addr_func4_ader_3(18 downto 2) => s_csr_data <= s_reg_ader4(31 downto 24);
+          when c_addr_func3_ader_0(18 downto 2) => s_csr_data <= s_reg_ader3( 7 downto  0);
+          when c_addr_func3_ader_1(18 downto 2) => s_csr_data <= s_reg_ader3(15 downto  8);
+          when c_addr_func3_ader_2(18 downto 2) => s_csr_data <= s_reg_ader3(23 downto 16);
+          when c_addr_func3_ader_3(18 downto 2) => s_csr_data <= s_reg_ader3(31 downto 24);
+          when c_addr_func2_ader_0(18 downto 2) => s_csr_data <= s_reg_ader2( 7 downto  0);
+          when c_addr_func2_ader_1(18 downto 2) => s_csr_data <= s_reg_ader2(15 downto  8);
+          when c_addr_func2_ader_2(18 downto 2) => s_csr_data <= s_reg_ader2(23 downto 16);
+          when c_addr_func2_ader_3(18 downto 2) => s_csr_data <= s_reg_ader2(31 downto 24);
+          when c_addr_func1_ader_0(18 downto 2) => s_csr_data <= s_reg_ader1( 7 downto  0);
+          when c_addr_func1_ader_1(18 downto 2) => s_csr_data <= s_reg_ader1(15 downto  8);
+          when c_addr_func1_ader_2(18 downto 2) => s_csr_data <= s_reg_ader1(23 downto 16);
+          when c_addr_func1_ader_3(18 downto 2) => s_csr_data <= s_reg_ader1(31 downto 24);
+          when c_addr_func0_ader_0(18 downto 2) => s_csr_data <= s_reg_ader0( 7 downto  0);
+          when c_addr_func0_ader_1(18 downto 2) => s_csr_data <= s_reg_ader0(15 downto  8);
+          when c_addr_func0_ader_2(18 downto 2) => s_csr_data <= s_reg_ader0(23 downto 16);
+          when c_addr_func0_ader_3(18 downto 2) => s_csr_data <= s_reg_ader0(31 downto 24);
+          when others                           => s_csr_data <= x"ff";
+        end case;
+      end if;
+    end if;
   end process;
 
-  INT_Level         <= std_logic_vector(s_CSRarray(IRQ_level));
-  INT_Vector        <= std_logic_vector(s_CSRarray(IRQ_Vector));
-  CSRdata           <= std_logic_vector(s_CSRdata);
-  s_CrCsrOffsetAddr <= unsigned(CrCsrOffsetAddr);
-
-  -- Generate a vector of 8 array (unsigned 32 bits).
-  GADER_1 : for i in 0 to 7 generate
-    GADER_2 : for h in 0 to 3 generate
-      s_FUNC_ADER(i)(8*(4-h)-1 downto 8*(3-h)) <= s_CSRarray(FUNC0_ADER_3+(h+i*4));
-    end generate GADER_2;
-  end generate GADER_1;
-
-  -- To the decoder
-  Ader0        <= std_logic_vector(s_FUNC_ADER(0));
-  Ader1        <= std_logic_vector(s_FUNC_ADER(1));
-  Ader2        <= std_logic_vector(s_FUNC_ADER(2));
-  Ader3        <= std_logic_vector(s_FUNC_ADER(3));
-  Ader4        <= std_logic_vector(s_FUNC_ADER(4));
-  Ader5        <= std_logic_vector(s_FUNC_ADER(5));
-  Ader6        <= std_logic_vector(s_FUNC_ADER(6));
-  Ader7        <= std_logic_vector(s_FUNC_ADER(7));
-  ModuleEnable <= s_CSRarray(BIT_SET_CLR_REG)(4);
-  Endian_o     <= std_logic_vector(s_CSRarray(Endian)(2 downto 0));
-  Sw_Reset     <= s_CSRarray(BIT_SET_CLR_REG)(7);
-  BAR_o        <= s_BAR_o;
-  s_BAR_o      <= std_logic_vector(s_CSRarray(BAR)(7 downto 3));
-
+  ------------------------------------------------------------------------------
   -- CRAM
-  CRAM_1 : VME_CRAM
-  generic map (
-    dl => 8,
-    al => f_log2_size(g_cram_size)
-  )
-  port map (
-    clk => clk_i,
-    we  => CRAM_Wen,
-    aw  => CRAM_addr,
-    di  => CRAM_data_i,
-    dw  => CRAM_data_o
-  );
+  ------------------------------------------------------------------------------
+  gen_cram: if f_size(g_beg_cram, g_end_cram) > 1 generate
+    s_cram_access <= '1' when s_addr(18 downto 2) >= unsigned(g_beg_cram(18 downto 2)) and
+                              s_addr(18 downto 2) <= unsigned(g_end_cram(18 downto 2))
+                         else '0';
 
-end Behavioral;
+    s_cram_addr   <= std_logic_vector(s_addr - unsigned(g_beg_cram(18 downto 2)));
+    s_cram_we     <= we_i and s_cram_access;
+
+    cmp_cram: VME_CRAM
+      generic map (
+        g_beg_cram => g_beg_cram,
+        g_end_cram => g_end_cram
+      )
+      port map (
+        clk_i  => clk_i,
+        we_i   => s_cram_we,
+        addr_i => s_cram_addr,
+        data_i => data_i,
+        data_o => s_cram_data
+      );
+  end generate;
+  gen_no_cram: if f_size(g_beg_cram, g_end_cram) <= 1 generate
+    s_cram_access <= '0';
+    s_cram_addr   <= (others => '0');
+    s_cram_data   <= x"00";
+  end generate;
+
+  ------------------------------------------------------------------------------
+  -- User CR/CSR
+  ------------------------------------------------------------------------------
+  gen_user_cr: if f_size(g_beg_user_cr, g_end_user_cr) > 1 generate
+    s_user_cr_access <= '1' when s_addr >= unsigned(g_beg_user_cr(18 downto 2)) and
+                                 s_addr <= unsigned(g_end_user_cr(18 downto 2))
+                            else '0';
+
+    user_cr_addr_o   <= std_logic_vector(s_addr - unsigned(g_beg_user_cr(18 downto 2)));
+  end generate;
+  gen_no_user_cr: if f_size(g_beg_user_cr, g_end_user_cr) <= 1 generate
+    s_user_cr_access <= '0';
+    user_cr_addr_o   <= (others => '0');
+  end generate;
+
+  gen_user_csr: if f_size(g_beg_user_csr, g_end_user_csr) > 1 generate
+    s_user_csr_access <= '1' when s_addr >= unsigned(g_beg_user_csr(18 downto 2)) and
+                                  s_addr <= unsigned(g_end_user_csr(18 downto 2))
+                             else '0';
+
+    user_csr_addr_o   <= std_logic_vector(s_addr - unsigned(g_beg_user_csr(18 downto 2)));
+  end generate;
+  gen_no_user_csr: if f_size(g_beg_user_csr, g_end_user_csr) <= 1 generate
+    s_user_csr_access <= '0';
+    user_csr_addr_o   <= (others => '0');
+  end generate;
+
+  user_csr_data_o <= data_i;
+  user_csr_we_o   <= we_i and s_user_csr_access;
+
+  ------------------------------------------------------------------------------
+  -- Read Multiplexer
+  ------------------------------------------------------------------------------
+  process (
+    s_cr_access,       s_cr_data,
+    s_csr_access,      s_csr_data,
+    s_cram_access,     s_cram_data,
+    s_user_cr_access,  user_cr_data_i,
+    s_user_csr_access, user_csr_data_i
+  ) begin
+    if s_cr_access = '1' then
+      data_o <= s_cr_data;
+    elsif s_csr_access = '1' then
+      data_o <= s_csr_data;
+    elsif s_cram_access = '1' then
+      data_o <= s_cram_data;
+    elsif s_user_cr_access = '1' then
+      data_o <= user_cr_data_i;
+    elsif s_user_csr_access = '1' then
+      data_o <= user_csr_data_i;
+    else
+      data_o <= x"ff";
+    end if;
+  end process;
+
+end rtl;

@@ -135,55 +135,6 @@ package vme64x_pack is
   constant c_A32_2eSST    : std_logic_vector(7 downto 0) := "00010001";  -- 0x11
   constant c_A64_2eSST    : std_logic_vector(7 downto 0) := "00010010";  -- 0x12
 
-  -- CSR array's index:
-  constant BAR                 : integer  := 255;
-  constant BIT_SET_CLR_REG     : integer  := 254;
-  constant USR_BIT_SET_CLR_REG : integer  := 253;
-  constant CRAM_OWNER          : integer  := 252;
-  constant FUNC7_ADER_0        : integer  := 251;
-  constant FUNC7_ADER_1        : integer  := FUNC7_ADER_0 - 1;
-  constant FUNC7_ADER_2        : integer  := FUNC7_ADER_0 - 2;
-  constant FUNC7_ADER_3        : integer  := FUNC7_ADER_0 - 3;
-  constant FUNC6_ADER_0        : integer  := FUNC7_ADER_0 - 4;
-  constant FUNC6_ADER_1        : integer  := FUNC7_ADER_0 - 5;
-  constant FUNC6_ADER_2        : integer  := FUNC7_ADER_0 - 6;
-  constant FUNC6_ADER_3        : integer  := FUNC7_ADER_0 - 7;
-  constant FUNC5_ADER_0        : integer  := FUNC7_ADER_0 - 8;
-  constant FUNC5_ADER_1        : integer  := FUNC7_ADER_0 - 9;
-  constant FUNC5_ADER_2        : integer  := FUNC7_ADER_0 - 10;
-  constant FUNC5_ADER_3        : integer  := FUNC7_ADER_0 - 11;
-  constant FUNC4_ADER_0        : integer  := FUNC7_ADER_0 - 12;
-  constant FUNC4_ADER_1        : integer  := FUNC7_ADER_0 - 13;
-  constant FUNC4_ADER_2        : integer  := FUNC7_ADER_0 - 14;
-  constant FUNC4_ADER_3        : integer  := FUNC7_ADER_0 - 15;
-  constant FUNC3_ADER_0        : integer  := FUNC7_ADER_0 - 16;
-  constant FUNC3_ADER_1        : integer  := FUNC7_ADER_0 - 17;
-  constant FUNC3_ADER_2        : integer  := FUNC7_ADER_0 - 18;
-  constant FUNC3_ADER_3        : integer  := FUNC7_ADER_0 - 19;
-  constant FUNC2_ADER_0        : integer  := FUNC7_ADER_0 - 20;
-  constant FUNC2_ADER_1        : integer  := FUNC7_ADER_0 - 21;
-  constant FUNC2_ADER_2        : integer  := FUNC7_ADER_0 - 22;
-  constant FUNC2_ADER_3        : integer  := FUNC7_ADER_0 - 23;
-  constant FUNC1_ADER_0        : integer  := FUNC7_ADER_0 - 24;
-  constant FUNC1_ADER_1        : integer  := FUNC7_ADER_0 - 25;
-  constant FUNC1_ADER_2        : integer  := FUNC7_ADER_0 - 26;
-  constant FUNC1_ADER_3        : integer  := FUNC7_ADER_0 - 27;
-  constant FUNC0_ADER_0        : integer  := FUNC7_ADER_0 - 28;
-  constant FUNC0_ADER_1        : integer  := FUNC7_ADER_0 - 29;
-  constant FUNC0_ADER_2        : integer  := FUNC7_ADER_0 - 30;
-  constant FUNC0_ADER_3        : integer  := FUNC7_ADER_0 - 31;
-  constant IRQ_Vector          : integer  := FUNC0_ADER_3 - 1;
-  constant IRQ_level           : integer  := FUNC0_ADER_3 - 2;
-  constant TIME0_ns            : integer  := FUNC0_ADER_3 - 5;
-  constant TIME1_ns            : integer  := FUNC0_ADER_3 - 6;
-  constant TIME2_ns            : integer  := FUNC0_ADER_3 - 7;
-  constant TIME3_ns            : integer  := FUNC0_ADER_3 - 8;
-  constant TIME4_ns            : integer  := FUNC0_ADER_3 - 9;
-  constant BYTES0              : integer  := FUNC0_ADER_3 - 10;
-  constant BYTES1              : integer  := FUNC0_ADER_3 - 11;
-  constant WB32bits            : integer  := FUNC0_ADER_3 - 12;
-  constant Endian              : integer  := FUNC0_ADER_3 - 4;
-
   -- Main Finite State machine signals default:
   -- When the S_FPGA detects the magic sequency, it erases the A_FPGA so
   -- I don't need to drive the s_dtackOE, s_dataOE, s_addrOE, s_addrDir, s_dataDir
@@ -221,56 +172,72 @@ package vme64x_pack is
     s_DTACK_OE  => '0'
   );
 
-  -- CSR address:
-  constant c_BAR_addr             : unsigned(19 downto 0) := x"7FFFF";  -- VME64x defined CSR
-  constant c_BIT_SET_REG_addr     : unsigned(19 downto 0) := x"7FFFB";
-  constant c_BIT_CLR_REG_addr     : unsigned(19 downto 0) := x"7FFF7";
-  constant c_CRAM_OWNER_addr      : unsigned(19 downto 0) := x"7FFF3";
-  constant c_USR_BIT_SET_REG_addr : unsigned(19 downto 0) := x"7FFEF";
-  constant c_USR_BIT_CLR_REG_addr : unsigned(19 downto 0) := x"7FFEB";
-  constant c_FUNC7_ADER_0_addr    : unsigned(19 downto 0) := x"7FFDF";
-  constant c_FUNC7_ADER_1_addr    : unsigned(19 downto 0) := x"7FFDB";
-  constant c_FUNC7_ADER_2_addr    : unsigned(19 downto 0) := x"7FFD7";
-  constant c_FUNC7_ADER_3_addr    : unsigned(19 downto 0) := x"7FFD3";
-  constant c_FUNC6_ADER_0_addr    : unsigned(19 downto 0) := x"7FFCF";
-  constant c_FUNC6_ADER_1_addr    : unsigned(19 downto 0) := x"7FFCB";
-  constant c_FUNC6_ADER_2_addr    : unsigned(19 downto 0) := x"7FFC7";
-  constant c_FUNC6_ADER_3_addr    : unsigned(19 downto 0) := x"7FFC3";
-  constant c_FUNC5_ADER_0_addr    : unsigned(19 downto 0) := x"7FFBF";
-  constant c_FUNC5_ADER_1_addr    : unsigned(19 downto 0) := x"7FFBB";
-  constant c_FUNC5_ADER_2_addr    : unsigned(19 downto 0) := x"7FFB7";
-  constant c_FUNC5_ADER_3_addr    : unsigned(19 downto 0) := x"7FFB3";
-  constant c_FUNC4_ADER_0_addr    : unsigned(19 downto 0) := x"7FFAF";
-  constant c_FUNC4_ADER_1_addr    : unsigned(19 downto 0) := x"7FFAB";
-  constant c_FUNC4_ADER_2_addr    : unsigned(19 downto 0) := x"7FFA7";
-  constant c_FUNC4_ADER_3_addr    : unsigned(19 downto 0) := x"7FFA3";
-  constant c_FUNC3_ADER_0_addr    : unsigned(19 downto 0) := x"7FF9F";
-  constant c_FUNC3_ADER_1_addr    : unsigned(19 downto 0) := x"7FF9B";
-  constant c_FUNC3_ADER_2_addr    : unsigned(19 downto 0) := x"7FF97";
-  constant c_FUNC3_ADER_3_addr    : unsigned(19 downto 0) := x"7FF93";
-  constant c_FUNC2_ADER_0_addr    : unsigned(19 downto 0) := x"7FF8F";
-  constant c_FUNC2_ADER_1_addr    : unsigned(19 downto 0) := x"7FF8B";
-  constant c_FUNC2_ADER_2_addr    : unsigned(19 downto 0) := x"7FF87";
-  constant c_FUNC2_ADER_3_addr    : unsigned(19 downto 0) := x"7FF83";
-  constant c_FUNC1_ADER_0_addr    : unsigned(19 downto 0) := x"7FF7F";
-  constant c_FUNC1_ADER_1_addr    : unsigned(19 downto 0) := x"7FF7B";
-  constant c_FUNC1_ADER_2_addr    : unsigned(19 downto 0) := x"7FF77";
-  constant c_FUNC1_ADER_3_addr    : unsigned(19 downto 0) := x"7FF73";
-  constant c_FUNC0_ADER_0_addr    : unsigned(19 downto 0) := x"7FF6F";
-  constant c_FUNC0_ADER_1_addr    : unsigned(19 downto 0) := x"7FF6B";
-  constant c_FUNC0_ADER_2_addr    : unsigned(19 downto 0) := x"7FF67";
-  constant c_FUNC0_ADER_3_addr    : unsigned(19 downto 0) := x"7FF63";  -- VME64x defined CSR
-  constant c_IRQ_Vector_addr      : unsigned(19 downto 0) := x"7FF5F";  -- VME64x reserved CSR
-  constant c_IRQ_level_addr       : unsigned(19 downto 0) := x"7FF5B";  -- VME64x reserved CSR
-  constant c_TIME0_ns_addr        : unsigned(19 downto 0) := x"7FF4f";  -- VME64x reserved CSR
-  constant c_TIME1_ns_addr        : unsigned(19 downto 0) := x"7FF4b";
-  constant c_TIME2_ns_addr        : unsigned(19 downto 0) := x"7FF47";
-  constant c_TIME3_ns_addr        : unsigned(19 downto 0) := x"7FF43";
-  constant c_TIME4_ns_addr        : unsigned(19 downto 0) := x"7FF3f";
-  constant c_BYTES0_addr          : unsigned(19 downto 0) := x"7FF3b";
-  constant c_BYTES1_addr          : unsigned(19 downto 0) := x"7FF37";
-  constant c_WB32bits_addr        : unsigned(19 downto 0) := x"7FF33";
-  constant c_Endian_addr          : unsigned(19 downto 0) := x"7FF53";  -- VME64x reserved CSR
+  -- Defined CR area
+  constant c_beg_cr             : unsigned(19 downto 0) := x"00000";
+  constant c_end_cr             : unsigned(19 downto 0) := x"00FFF";
+
+  -- Defined CSR area
+  -- NOTE: by the standard, the defined CSR area is from 7FC00..7FFFF and the
+  --       area from 7FC00..7FF5F is reserved. However the previous version of
+  --       this core placed some user defined registers from 7FF30..7FF5F.
+  --       Therefore, to allow compatibility with that version, the reserved
+  --       area is not decoded as part of the defined CSR. However, it is not
+  --       advisable to place any registers in this area in new designs.
+  constant c_beg_csr            : unsigned(19 downto 0) := x"7FF60";
+  constant c_end_csr            : unsigned(19 downto 0) := x"7FFFF";
+
+  -- Defined CSR addresses
+  constant c_addr_bar           : unsigned(19 downto 0) := x"7FFFF";
+  constant c_addr_bit_set_reg   : unsigned(19 downto 0) := x"7FFFB";
+  constant c_addr_bit_clr_reg   : unsigned(19 downto 0) := x"7FFF7";
+  constant c_addr_cram_owner    : unsigned(19 downto 0) := x"7FFF3";
+  constant c_addr_usr_set_reg   : unsigned(19 downto 0) := x"7FFEF";
+  constant c_addr_usr_clr_reg   : unsigned(19 downto 0) := x"7FFEB";
+  constant c_addr_func7_ader_0  : unsigned(19 downto 0) := x"7FFDF";
+  constant c_addr_func7_ader_1  : unsigned(19 downto 0) := x"7FFDB";
+  constant c_addr_func7_ader_2  : unsigned(19 downto 0) := x"7FFD7";
+  constant c_addr_func7_ader_3  : unsigned(19 downto 0) := x"7FFD3";
+  constant c_addr_func6_ader_0  : unsigned(19 downto 0) := x"7FFCF";
+  constant c_addr_func6_ader_1  : unsigned(19 downto 0) := x"7FFCB";
+  constant c_addr_func6_ader_2  : unsigned(19 downto 0) := x"7FFC7";
+  constant c_addr_func6_ader_3  : unsigned(19 downto 0) := x"7FFC3";
+  constant c_addr_func5_ader_0  : unsigned(19 downto 0) := x"7FFBF";
+  constant c_addr_func5_ader_1  : unsigned(19 downto 0) := x"7FFBB";
+  constant c_addr_func5_ader_2  : unsigned(19 downto 0) := x"7FFB7";
+  constant c_addr_func5_ader_3  : unsigned(19 downto 0) := x"7FFB3";
+  constant c_addr_func4_ader_0  : unsigned(19 downto 0) := x"7FFAF";
+  constant c_addr_func4_ader_1  : unsigned(19 downto 0) := x"7FFAB";
+  constant c_addr_func4_ader_2  : unsigned(19 downto 0) := x"7FFA7";
+  constant c_addr_func4_ader_3  : unsigned(19 downto 0) := x"7FFA3";
+  constant c_addr_func3_ader_0  : unsigned(19 downto 0) := x"7FF9F";
+  constant c_addr_func3_ader_1  : unsigned(19 downto 0) := x"7FF9B";
+  constant c_addr_func3_ader_2  : unsigned(19 downto 0) := x"7FF97";
+  constant c_addr_func3_ader_3  : unsigned(19 downto 0) := x"7FF93";
+  constant c_addr_func2_ader_0  : unsigned(19 downto 0) := x"7FF8F";
+  constant c_addr_func2_ader_1  : unsigned(19 downto 0) := x"7FF8B";
+  constant c_addr_func2_ader_2  : unsigned(19 downto 0) := x"7FF87";
+  constant c_addr_func2_ader_3  : unsigned(19 downto 0) := x"7FF83";
+  constant c_addr_func1_ader_0  : unsigned(19 downto 0) := x"7FF7F";
+  constant c_addr_func1_ader_1  : unsigned(19 downto 0) := x"7FF7B";
+  constant c_addr_func1_ader_2  : unsigned(19 downto 0) := x"7FF77";
+  constant c_addr_func1_ader_3  : unsigned(19 downto 0) := x"7FF73";
+  constant c_addr_func0_ader_0  : unsigned(19 downto 0) := x"7FF6F";
+  constant c_addr_func0_ader_1  : unsigned(19 downto 0) := x"7FF6B";
+  constant c_addr_func0_ader_2  : unsigned(19 downto 0) := x"7FF67";
+  constant c_addr_func0_ader_3  : unsigned(19 downto 0) := x"7FF63";
+
+  -- User CSR addresses
+  constant c_addr_irq_vector    : unsigned(19 downto 0) := x"0002F";
+  constant c_addr_irq_level     : unsigned(19 downto 0) := x"0002B";
+  constant c_addr_endian        : unsigned(19 downto 0) := x"00023";
+  constant c_addr_time0_ns      : unsigned(19 downto 0) := x"0001F";
+  constant c_addr_time1_ns      : unsigned(19 downto 0) := x"0001B";
+  constant c_addr_time2_ns      : unsigned(19 downto 0) := x"00017";
+  constant c_addr_time3_ns      : unsigned(19 downto 0) := x"00013";
+  constant c_addr_time4_ns      : unsigned(19 downto 0) := x"0000F";
+  constant c_addr_bytes0        : unsigned(19 downto 0) := x"0000B";
+  constant c_addr_bytes1        : unsigned(19 downto 0) := x"00007";
+  constant c_addr_wb32bits      : unsigned(19 downto 0) := x"00003";
 
   ------------------------------------------------------------------------------
   -- Types
@@ -389,19 +356,12 @@ package vme64x_pack is
   type t_FUNC_256b_array is
       array (0 to 7) of unsigned(255 downto 0);         -- XAMCAP register array
 
-  type t_csr_array is
-      array(BAR downto WB32bits) of unsigned(7 downto 0);
-
   type t_cr_array is
       array (natural range <>) of std_logic_vector(7 downto 0);
 
   ------------------------------------------------------------------------------
   -- Functions
   ------------------------------------------------------------------------------
-
-  function f_log2_size (
-    A : natural
-  ) return natural;
 
   function f_latchDS (
     clk_period : integer
@@ -554,8 +514,17 @@ package vme64x_pack is
       ACK_i           : in  std_logic;
       WE_o            : out std_logic;
       STALL_i         : in  std_logic;
-      INT_ack_o       : out std_logic;
-      IRQ_i           : in  std_logic
+      endian_i        : in  std_logic_vector(2 downto 0);
+      user_csr_addr_o : out std_logic_vector(18 downto 2);
+      user_csr_data_i : in  std_logic_vector( 7 downto 0);
+      user_csr_data_o : out std_logic_vector( 7 downto 0);
+      user_csr_we_o   : out std_logic;
+      user_cr_addr_o  : out std_logic_vector(18 downto 2);
+      user_cr_data_i  : in  std_logic_vector( 7 downto 0);
+      irq_ack_o       : out std_logic;
+      irq_i           : in  std_logic;
+      irq_level_i     : in  std_logic_vector(7 downto 0);
+      irq_vector_i    : in  std_logic_vector(7 downto 0)
     );
   end component;
 
@@ -597,65 +566,57 @@ package vme64x_pack is
     );
     port (
       clk_i           : in  std_logic;
-      rst_n_i         : in std_logic;
+      rst_n_i         : in  std_logic;
+      reset_o         : out std_logic;
       VME_RST_n_i     : in  std_logic;
       VME_AS_n_i      : in  std_logic;
+      VME_LWORD_n_o   : out std_logic;
       VME_LWORD_n_i   : in  std_logic;
+      VME_RETRY_n_o   : out std_logic;
+      VME_RETRY_OE_o  : out std_logic;
       VME_WRITE_n_i   : in  std_logic;
       VME_DS_n_i      : in  std_logic_vector(1 downto 0);
       VME_DS_ant_n_i  : in  std_logic_vector(1 downto 0);
-      VME_ADDR_i      : in  std_logic_vector(31 downto 1);
-      VME_DATA_i      : in  std_logic_vector(31 downto 0);
-      VME_AM_i        : in  std_logic_vector(5 downto 0);
-      VME_IACK_n_i    : in  std_logic;
-      memAckWB_i      : in  std_logic;
-      wbData_i        : in  std_logic_vector(g_wb_data_width-1 downto 0);
-      err_i           : in  std_logic;
-      rty_i           : in  std_logic;
-      stall_i         : in  std_logic;
-      CRAMdata_i      : in  std_logic_vector(7 downto 0);
-      CRdata_i        : in  std_logic_vector(7 downto 0);
-      CSRData_i       : in  std_logic_vector(7 downto 0);
-      reset_flag_i    : in  std_logic;
-      Ader0           : in  std_logic_vector(31 downto 0);
-      Ader1           : in  std_logic_vector(31 downto 0);
-      Ader2           : in  std_logic_vector(31 downto 0);
-      Ader3           : in  std_logic_vector(31 downto 0);
-      Ader4           : in  std_logic_vector(31 downto 0);
-      Ader5           : in  std_logic_vector(31 downto 0);
-      Ader6           : in  std_logic_vector(31 downto 0);
-      Ader7           : in  std_logic_vector(31 downto 0);
-      ModuleEnable    : in  std_logic;
-      Endian_i        : in  std_logic_vector(2 downto 0);
-      Sw_Reset        : in  std_logic;
-      BAR_i           : in  std_logic_vector(4 downto 0);
-      reset_o         : out std_logic;
-      VME_LWORD_n_o   : out std_logic;
-      VME_RETRY_n_o   : out std_logic;
-      VME_RETRY_OE_o  : out std_logic;
       VME_DTACK_n_o   : out std_logic;
       VME_DTACK_OE_o  : out std_logic;
-      VME_BERR_o      : out std_logic;
+      VME_BERR_n_o    : out std_logic;
+      VME_ADDR_i      : in  std_logic_vector(31 downto 1);
       VME_ADDR_o      : out std_logic_vector(31 downto 1);
       VME_ADDR_DIR_o  : out std_logic;
       VME_ADDR_OE_N_o : out std_logic;
+      VME_DATA_i      : in  std_logic_vector(31 downto 0);
       VME_DATA_o      : out std_logic_vector(31 downto 0);
       VME_DATA_DIR_o  : out std_logic;
       VME_DATA_OE_N_o : out std_logic;
-      memReq_o        : out std_logic;
-      wbData_o        : out std_logic_vector(g_wb_data_width-1 downto 0);
-      locAddr_o       : out std_logic_vector(g_wb_addr_width-1 downto 0);
-      wbSel_o         : out std_logic_vector(g_wb_data_width/8-1 downto 0);
-      RW_o            : out std_logic;
+      VME_AM_i        : in  std_logic_vector(5 downto 0);
+      VME_IACK_n_i    : in  std_logic;
+      stb_o           : out std_logic;
+      ack_i           : in  std_logic;
+      dat_o           : out std_logic_vector(g_wb_data_width-1 downto 0);
+      dat_i           : in  std_logic_vector(g_wb_data_width-1 downto 0);
+      adr_o           : out std_logic_vector(g_wb_addr_width-1 downto 0);
+      sel_o           : out std_logic_vector(g_wb_data_width/8-1 downto 0);
+      we_o            : out std_logic;
       cyc_o           : out std_logic;
-      CRAMaddr_o      : out std_logic_vector(f_log2_size(f_size(g_beg_cram, g_end_cram))-1 downto 0);
-      CRAMdata_o      : out std_logic_vector(7 downto 0);
-      CRAMwea_o       : out std_logic;
-      CRaddr_o        : out std_logic_vector(11 downto 0);
-      en_wr_CSR       : out std_logic;
-      CrCsrOffsetAddr : out std_logic_vector(18 downto 0);
-      CSRData_o       : out std_logic_vector(7 downto 0);
-      err_flag_o      : out std_logic
+      err_i           : in  std_logic;
+      rty_i           : in  std_logic;
+      stall_i         : in  std_logic;
+      cr_csr_addr_o   : out std_logic_vector(18 downto 2);
+      cr_csr_data_i   : in  std_logic_vector( 7 downto 0);
+      cr_csr_data_o   : out std_logic_vector( 7 downto 0);
+      cr_csr_we_o     : out std_logic;
+      ader0_i         : in  std_logic_vector(31 downto 0);
+      ader1_i         : in  std_logic_vector(31 downto 0);
+      ader2_i         : in  std_logic_vector(31 downto 0);
+      ader3_i         : in  std_logic_vector(31 downto 0);
+      ader4_i         : in  std_logic_vector(31 downto 0);
+      ader5_i         : in  std_logic_vector(31 downto 0);
+      ader6_i         : in  std_logic_vector(31 downto 0);
+      ader7_i         : in  std_logic_vector(31 downto 0);
+      endian_i        : in  std_logic_vector(2 downto 0);
+      module_enable_i : in  std_logic;
+      module_reset_i  : in  std_logic;
+      bar_i           : in  std_logic_vector(4 downto 0)
     );
   end component VME_bus;
 
@@ -742,42 +703,42 @@ package vme64x_pack is
 
   component VME_CR_CSR_Space is
     generic (
-      g_cram_size        : integer;
-      g_wb_data_width    : integer;
-      g_cr_space         : t_cr_array
+      g_beg_user_cr   : std_logic_vector(23 downto 0);
+      g_end_user_cr   : std_logic_vector(23 downto 0);
+      g_beg_cram      : std_logic_vector(23 downto 0);
+      g_end_cram      : std_logic_vector(23 downto 0);
+      g_beg_user_csr  : std_logic_vector(23 downto 0);
+      g_end_user_csr  : std_logic_vector(23 downto 0);
+      g_cr_space      : t_cr_array
     );
     port (
-      clk_i              : in  std_logic;
-      reset              : in  std_logic;
-      CR_addr            : in  std_logic_vector(11 downto 0);
-      CRAM_addr          : in  std_logic_vector(f_log2_size(g_cram_size)-1 downto 0);
-      CRAM_data_i        : in  std_logic_vector(7 downto 0);
-      CRAM_Wen           : in  std_logic;
-      en_wr_CSR          : in  std_logic;
-      CrCsrOffsetAddr    : in  std_logic_vector(18 downto 0);
-      VME_GA_oversampled : in  std_logic_vector(5 downto 0);
-      locDataIn          : in  std_logic_vector(7 downto 0);
-      CR_data            : out std_logic_vector(7 downto 0);
-      err_flag           : in  std_logic;
-      CRAM_data_o        : out std_logic_vector(7 downto 0);
-      reset_flag         : out std_logic;
-      CSRdata            : out std_logic_vector(7 downto 0);
-      Ader0              : out std_logic_vector(31 downto 0);
-      Ader1              : out std_logic_vector(31 downto 0);
-      Ader2              : out std_logic_vector(31 downto 0);
-      Ader3              : out std_logic_vector(31 downto 0);
-      Ader4              : out std_logic_vector(31 downto 0);
-      Ader5              : out std_logic_vector(31 downto 0);
-      Ader6              : out std_logic_vector(31 downto 0);
-      Ader7              : out std_logic_vector(31 downto 0);
-      ModuleEnable       : out std_logic;
-      Sw_Reset           : out std_logic;
-      numBytes           : in  std_logic_vector(12 downto 0);
-      transfTime         : in  std_logic_vector(39 downto 0);
-      Endian_o           : out std_logic_vector(2 downto 0);
-      BAR_o              : out std_logic_vector(4 downto 0);
-      INT_Level          : out std_logic_vector(7 downto 0);
-      INT_Vector         : out std_logic_vector(7 downto 0)
+      clk_i               : in  std_logic;
+      reset_i             : in  std_logic;
+      vme_ga_i            : in  std_logic_vector(5 downto 0);
+      vme_berr_n_i        : in  std_logic;
+      bar_o               : out std_logic_vector(4 downto 0);
+      vme_sysfail_i       : in  std_logic;
+      vme_sysfail_ena_o   : out std_logic;
+      module_enable_o     : out std_logic;
+      module_reset_o      : out std_logic;
+      addr_i              : in  std_logic_vector(18 downto 2);
+      data_i              : in  std_logic_vector( 7 downto 0);
+      data_o              : out std_logic_vector( 7 downto 0);
+      we_i                : in  std_logic;
+      user_csr_addr_o     : out std_logic_vector(18 downto 2);
+      user_csr_data_i     : in  std_logic_vector( 7 downto 0);
+      user_csr_data_o     : out std_logic_vector( 7 downto 0);
+      user_csr_we_o       : out std_logic;
+      user_cr_addr_o      : out std_logic_vector(18 downto 2);
+      user_cr_data_i      : in  std_logic_vector( 7 downto 0);
+      ader0_o             : out std_logic_vector(31 downto 0);
+      ader1_o             : out std_logic_vector(31 downto 0);
+      ader2_o             : out std_logic_vector(31 downto 0);
+      ader3_o             : out std_logic_vector(31 downto 0);
+      ader4_o             : out std_logic_vector(31 downto 0);
+      ader5_o             : out std_logic_vector(31 downto 0);
+      ader6_o             : out std_logic_vector(31 downto 0);
+      ader7_o             : out std_logic_vector(31 downto 0)
     );
   end component VME_CR_CSR_Space;
 
@@ -817,6 +778,25 @@ package vme64x_pack is
       AmMatch      : out std_logic_vector(7 downto 0)
     );
   end component VME_Am_Match;
+
+  component VME_User_CSR is
+    generic (
+      g_wb_data_width     : integer
+    );
+    port (
+      clk_i               : in  std_logic;
+      reset_i             : in  std_logic;
+      addr_i              : in  std_logic_vector(18 downto 2);
+      data_i              : in  std_logic_vector( 7 downto 0);
+      data_o              : out std_logic_vector( 7 downto 0);
+      we_i                : in  std_logic;
+      irq_vector_o        : out std_logic_vector( 7 downto 0);
+      irq_level_o         : out std_logic_vector( 7 downto 0);
+      endian_o            : out std_logic_vector( 2 downto 0);
+      bytes_i             : in  std_logic_vector(15 downto 0);
+      time_i              : in  std_logic_vector(39 downto 0)
+    );
+  end component VME_User_CSR;
 
   component VME_Wb_master is
     generic (
@@ -884,31 +864,21 @@ package vme64x_pack is
 
   component VME_CRAM is
     generic (
-      dl : integer;
-      al : integer
+      g_beg_cram : std_logic_vector(23 downto 0);
+      g_end_cram : std_logic_vector(23 downto 0)
     );
     port (
-      clk : in  std_logic;
-      we  : in  std_logic;
-      aw  : in  std_logic_vector(al-1 downto 0);
-      di  : in  std_logic_vector(dl-1 downto 0);
-      dw  : out std_logic_vector(dl-1 downto 0)
+      clk_i   : in  std_logic;
+      we_i    : in  std_logic;
+      addr_i  : in  std_logic_vector(18 downto 2);
+      data_i  : in  std_logic_vector( 7 downto 0);
+      data_o  : out std_logic_vector( 7 downto 0)
     );
   end component VME_CRAM;
 
 end vme64x_pack;
 
 package body vme64x_pack is
-
-  function f_log2_size (A : natural) return natural is
-  begin
-    for I in 1 to 64 loop               -- Works for up to 64 bits
-      if (2**I >= A) then
-        return(I);
-      end if;
-    end loop;
-    return(63);
-  end function f_log2_size;
 
   function f_latchDS (clk_period : integer) return integer is
   begin

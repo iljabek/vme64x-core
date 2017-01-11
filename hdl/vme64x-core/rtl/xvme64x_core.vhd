@@ -39,7 +39,7 @@ entity xvme64x_core is
   generic (
     g_clock_period    : integer                         := c_clk_period;
     g_wb_data_width   : integer                         := c_wishbone_data_width;
-    g_wb_addr_width   : integer                         := c_wishbone_addr_width;
+    g_wb_addr_width   : integer                         := c_wishbone_address_width;
 
     -- CR/CSR
     g_manufacturer_id : std_logic_vector(23 downto 0)   := c_cern_id;
@@ -52,11 +52,11 @@ entity xvme64x_core is
     g_beg_user_cr     : std_logic_vector(23 downto 0)   := x"000000";
     g_end_user_cr     : std_logic_vector(23 downto 0)   := x"000000";
 
-    g_beg_cram        : std_logic_vector(23 downto 0)   := x"001000";
+    g_beg_cram        : std_logic_vector(23 downto 0)   := x"001003";
     g_end_cram        : std_logic_vector(23 downto 0)   := x"0013ff";
 
-    g_beg_user_csr    : std_logic_vector(23 downto 0)   := x"000000";
-    g_end_user_csr    : std_logic_vector(23 downto 0)   := x"000000";
+    g_beg_user_csr    : std_logic_vector(23 downto 0)   := x"07ff33";
+    g_end_user_csr    : std_logic_vector(23 downto 0)   := x"07ff5f";
 
     g_beg_sn          : std_logic_vector(23 downto 0)   := x"000000";
     g_end_sn          : std_logic_vector(23 downto 0)   := x"000000";
@@ -142,10 +142,21 @@ end xvme64x_core;
 
 architecture wrapper of xvme64x_core is
 
-  signal dat_out, dat_in : std_logic_vector(31 downto 0);
-  signal adr_out         : std_logic_vector(63 downto 0);
+  signal dat_out,
+         dat_in           : std_logic_vector(31 downto 0);
+  signal adr_out          : std_logic_vector(31 downto 0);
+  signal irq_vector,
+         irq_level        : std_logic_vector( 7 downto 0);
+  signal endian           : std_logic_vector( 2 downto 0);
+  signal user_csr_addr    : std_logic_vector(18 downto 2);
+  signal user_csr_data_i,
+         user_csr_data_o  : std_logic_vector( 7 downto 0);
+  signal user_csr_we      : std_logic;
+  signal rst              : std_logic;
 
 begin  -- wrapper
+
+  rst <= not rst_n_i;
 
   U_Wrapped_VME : VME64xCore_Top
     generic map (
@@ -227,19 +238,31 @@ begin  -- wrapper
       VME_ADDR_DIR_o  => VME_ADDR_DIR_o,
       VME_ADDR_OE_N_o => VME_ADDR_OE_N_o,
 
-      DAT_i     => dat_in,
-      DAT_o     => dat_out,
-      ADR_o     => adr_out,
-      CYC_o     => master_o.cyc,
-      ERR_i     => master_i.err,
-      RTY_i     => master_i.rty,
-      SEL_o     => open,
-      STB_o     => master_o.stb,
-      ACK_i     => master_i.ack,
-      WE_o      => master_o.we,
-      STALL_i   => master_i.stall,
-      IRQ_i     => irq_i,
-      INT_ack_o => irq_ack_o
+      DAT_i           => dat_in,
+      DAT_o           => dat_out,
+      ADR_o           => adr_out,
+      CYC_o           => master_o.cyc,
+      ERR_i           => master_i.err,
+      RTY_i           => master_i.rty,
+      SEL_o           => open,
+      STB_o           => master_o.stb,
+      ACK_i           => master_i.ack,
+      WE_o            => master_o.we,
+      STALL_i         => master_i.stall,
+
+      endian_i        => endian,
+
+      user_csr_addr_o => user_csr_addr,
+      user_csr_data_i => user_csr_data_o,
+      user_csr_data_o => user_csr_data_i,
+      user_csr_we_o   => user_csr_we,
+      user_cr_addr_o  => open,
+      user_cr_data_i  => x"00",
+
+      irq_i           => irq_i,
+      irq_ack_o       => irq_ack_o,
+      irq_vector_i    => irq_vector,
+      irq_level_i     => irq_level
     );
 
   master_o.dat <= dat_out(31 downto 0);
@@ -247,6 +270,22 @@ begin  -- wrapper
   master_o.adr <= adr_out(29 downto 0) & "00";
   dat_in       <= master_i.dat;
 
---  VME_IRQ_n_o <= (others => '0');
+  U_User_CSR : VME_User_CSR
+    generic map (
+      g_wb_data_width => g_wb_data_width
+    )
+    port map (
+      clk_i           => clk_i,
+      reset_i         => rst,
+      addr_i          => user_csr_addr,
+      data_i          => user_csr_data_i,
+      data_o          => user_csr_data_o,
+      we_i            => user_csr_we,
+      irq_vector_o    => irq_vector,
+      irq_level_o     => irq_level,
+      endian_o        => endian,
+      time_i          => x"0000000000",
+      bytes_i         => x"0000"
+    );
 
 end wrapper;

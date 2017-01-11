@@ -143,8 +143,8 @@ entity VME64xCore_Top is
     g_beg_user_cr     : std_logic_vector(23 downto 0)   := x"000000";
     g_end_user_cr     : std_logic_vector(23 downto 0)   := x"000000";
 
-    g_beg_cram        : std_logic_vector(23 downto 0)   := x"001000";
-    g_end_cram        : std_logic_vector(23 downto 0)   := x"0013ff";
+    g_beg_cram        : std_logic_vector(23 downto 0)   := x"000000";
+    g_end_cram        : std_logic_vector(23 downto 0)   := x"000000";
 
     g_beg_user_csr    : std_logic_vector(23 downto 0)   := x"000000";
     g_end_user_csr    : std_logic_vector(23 downto 0)   := x"000000";
@@ -250,31 +250,39 @@ entity VME64xCore_Top is
     WE_o    : out std_logic;
     STALL_i : in  std_logic;
 
+    -- For the swapper
+    endian_i            : in  std_logic_vector(2 downto 0);
+
+    -- User CR/CSR
+    user_csr_addr_o     : out std_logic_vector(18 downto 2);
+    user_csr_data_i     : in  std_logic_vector( 7 downto 0);
+    user_csr_data_o     : out std_logic_vector( 7 downto 0);
+    user_csr_we_o       : out std_logic;
+
+    user_cr_addr_o      : out std_logic_vector(18 downto 2);
+    user_cr_data_i      : in  std_logic_vector( 7 downto 0);
+
     -- IRQ Generator
-    INT_ack_o : out std_logic;    -- when the IRQ controller acknowledges the
+    irq_ack_o : out std_logic;    -- when the IRQ controller acknowledges the
                                   -- Interrupt cycle it sends a pulse to the
                                   -- IRQ Generator
 
-    IRQ_i     : in  std_logic     -- Interrupt request; the IRQ Generator/your
+    irq_i     : in  std_logic;    -- Interrupt request; the IRQ Generator/your
                                   -- Wb application sends a pulse to the IRQ
                                   -- Controller which asserts one of the IRQ
                                   -- lines.
-    );
+
+    irq_level_i   : in  std_logic_vector(7 downto 0);
+    irq_vector_i  : in  std_logic_vector(7 downto 0)
+  );
 
 end VME64xCore_Top;
 
 architecture RTL of VME64xCore_Top is
 
-  signal s_CRAMdataOut         : std_logic_vector(7 downto 0);
-  signal s_CRAMaddr            : std_logic_vector(f_log2_size(f_size(g_beg_cram, g_end_cram))-1 downto 0);
-  signal s_CRAMdataIn          : std_logic_vector(7 downto 0);
-  signal s_CRAMwea             : std_logic;
-  signal s_CRaddr              : std_logic_vector(11 downto 0);
-  signal s_CRdata              : std_logic_vector(7 downto 0);
-  signal s_RW                  : std_logic;
   signal s_reset               : std_logic;
-  signal s_IRQlevelReg         : std_logic_vector(7 downto 0);
-  signal s_FIFOreset           : std_logic;
+  signal s_reset_n             : std_logic;
+
   signal s_VME_DATA_IRQ        : std_logic_vector(31 downto 0);
   signal s_VME_DATA_VMEbus     : std_logic_vector(31 downto 0);
   -- signal s_VME_DATA_b          : std_logic_vector(31 downto 0);
@@ -285,28 +293,25 @@ architecture RTL of VME64xCore_Top is
   signal s_VME_DTACK_OE_IRQ    : std_logic;
   signal s_VME_DATA_DIR_VMEbus : std_logic;
   signal s_VME_DATA_DIR_IRQ    : std_logic;
-  signal s_INT_Level           : std_logic_vector(7 downto 0);
-  signal s_INT_Vector          : std_logic_vector(7 downto 0);
   signal s_VME_IRQ_n_o         : std_logic_vector(6 downto 0);
-  signal s_reset_IRQ           : std_logic;
-  signal s_CSRData_o           : std_logic_vector(7 downto 0);
-  signal s_CSRData_i           : std_logic_vector(7 downto 0);
-  signal s_CrCsrOffsetAddr     : std_logic_vector(18 downto 0);
-  signal s_Ader0               : std_logic_vector(31 downto 0);
-  signal s_Ader1               : std_logic_vector(31 downto 0);
-  signal s_Ader2               : std_logic_vector(31 downto 0);
-  signal s_Ader3               : std_logic_vector(31 downto 0);
-  signal s_Ader4               : std_logic_vector(31 downto 0);
-  signal s_Ader5               : std_logic_vector(31 downto 0);
-  signal s_Ader6               : std_logic_vector(31 downto 0);
-  signal s_Ader7               : std_logic_vector(31 downto 0);
-  signal s_en_wr_CSR           : std_logic;
-  signal s_err_flag            : std_logic;
-  signal s_reset_flag          : std_logic;
-  signal s_Sw_Reset            : std_logic;
-  signal s_ModuleEnable        : std_logic;
-  signal s_Endian              : std_logic_vector(2 downto 0);
-  signal s_BAR                 : std_logic_vector(4 downto 0);
+
+  -- CR/CSR
+  signal s_cr_csr_addr         : std_logic_vector(18 downto 2);
+  signal s_cr_csr_data_o       : std_logic_vector( 7 downto 0);
+  signal s_cr_csr_data_i       : std_logic_vector( 7 downto 0);
+  signal s_cr_csr_we           : std_logic;
+  signal s_ader0               : std_logic_vector(31 downto 0);
+  signal s_ader1               : std_logic_vector(31 downto 0);
+  signal s_ader2               : std_logic_vector(31 downto 0);
+  signal s_ader3               : std_logic_vector(31 downto 0);
+  signal s_ader4               : std_logic_vector(31 downto 0);
+  signal s_ader5               : std_logic_vector(31 downto 0);
+  signal s_ader6               : std_logic_vector(31 downto 0);
+  signal s_ader7               : std_logic_vector(31 downto 0);
+  signal s_module_reset        : std_logic;
+  signal s_module_enable       : std_logic;
+  signal s_bar                 : std_logic_vector(4 downto 0);
+  signal s_vme_berr_n          : std_logic;
 
   -- Oversampled input signals
   signal s_VME_RST_n              : std_logic_vector(2 downto 0);
@@ -393,7 +398,7 @@ begin
       VME_DS_ant_n_i  => s_VME_DS_n(3 downto 2),
       VME_DTACK_n_o   => s_VME_DTACK_VMEbus,
       VME_DTACK_OE_o  => s_VME_DTACK_OE_VMEbus,
-      VME_BERR_o      => VME_BERR_o,
+      VME_BERR_n_o    => s_vme_berr_n,
       VME_ADDR_i      => VME_ADDR_i,
       VME_ADDR_o      => VME_ADDR_o,
       VME_ADDR_DIR_o  => VME_ADDR_DIR_o,
@@ -405,52 +410,48 @@ begin
       VME_AM_i        => VME_AM_i,
       VME_IACK_n_i    => s_VME_IACK_n(2),
 
-      -- WB
-      memReq_o        => STB_o,
-      memAckWB_i      => ACK_i,
-      wbData_o        => DAT_o,
-      wbData_i        => DAT_i,
-      locAddr_o       => ADR_o,
-      wbSel_o         => SEL_o,
-      RW_o            => s_RW,
+      -- WB signals
+      stb_o           => STB_o,
+      ack_i           => ACK_i,
+      dat_o           => DAT_o,
+      dat_i           => DAT_i,
+      adr_o           => ADR_o,
+      sel_o           => SEL_o,
+      we_o            => WE_o,
       cyc_o           => CYC_o,
       err_i           => ERR_i,
       rty_i           => RTY_i,
       stall_i         => STALL_i,
 
       -- CR/CSR signals
-      CRAMaddr_o      => s_CRAMaddr,
-      CRAMdata_o      => s_CRAMdataIn,
-      CRAMdata_i      => s_CRAMdataOut,
-      CRAMwea_o       => s_CRAMwea,
-      CRaddr_o        => s_CRaddr,
-      CRdata_i        => s_CRdata,
-      en_wr_CSR       => s_en_wr_CSR,
-      CrCsrOffsetAddr => s_CrCsrOffsetAddr,
-      CSRData_o       => s_CSRData_o,
-      CSRData_i       => s_CSRData_i,
-      err_flag_o      => s_err_flag,
-      reset_flag_i    => s_reset_flag,
-      Ader0           => s_Ader0,
-      Ader1           => s_Ader1,
-      Ader2           => s_Ader2,
-      Ader3           => s_Ader3,
-      Ader4           => s_Ader4,
-      Ader5           => s_Ader5,
-      Ader6           => s_Ader6,
-      Ader7           => s_Ader7,
-      ModuleEnable    => s_ModuleEnable,
-      Endian_i        => s_Endian,
-      Sw_Reset        => s_Sw_Reset,
-      BAR_i           => s_BAR
+      cr_csr_addr_o   => s_cr_csr_addr,
+      cr_csr_data_i   => s_cr_csr_data_o,
+      cr_csr_data_o   => s_cr_csr_data_i,
+      cr_csr_we_o     => s_cr_csr_we,
+      ader0_i         => s_ader0,
+      ader1_i         => s_ader1,
+      ader2_i         => s_ader2,
+      ader3_i         => s_ader3,
+      ader4_i         => s_ader4,
+      ader5_i         => s_ader5,
+      ader6_i         => s_ader6,
+      ader7_i         => s_ader7,
+      endian_i        => endian_i,
+      module_enable_i => s_module_enable,
+      module_reset_i  => s_module_reset,
+      bar_i           => s_bar
     );
+
+  s_reset_n  <= not s_reset;
+
+  VME_BERR_o <= not s_vme_berr_n; -- The VME_BERR is asserted when '1' because
+                                  -- the buffers on the board invert the logic.
 
   ------------------------------------------------------------------------------
   -- Output
   ------------------------------------------------------------------------------
   VME_IRQ_o  <= not s_VME_IRQ_n_o;  -- The buffers will invert again the logic level
-  WE_o       <= not s_RW;
-  INT_ack_o  <= s_VME_DTACK_IRQ;
+  irq_ack_o  <= s_VME_DTACK_IRQ;
 
   -- Multiplexer added on the output signal used by either VMEbus.vhd and the
   -- IRQ_controller.vhd
@@ -479,13 +480,13 @@ begin
     )
     port map (
       clk_i           => clk_i,
-      reset_n_i       => s_reset_IRQ,       -- asserted when low
+      reset_n_i       => s_reset_n,       -- asserted when low
       VME_IACKIN_n_i  => s_VME_IACKIN_n(2),
       VME_AS_n_i      => s_VME_AS_n(2),
       VME_DS_n_i      => s_VME_DS_n(5 downto 4),
       VME_ADDR_123_i  => VME_ADDR_i(3 downto 1),
-      INT_Level_i     => s_INT_Level,
-      INT_Vector_i    => s_INT_Vector,
+      INT_Level_i     => irq_level_i,
+      INT_Vector_i    => irq_vector_i,
       INT_Req_i       => irq_i,
       VME_IRQ_n_o     => s_VME_IRQ_n_o,
       VME_IACKOUT_n_o => VME_IACKOUT_n_o,
@@ -495,16 +496,18 @@ begin
       VME_DATA_DIR_o  => s_VME_DATA_DIR_IRQ
     );
 
-  s_reset_IRQ <= not(s_reset);
-
   ------------------------------------------------------------------------------
   -- CR/CSR space
   ------------------------------------------------------------------------------
   Inst_VME_CR_CSR_Space : VME_CR_CSR_Space
     generic map (
-      g_cram_size        => f_size(g_beg_cram, g_end_cram),
-      g_wb_data_width    => g_wb_data_width,
-      g_cr_space         => f_vme_cr_encode(
+      g_beg_user_cr   => g_beg_user_cr,
+      g_end_user_cr   => g_end_user_cr,
+      g_beg_cram      => g_beg_cram,
+      g_end_cram      => g_end_cram,
+      g_beg_user_csr  => g_beg_user_csr,
+      g_end_user_csr  => g_end_user_csr,
+      g_cr_space      => f_vme_cr_encode(
         g_manufacturer_id, g_board_id, g_revision_id, g_program_id,
         g_ascii_ptr,
         g_beg_user_cr, g_end_user_cr,
@@ -522,37 +525,38 @@ begin
       )
     )
     port map (
-      clk_i              => clk_i,
-      reset              => s_reset,
-      CR_addr            => s_CRaddr,
-      CR_data            => s_CRdata,
-      CRAM_addr          => s_CRAMaddr,
-      CRAM_data_o        => s_CRAMdataOut,
-      CRAM_data_i        => s_CRAMdataIn,
-      CRAM_Wen           => s_CRAMwea,
-      en_wr_CSR          => s_en_wr_CSR,
-      CrCsrOffsetAddr    => s_CrCsrOffsetAddr,
-      VME_GA_oversampled => VME_GA_i,
-      locDataIn          => s_CSRData_o,
-      err_flag           => s_err_flag,
-      reset_flag         => s_reset_flag,
-      CSRdata            => s_CSRData_i,
-      Ader0              => s_Ader0,
-      Ader1              => s_Ader1,
-      Ader2              => s_Ader2,
-      Ader3              => s_Ader3,
-      Ader4              => s_Ader4,
-      Ader5              => s_Ader5,
-      Ader6              => s_Ader6,
-      Ader7              => s_Ader7,
-      ModuleEnable       => s_ModuleEnable,
-      Sw_Reset           => s_Sw_Reset,
-      Endian_o           => s_Endian,
-      BAR_o              => s_BAR,
-      INT_Level          => s_INT_Level,
-      numBytes           => (others => '0'),
-      transfTime         => (others => '0'),
-      INT_Vector         => s_INT_Vector
+      clk_i               => clk_i,
+      reset_i             => s_reset,
+
+      vme_ga_i            => VME_GA_i,
+      vme_berr_n_i        => s_vme_berr_n,
+      bar_o               => s_bar,
+      vme_sysfail_i       => '0',
+      vme_sysfail_ena_o   => open,
+      module_enable_o     => s_module_enable,
+      module_reset_o      => s_module_reset,
+
+      addr_i              => s_cr_csr_addr,
+      data_i              => s_cr_csr_data_i,
+      data_o              => s_cr_csr_data_o,
+      we_i                => s_cr_csr_we,
+
+      user_csr_addr_o     => user_csr_addr_o,
+      user_csr_data_i     => user_csr_data_i,
+      user_csr_data_o     => user_csr_data_o,
+      user_csr_we_o       => user_csr_we_o,
+
+      user_cr_addr_o      => user_cr_addr_o,
+      user_cr_data_i      => user_cr_data_i,
+
+      ader0_o             => s_ader0,
+      ader1_o             => s_ader1,
+      ader2_o             => s_ader2,
+      ader3_o             => s_ader3,
+      ader4_o             => s_ader4,
+      ader5_o             => s_ader5,
+      ader6_o             => s_ader6,
+      ader7_o             => s_ader7
     );
 
 end RTL;
