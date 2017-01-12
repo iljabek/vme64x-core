@@ -1,4 +1,3 @@
---------------------------------------------------------------------------------
 -- CERN (BE-CO-HT)
 -- VME64x Core
 -- http://www.ohwr.org/projects/vme64x-core
@@ -187,27 +186,27 @@ architecture RTL of VME_bus is
   -- Local data & address
   signal s_locDataIn                : unsigned(63 downto 0);
   signal s_locDataOut               : unsigned(63 downto 0);
-  signal s_locData                  : unsigned(63 downto 0);                    -- Local data
-  signal s_locAddr, s_rel_locAddr   : unsigned(63 downto 0);                    -- Local address
-  signal s_locAddr2e                : unsigned(63 downto 0);                    -- for 2e transfers
+  signal s_locData                  : unsigned(63 downto 0);          -- Local data
+  signal s_locAddr, s_rel_locAddr   : unsigned(63 downto 0);          -- Local address
+  signal s_locAddr2e                : unsigned(63 downto 0);          -- for 2e transfers
   signal s_locAddrBeforeOffset      : unsigned(63 downto 0);
-  signal s_phase1addr               : unsigned(63 downto 0) := (others => '0'); -- for 2e transfers
-  signal s_phase2addr               : unsigned(63 downto 0) := (others => '0'); --
-  -- signal s_phase3addr              : unsigned(63 downto 0);                    --
-  signal s_addrOffset               : unsigned(17 downto 0);                    -- block transfers|
+  signal s_phase1addr               : unsigned(63 downto 0);          -- for 2e transfers
+  signal s_phase2addr               : unsigned(63 downto 0);          --
+  --signal s_phase3addr              : unsigned(63 downto 0);           --
+  signal s_addrOffset               : unsigned(17 downto 0);          -- block transfers|
   signal s_DataShift                : unsigned(5 downto 0);
   -- uncomment if 2e is implemented:
-  --signal s_2eLatchAddr              : std_logic_vector(1 downto 0);             -- for 2e transfers
+  --signal s_2eLatchAddr              : std_logic_vector(1 downto 0);   -- for 2e transfers
   signal s_locDataSwap              : std_logic_vector(63 downto 0);
   signal s_locDataInSwap            : std_logic_vector(63 downto 0);
   signal s_locDataOutWb             : std_logic_vector(63 downto 0);
 
   -- Latched signals
-  signal s_VMEaddrLatched           : unsigned(63 downto 1);                    -- Latch on AS falling edge
-  signal s_LWORDlatched             : std_logic;                                -- Stores LWORD on falling edge of AS
-  signal s_DSlatched                : std_logic_vector(1 downto 0) := (others => '0');  -- Stores DS
-  signal s_AMlatched                : std_logic_vector(5 downto 0);             -- Latch on AS f. edge
-  signal s_XAM                      : unsigned(7 downto 0) := (others => '0');  -- Stores received XAM
+  signal s_VMEaddrLatched           : unsigned(63 downto 1);          -- Latch on AS falling edge
+  signal s_LWORDlatched             : std_logic;                      -- Stores LWORD on falling edge of AS
+  signal s_DSlatched                : std_logic_vector(1 downto 0);   -- Stores DS
+  signal s_AMlatched                : std_logic_vector(5 downto 0);   -- Latch on AS f. edge
+  signal s_XAM                      : unsigned(7 downto 0);           -- Stores received XAM
 
   -- Type of data transfer (depending on VME_DS_n, VME_LWORD_n and VME_ADDR(1))
   signal s_typeOfDataTransfer       : t_typeOfDataTransfer;
@@ -225,30 +224,30 @@ architecture RTL of VME_bus is
   -- Main FSM signals
   signal s_mainFSMstate             : t_mainFSMstates;
   signal s_FSM                      : t_FSM;
-  signal s_dataToAddrBus            : std_logic;  -- (for D64) --> multiplexed transfer
-  signal s_dataToOutput             : std_logic;  -- Puts data to VME data bus
-  signal s_mainDTACK                : std_logic;  -- DTACK driving
-  signal s_memAck                   : std_logic;  -- Memory acknowledge
-  signal s_memAckCSR                : std_logic;  -- CR/CSR acknowledge
-  signal s_memReq                   : std_logic;  -- Global memory request
-  signal s_VMEaddrLatch             : std_logic;  -- pulse on VME_AS_n_i f.edge
-  signal s_DSlatch                  : std_logic;  -- Stores data strobes
-  signal s_incrementAddr            : std_logic;  -- Increments local address
-  signal s_blockTransferLimit       : std_logic;  -- Block transfer limit
-  signal s_mainFSMreset             : std_logic;  -- Resets main FSM on AS r. edge
-  signal s_dataPhase                : std_logic;  -- for A64 and multipl. transf.
-  signal s_transferActive           : std_logic;  -- active VME transfer
-  --signal s_retry                    : std_logic;  -- RETRY signal
+  signal s_dataToAddrBus            : std_logic;                      -- (for D64) --> multiplexed transfer
+  signal s_dataToOutput             : std_logic;                      -- Puts data to VME data bus
+  signal s_mainDTACK                : std_logic;                      -- DTACK driving
+  signal s_memAck                   : std_logic;                      -- Memory acknowledge
+  signal s_memAckCSR                : std_logic;                      -- CR/CSR acknowledge
+  signal s_memReq                   : std_logic;                      -- Global memory request
+  signal s_VMEaddrLatch             : std_logic;                      -- pulse on VME_AS_n_i f.edge
+  signal s_DSlatch                  : std_logic;                      -- Stores data strobes
+  signal s_incrementAddr            : std_logic;                      -- Increments local address
+  signal s_blockTransferLimit       : std_logic;                      -- Block transfer limit
+  signal s_mainFSMreset             : std_logic;                      -- Resets main FSM on AS r. edge
+  signal s_dataPhase                : std_logic;                      -- for A64 and multipl. transf.
+  signal s_transferActive           : std_logic;                      -- active VME transfer
+  --signal s_retry                    : std_logic;                      -- RETRY signal
   signal s_retry_out                : std_logic;
 
   -- uncomment if 2e is implemented:
-  --signal s_berr                     : std_logic;  -- BERR signal
-  --signal s_berr_1                   : std_logic;  --
-  --signal s_berr_2                   : std_logic;  --
+  --signal s_berr                     : std_logic;                      -- BERR signal
+  --signal s_berr_1                   : std_logic;                      --
+  --signal s_berr_2                   : std_logic;                      --
 
   -- Access decode signals
-  signal s_confAccess               : std_logic;  -- Asserted when CR or CSR is addressed
-  signal s_cardSel                  : std_logic;  -- Asserted when WB memory is addressed
+  signal s_confAccess               : std_logic;                      -- Asserted when CR or CSR is addressed
+  signal s_cardSel                  : std_logic;                      -- Asserted when WB memory is addressed
 
   -- WishBone signals
   signal s_sel                      : unsigned(7 downto 0);           -- SEL WB signal
@@ -264,7 +263,6 @@ architecture RTL of VME_bus is
   signal s_is_d64                   : std_logic;
   signal s_base_addr                : unsigned(63 downto 0);
   signal s_nx_base_addr             : std_logic_vector(63 downto 0);
-  signal s_func_sel                 : std_logic_vector(7 downto 0);
   signal s_VMEdata64In              : unsigned(63 downto 0);
 
   signal s_BERR_out                 : std_logic;
@@ -857,6 +855,8 @@ begin
     '1' when "10",
     '0' when others;
 
+  s_phase1addr <= (others => '0');
+  s_phase2addr <= (others => '0');
   s_locAddr2e <= s_phase1addr(63 downto 8) & s_phase2addr(7 downto 0);
 
   -- This process generates the s_locAddr that is used during the access decode
@@ -926,8 +926,12 @@ begin
   p_DSlatching : process (clk_i)
   begin
     if rising_edge(clk_i) then
-      if s_DSlatch = '1' then
-        s_DSlatched <= VME_DS_ant_n_i;
+      if s_reset = '1' then
+        s_DSlatched <= (others => '0');
+      else
+        if s_DSlatch = '1' then
+          s_DSlatched <= VME_DS_ant_n_i;
+        end if;
       end if;
     end if;
   end process;
@@ -1106,6 +1110,7 @@ begin
   -- This component check if the board is addressed; if the CR/CSR space is
   -- addressed the Confaccess signal is asserted
   -- If the Wb memory is addressed the CardSel signal is asserted.
+  s_XAM <= (others => '0');
 
   Inst_Access_Decode : VME_Access_Decode
     port map (
@@ -1151,7 +1156,7 @@ begin
       XAm            => std_logic_vector(s_XAM),
       BAR_i          => bar_i,
       AddrWidth      => s_addrWidth,
-      Funct_Sel      => s_func_sel,
+      Funct_Sel      => open,
       Base_Addr      => s_nx_base_addr,
       Confaccess     => s_confAccess,
       CardSel        => s_cardSel
