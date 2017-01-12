@@ -223,7 +223,6 @@ architecture RTL of VME_bus is
 
   -- Main FSM signals
   signal s_mainFSMstate             : t_mainFSMstates;
-  signal s_FSM                      : t_FSM;
   signal s_dataToAddrBus            : std_logic;                      -- (for D64) --> multiplexed transfer
   signal s_dataToOutput             : std_logic;                      -- Puts data to VME data bus
   signal s_mainDTACK                : std_logic;                      -- DTACK driving
@@ -237,8 +236,7 @@ architecture RTL of VME_bus is
   signal s_mainFSMreset             : std_logic;                      -- Resets main FSM on AS r. edge
   signal s_dataPhase                : std_logic;                      -- for A64 and multipl. transf.
   signal s_transferActive           : std_logic;                      -- active VME transfer
-  --signal s_retry                    : std_logic;                      -- RETRY signal
-  signal s_retry_out                : std_logic;
+  signal s_retry                    : std_logic;                      -- RETRY signal
 
   -- uncomment if 2e is implemented:
   --signal s_berr                     : std_logic;                      -- BERR signal
@@ -274,6 +272,16 @@ architecture RTL of VME_bus is
 
   signal s_wbMaster_rst             : std_logic;
   signal s_num_latchDS              : integer;
+
+  function f_latchDS (clk_period : integer) return integer is
+  begin
+    for I in 1 to 4 loop
+      if (clk_period * I >= 20) then  -- 20 is the max time between the assertion
+        return(I);                    -- of the DS lines.
+      end if;
+    end loop;
+    return(4);                        -- works for up to 200 MHz
+  end function f_latchDS;
 
 begin
 
@@ -416,27 +424,6 @@ begin
   ------------------------------------------------------------------------------
   -- MAIN FSM
   ------------------------------------------------------------------------------
-  s_memReq         <= s_FSM.s_memReq;
-  s_decode         <= s_FSM.s_decode;
-  s_dtackOE        <= s_FSM.s_dtackOE;
-  s_mainDTACK      <= s_FSM.s_mainDTACK;
-  s_dataDir        <= s_FSM.s_dataDir;
-  s_dataOE         <= s_FSM.s_dataOE;
-  s_addrDir        <= s_FSM.s_addrDir;
-  s_addrOE         <= s_FSM.s_addrOE;
-  s_DSlatch        <= s_FSM.s_DSlatch;
-  s_incrementAddr  <= s_FSM.s_incrementAddr;
-  s_dataPhase      <= s_FSM.s_dataPhase;
-  s_dataToOutput   <= s_FSM.s_dataToOutput;
-  s_dataToAddrBus  <= s_FSM.s_dataToAddrBus;
-  s_transferActive <= s_FSM.s_transferActive;
-  -- uncomment if 2e is implemented:
-  --s_2eLatchAddr    <= s_FSM.s_2eLatchAddr;
-  s_retry_out      <= s_FSM.s_retry;
-  -- uncomment if 2e is implemented:
-  --s_berr           <= s_FSM.s_berr;
-  s_BERR_out       <= s_FSM.s_BERR_out;
-
   p_VMEmainFSM : process (clk_i)
   begin
     if rising_edge(clk_i) then
@@ -444,13 +431,48 @@ begin
         -- FSM resetted after power up,
         -- software reset, manually reset,
         -- on rising edge of AS.
-        s_FSM          <= c_FSM_default;
+        s_memReq         <= '0';
+        s_decode         <= '0';
+        s_dtackOE        <= '0';
+        s_mainDTACK      <= '1';
+        s_dataDir        <= '0';
+        s_dataOE         <= '0';
+        s_addrDir        <= '0';
+        s_addrOE         <= '0';
+        s_DSlatch        <= '0';
+        s_incrementAddr  <= '0';
+        s_dataPhase      <= '0';
+        s_dataToOutput   <= '0';
+        s_dataToAddrBus  <= '0';
+        s_transferActive <= '0';
+        --s_2eLatchAddr    <= "00";   -- uncomment if 2e is implemented:
+        s_retry          <= '0';
+        --s_berr           <= '0';    -- uncomment if 2e is implemented:
+        s_BERR_out       <= '0';
         s_mainFSMstate <= IDLE;
       else
+        s_memReq         <= '0';
+        s_decode         <= '0';
+        s_dtackOE        <= '0';
+        s_mainDTACK      <= '1';
+        s_dataDir        <= '0';
+        s_dataOE         <= '0';
+        s_addrDir        <= '0';
+        s_addrOE         <= '0';
+        s_DSlatch        <= '0';
+        s_incrementAddr  <= '0';
+        s_dataPhase      <= '0';
+        s_dataToOutput   <= '0';
+        s_dataToAddrBus  <= '0';
+        s_transferActive <= '0';
+        --s_2eLatchAddr    <= "00";   -- uncomment if 2e is implemented:
+        s_retry          <= '0';
+        --s_berr           <= '0';    -- uncomment if 2e is implemented:
+        s_BERR_out       <= '0';
+
         case s_mainFSMstate is
 
           when IDLE =>
-            s_FSM <= c_FSM_default;
             -- During the Interrupt ack cycle the Slave can't be accessed
             -- so if VME_IACK_n_i is asserted the FSM is in IDLE state.
             -- The VME_IACK_n_i signal is asserted by the Interrupt handler
@@ -464,9 +486,8 @@ begin
 
           when DECODE_ACCESS =>
             -- check if this slave board is addressed and if it is, check the access mode
-            s_FSM           <= c_FSM_default;
-            s_FSM.s_decode  <= '1';
-            s_FSM.s_DSlatch <= '1';
+            s_decode  <= '1';
+            s_DSlatch <= '1';
             -- uncomment for using 2e modes:
             --if s_addressingType = TWOedge then
             ---- start 2e transfer
@@ -482,12 +503,11 @@ begin
 
           when WAIT_FOR_DS =>
             -- wait until DS /= "11"
-            s_FSM                  <= c_FSM_default;
-            s_FSM.s_dtackOE        <= '1';
-            s_FSM.s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
-            s_FSM.s_DSlatch        <= '1';
-            s_FSM.s_dataPhase      <= s_dataPhase;
-            s_FSM.s_transferActive <= '1';
+            s_dtackOE        <= '1';
+            s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
+            s_DSlatch        <= '1';
+            s_dataPhase      <= s_dataPhase;
+            s_transferActive <= '1';
 
             if VME_DS_n_i /= "11" then
               s_mainFSMstate <= LATCH_DS1;
@@ -498,13 +518,12 @@ begin
           when LATCH_DS1 =>
             -- this state is necessary indeed the VME master can assert the
             -- DS lines not at the same time
-            s_FSM                  <= c_FSM_default;
-            s_FSM.s_dtackOE        <= '1';
-            s_FSM.s_dataDir        <= VME_WRITE_n_i;
-            s_FSM.s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
-            s_FSM.s_DSlatch        <= '1';
-            s_FSM.s_dataPhase      <= s_dataPhase;
-            s_FSM.s_transferActive <= '1';
+            s_dtackOE        <= '1';
+            s_dataDir        <= VME_WRITE_n_i;
+            s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
+            s_DSlatch        <= '1';
+            s_dataPhase      <= s_dataPhase;
+            s_transferActive <= '1';
             if s_num_latchDS = 1 then
               s_mainFSMstate <= CHECK_TRANSFER_TYPE;
             else
@@ -514,13 +533,12 @@ begin
           when LATCH_DS2 =>
             -- this state is necessary indeed the VME master can assert the
             -- DS lines not at the same time
-            s_FSM                  <= c_FSM_default;
-            s_FSM.s_dtackOE        <= '1';
-            s_FSM.s_dataDir        <= VME_WRITE_n_i;
-            s_FSM.s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
-            s_FSM.s_DSlatch        <= '1';
-            s_FSM.s_dataPhase      <= s_dataPhase;
-            s_FSM.s_transferActive <= '1';
+            s_dtackOE        <= '1';
+            s_dataDir        <= VME_WRITE_n_i;
+            s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
+            s_DSlatch        <= '1';
+            s_dataPhase      <= s_dataPhase;
+            s_transferActive <= '1';
             if s_num_latchDS = 2 then
               s_mainFSMstate <= CHECK_TRANSFER_TYPE;
             else
@@ -530,13 +548,12 @@ begin
           when LATCH_DS3 =>
             -- this state is necessary indeed the VME master can assert the
             -- DS lines not at the same time
-            s_FSM                  <= c_FSM_default;
-            s_FSM.s_dtackOE        <= '1';
-            s_FSM.s_dataDir        <= VME_WRITE_n_i;
-            s_FSM.s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
-            s_FSM.s_DSlatch        <= '1';
-            s_FSM.s_dataPhase      <= s_dataPhase;
-            s_FSM.s_transferActive <= '1';
+            s_dtackOE        <= '1';
+            s_dataDir        <= VME_WRITE_n_i;
+            s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
+            s_DSlatch        <= '1';
+            s_dataPhase      <= s_dataPhase;
+            s_transferActive <= '1';
             if s_num_latchDS = 3 then
               s_mainFSMstate <= CHECK_TRANSFER_TYPE;
             else
@@ -546,55 +563,52 @@ begin
           when LATCH_DS4 =>
             -- this state is necessary indeed the VME master can assert the
             -- DS lines not at the same time
-            s_FSM                  <= c_FSM_default;
-            s_FSM.s_dtackOE        <= '1';
-            s_FSM.s_dataDir        <= VME_WRITE_n_i;
-            s_FSM.s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
-            s_FSM.s_DSlatch        <= '1';
-            s_FSM.s_dataPhase      <= s_dataPhase;
-            s_FSM.s_transferActive <= '1';
+            s_dtackOE        <= '1';
+            s_dataDir        <= VME_WRITE_n_i;
+            s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
+            s_DSlatch        <= '1';
+            s_dataPhase      <= s_dataPhase;
+            s_transferActive <= '1';
 
             s_mainFSMstate <= CHECK_TRANSFER_TYPE;
 
           when CHECK_TRANSFER_TYPE =>
-            s_FSM                  <= c_FSM_default;
-            s_FSM.s_dtackOE        <= '1';
-            s_FSM.s_dataDir        <= VME_WRITE_n_i;
-            s_FSM.s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
-            s_FSM.s_dataPhase      <= s_dataPhase;
-            s_FSM.s_transferActive <= '1';
+            s_dtackOE        <= '1';
+            s_dataDir        <= VME_WRITE_n_i;
+            s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
+            s_dataPhase      <= s_dataPhase;
+            s_transferActive <= '1';
             if (s_transferType = SINGLE or s_transferType = BLT) and
-               s_addrWidth /= "11"
+               (s_addrWidth /= "11")
             then
               s_mainFSMstate <= MEMORY_REQ;
-              s_FSM.s_memReq <= '1';
+              s_memReq <= '1';
             elsif (s_transferType = MBLT or s_addrWidth = "11") and
-                  s_dataPhase = '0'
+                  (s_dataPhase = '0')
             then
               s_mainFSMstate <= DTACK_LOW;
             elsif (s_transferType = MBLT or s_addrWidth = "11") and
-                  s_dataPhase = '1'
+                  (s_dataPhase = '1')
             then
               s_mainFSMstate <= MEMORY_REQ;
-              s_FSM.s_memReq <= '1';
+              s_memReq <= '1';
             end if;
 
           when MEMORY_REQ =>
             -- To request the memory CR/CSR or WB memory it is sufficient to
             -- generate a pulse on s_memReq signal
-            s_FSM                  <= c_FSM_default;
-            s_FSM.s_dtackOE        <= '1';
-            s_FSM.s_dataDir        <= VME_WRITE_n_i;
-            s_FSM.s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
-            s_FSM.s_dataPhase      <= s_dataPhase;
-            s_FSM.s_transferActive <= '1';
+            s_dtackOE        <= '1';
+            s_dataDir        <= VME_WRITE_n_i;
+            s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
+            s_dataPhase      <= s_dataPhase;
+            s_transferActive <= '1';
             if s_memAck = '1' and VME_WRITE_n_i = '0' then
               s_mainFSMstate <= DTACK_LOW;
             elsif s_memAck = '1' and VME_WRITE_n_i = '1' then
               if s_transferType = MBLT then
-                s_FSM.s_dataToAddrBus <= '1';
+                s_dataToAddrBus <= '1';
               else
-                s_FSM.s_dataToOutput <= '1';
+                s_dataToOutput <= '1';
               end if;
               s_mainFSMstate <= DATA_TO_BUS;
             else
@@ -602,45 +616,42 @@ begin
             end if;
 
           when DATA_TO_BUS =>
-            s_FSM                  <= c_FSM_default;
-            s_FSM.s_dtackOE        <= '1';
-            s_FSM.s_dataDir        <= VME_WRITE_n_i;
-            s_FSM.s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
-            s_FSM.s_dataPhase      <= s_dataPhase;
-            s_FSM.s_transferActive <= '1';
-            s_FSM.s_dataToAddrBus  <= s_dataToAddrBus;
-            s_FSM.s_dataToOutput   <= s_dataToOutput;
-            s_mainFSMstate         <= DTACK_LOW;
+            s_dtackOE        <= '1';
+            s_dataDir        <= VME_WRITE_n_i;
+            s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
+            s_dataPhase      <= s_dataPhase;
+            s_transferActive <= '1';
+            s_dataToAddrBus  <= s_dataToAddrBus;
+            s_dataToOutput   <= s_dataToOutput;
+            s_mainFSMstate   <= DTACK_LOW;
 
           when DTACK_LOW =>
-            s_FSM                  <= c_FSM_default;
-            s_FSM.s_dtackOE        <= '1';
-            s_FSM.s_dataDir        <= VME_WRITE_n_i;
-            s_FSM.s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
-            s_FSM.s_dataPhase      <= s_dataPhase;
-            s_FSM.s_transferActive <= '1';
+            s_dtackOE        <= '1';
+            s_dataDir        <= VME_WRITE_n_i;
+            s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
+            s_dataPhase      <= s_dataPhase;
+            s_transferActive <= '1';
 
             if s_BERRcondition = '0' and s_rty1 = '0' then
-              s_FSM.s_mainDTACK <= '0';
+              s_mainDTACK     <= '0';
             elsif s_BERRcondition = '0' and s_rty1 = '1' then
-              s_FSM.s_retry <= '1';
+              s_retry         <= '1';
             else
-              s_FSM.s_BERR_out <= '1';
+              s_BERR_out      <= '1';
             end if;
 
             if VME_DS_n_i = "11" then
               s_mainFSMstate  <= DECIDE_NEXT_CYCLE;
-              s_FSM.s_dataDir <= '0';
+              s_dataDir       <= '0';
             else
               s_mainFSMstate <= DTACK_LOW;
             end if;
 
           when DECIDE_NEXT_CYCLE =>
-            s_FSM                  <= c_FSM_default;
-            s_FSM.s_dtackOE        <= '1';
-            s_FSM.s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
-            s_FSM.s_dataPhase      <= s_dataPhase;
-            s_FSM.s_transferActive <= '1';
+            s_dtackOE        <= '1';
+            s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
+            s_dataPhase      <= s_dataPhase;
+            s_transferActive <= '1';
             if (s_transferType = SINGLE and s_addrWidth /= "11") or
                (s_transferType = SINGLE and s_addrWidth = "11" and s_dataPhase = '1')
             then
@@ -651,32 +662,29 @@ begin
             then
               s_mainFSMstate <= INCREMENT_ADDR;
             elsif (s_transferType = MBLT or s_addrWidth = "11") and
-                  s_dataPhase = '0'
+                  (s_dataPhase = '0')
             then
               s_mainFSMstate <= SET_DATA_PHASE;
             else
-                s_mainFSMstate <= DECIDE_NEXT_CYCLE;
+              s_mainFSMstate <= DECIDE_NEXT_CYCLE;
             end if;
 
           when INCREMENT_ADDR =>
-            s_FSM                  <= c_FSM_default;
-            s_FSM.s_dtackOE        <= '1';
-            s_FSM.s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
-            s_FSM.s_dataPhase      <= s_dataPhase;
-            s_FSM.s_transferActive <= '1';
-            s_FSM.s_incrementAddr  <= '1';
-            s_mainFSMstate         <= WAIT_FOR_DS;
+            s_dtackOE        <= '1';
+            s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
+            s_dataPhase      <= s_dataPhase;
+            s_transferActive <= '1';
+            s_incrementAddr  <= '1';
+            s_mainFSMstate   <= WAIT_FOR_DS;
 
           when SET_DATA_PHASE =>
-            s_FSM                  <= c_FSM_default;
-            s_FSM.s_dtackOE        <= '1';
-            s_FSM.s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
-            s_FSM.s_dataPhase      <= '1';
-            s_FSM.s_transferActive <= '1';
-            s_mainFSMstate         <= WAIT_FOR_DS;
+            s_dtackOE        <= '1';
+            s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
+            s_dataPhase      <= '1';
+            s_transferActive <= '1';
+            s_mainFSMstate   <= WAIT_FOR_DS;
 
           when others =>
-            s_FSM          <= c_FSM_default;
             s_mainFSMstate <= IDLE;
 
         end case;
@@ -702,7 +710,7 @@ begin
   p_RETRYdriver : process (clk_i)
   begin
     if rising_edge(clk_i) then
-      if s_retry_out = '1' then
+      if s_retry = '1' then
         VME_RETRY_n_o  <= '0';
         VME_RETRY_OE_o <= '1';
       else

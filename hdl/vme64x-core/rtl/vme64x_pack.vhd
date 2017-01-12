@@ -38,50 +38,6 @@ use ieee.numeric_std.all;
 package vme64x_pack is
 
   ------------------------------------------------------------------------------
-  -- Records
-  ------------------------------------------------------------------------------
-
-  type t_rom_cell is
-  record
-    add : integer;
-    len : integer;
-  end record;
-  type t_cr_add_table is array (natural range <>) of t_rom_cell;
-
-  type t_FSM is
-  record
-    s_memReq         : std_logic;
-    s_decode         : std_logic;
-    s_dtackOE        : std_logic;
-    s_mainDTACK      : std_logic;
-    s_dataDir        : std_logic;
-    s_dataOE         : std_logic;
-    s_addrDir        : std_logic;
-    s_addrOE         : std_logic;
-    s_DSlatch        : std_logic;
-    s_incrementAddr  : std_logic;
-    s_dataPhase      : std_logic;
-    s_dataToOutput   : std_logic;
-    s_dataToAddrBus  : std_logic;
-    s_transferActive : std_logic;
-    s_2eLatchAddr    : std_logic_vector(1 downto 0);
-    s_retry          : std_logic;
-    s_berr           : std_logic;
-    s_BERR_out       : std_logic;
-  end record;
-
-  type t_FSM_IRQ is
-  record
-    s_IACKOUT   : std_logic;
-    s_DataDir   : std_logic;
-    s_DTACK     : std_logic;
-    s_enableIRQ : std_logic;
-    s_resetIRQ  : std_logic;
-    s_DSlatch   : std_logic;
-    s_DTACK_OE  : std_logic;
-  end record;
-
-  ------------------------------------------------------------------------------
   -- Constants
   ------------------------------------------------------------------------------
 
@@ -134,43 +90,6 @@ package vme64x_pack is
   constant c_A64_2eVME    : std_logic_vector(7 downto 0) := "00000010";  -- 0x22
   constant c_A32_2eSST    : std_logic_vector(7 downto 0) := "00010001";  -- 0x11
   constant c_A64_2eSST    : std_logic_vector(7 downto 0) := "00010010";  -- 0x12
-
-  -- Main Finite State machine signals default:
-  -- When the S_FPGA detects the magic sequency, it erases the A_FPGA so
-  -- I don't need to drive the s_dtackOE, s_dataOE, s_addrOE, s_addrDir, s_dataDir
-  -- to 'Z' in the default configuration.
-  -- If the S_FPGA will be provided to a core who drive these lines without erase the
-  -- A_FPGA the above mentioned lines should be changed to 'Z' !!!
-  constant c_FSM_default : t_FSM := (
-    s_memReq         => '0',
-    s_decode         => '0',
-    s_dtackOE        => '0',
-    s_mainDTACK      => '1',
-    s_dataDir        => '0',
-    s_dataOE         => '0',
-    s_addrDir        => '0',  -- during IACK cycle the ADDR lines are input
-    s_addrOE         => '0',
-    s_DSlatch        => '0',
-    s_incrementAddr  => '0',
-    s_dataPhase      => '0',
-    s_dataToOutput   => '0',
-    s_dataToAddrBus  => '0',
-    s_transferActive => '0',
-    s_2eLatchAddr    => "00",
-    s_retry          => '0',
-    s_berr           => '0',
-    s_BERR_out       => '0'
-  );
-
-  constant c_FSM_IRQ : t_FSM_IRQ := (
-    s_IACKOUT   => '1',
-    s_DataDir   => '0',
-    s_DTACK     => '1',
-    s_enableIRQ => '0',
-    s_resetIRQ  => '1',
-    s_DSlatch   => '0',
-    s_DTACK_OE  => '0'
-  );
 
   -- Defined CR area
   constant c_beg_cr             : unsigned(19 downto 0) := x"00000";
@@ -340,13 +259,6 @@ package vme64x_pack is
     --TWOe_END_2
   );
 
-  type t_initState is (
-    IDLE,
-    SET_ADDR,
-    GET_DATA,
-    END_INIT
-  );
-
   type t_FUNC_32b_array is
       array (0 to 7) of unsigned(31 downto 0);          -- ADER register array
 
@@ -362,10 +274,6 @@ package vme64x_pack is
   ------------------------------------------------------------------------------
   -- Functions
   ------------------------------------------------------------------------------
-
-  function f_latchDS (
-    clk_period : integer
-  ) return integer;
 
   function f_vme_cr_encode (
     manufacturer_id : std_logic_vector( 23 downto 0);
@@ -879,16 +787,6 @@ package vme64x_pack is
 end vme64x_pack;
 
 package body vme64x_pack is
-
-  function f_latchDS (clk_period : integer) return integer is
-  begin
-    for I in 1 to 4 loop
-      if (clk_period * I >= 20) then  -- 20 is the max time between the assertion
-        return(I);                    -- of the DS lines.
-      end if;
-    end loop;
-    return(4);                        -- works for up to 200 MHz
-  end function f_latchDS;
 
   function f_vme_cr_encode (
     manufacturer_id : std_logic_vector( 23 downto 0);
