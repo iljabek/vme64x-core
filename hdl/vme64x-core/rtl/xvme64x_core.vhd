@@ -315,31 +315,31 @@ begin  -- wrapper
   master_o.adr <= adr_out(29 downto 0) & "00";
   dat_in       <= master_i.dat;
 
-  gen_user_cr_csr: if g_user_csr_ext = false generate
+  gen_int_user_csr : if g_user_csr_ext = false generate
     U_User_CSR : VME_User_CSR
       generic map (
         g_wb_data_width => g_wb_data_width
       )
       port map (
-        clk_i           => clk_i,
-        rst_n_i         => rst_n_i,
-        addr_i          => user_csr_addr,
-        data_i          => user_csr_data_out,
-        data_o          => user_csr_data_in,
-        we_i            => user_csr_we,
-        irq_vector_o    => irq_vector,
-        irq_level_o     => irq_level,
-        endian_o        => endian,
-        time_i          => x"0000000000",
-        bytes_i         => x"0000"
+        clk_i        => clk_i,
+        rst_n_i      => rst_n_i,
+        addr_i       => user_csr_addr,
+        data_i       => user_csr_data_out,
+        data_o       => user_csr_data_in,
+        we_i         => user_csr_we,
+        irq_vector_o => irq_vector,
+        irq_level_o  => irq_level,
+        endian_o     => endian,
+        time_i       => x"0000000000",
+        bytes_i      => x"0000"
       );
   end generate;
-  gen_no_user_cr_csr: if g_user_csr_ext = true generate
-    user_csr_data_in    <= user_csr_data_i;
+  gen_ext_user_csr : if g_user_csr_ext = true generate
+    user_csr_data_in <= user_csr_data_i;
   end generate;
 
-  user_csr_addr_o       <= user_csr_addr;
-  user_csr_data_o       <= user_csr_data_out;
-  user_csr_we_o         <= user_csr_we;
+  user_csr_addr_o <= user_csr_addr;
+  user_csr_data_o <= user_csr_data_out;
+  user_csr_we_o   <= user_csr_we;
 
 end wrapper;

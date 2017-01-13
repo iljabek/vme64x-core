@@ -390,14 +390,14 @@ begin
   end process;
 
   bar_o             <= s_reg_bar(7 downto 3);
-  f0_ader_o         <= s_reg_ader(0);
-  f1_ader_o         <= s_reg_ader(1);
-  f2_ader_o         <= s_reg_ader(2);
-  f3_ader_o         <= s_reg_ader(3);
-  f4_ader_o         <= s_reg_ader(4);
-  f5_ader_o         <= s_reg_ader(5);
-  f6_ader_o         <= s_reg_ader(6);
-  f7_ader_o         <= s_reg_ader(7);
+  f0_ader_o         <= s_ader(0) when s_ader(0)(ADER_DFSR) = '0' else (others => '0');
+  f1_ader_o         <= s_ader(1) when s_ader(1)(ADER_DFSR) = '0' else (others => '0');
+  f2_ader_o         <= s_ader(2) when s_ader(2)(ADER_DFSR) = '0' else (others => '0');
+  f3_ader_o         <= s_ader(3) when s_ader(3)(ADER_DFSR) = '0' else (others => '0');
+  f4_ader_o         <= s_ader(4) when s_ader(4)(ADER_DFSR) = '0' else (others => '0');
+  f5_ader_o         <= s_ader(5) when s_ader(5)(ADER_DFSR) = '0' else (others => '0');
+  f6_ader_o         <= s_ader(6) when s_ader(6)(ADER_DFSR) = '0' else (others => '0');
+  f7_ader_o         <= s_ader(7) when s_ader(7)(ADER_DFSR) = '0' else (others => '0');
   module_enable_o   <= s_reg_bit_reg(4);
   vme_sysfail_ena_o <= s_reg_bit_reg(6);
   module_reset_o    <= s_reg_bit_reg(7);
