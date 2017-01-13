@@ -318,7 +318,7 @@ begin
   s_FUNC_ADEM(7) <= unsigned(Adem7);
 
   GDFS : for i in 0 to 7 generate
-    DFS_o(i) <= s_FUNC_ADEM(i)(DFS);
+    DFS_o(i) <= s_FUNC_ADEM(i)(ADEM_DFS);
   end generate GDFS;
 
   GADER_64 : for i in 0 to 6 generate

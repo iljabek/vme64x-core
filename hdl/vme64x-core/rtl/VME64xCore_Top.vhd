@@ -252,16 +252,34 @@ entity VME64xCore_Top is
     STALL_i : in  std_logic;
 
     -- For the swapper
-    endian_i            : in  std_logic_vector(2 downto 0);
+    endian_i        : in  std_logic_vector(2 downto 0) := (others => '0');
 
     -- User CR/CSR
-    user_csr_addr_o     : out std_logic_vector(18 downto 2);
-    user_csr_data_i     : in  std_logic_vector( 7 downto 0);
-    user_csr_data_o     : out std_logic_vector( 7 downto 0);
-    user_csr_we_o       : out std_logic;
+    user_csr_addr_o : out std_logic_vector(18 downto 2);
+    user_csr_data_i : in  std_logic_vector( 7 downto 0) := (others => '0');
+    user_csr_data_o : out std_logic_vector( 7 downto 0);
+    user_csr_we_o   : out std_logic;
 
-    user_cr_addr_o      : out std_logic_vector(18 downto 2);
-    user_cr_data_i      : in  std_logic_vector( 7 downto 0);
+    user_cr_addr_o  : out std_logic_vector(18 downto 2);
+    user_cr_data_i  : in  std_logic_vector( 7 downto 0) := (others => '0');
+
+    f0_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f1_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f2_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f3_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f4_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f5_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f6_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f7_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+
+    f0_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f1_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f2_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f3_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f4_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f5_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f6_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f7_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
 
     -- IRQ Generator
     irq_ack_o : out std_logic;    -- when the IRQ controller acknowledges the
@@ -273,8 +291,8 @@ entity VME64xCore_Top is
                                   -- Controller which asserts one of the IRQ
                                   -- lines.
 
-    irq_level_i   : in  std_logic_vector(7 downto 0);
-    irq_vector_i  : in  std_logic_vector(7 downto 0)
+    irq_level_i   : in  std_logic_vector(7 downto 0) := (others => '0');
+    irq_vector_i  : in  std_logic_vector(7 downto 0) := (others => '0')
   );
 
 end VME64xCore_Top;
@@ -301,14 +319,14 @@ architecture RTL of VME64xCore_Top is
   signal s_cr_csr_data_o       : std_logic_vector( 7 downto 0);
   signal s_cr_csr_data_i       : std_logic_vector( 7 downto 0);
   signal s_cr_csr_we           : std_logic;
-  signal s_ader0               : std_logic_vector(31 downto 0);
-  signal s_ader1               : std_logic_vector(31 downto 0);
-  signal s_ader2               : std_logic_vector(31 downto 0);
-  signal s_ader3               : std_logic_vector(31 downto 0);
-  signal s_ader4               : std_logic_vector(31 downto 0);
-  signal s_ader5               : std_logic_vector(31 downto 0);
-  signal s_ader6               : std_logic_vector(31 downto 0);
-  signal s_ader7               : std_logic_vector(31 downto 0);
+  signal s_f0_ader             : std_logic_vector(31 downto 0);
+  signal s_f1_ader             : std_logic_vector(31 downto 0);
+  signal s_f2_ader             : std_logic_vector(31 downto 0);
+  signal s_f3_ader             : std_logic_vector(31 downto 0);
+  signal s_f4_ader             : std_logic_vector(31 downto 0);
+  signal s_f5_ader             : std_logic_vector(31 downto 0);
+  signal s_f6_ader             : std_logic_vector(31 downto 0);
+  signal s_f7_ader             : std_logic_vector(31 downto 0);
   signal s_module_reset        : std_logic;
   signal s_module_enable       : std_logic;
   signal s_bar                 : std_logic_vector(4 downto 0);
@@ -427,14 +445,14 @@ begin
       cr_csr_data_i   => s_cr_csr_data_o,
       cr_csr_data_o   => s_cr_csr_data_i,
       cr_csr_we_o     => s_cr_csr_we,
-      ader0_i         => s_ader0,
-      ader1_i         => s_ader1,
-      ader2_i         => s_ader2,
-      ader3_i         => s_ader3,
-      ader4_i         => s_ader4,
-      ader5_i         => s_ader5,
-      ader6_i         => s_ader6,
-      ader7_i         => s_ader7,
+      f0_ader_i       => s_f0_ader,
+      f1_ader_i       => s_f1_ader,
+      f2_ader_i       => s_f2_ader,
+      f3_ader_i       => s_f3_ader,
+      f4_ader_i       => s_f4_ader,
+      f5_ader_i       => s_f5_ader,
+      f6_ader_i       => s_f6_ader,
+      f7_ader_i       => s_f7_ader,
       endian_i        => endian_i,
       module_enable_i => s_module_enable,
       bar_i           => s_bar
@@ -501,28 +519,51 @@ begin
   ------------------------------------------------------------------------------
   Inst_VME_CR_CSR_Space : VME_CR_CSR_Space
     generic map (
-      g_beg_user_cr   => g_beg_user_cr,
-      g_end_user_cr   => g_end_user_cr,
-      g_beg_cram      => g_beg_cram,
-      g_end_cram      => g_end_cram,
-      g_beg_user_csr  => g_beg_user_csr,
-      g_end_user_csr  => g_end_user_csr,
-      g_cr_space      => f_vme_cr_encode(
-        g_manufacturer_id, g_board_id, g_revision_id, g_program_id,
-        g_ascii_ptr,
-        g_beg_user_cr, g_end_user_cr,
-        g_beg_cram, g_end_cram,
-        g_beg_user_csr, g_end_user_csr,
-        g_beg_sn, g_end_sn,
-        g_f0_adem, g_f0_amcap, g_f0_xamcap, g_f0_dawpr,
-        g_f1_adem, g_f1_amcap, g_f1_xamcap, g_f1_dawpr,
-        g_f2_adem, g_f2_amcap, g_f2_xamcap, g_f2_dawpr,
-        g_f3_adem, g_f3_amcap, g_f3_xamcap, g_f3_dawpr,
-        g_f4_adem, g_f4_amcap, g_f4_xamcap, g_f4_dawpr,
-        g_f5_adem, g_f5_amcap, g_f5_xamcap, g_f5_dawpr,
-        g_f6_adem, g_f6_amcap, g_f6_xamcap, g_f6_dawpr,
-        g_f7_adem, g_f7_amcap, g_f7_xamcap, g_f7_dawpr
-      )
+       g_manufacturer_id  => g_manufacturer_id,
+       g_board_id         => g_board_id,
+       g_revision_id      => g_revision_id,
+       g_program_id       => g_program_id,
+       g_ascii_ptr        => g_ascii_ptr,
+       g_beg_user_cr      => g_beg_user_cr,
+       g_end_user_cr      => g_end_user_cr,
+       g_beg_cram         => g_beg_cram,
+       g_end_cram         => g_end_cram,
+       g_beg_user_csr     => g_beg_user_csr,
+       g_end_user_csr     => g_end_user_csr,
+       g_beg_sn           => g_beg_sn,
+       g_end_sn           => g_end_sn,
+       g_f0_adem          => g_f0_adem,
+       g_f0_amcap         => g_f0_amcap,
+       g_f0_xamcap        => g_f0_xamcap,
+       g_f0_dawpr         => g_f0_dawpr,
+       g_f1_adem          => g_f1_adem,
+       g_f1_amcap         => g_f1_amcap,
+       g_f1_xamcap        => g_f1_xamcap,
+       g_f1_dawpr         => g_f1_dawpr,
+       g_f2_adem          => g_f2_adem,
+       g_f2_amcap         => g_f2_amcap,
+       g_f2_xamcap        => g_f2_xamcap,
+       g_f2_dawpr         => g_f2_dawpr,
+       g_f3_adem          => g_f3_adem,
+       g_f3_amcap         => g_f3_amcap,
+       g_f3_xamcap        => g_f3_xamcap,
+       g_f3_dawpr         => g_f3_dawpr,
+       g_f4_adem          => g_f4_adem,
+       g_f4_amcap         => g_f4_amcap,
+       g_f4_xamcap        => g_f4_xamcap,
+       g_f4_dawpr         => g_f4_dawpr,
+       g_f5_adem          => g_f5_adem,
+       g_f5_amcap         => g_f5_amcap,
+       g_f5_xamcap        => g_f5_xamcap,
+       g_f5_dawpr         => g_f5_dawpr,
+       g_f6_adem          => g_f6_adem,
+       g_f6_amcap         => g_f6_amcap,
+       g_f6_xamcap        => g_f6_xamcap,
+       g_f6_dawpr         => g_f6_dawpr,
+       g_f7_adem          => g_f7_adem,
+       g_f7_amcap         => g_f7_amcap,
+       g_f7_xamcap        => g_f7_xamcap,
+       g_f7_dawpr         => g_f7_dawpr
     )
     port map (
       clk_i               => clk_i,
@@ -549,14 +590,32 @@ begin
       user_cr_addr_o      => user_cr_addr_o,
       user_cr_data_i      => user_cr_data_i,
 
-      ader0_o             => s_ader0,
-      ader1_o             => s_ader1,
-      ader2_o             => s_ader2,
-      ader3_o             => s_ader3,
-      ader4_o             => s_ader4,
-      ader5_o             => s_ader5,
-      ader6_o             => s_ader6,
-      ader7_o             => s_ader7
+      f0_ader_o           => s_f0_ader,
+      f1_ader_o           => s_f1_ader,
+      f2_ader_o           => s_f2_ader,
+      f3_ader_o           => s_f3_ader,
+      f4_ader_o           => s_f4_ader,
+      f5_ader_o           => s_f5_ader,
+      f6_ader_o           => s_f6_ader,
+      f7_ader_o           => s_f7_ader,
+
+      f0_faf_ader_i       => f0_faf_ader_i,
+      f1_faf_ader_i       => f1_faf_ader_i,
+      f2_faf_ader_i       => f2_faf_ader_i,
+      f3_faf_ader_i       => f3_faf_ader_i,
+      f4_faf_ader_i       => f4_faf_ader_i,
+      f5_faf_ader_i       => f5_faf_ader_i,
+      f6_faf_ader_i       => f6_faf_ader_i,
+      f7_faf_ader_i       => f7_faf_ader_i,
+
+      f0_dfs_adem_i       => f0_dfs_adem_i,
+      f1_dfs_adem_i       => f1_dfs_adem_i,
+      f2_dfs_adem_i       => f2_dfs_adem_i,
+      f3_dfs_adem_i       => f3_dfs_adem_i,
+      f4_dfs_adem_i       => f4_dfs_adem_i,
+      f5_dfs_adem_i       => f5_dfs_adem_i,
+      f6_dfs_adem_i       => f6_dfs_adem_i,
+      f7_dfs_adem_i       => f7_dfs_adem_i
     );
 
 end RTL;

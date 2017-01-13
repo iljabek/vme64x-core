@@ -149,14 +149,14 @@ entity VME_bus is
     cr_csr_data_i   : in  std_logic_vector( 7 downto 0);
     cr_csr_data_o   : out std_logic_vector( 7 downto 0);
     cr_csr_we_o     : out std_logic;
-    ader0_i         : in  std_logic_vector(31 downto 0);
-    ader1_i         : in  std_logic_vector(31 downto 0);
-    ader2_i         : in  std_logic_vector(31 downto 0);
-    ader3_i         : in  std_logic_vector(31 downto 0);
-    ader4_i         : in  std_logic_vector(31 downto 0);
-    ader5_i         : in  std_logic_vector(31 downto 0);
-    ader6_i         : in  std_logic_vector(31 downto 0);
-    ader7_i         : in  std_logic_vector(31 downto 0);
+    f0_ader_i       : in  std_logic_vector(31 downto 0);
+    f1_ader_i       : in  std_logic_vector(31 downto 0);
+    f2_ader_i       : in  std_logic_vector(31 downto 0);
+    f3_ader_i       : in  std_logic_vector(31 downto 0);
+    f4_ader_i       : in  std_logic_vector(31 downto 0);
+    f5_ader_i       : in  std_logic_vector(31 downto 0);
+    f6_ader_i       : in  std_logic_vector(31 downto 0);
+    f7_ader_i       : in  std_logic_vector(31 downto 0);
     endian_i        : in  std_logic_vector(2 downto 0);
     module_enable_i : in  std_logic;
     bar_i           : in  std_logic_vector(4 downto 0)
@@ -1120,14 +1120,14 @@ begin
       decode         => s_decode,
       ModuleEnable   => module_enable_i,
       Addr           => std_logic_vector(s_locAddr),
-      Ader0          => ader0_i,
-      Ader1          => ader1_i,
-      Ader2          => ader2_i,
-      Ader3          => ader3_i,
-      Ader4          => ader4_i,
-      Ader5          => ader5_i,
-      Ader6          => ader6_i,
-      Ader7          => ader7_i,
+      Ader0          => f0_ader_i,
+      Ader1          => f1_ader_i,
+      Ader2          => f2_ader_i,
+      Ader3          => f3_ader_i,
+      Ader4          => f4_ader_i,
+      Ader5          => f5_ader_i,
+      Ader6          => f6_ader_i,
+      Ader7          => f7_ader_i,
       Adem0          => g_f0_adem,
       Adem1          => g_f1_adem,
       Adem2          => g_f2_adem,

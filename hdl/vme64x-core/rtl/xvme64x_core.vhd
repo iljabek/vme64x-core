@@ -40,6 +40,7 @@ entity xvme64x_core is
     g_clock_period    : integer                         := c_clk_period;
     g_wb_data_width   : integer                         := c_wishbone_data_width;
     g_wb_addr_width   : integer                         := c_wishbone_address_width;
+    g_user_csr_ext    : boolean                         := false;
 
     -- CR/CSR
     g_manufacturer_id : std_logic_vector(23 downto 0)   := c_cern_id;
@@ -136,7 +137,33 @@ entity xvme64x_core is
     master_i        : in  t_wishbone_master_in;
 
     irq_i           : in  std_logic;
-    irq_ack_o       : out std_logic
+    irq_ack_o       : out std_logic;
+
+    user_csr_addr_o : out std_logic_vector(18 downto 2);
+    user_csr_data_i : in  std_logic_vector( 7 downto 0) := (others => '0');
+    user_csr_data_o : out std_logic_vector( 7 downto 0);
+    user_csr_we_o   : out std_logic;
+
+    user_cr_addr_o  : out std_logic_vector(18 downto 2);
+    user_cr_data_i  : in  std_logic_vector( 7 downto 0) := (others => '0');
+
+    f0_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f1_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f2_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f3_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f4_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f5_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f6_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f7_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+
+    f0_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f1_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f2_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f3_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f4_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f5_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f6_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+    f7_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0')
   );
 
 end xvme64x_core;
@@ -144,15 +171,15 @@ end xvme64x_core;
 architecture wrapper of xvme64x_core is
 
   signal dat_out,
-         dat_in           : std_logic_vector(31 downto 0);
-  signal adr_out          : std_logic_vector(31 downto 0);
+         dat_in             : std_logic_vector(31 downto 0);
+  signal adr_out            : std_logic_vector(31 downto 0);
   signal irq_vector,
-         irq_level        : std_logic_vector( 7 downto 0);
-  signal endian           : std_logic_vector( 2 downto 0);
-  signal user_csr_addr    : std_logic_vector(18 downto 2);
-  signal user_csr_data_i,
-         user_csr_data_o  : std_logic_vector( 7 downto 0);
-  signal user_csr_we      : std_logic;
+         irq_level          : std_logic_vector( 7 downto 0);
+  signal endian             : std_logic_vector( 2 downto 0);
+  signal user_csr_addr      : std_logic_vector(18 downto 2);
+  signal user_csr_data_in,
+         user_csr_data_out  : std_logic_vector( 7 downto 0);
+  signal user_csr_we        : std_logic;
 
 begin  -- wrapper
 
@@ -253,16 +280,34 @@ begin  -- wrapper
       endian_i        => endian,
 
       user_csr_addr_o => user_csr_addr,
-      user_csr_data_i => user_csr_data_o,
-      user_csr_data_o => user_csr_data_i,
+      user_csr_data_i => user_csr_data_in,
+      user_csr_data_o => user_csr_data_out,
       user_csr_we_o   => user_csr_we,
-      user_cr_addr_o  => open,
-      user_cr_data_i  => x"00",
+      user_cr_addr_o  => user_cr_addr_o,
+      user_cr_data_i  => user_cr_data_i,
 
       irq_i           => irq_i,
       irq_ack_o       => irq_ack_o,
       irq_vector_i    => irq_vector,
-      irq_level_i     => irq_level
+      irq_level_i     => irq_level,
+
+      f0_faf_ader_i   => f0_faf_ader_i,
+      f1_faf_ader_i   => f1_faf_ader_i,
+      f2_faf_ader_i   => f2_faf_ader_i,
+      f3_faf_ader_i   => f3_faf_ader_i,
+      f4_faf_ader_i   => f4_faf_ader_i,
+      f5_faf_ader_i   => f5_faf_ader_i,
+      f6_faf_ader_i   => f6_faf_ader_i,
+      f7_faf_ader_i   => f7_faf_ader_i,
+
+      f0_dfs_adem_i   => f0_dfs_adem_i,
+      f1_dfs_adem_i   => f1_dfs_adem_i,
+      f2_dfs_adem_i   => f2_dfs_adem_i,
+      f3_dfs_adem_i   => f3_dfs_adem_i,
+      f4_dfs_adem_i   => f4_dfs_adem_i,
+      f5_dfs_adem_i   => f5_dfs_adem_i,
+      f6_dfs_adem_i   => f6_dfs_adem_i,
+      f7_dfs_adem_i   => f7_dfs_adem_i
     );
 
   master_o.dat <= dat_out(31 downto 0);
@@ -270,22 +315,31 @@ begin  -- wrapper
   master_o.adr <= adr_out(29 downto 0) & "00";
   dat_in       <= master_i.dat;
 
-  U_User_CSR : VME_User_CSR
-    generic map (
-      g_wb_data_width => g_wb_data_width
-    )
-    port map (
-      clk_i           => clk_i,
-      rst_n_i         => rst_n_i,
-      addr_i          => user_csr_addr,
-      data_i          => user_csr_data_i,
-      data_o          => user_csr_data_o,
-      we_i            => user_csr_we,
-      irq_vector_o    => irq_vector,
-      irq_level_o     => irq_level,
-      endian_o        => endian,
-      time_i          => x"0000000000",
-      bytes_i         => x"0000"
-    );
+  gen_user_cr_csr: if g_user_csr_ext = false generate
+    U_User_CSR : VME_User_CSR
+      generic map (
+        g_wb_data_width => g_wb_data_width
+      )
+      port map (
+        clk_i           => clk_i,
+        rst_n_i         => rst_n_i,
+        addr_i          => user_csr_addr,
+        data_i          => user_csr_data_out,
+        data_o          => user_csr_data_in,
+        we_i            => user_csr_we,
+        irq_vector_o    => irq_vector,
+        irq_level_o     => irq_level,
+        endian_o        => endian,
+        time_i          => x"0000000000",
+        bytes_i         => x"0000"
+      );
+  end generate;
+  gen_no_user_cr_csr: if g_user_csr_ext = true generate
+    user_csr_data_in    <= user_csr_data_i;
+  end generate;
+
+  user_csr_addr_o       <= user_csr_addr;
+  user_csr_data_o       <= user_csr_data_out;
+  user_csr_we_o         <= user_csr_we;
 
 end wrapper;

@@ -109,13 +109,51 @@ use work.vme64x_pack.all;
 
 entity VME_CR_CSR_Space is
   generic (
-    g_beg_user_cr   : std_logic_vector(23 downto 0);
-    g_end_user_cr   : std_logic_vector(23 downto 0);
-    g_beg_cram      : std_logic_vector(23 downto 0);
-    g_end_cram      : std_logic_vector(23 downto 0);
-    g_beg_user_csr  : std_logic_vector(23 downto 0);
-    g_end_user_csr  : std_logic_vector(23 downto 0);
-    g_cr_space      : t_cr_array
+    g_manufacturer_id : std_logic_vector(23 downto 0);
+    g_board_id        : std_logic_vector(31 downto 0);
+    g_revision_id     : std_logic_vector(31 downto 0);
+    g_program_id      : std_logic_vector(7 downto 0);
+    g_ascii_ptr       : std_logic_vector(23 downto 0);
+    g_beg_user_cr     : std_logic_vector(23 downto 0);
+    g_end_user_cr     : std_logic_vector(23 downto 0);
+    g_beg_cram        : std_logic_vector(23 downto 0);
+    g_end_cram        : std_logic_vector(23 downto 0);
+    g_beg_user_csr    : std_logic_vector(23 downto 0);
+    g_end_user_csr    : std_logic_vector(23 downto 0);
+    g_beg_sn          : std_logic_vector(23 downto 0);
+    g_end_sn          : std_logic_vector(23 downto 0);
+    g_f0_adem         : std_logic_vector( 31 downto 0);
+    g_f0_amcap        : std_logic_vector( 63 downto 0);
+    g_f0_xamcap       : std_logic_vector(255 downto 0);
+    g_f0_dawpr        : std_logic_vector(  7 downto 0);
+    g_f1_adem         : std_logic_vector( 31 downto 0);
+    g_f1_amcap        : std_logic_vector( 63 downto 0);
+    g_f1_xamcap       : std_logic_vector(255 downto 0);
+    g_f1_dawpr        : std_logic_vector(  7 downto 0);
+    g_f2_adem         : std_logic_vector( 31 downto 0);
+    g_f2_amcap        : std_logic_vector( 63 downto 0);
+    g_f2_xamcap       : std_logic_vector(255 downto 0);
+    g_f2_dawpr        : std_logic_vector(  7 downto 0);
+    g_f3_adem         : std_logic_vector( 31 downto 0);
+    g_f3_amcap        : std_logic_vector( 63 downto 0);
+    g_f3_xamcap       : std_logic_vector(255 downto 0);
+    g_f3_dawpr        : std_logic_vector(  7 downto 0);
+    g_f4_adem         : std_logic_vector( 31 downto 0);
+    g_f4_amcap        : std_logic_vector( 63 downto 0);
+    g_f4_xamcap       : std_logic_vector(255 downto 0);
+    g_f4_dawpr        : std_logic_vector(  7 downto 0);
+    g_f5_adem         : std_logic_vector( 31 downto 0);
+    g_f5_amcap        : std_logic_vector( 63 downto 0);
+    g_f5_xamcap       : std_logic_vector(255 downto 0);
+    g_f5_dawpr        : std_logic_vector(  7 downto 0);
+    g_f6_adem         : std_logic_vector( 31 downto 0);
+    g_f6_amcap        : std_logic_vector( 63 downto 0);
+    g_f6_xamcap       : std_logic_vector(255 downto 0);
+    g_f6_dawpr        : std_logic_vector(  7 downto 0);
+    g_f7_adem         : std_logic_vector( 31 downto 0);
+    g_f7_amcap        : std_logic_vector( 63 downto 0);
+    g_f7_xamcap       : std_logic_vector(255 downto 0);
+    g_f7_dawpr        : std_logic_vector(  7 downto 0)
   );
   port (
     clk_i               : in  std_logic;
@@ -142,14 +180,32 @@ entity VME_CR_CSR_Space is
     user_cr_addr_o      : out std_logic_vector(18 downto 2);
     user_cr_data_i      : in  std_logic_vector( 7 downto 0);
 
-    ader0_o             : out std_logic_vector(31 downto 0);
-    ader1_o             : out std_logic_vector(31 downto 0);
-    ader2_o             : out std_logic_vector(31 downto 0);
-    ader3_o             : out std_logic_vector(31 downto 0);
-    ader4_o             : out std_logic_vector(31 downto 0);
-    ader5_o             : out std_logic_vector(31 downto 0);
-    ader6_o             : out std_logic_vector(31 downto 0);
-    ader7_o             : out std_logic_vector(31 downto 0)
+    f0_ader_o           : out std_logic_vector(31 downto 0);
+    f1_ader_o           : out std_logic_vector(31 downto 0);
+    f2_ader_o           : out std_logic_vector(31 downto 0);
+    f3_ader_o           : out std_logic_vector(31 downto 0);
+    f4_ader_o           : out std_logic_vector(31 downto 0);
+    f5_ader_o           : out std_logic_vector(31 downto 0);
+    f6_ader_o           : out std_logic_vector(31 downto 0);
+    f7_ader_o           : out std_logic_vector(31 downto 0);
+
+    f0_faf_ader_i       : in  std_logic_vector(31 downto 0);
+    f1_faf_ader_i       : in  std_logic_vector(31 downto 0);
+    f2_faf_ader_i       : in  std_logic_vector(31 downto 0);
+    f3_faf_ader_i       : in  std_logic_vector(31 downto 0);
+    f4_faf_ader_i       : in  std_logic_vector(31 downto 0);
+    f5_faf_ader_i       : in  std_logic_vector(31 downto 0);
+    f6_faf_ader_i       : in  std_logic_vector(31 downto 0);
+    f7_faf_ader_i       : in  std_logic_vector(31 downto 0);
+
+    f0_dfs_adem_i       : in  std_logic_vector(31 downto 0);
+    f1_dfs_adem_i       : in  std_logic_vector(31 downto 0);
+    f2_dfs_adem_i       : in  std_logic_vector(31 downto 0);
+    f3_dfs_adem_i       : in  std_logic_vector(31 downto 0);
+    f4_dfs_adem_i       : in  std_logic_vector(31 downto 0);
+    f5_dfs_adem_i       : in  std_logic_vector(31 downto 0);
+    f6_dfs_adem_i       : in  std_logic_vector(31 downto 0);
+    f7_dfs_adem_i       : in  std_logic_vector(31 downto 0)
   );
 end VME_CR_CSR_Space;
 
@@ -177,16 +233,34 @@ architecture rtl of VME_CR_CSR_Space is
   signal s_reg_cram_owner       : std_logic_vector(7 downto 0);
   signal s_reg_usr_bit_reg      : std_logic_vector(7 downto 0);
 
-  signal s_reg_ader0            : std_logic_vector(31 downto 0);
-  signal s_reg_ader1            : std_logic_vector(31 downto 0);
-  signal s_reg_ader2            : std_logic_vector(31 downto 0);
-  signal s_reg_ader3            : std_logic_vector(31 downto 0);
-  signal s_reg_ader4            : std_logic_vector(31 downto 0);
-  signal s_reg_ader5            : std_logic_vector(31 downto 0);
-  signal s_reg_ader6            : std_logic_vector(31 downto 0);
-  signal s_reg_ader7            : std_logic_vector(31 downto 0);
+  type t_reg_array is array (0 to 7) of std_logic_vector(31 downto 0);
 
-  signal s_cr_rom               : t_cr_array(g_cr_space'range)  := g_cr_space;
+  signal s_reg_ader             : t_reg_array;
+  signal s_ader                 : t_reg_array;
+  signal s_faf_ader             : t_reg_array;
+  signal s_dfs_adem             : t_reg_array;
+
+  constant c_adem : t_reg_array := (
+    g_f0_adem, g_f1_adem, g_f2_adem, g_f3_adem,
+    g_f4_adem, g_f5_adem, g_f6_adem, g_f7_adem
+  );
+
+  signal s_cr_rom : t_cr_array(1023 downto 0) := f_vme_cr_encode(
+    g_manufacturer_id, g_board_id, g_revision_id, g_program_id,
+    g_ascii_ptr,
+    g_beg_user_cr, g_end_user_cr,
+    g_beg_cram, g_end_cram,
+    g_beg_user_csr, g_end_user_csr,
+    g_beg_sn, g_end_sn,
+    g_f0_adem, g_f0_amcap, g_f0_xamcap, g_f0_dawpr,
+    g_f1_adem, g_f1_amcap, g_f1_xamcap, g_f1_dawpr,
+    g_f2_adem, g_f2_amcap, g_f2_xamcap, g_f2_dawpr,
+    g_f3_adem, g_f3_amcap, g_f3_xamcap, g_f3_dawpr,
+    g_f4_adem, g_f4_amcap, g_f4_xamcap, g_f4_dawpr,
+    g_f5_adem, g_f5_amcap, g_f5_xamcap, g_f5_dawpr,
+    g_f6_adem, g_f6_amcap, g_f6_xamcap, g_f6_dawpr,
+    g_f7_adem, g_f7_amcap, g_f7_xamcap, g_f7_dawpr
+  );
 
 begin
 
@@ -231,14 +305,7 @@ begin
         s_reg_bit_reg     <= x"00";
         s_reg_cram_owner  <= x"00";
         s_reg_usr_bit_reg <= x"00";
-        s_reg_ader0       <= x"00000000";
-        s_reg_ader1       <= x"00000000";
-        s_reg_ader2       <= x"00000000";
-        s_reg_ader3       <= x"00000000";
-        s_reg_ader4       <= x"00000000";
-        s_reg_ader5       <= x"00000000";
-        s_reg_ader6       <= x"00000000";
-        s_reg_ader7       <= x"00000000";
+        s_reg_ader        <= (others => x"00000000");
       else
         if we_i = '1' and s_csr_access = '1' then
           case s_addr is
@@ -274,38 +341,38 @@ begin
                 s_reg_usr_bit_reg(i) <= s_reg_usr_bit_reg(i) and (not data_i(i));
               end loop;
 
-            when c_addr_func7_ader_0(18 downto 2) => s_reg_ader7( 7 downto  0) <= data_i;
-            when c_addr_func7_ader_1(18 downto 2) => s_reg_ader7(15 downto  8) <= data_i;
-            when c_addr_func7_ader_2(18 downto 2) => s_reg_ader7(23 downto 16) <= data_i;
-            when c_addr_func7_ader_3(18 downto 2) => s_reg_ader7(31 downto 24) <= data_i;
-            when c_addr_func6_ader_0(18 downto 2) => s_reg_ader6( 7 downto  0) <= data_i;
-            when c_addr_func6_ader_1(18 downto 2) => s_reg_ader6(15 downto  8) <= data_i;
-            when c_addr_func6_ader_2(18 downto 2) => s_reg_ader6(23 downto 16) <= data_i;
-            when c_addr_func6_ader_3(18 downto 2) => s_reg_ader6(31 downto 24) <= data_i;
-            when c_addr_func5_ader_0(18 downto 2) => s_reg_ader5( 7 downto  0) <= data_i;
-            when c_addr_func5_ader_1(18 downto 2) => s_reg_ader5(15 downto  8) <= data_i;
-            when c_addr_func5_ader_2(18 downto 2) => s_reg_ader5(23 downto 16) <= data_i;
-            when c_addr_func5_ader_3(18 downto 2) => s_reg_ader5(31 downto 24) <= data_i;
-            when c_addr_func4_ader_0(18 downto 2) => s_reg_ader4( 7 downto  0) <= data_i;
-            when c_addr_func4_ader_1(18 downto 2) => s_reg_ader4(15 downto  8) <= data_i;
-            when c_addr_func4_ader_2(18 downto 2) => s_reg_ader4(23 downto 16) <= data_i;
-            when c_addr_func4_ader_3(18 downto 2) => s_reg_ader4(31 downto 24) <= data_i;
-            when c_addr_func3_ader_0(18 downto 2) => s_reg_ader3( 7 downto  0) <= data_i;
-            when c_addr_func3_ader_1(18 downto 2) => s_reg_ader3(15 downto  8) <= data_i;
-            when c_addr_func3_ader_2(18 downto 2) => s_reg_ader3(23 downto 16) <= data_i;
-            when c_addr_func3_ader_3(18 downto 2) => s_reg_ader3(31 downto 24) <= data_i;
-            when c_addr_func2_ader_0(18 downto 2) => s_reg_ader2( 7 downto  0) <= data_i;
-            when c_addr_func2_ader_1(18 downto 2) => s_reg_ader2(15 downto  8) <= data_i;
-            when c_addr_func2_ader_2(18 downto 2) => s_reg_ader2(23 downto 16) <= data_i;
-            when c_addr_func2_ader_3(18 downto 2) => s_reg_ader2(31 downto 24) <= data_i;
-            when c_addr_func1_ader_0(18 downto 2) => s_reg_ader1( 7 downto  0) <= data_i;
-            when c_addr_func1_ader_1(18 downto 2) => s_reg_ader1(15 downto  8) <= data_i;
-            when c_addr_func1_ader_2(18 downto 2) => s_reg_ader1(23 downto 16) <= data_i;
-            when c_addr_func1_ader_3(18 downto 2) => s_reg_ader1(31 downto 24) <= data_i;
-            when c_addr_func0_ader_0(18 downto 2) => s_reg_ader0( 7 downto  0) <= data_i;
-            when c_addr_func0_ader_1(18 downto 2) => s_reg_ader0(15 downto  8) <= data_i;
-            when c_addr_func0_ader_2(18 downto 2) => s_reg_ader0(23 downto 16) <= data_i;
-            when c_addr_func0_ader_3(18 downto 2) => s_reg_ader0(31 downto 24) <= data_i;
+            when c_addr_f7_ader_0(18 downto 2) => s_reg_ader(7)( 7 downto  0) <= data_i;
+            when c_addr_f7_ader_1(18 downto 2) => s_reg_ader(7)(15 downto  8) <= data_i;
+            when c_addr_f7_ader_2(18 downto 2) => s_reg_ader(7)(23 downto 16) <= data_i;
+            when c_addr_f7_ader_3(18 downto 2) => s_reg_ader(7)(31 downto 24) <= data_i;
+            when c_addr_f6_ader_0(18 downto 2) => s_reg_ader(6)( 7 downto  0) <= data_i;
+            when c_addr_f6_ader_1(18 downto 2) => s_reg_ader(6)(15 downto  8) <= data_i;
+            when c_addr_f6_ader_2(18 downto 2) => s_reg_ader(6)(23 downto 16) <= data_i;
+            when c_addr_f6_ader_3(18 downto 2) => s_reg_ader(6)(31 downto 24) <= data_i;
+            when c_addr_f5_ader_0(18 downto 2) => s_reg_ader(5)( 7 downto  0) <= data_i;
+            when c_addr_f5_ader_1(18 downto 2) => s_reg_ader(5)(15 downto  8) <= data_i;
+            when c_addr_f5_ader_2(18 downto 2) => s_reg_ader(5)(23 downto 16) <= data_i;
+            when c_addr_f5_ader_3(18 downto 2) => s_reg_ader(5)(31 downto 24) <= data_i;
+            when c_addr_f4_ader_0(18 downto 2) => s_reg_ader(4)( 7 downto  0) <= data_i;
+            when c_addr_f4_ader_1(18 downto 2) => s_reg_ader(4)(15 downto  8) <= data_i;
+            when c_addr_f4_ader_2(18 downto 2) => s_reg_ader(4)(23 downto 16) <= data_i;
+            when c_addr_f4_ader_3(18 downto 2) => s_reg_ader(4)(31 downto 24) <= data_i;
+            when c_addr_f3_ader_0(18 downto 2) => s_reg_ader(3)( 7 downto  0) <= data_i;
+            when c_addr_f3_ader_1(18 downto 2) => s_reg_ader(3)(15 downto  8) <= data_i;
+            when c_addr_f3_ader_2(18 downto 2) => s_reg_ader(3)(23 downto 16) <= data_i;
+            when c_addr_f3_ader_3(18 downto 2) => s_reg_ader(3)(31 downto 24) <= data_i;
+            when c_addr_f2_ader_0(18 downto 2) => s_reg_ader(2)( 7 downto  0) <= data_i;
+            when c_addr_f2_ader_1(18 downto 2) => s_reg_ader(2)(15 downto  8) <= data_i;
+            when c_addr_f2_ader_2(18 downto 2) => s_reg_ader(2)(23 downto 16) <= data_i;
+            when c_addr_f2_ader_3(18 downto 2) => s_reg_ader(2)(31 downto 24) <= data_i;
+            when c_addr_f1_ader_0(18 downto 2) => s_reg_ader(1)( 7 downto  0) <= data_i;
+            when c_addr_f1_ader_1(18 downto 2) => s_reg_ader(1)(15 downto  8) <= data_i;
+            when c_addr_f1_ader_2(18 downto 2) => s_reg_ader(1)(23 downto 16) <= data_i;
+            when c_addr_f1_ader_3(18 downto 2) => s_reg_ader(1)(31 downto 24) <= data_i;
+            when c_addr_f0_ader_0(18 downto 2) => s_reg_ader(0)( 7 downto  0) <= data_i;
+            when c_addr_f0_ader_1(18 downto 2) => s_reg_ader(0)(15 downto  8) <= data_i;
+            when c_addr_f0_ader_2(18 downto 2) => s_reg_ader(0)(23 downto 16) <= data_i;
+            when c_addr_f0_ader_3(18 downto 2) => s_reg_ader(0)(31 downto 24) <= data_i;
 
             when others => null;
           end case;
@@ -323,17 +390,51 @@ begin
   end process;
 
   bar_o             <= s_reg_bar(7 downto 3);
-  ader0_o           <= s_reg_ader0;
-  ader1_o           <= s_reg_ader1;
-  ader2_o           <= s_reg_ader2;
-  ader3_o           <= s_reg_ader3;
-  ader4_o           <= s_reg_ader4;
-  ader5_o           <= s_reg_ader5;
-  ader6_o           <= s_reg_ader6;
-  ader7_o           <= s_reg_ader7;
+  f0_ader_o         <= s_reg_ader(0);
+  f1_ader_o         <= s_reg_ader(1);
+  f2_ader_o         <= s_reg_ader(2);
+  f3_ader_o         <= s_reg_ader(3);
+  f4_ader_o         <= s_reg_ader(4);
+  f5_ader_o         <= s_reg_ader(5);
+  f6_ader_o         <= s_reg_ader(6);
+  f7_ader_o         <= s_reg_ader(7);
   module_enable_o   <= s_reg_bit_reg(4);
   vme_sysfail_ena_o <= s_reg_bit_reg(6);
   module_reset_o    <= s_reg_bit_reg(7);
+
+  -- Handle DFS and FAF
+  s_faf_ader <= (f0_faf_ader_i, f1_faf_ader_i, f2_faf_ader_i, f3_faf_ader_i,
+                 f4_faf_ader_i, f5_faf_ader_i, f6_faf_ader_i, f7_faf_ader_i);
+
+  s_dfs_adem <= (f0_dfs_adem_i, f1_dfs_adem_i, f2_dfs_adem_i, f3_dfs_adem_i,
+                 f4_dfs_adem_i, f5_dfs_adem_i, f6_dfs_adem_i, f7_dfs_adem_i);
+
+  process (s_reg_ader, s_faf_ader, s_dfs_adem)
+  begin
+    -- Function 0
+    if c_adem(0)(ADEM_FAF) = '1' then
+      s_ader(0) <= s_faf_ader(0);
+    elsif c_adem(0)(ADEM_DFS) = '1' and s_reg_ader(0)(ADER_DFSR) = '1' then
+      s_ader(0) <= s_dfs_adem(0)(31 downto 8) & s_reg_ader(0)(7 downto 0);
+    else
+      s_ader(0) <= s_reg_ader(0);
+    end if;
+
+    -- Function 1..7
+    for i in 1 to 7 loop
+      if (c_adem(i-1)(ADEM_EFM) = '1' and c_adem(i-1)(ADEM_FAF) = '1') or
+         (c_adem(i-1)(ADEM_EFM) = '0' and c_adem(i)(ADEM_FAF) = '1')
+      then
+        s_ader(i) <= s_faf_ader(i);
+      elsif (c_adem(i-1)(ADEM_EFM) = '1' and c_adem(i-1)(ADEM_DFS) = '1' and s_reg_ader(i-1)(ADER_DFSR) = '1') then
+        s_ader(i) <= s_dfs_adem(i);
+      elsif (c_adem(i-1)(ADEM_EFM) = '0' and c_adem(i)(ADEM_DFS) = '1' and s_reg_ader(i)(ADER_DFSR) = '1') then
+        s_ader(i) <= s_dfs_adem(i)(31 downto 8) & s_reg_ader(i)(7 downto 0);
+      else
+        s_ader(i) <= s_reg_ader(i);
+      end if;
+    end loop;
+  end process;
 
   -- Read
   process (clk_i)
@@ -343,45 +444,45 @@ begin
         s_csr_data <= x"ff";
       else
         case s_addr is
-          when c_addr_bar(18 downto 2)          => s_csr_data <= s_reg_bar;
-          when c_addr_bit_set_reg(18 downto 2)  => s_csr_data <= s_reg_bit_reg;
-          when c_addr_bit_clr_reg(18 downto 2)  => s_csr_data <= s_reg_bit_reg;
-          when c_addr_cram_owner(18 downto 2)   => s_csr_data <= s_reg_cram_owner;
-          when c_addr_usr_set_reg(18 downto 2)  => s_csr_data <= s_reg_usr_bit_reg;
-          when c_addr_usr_clr_reg(18 downto 2)  => s_csr_data <= s_reg_usr_bit_reg;
-          when c_addr_func7_ader_0(18 downto 2) => s_csr_data <= s_reg_ader7( 7 downto  0);
-          when c_addr_func7_ader_1(18 downto 2) => s_csr_data <= s_reg_ader7(15 downto  8);
-          when c_addr_func7_ader_2(18 downto 2) => s_csr_data <= s_reg_ader7(23 downto 16);
-          when c_addr_func7_ader_3(18 downto 2) => s_csr_data <= s_reg_ader7(31 downto 24);
-          when c_addr_func6_ader_0(18 downto 2) => s_csr_data <= s_reg_ader6( 7 downto  0);
-          when c_addr_func6_ader_1(18 downto 2) => s_csr_data <= s_reg_ader6(15 downto  8);
-          when c_addr_func6_ader_2(18 downto 2) => s_csr_data <= s_reg_ader6(23 downto 16);
-          when c_addr_func6_ader_3(18 downto 2) => s_csr_data <= s_reg_ader6(31 downto 24);
-          when c_addr_func5_ader_0(18 downto 2) => s_csr_data <= s_reg_ader5( 7 downto  0);
-          when c_addr_func5_ader_1(18 downto 2) => s_csr_data <= s_reg_ader5(15 downto  8);
-          when c_addr_func5_ader_2(18 downto 2) => s_csr_data <= s_reg_ader5(23 downto 16);
-          when c_addr_func5_ader_3(18 downto 2) => s_csr_data <= s_reg_ader5(31 downto 24);
-          when c_addr_func4_ader_0(18 downto 2) => s_csr_data <= s_reg_ader4( 7 downto  0);
-          when c_addr_func4_ader_1(18 downto 2) => s_csr_data <= s_reg_ader4(15 downto  8);
-          when c_addr_func4_ader_2(18 downto 2) => s_csr_data <= s_reg_ader4(23 downto 16);
-          when c_addr_func4_ader_3(18 downto 2) => s_csr_data <= s_reg_ader4(31 downto 24);
-          when c_addr_func3_ader_0(18 downto 2) => s_csr_data <= s_reg_ader3( 7 downto  0);
-          when c_addr_func3_ader_1(18 downto 2) => s_csr_data <= s_reg_ader3(15 downto  8);
-          when c_addr_func3_ader_2(18 downto 2) => s_csr_data <= s_reg_ader3(23 downto 16);
-          when c_addr_func3_ader_3(18 downto 2) => s_csr_data <= s_reg_ader3(31 downto 24);
-          when c_addr_func2_ader_0(18 downto 2) => s_csr_data <= s_reg_ader2( 7 downto  0);
-          when c_addr_func2_ader_1(18 downto 2) => s_csr_data <= s_reg_ader2(15 downto  8);
-          when c_addr_func2_ader_2(18 downto 2) => s_csr_data <= s_reg_ader2(23 downto 16);
-          when c_addr_func2_ader_3(18 downto 2) => s_csr_data <= s_reg_ader2(31 downto 24);
-          when c_addr_func1_ader_0(18 downto 2) => s_csr_data <= s_reg_ader1( 7 downto  0);
-          when c_addr_func1_ader_1(18 downto 2) => s_csr_data <= s_reg_ader1(15 downto  8);
-          when c_addr_func1_ader_2(18 downto 2) => s_csr_data <= s_reg_ader1(23 downto 16);
-          when c_addr_func1_ader_3(18 downto 2) => s_csr_data <= s_reg_ader1(31 downto 24);
-          when c_addr_func0_ader_0(18 downto 2) => s_csr_data <= s_reg_ader0( 7 downto  0);
-          when c_addr_func0_ader_1(18 downto 2) => s_csr_data <= s_reg_ader0(15 downto  8);
-          when c_addr_func0_ader_2(18 downto 2) => s_csr_data <= s_reg_ader0(23 downto 16);
-          when c_addr_func0_ader_3(18 downto 2) => s_csr_data <= s_reg_ader0(31 downto 24);
-          when others                           => s_csr_data <= x"ff";
+          when c_addr_bar(18 downto 2)         => s_csr_data <= s_reg_bar;
+          when c_addr_bit_set_reg(18 downto 2) => s_csr_data <= s_reg_bit_reg;
+          when c_addr_bit_clr_reg(18 downto 2) => s_csr_data <= s_reg_bit_reg;
+          when c_addr_cram_owner(18 downto 2)  => s_csr_data <= s_reg_cram_owner;
+          when c_addr_usr_set_reg(18 downto 2) => s_csr_data <= s_reg_usr_bit_reg;
+          when c_addr_usr_clr_reg(18 downto 2) => s_csr_data <= s_reg_usr_bit_reg;
+          when c_addr_f7_ader_0(18 downto 2)   => s_csr_data <= s_ader(7)( 7 downto  0);
+          when c_addr_f7_ader_1(18 downto 2)   => s_csr_data <= s_ader(7)(15 downto  8);
+          when c_addr_f7_ader_2(18 downto 2)   => s_csr_data <= s_ader(7)(23 downto 16);
+          when c_addr_f7_ader_3(18 downto 2)   => s_csr_data <= s_ader(7)(31 downto 24);
+          when c_addr_f6_ader_0(18 downto 2)   => s_csr_data <= s_ader(6)( 7 downto  0);
+          when c_addr_f6_ader_1(18 downto 2)   => s_csr_data <= s_ader(6)(15 downto  8);
+          when c_addr_f6_ader_2(18 downto 2)   => s_csr_data <= s_ader(6)(23 downto 16);
+          when c_addr_f6_ader_3(18 downto 2)   => s_csr_data <= s_ader(6)(31 downto 24);
+          when c_addr_f5_ader_0(18 downto 2)   => s_csr_data <= s_ader(5)( 7 downto  0);
+          when c_addr_f5_ader_1(18 downto 2)   => s_csr_data <= s_ader(5)(15 downto  8);
+          when c_addr_f5_ader_2(18 downto 2)   => s_csr_data <= s_ader(5)(23 downto 16);
+          when c_addr_f5_ader_3(18 downto 2)   => s_csr_data <= s_ader(5)(31 downto 24);
+          when c_addr_f4_ader_0(18 downto 2)   => s_csr_data <= s_ader(4)( 7 downto  0);
+          when c_addr_f4_ader_1(18 downto 2)   => s_csr_data <= s_ader(4)(15 downto  8);
+          when c_addr_f4_ader_2(18 downto 2)   => s_csr_data <= s_ader(4)(23 downto 16);
+          when c_addr_f4_ader_3(18 downto 2)   => s_csr_data <= s_ader(4)(31 downto 24);
+          when c_addr_f3_ader_0(18 downto 2)   => s_csr_data <= s_ader(3)( 7 downto  0);
+          when c_addr_f3_ader_1(18 downto 2)   => s_csr_data <= s_ader(3)(15 downto  8);
+          when c_addr_f3_ader_2(18 downto 2)   => s_csr_data <= s_ader(3)(23 downto 16);
+          when c_addr_f3_ader_3(18 downto 2)   => s_csr_data <= s_ader(3)(31 downto 24);
+          when c_addr_f2_ader_0(18 downto 2)   => s_csr_data <= s_ader(2)( 7 downto  0);
+          when c_addr_f2_ader_1(18 downto 2)   => s_csr_data <= s_ader(2)(15 downto  8);
+          when c_addr_f2_ader_2(18 downto 2)   => s_csr_data <= s_ader(2)(23 downto 16);
+          when c_addr_f2_ader_3(18 downto 2)   => s_csr_data <= s_ader(2)(31 downto 24);
+          when c_addr_f1_ader_0(18 downto 2)   => s_csr_data <= s_ader(1)( 7 downto  0);
+          when c_addr_f1_ader_1(18 downto 2)   => s_csr_data <= s_ader(1)(15 downto  8);
+          when c_addr_f1_ader_2(18 downto 2)   => s_csr_data <= s_ader(1)(23 downto 16);
+          when c_addr_f1_ader_3(18 downto 2)   => s_csr_data <= s_ader(1)(31 downto 24);
+          when c_addr_f0_ader_0(18 downto 2)   => s_csr_data <= s_ader(0)( 7 downto  0);
+          when c_addr_f0_ader_1(18 downto 2)   => s_csr_data <= s_ader(0)(15 downto  8);
+          when c_addr_f0_ader_2(18 downto 2)   => s_csr_data <= s_ader(0)(23 downto 16);
+          when c_addr_f0_ader_3(18 downto 2)   => s_csr_data <= s_ader(0)(31 downto 24);
+          when others                          => s_csr_data <= x"ff";
         end case;
       end if;
     end if;

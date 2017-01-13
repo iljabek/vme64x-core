@@ -56,8 +56,14 @@ package vme64x_pack is
   constant c_revision_id  : std_logic_vector(31 downto 0) := x"00000001";
   constant c_program_id   : std_logic_vector( 7 downto 0) := x"5a";
 
-  constant DFS            : integer := 2;     -- for accessing at the ADEM's bit 2
-  constant XAM_MODE       : integer := 0;     -- for accessing at the ADER's bit 0
+  -- Bits in ADEM/ADER registers
+  constant ADEM_FAF       : integer := 3;
+  constant ADEM_DFS       : integer := 2;
+  constant ADEM_EFD       : integer := 1;
+  constant ADEM_EFM       : integer := 0;
+
+  constant ADER_DFSR      : integer := 1;
+  constant ADER_XAM_MODE  : integer := 0;
 
   -- AM table.
   -- References:
@@ -112,38 +118,38 @@ package vme64x_pack is
   constant c_addr_cram_owner    : unsigned(19 downto 0) := x"7FFF3";
   constant c_addr_usr_set_reg   : unsigned(19 downto 0) := x"7FFEF";
   constant c_addr_usr_clr_reg   : unsigned(19 downto 0) := x"7FFEB";
-  constant c_addr_func7_ader_0  : unsigned(19 downto 0) := x"7FFDF";
-  constant c_addr_func7_ader_1  : unsigned(19 downto 0) := x"7FFDB";
-  constant c_addr_func7_ader_2  : unsigned(19 downto 0) := x"7FFD7";
-  constant c_addr_func7_ader_3  : unsigned(19 downto 0) := x"7FFD3";
-  constant c_addr_func6_ader_0  : unsigned(19 downto 0) := x"7FFCF";
-  constant c_addr_func6_ader_1  : unsigned(19 downto 0) := x"7FFCB";
-  constant c_addr_func6_ader_2  : unsigned(19 downto 0) := x"7FFC7";
-  constant c_addr_func6_ader_3  : unsigned(19 downto 0) := x"7FFC3";
-  constant c_addr_func5_ader_0  : unsigned(19 downto 0) := x"7FFBF";
-  constant c_addr_func5_ader_1  : unsigned(19 downto 0) := x"7FFBB";
-  constant c_addr_func5_ader_2  : unsigned(19 downto 0) := x"7FFB7";
-  constant c_addr_func5_ader_3  : unsigned(19 downto 0) := x"7FFB3";
-  constant c_addr_func4_ader_0  : unsigned(19 downto 0) := x"7FFAF";
-  constant c_addr_func4_ader_1  : unsigned(19 downto 0) := x"7FFAB";
-  constant c_addr_func4_ader_2  : unsigned(19 downto 0) := x"7FFA7";
-  constant c_addr_func4_ader_3  : unsigned(19 downto 0) := x"7FFA3";
-  constant c_addr_func3_ader_0  : unsigned(19 downto 0) := x"7FF9F";
-  constant c_addr_func3_ader_1  : unsigned(19 downto 0) := x"7FF9B";
-  constant c_addr_func3_ader_2  : unsigned(19 downto 0) := x"7FF97";
-  constant c_addr_func3_ader_3  : unsigned(19 downto 0) := x"7FF93";
-  constant c_addr_func2_ader_0  : unsigned(19 downto 0) := x"7FF8F";
-  constant c_addr_func2_ader_1  : unsigned(19 downto 0) := x"7FF8B";
-  constant c_addr_func2_ader_2  : unsigned(19 downto 0) := x"7FF87";
-  constant c_addr_func2_ader_3  : unsigned(19 downto 0) := x"7FF83";
-  constant c_addr_func1_ader_0  : unsigned(19 downto 0) := x"7FF7F";
-  constant c_addr_func1_ader_1  : unsigned(19 downto 0) := x"7FF7B";
-  constant c_addr_func1_ader_2  : unsigned(19 downto 0) := x"7FF77";
-  constant c_addr_func1_ader_3  : unsigned(19 downto 0) := x"7FF73";
-  constant c_addr_func0_ader_0  : unsigned(19 downto 0) := x"7FF6F";
-  constant c_addr_func0_ader_1  : unsigned(19 downto 0) := x"7FF6B";
-  constant c_addr_func0_ader_2  : unsigned(19 downto 0) := x"7FF67";
-  constant c_addr_func0_ader_3  : unsigned(19 downto 0) := x"7FF63";
+  constant c_addr_f7_ader_0     : unsigned(19 downto 0) := x"7FFDF";
+  constant c_addr_f7_ader_1     : unsigned(19 downto 0) := x"7FFDB";
+  constant c_addr_f7_ader_2     : unsigned(19 downto 0) := x"7FFD7";
+  constant c_addr_f7_ader_3     : unsigned(19 downto 0) := x"7FFD3";
+  constant c_addr_f6_ader_0     : unsigned(19 downto 0) := x"7FFCF";
+  constant c_addr_f6_ader_1     : unsigned(19 downto 0) := x"7FFCB";
+  constant c_addr_f6_ader_2     : unsigned(19 downto 0) := x"7FFC7";
+  constant c_addr_f6_ader_3     : unsigned(19 downto 0) := x"7FFC3";
+  constant c_addr_f5_ader_0     : unsigned(19 downto 0) := x"7FFBF";
+  constant c_addr_f5_ader_1     : unsigned(19 downto 0) := x"7FFBB";
+  constant c_addr_f5_ader_2     : unsigned(19 downto 0) := x"7FFB7";
+  constant c_addr_f5_ader_3     : unsigned(19 downto 0) := x"7FFB3";
+  constant c_addr_f4_ader_0     : unsigned(19 downto 0) := x"7FFAF";
+  constant c_addr_f4_ader_1     : unsigned(19 downto 0) := x"7FFAB";
+  constant c_addr_f4_ader_2     : unsigned(19 downto 0) := x"7FFA7";
+  constant c_addr_f4_ader_3     : unsigned(19 downto 0) := x"7FFA3";
+  constant c_addr_f3_ader_0     : unsigned(19 downto 0) := x"7FF9F";
+  constant c_addr_f3_ader_1     : unsigned(19 downto 0) := x"7FF9B";
+  constant c_addr_f3_ader_2     : unsigned(19 downto 0) := x"7FF97";
+  constant c_addr_f3_ader_3     : unsigned(19 downto 0) := x"7FF93";
+  constant c_addr_f2_ader_0     : unsigned(19 downto 0) := x"7FF8F";
+  constant c_addr_f2_ader_1     : unsigned(19 downto 0) := x"7FF8B";
+  constant c_addr_f2_ader_2     : unsigned(19 downto 0) := x"7FF87";
+  constant c_addr_f2_ader_3     : unsigned(19 downto 0) := x"7FF83";
+  constant c_addr_f1_ader_0     : unsigned(19 downto 0) := x"7FF7F";
+  constant c_addr_f1_ader_1     : unsigned(19 downto 0) := x"7FF7B";
+  constant c_addr_f1_ader_2     : unsigned(19 downto 0) := x"7FF77";
+  constant c_addr_f1_ader_3     : unsigned(19 downto 0) := x"7FF73";
+  constant c_addr_f0_ader_0     : unsigned(19 downto 0) := x"7FF6F";
+  constant c_addr_f0_ader_1     : unsigned(19 downto 0) := x"7FF6B";
+  constant c_addr_f0_ader_2     : unsigned(19 downto 0) := x"7FF67";
+  constant c_addr_f0_ader_3     : unsigned(19 downto 0) := x"7FF63";
 
   -- User CSR addresses
   constant c_addr_irq_vector    : unsigned(19 downto 0) := x"0002F";
@@ -423,17 +429,33 @@ package vme64x_pack is
       ACK_i           : in  std_logic;
       WE_o            : out std_logic;
       STALL_i         : in  std_logic;
-      endian_i        : in  std_logic_vector(2 downto 0);
+      endian_i        : in  std_logic_vector( 2 downto 0) := (others => '0');
       user_csr_addr_o : out std_logic_vector(18 downto 2);
-      user_csr_data_i : in  std_logic_vector( 7 downto 0);
+      user_csr_data_i : in  std_logic_vector( 7 downto 0) := (others => '0');
       user_csr_data_o : out std_logic_vector( 7 downto 0);
       user_csr_we_o   : out std_logic;
       user_cr_addr_o  : out std_logic_vector(18 downto 2);
-      user_cr_data_i  : in  std_logic_vector( 7 downto 0);
+      user_cr_data_i  : in  std_logic_vector( 7 downto 0) := (others => '0');
+      f0_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f1_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f2_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f3_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f4_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f5_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f6_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f7_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f0_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f1_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f2_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f3_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f4_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f5_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f6_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f7_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
       irq_ack_o       : out std_logic;
       irq_i           : in  std_logic;
-      irq_level_i     : in  std_logic_vector(7 downto 0);
-      irq_vector_i    : in  std_logic_vector(7 downto 0)
+      irq_level_i     : in  std_logic_vector(7 downto 0)  := (others => '0');
+      irq_vector_i    : in  std_logic_vector(7 downto 0)  := (others => '0')
     );
   end component;
 
@@ -512,14 +534,14 @@ package vme64x_pack is
       cr_csr_data_i   : in  std_logic_vector( 7 downto 0);
       cr_csr_data_o   : out std_logic_vector( 7 downto 0);
       cr_csr_we_o     : out std_logic;
-      ader0_i         : in  std_logic_vector(31 downto 0);
-      ader1_i         : in  std_logic_vector(31 downto 0);
-      ader2_i         : in  std_logic_vector(31 downto 0);
-      ader3_i         : in  std_logic_vector(31 downto 0);
-      ader4_i         : in  std_logic_vector(31 downto 0);
-      ader5_i         : in  std_logic_vector(31 downto 0);
-      ader6_i         : in  std_logic_vector(31 downto 0);
-      ader7_i         : in  std_logic_vector(31 downto 0);
+      f0_ader_i       : in  std_logic_vector(31 downto 0);
+      f1_ader_i       : in  std_logic_vector(31 downto 0);
+      f2_ader_i       : in  std_logic_vector(31 downto 0);
+      f3_ader_i       : in  std_logic_vector(31 downto 0);
+      f4_ader_i       : in  std_logic_vector(31 downto 0);
+      f5_ader_i       : in  std_logic_vector(31 downto 0);
+      f6_ader_i       : in  std_logic_vector(31 downto 0);
+      f7_ader_i       : in  std_logic_vector(31 downto 0);
       endian_i        : in  std_logic_vector(2 downto 0);
       module_enable_i : in  std_logic;
       bar_i           : in  std_logic_vector(4 downto 0)
@@ -609,13 +631,51 @@ package vme64x_pack is
 
   component VME_CR_CSR_Space is
     generic (
-      g_beg_user_cr   : std_logic_vector(23 downto 0);
-      g_end_user_cr   : std_logic_vector(23 downto 0);
-      g_beg_cram      : std_logic_vector(23 downto 0);
-      g_end_cram      : std_logic_vector(23 downto 0);
-      g_beg_user_csr  : std_logic_vector(23 downto 0);
-      g_end_user_csr  : std_logic_vector(23 downto 0);
-      g_cr_space      : t_cr_array
+      g_manufacturer_id : std_logic_vector(23 downto 0);
+      g_board_id        : std_logic_vector(31 downto 0);
+      g_revision_id     : std_logic_vector(31 downto 0);
+      g_program_id      : std_logic_vector(7 downto 0);
+      g_ascii_ptr       : std_logic_vector(23 downto 0);
+      g_beg_user_cr     : std_logic_vector(23 downto 0);
+      g_end_user_cr     : std_logic_vector(23 downto 0);
+      g_beg_cram        : std_logic_vector(23 downto 0);
+      g_end_cram        : std_logic_vector(23 downto 0);
+      g_beg_user_csr    : std_logic_vector(23 downto 0);
+      g_end_user_csr    : std_logic_vector(23 downto 0);
+      g_beg_sn          : std_logic_vector(23 downto 0);
+      g_end_sn          : std_logic_vector(23 downto 0);
+      g_f0_adem         : std_logic_vector( 31 downto 0);
+      g_f0_amcap        : std_logic_vector( 63 downto 0);
+      g_f0_xamcap       : std_logic_vector(255 downto 0);
+      g_f0_dawpr        : std_logic_vector(  7 downto 0);
+      g_f1_adem         : std_logic_vector( 31 downto 0);
+      g_f1_amcap        : std_logic_vector( 63 downto 0);
+      g_f1_xamcap       : std_logic_vector(255 downto 0);
+      g_f1_dawpr        : std_logic_vector(  7 downto 0);
+      g_f2_adem         : std_logic_vector( 31 downto 0);
+      g_f2_amcap        : std_logic_vector( 63 downto 0);
+      g_f2_xamcap       : std_logic_vector(255 downto 0);
+      g_f2_dawpr        : std_logic_vector(  7 downto 0);
+      g_f3_adem         : std_logic_vector( 31 downto 0);
+      g_f3_amcap        : std_logic_vector( 63 downto 0);
+      g_f3_xamcap       : std_logic_vector(255 downto 0);
+      g_f3_dawpr        : std_logic_vector(  7 downto 0);
+      g_f4_adem         : std_logic_vector( 31 downto 0);
+      g_f4_amcap        : std_logic_vector( 63 downto 0);
+      g_f4_xamcap       : std_logic_vector(255 downto 0);
+      g_f4_dawpr        : std_logic_vector(  7 downto 0);
+      g_f5_adem         : std_logic_vector( 31 downto 0);
+      g_f5_amcap        : std_logic_vector( 63 downto 0);
+      g_f5_xamcap       : std_logic_vector(255 downto 0);
+      g_f5_dawpr        : std_logic_vector(  7 downto 0);
+      g_f6_adem         : std_logic_vector( 31 downto 0);
+      g_f6_amcap        : std_logic_vector( 63 downto 0);
+      g_f6_xamcap       : std_logic_vector(255 downto 0);
+      g_f6_dawpr        : std_logic_vector(  7 downto 0);
+      g_f7_adem         : std_logic_vector( 31 downto 0);
+      g_f7_amcap        : std_logic_vector( 63 downto 0);
+      g_f7_xamcap       : std_logic_vector(255 downto 0);
+      g_f7_dawpr        : std_logic_vector(  7 downto 0)
     );
     port (
       clk_i               : in  std_logic;
@@ -637,14 +697,30 @@ package vme64x_pack is
       user_csr_we_o       : out std_logic;
       user_cr_addr_o      : out std_logic_vector(18 downto 2);
       user_cr_data_i      : in  std_logic_vector( 7 downto 0);
-      ader0_o             : out std_logic_vector(31 downto 0);
-      ader1_o             : out std_logic_vector(31 downto 0);
-      ader2_o             : out std_logic_vector(31 downto 0);
-      ader3_o             : out std_logic_vector(31 downto 0);
-      ader4_o             : out std_logic_vector(31 downto 0);
-      ader5_o             : out std_logic_vector(31 downto 0);
-      ader6_o             : out std_logic_vector(31 downto 0);
-      ader7_o             : out std_logic_vector(31 downto 0)
+      f0_ader_o           : out std_logic_vector(31 downto 0);
+      f1_ader_o           : out std_logic_vector(31 downto 0);
+      f2_ader_o           : out std_logic_vector(31 downto 0);
+      f3_ader_o           : out std_logic_vector(31 downto 0);
+      f4_ader_o           : out std_logic_vector(31 downto 0);
+      f5_ader_o           : out std_logic_vector(31 downto 0);
+      f6_ader_o           : out std_logic_vector(31 downto 0);
+      f7_ader_o           : out std_logic_vector(31 downto 0);
+      f0_faf_ader_i       : in  std_logic_vector(31 downto 0);
+      f1_faf_ader_i       : in  std_logic_vector(31 downto 0);
+      f2_faf_ader_i       : in  std_logic_vector(31 downto 0);
+      f3_faf_ader_i       : in  std_logic_vector(31 downto 0);
+      f4_faf_ader_i       : in  std_logic_vector(31 downto 0);
+      f5_faf_ader_i       : in  std_logic_vector(31 downto 0);
+      f6_faf_ader_i       : in  std_logic_vector(31 downto 0);
+      f7_faf_ader_i       : in  std_logic_vector(31 downto 0);
+      f0_dfs_adem_i       : in  std_logic_vector(31 downto 0);
+      f1_dfs_adem_i       : in  std_logic_vector(31 downto 0);
+      f2_dfs_adem_i       : in  std_logic_vector(31 downto 0);
+      f3_dfs_adem_i       : in  std_logic_vector(31 downto 0);
+      f4_dfs_adem_i       : in  std_logic_vector(31 downto 0);
+      f5_dfs_adem_i       : in  std_logic_vector(31 downto 0);
+      f6_dfs_adem_i       : in  std_logic_vector(31 downto 0);
+      f7_dfs_adem_i       : in  std_logic_vector(31 downto 0)
     );
   end component VME_CR_CSR_Space;
 

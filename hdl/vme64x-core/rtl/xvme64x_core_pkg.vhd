@@ -81,6 +81,7 @@ package xvme64x_core_pkg is
       g_clock           : integer;
       g_wb_data_width   : integer;
       g_wb_addr_width   : integer;
+      g_user_csr_ext    : boolean;
       g_manufacturer_id : std_logic_vector(23 downto 0);
       g_board_id        : std_logic_vector(31 downto 0);
       g_revision_id     : std_logic_vector(31 downto 0);
@@ -131,7 +132,6 @@ package xvme64x_core_pkg is
       clk_i           : in  std_logic;
       rst_n_i         : in  std_logic;
       rst_n_o         : out std_logic;
-
       VME_AS_n_i      : in  std_logic;
       VME_RST_n_i     : in  std_logic;
       VME_WRITE_n_i   : in  std_logic;
@@ -157,12 +157,32 @@ package xvme64x_core_pkg is
       VME_DATA_OE_N_o : out std_logic;
       VME_ADDR_DIR_o  : out std_logic;
       VME_ADDR_OE_N_o : out std_logic;
-
-      master_o : out t_wishbone_master_out;
-      master_i : in  t_wishbone_master_in;
-
-      irq_i     : in  std_logic;
-      irq_ack_o : out std_logic
+      master_o        : out t_wishbone_master_out;
+      master_i        : in  t_wishbone_master_in;
+      irq_i           : in  std_logic;
+      irq_ack_o       : out std_logic;
+      user_csr_addr_o : out std_logic_vector(18 downto 2);
+      user_csr_data_i : in  std_logic_vector( 7 downto 0) := (others => '0');
+      user_csr_data_o : out std_logic_vector( 7 downto 0);
+      user_csr_we_o   : out std_logic;
+      user_cr_addr_o  : out std_logic_vector(18 downto 2);
+      user_cr_data_i  : in  std_logic_vector( 7 downto 0) := (others => '0');
+      f0_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f1_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f2_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f3_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f4_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f5_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f6_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f7_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f0_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f1_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f2_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f3_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f4_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f5_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f6_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
+      f7_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0')
     );
   end component xvme64x_core;
 
