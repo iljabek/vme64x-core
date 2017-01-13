@@ -203,6 +203,7 @@ entity VME64xCore_Top is
   port (
     clk_i           : in  std_logic;
     rst_n_i         : in  std_logic;
+    rst_n_o         : out std_logic;
 
     -- VME
     VME_AS_n_i      : in  std_logic;
@@ -383,11 +384,9 @@ begin
     )
     port map (
       clk_i           => clk_i,
-      rst_n_i         => rst_n_i,
-      reset_o         => s_reset,       -- asserted when '1'
+      rst_i           => s_reset,
 
       -- VME
-      VME_RST_n_i     => s_VME_RST_n(2),
       VME_AS_n_i      => s_VME_AS_n(2),
       VME_LWORD_n_o   => VME_LWORD_n_o,
       VME_LWORD_n_i   => VME_LWORD_n_i,
@@ -438,11 +437,12 @@ begin
       ader7_i         => s_ader7,
       endian_i        => endian_i,
       module_enable_i => s_module_enable,
-      module_reset_i  => s_module_reset,
       bar_i           => s_bar
     );
 
+  s_reset    <= (not rst_n_i) or (not s_VME_RST_n(2));
   s_reset_n  <= not s_reset;
+  rst_n_o    <= not (s_reset or s_module_reset);
 
   VME_BERR_o <= not s_vme_berr_n; -- The VME_BERR is asserted when '1' because
                                   -- the buffers on the board invert the logic.
@@ -480,7 +480,7 @@ begin
     )
     port map (
       clk_i           => clk_i,
-      reset_n_i       => s_reset_n,       -- asserted when low
+      reset_n_i       => s_reset_n,         -- asserted when low
       VME_IACKIN_n_i  => s_VME_IACKIN_n(2),
       VME_AS_n_i      => s_VME_AS_n(2),
       VME_DS_n_i      => s_VME_DS_n(5 downto 4),
@@ -526,7 +526,7 @@ begin
     )
     port map (
       clk_i               => clk_i,
-      reset_i             => s_reset,
+      rst_n_i             => s_reset_n,
 
       vme_ga_i            => VME_GA_i,
       vme_berr_n_i        => s_vme_berr_n,

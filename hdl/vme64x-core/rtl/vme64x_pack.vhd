@@ -386,6 +386,7 @@ package vme64x_pack is
     port (
       clk_i           : in  std_logic;
       rst_n_i         : in  std_logic;
+      rst_n_o         : out std_logic;
       VME_AS_n_i      : in  std_logic;
       VME_RST_n_i     : in  std_logic;
       VME_WRITE_n_i   : in  std_logic;
@@ -474,9 +475,7 @@ package vme64x_pack is
     );
     port (
       clk_i           : in  std_logic;
-      rst_n_i         : in  std_logic;
-      reset_o         : out std_logic;
-      VME_RST_n_i     : in  std_logic;
+      rst_i           : in  std_logic;
       VME_AS_n_i      : in  std_logic;
       VME_LWORD_n_o   : out std_logic;
       VME_LWORD_n_i   : in  std_logic;
@@ -523,7 +522,6 @@ package vme64x_pack is
       ader7_i         : in  std_logic_vector(31 downto 0);
       endian_i        : in  std_logic_vector(2 downto 0);
       module_enable_i : in  std_logic;
-      module_reset_i  : in  std_logic;
       bar_i           : in  std_logic_vector(4 downto 0)
     );
   end component VME_bus;
@@ -621,7 +619,7 @@ package vme64x_pack is
     );
     port (
       clk_i               : in  std_logic;
-      reset_i             : in  std_logic;
+      rst_n_i             : in  std_logic;
       vme_ga_i            : in  std_logic_vector(5 downto 0);
       vme_berr_n_i        : in  std_logic;
       bar_o               : out std_logic_vector(4 downto 0);
@@ -693,7 +691,7 @@ package vme64x_pack is
     );
     port (
       clk_i               : in  std_logic;
-      reset_i             : in  std_logic;
+      rst_n_i             : in  std_logic;
       addr_i              : in  std_logic_vector(18 downto 2);
       data_i              : in  std_logic_vector( 7 downto 0);
       data_o              : out std_logic_vector( 7 downto 0);

@@ -128,8 +128,9 @@ package xvme64x_core_pkg is
       g_f7_dawpr        : std_logic_vector(  7 downto 0)
     );
     port (
-      clk_i   : in std_logic;
-      rst_n_i : in std_logic;
+      clk_i           : in  std_logic;
+      rst_n_i         : in  std_logic;
+      rst_n_o         : out std_logic;
 
       VME_AS_n_i      : in  std_logic;
       VME_RST_n_i     : in  std_logic;

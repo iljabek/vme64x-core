@@ -105,11 +105,9 @@ entity VME_bus is
   );
   port (
     clk_i           : in  std_logic;
-    rst_n_i         : in  std_logic;
-    reset_o         : out std_logic;  -- to the Interrupt Generator and IRQ
-                                      -- controller
+    rst_i           : in  std_logic;
+
     -- VME signals
-    VME_RST_n_i     : in  std_logic;
     VME_AS_n_i      : in  std_logic;
     VME_LWORD_n_o   : out std_logic := '0';
     VME_LWORD_n_i   : in  std_logic;
@@ -161,14 +159,12 @@ entity VME_bus is
     ader7_i         : in  std_logic_vector(31 downto 0);
     endian_i        : in  std_logic_vector(2 downto 0);
     module_enable_i : in  std_logic;
-    module_reset_i  : in  std_logic;
     bar_i           : in  std_logic_vector(4 downto 0)
   );
 end VME_bus;
 
 architecture RTL of VME_bus is
 
-  signal s_reset                    : std_logic;
   signal s_rw                       : std_logic;
 
   -- Input signals
@@ -291,10 +287,6 @@ begin
 
   -- Used to drive the VME_ADDR_DIR_o
   s_is_d64      <= '1' when s_sel = "11111111" else '0';
-
-  -- HW and SW reset
-  s_reset       <= (not rst_n_i) or (not VME_RST_n_i) or s_sw_reset;
-  reset_o       <= s_reset;             -- Asserted when high
 
   -- These output signals are connected to the buffers on the board
   -- SN74VMEH22501A Function table:
@@ -427,7 +419,7 @@ begin
   p_VMEmainFSM : process (clk_i)
   begin
     if rising_edge(clk_i) then
-      if s_reset = '1' or s_mainFSMreset = '1' then
+      if rst_i = '1' or s_mainFSMreset = '1' then
         -- FSM resetted after power up,
         -- software reset, manually reset,
         -- on rising edge of AS.
@@ -753,7 +745,7 @@ begin
   process (clk_i)
   begin
     if rising_edge(clk_i) then
-      if s_reset = '1' then
+      if rst_i = '1' then
         s_BERRcondition <= '0';
       elsif
         ((s_transferType = error or s_wberr1 = '1') and s_transferActive = '1') or
@@ -783,7 +775,7 @@ begin
   process (clk_i)
   begin
     if rising_edge(clk_i) then
-      if s_mainFSMreset = '1' or s_reset = '1' then
+      if s_mainFSMreset = '1' or rst_i = '1' then
         s_wberr1 <= '0';
       elsif s_err = '1' then
         s_wberr1 <= '1';
@@ -795,7 +787,7 @@ begin
   process (clk_i)
   begin
     if rising_edge(clk_i) then
-      if s_mainFSMreset = '1' or s_reset = '1' then
+      if s_mainFSMreset = '1' or rst_i = '1' then
         s_rty1 <= '0';
       elsif s_rty = '1' then
         s_rty1 <= '1';
@@ -838,7 +830,7 @@ begin
   p_addrLatching : process (clk_i)
   begin
     if rising_edge(clk_i) then
-      if s_reset = '1' or s_mainFSMreset = '1' then
+      if rst_i = '1' or s_mainFSMreset = '1' then
         s_VMEaddrLatched <= (others => '0');
         s_LWORDlatched   <= '0';
         s_AMlatched      <= (others => '0');
@@ -893,7 +885,7 @@ begin
   p_addrIncrementing : process (clk_i)
   begin
     if rising_edge(clk_i) then
-      if s_reset = '1' or s_mainFSMreset = '1' then
+      if rst_i = '1' or s_mainFSMreset = '1' then
         s_addrOffset <= (others => '0');
       elsif s_incrementAddr = '1' then
         if s_addressingType = TWOedge then
@@ -934,7 +926,7 @@ begin
   p_DSlatching : process (clk_i)
   begin
     if rising_edge(clk_i) then
-      if s_reset = '1' then
+      if rst_i = '1' then
         s_DSlatched <= (others => '0');
       else
         if s_DSlatch = '1' then
@@ -1076,7 +1068,7 @@ begin
   -- This component acts as WB master for single read/write PIPELINED mode.
   -- The data and address lines are shifted inside this component.
 
-  s_wbMaster_rst <= s_reset or s_mainFSMreset;
+  s_wbMaster_rst <= rst_i or s_mainFSMreset;
 
   Inst_Wb_master : VME_Wb_master
     generic map (
@@ -1123,7 +1115,7 @@ begin
   Inst_Access_Decode : VME_Access_Decode
     port map (
       clk_i          => clk_i,
-      reset          => s_reset,
+      reset          => rst_i,
       mainFSMreset   => s_mainFSMreset,
       decode         => s_decode,
       ModuleEnable   => module_enable_i,
@@ -1187,7 +1179,7 @@ begin
   p_memAckCSR : process (clk_i)
   begin
     if rising_edge(clk_i) then
-      if s_reset = '1' then
+      if rst_i = '1' then
         s_memAckCSR <= '0';
       else
         if s_memReq = '1' and s_confAccess = '1' then
@@ -1209,23 +1201,6 @@ begin
                             s_confAccess  = '1' and
                             s_RW          = '0'
                             else '0';
-
-  ------------------------------------------------------------------------------
-  -- Software Reset
-  ------------------------------------------------------------------------------
-  -- The VME Master assert the BIT SET REGISTER's bit 7. The reset will be
-  -- effective the next AS rising edge at the end of the write operation in this
-  -- register.
-  process (clk_i)
-  begin
-    if rising_edge(clk_i) then
-      if s_mainFSMreset = '1' then
-        s_sw_reset <= module_reset_i;
-      else
-        s_sw_reset <= '0';
-      end if;
-    end if;
-  end process;
 
   ------------------------------------------------------------------------------
   -- Edge Detection and Sampling

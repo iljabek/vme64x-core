@@ -119,7 +119,7 @@ entity VME_CR_CSR_Space is
   );
   port (
     clk_i               : in  std_logic;
-    reset_i             : in  std_logic;
+    rst_n_i             : in  std_logic;
 
     vme_ga_i            : in  std_logic_vector(5 downto 0);
     vme_berr_n_i        : in  std_logic;
@@ -222,7 +222,7 @@ begin
   process (clk_i)
   begin
     if rising_edge(clk_i) then
-      if reset_i = '1' then
+      if rst_n_i = '0' then
         if s_ga_parity = '1' then
           s_reg_bar       <= (not vme_ga_i(4 downto 0)) & "000";
         else
@@ -339,7 +339,7 @@ begin
   process (clk_i)
   begin
     if rising_edge(clk_i) then
-      if reset_i = '1' then
+      if rst_n_i = '0' then
         s_csr_data <= x"ff";
       else
         case s_addr is

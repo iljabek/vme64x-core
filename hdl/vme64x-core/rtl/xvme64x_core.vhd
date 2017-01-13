@@ -102,8 +102,9 @@ entity xvme64x_core is
     g_f7_dawpr        : std_logic_vector(  7 downto 0)  := x"84"
   );
   port (
-    clk_i   : in std_logic;
-    rst_n_i : in std_logic;
+    clk_i           : in  std_logic;
+    rst_n_i         : in  std_logic;
+    rst_n_o         : out std_logic;
 
     VME_AS_n_i      : in  std_logic;
     VME_RST_n_i     : in  std_logic;
@@ -131,11 +132,11 @@ entity xvme64x_core is
     VME_ADDR_DIR_o  : out std_logic;
     VME_ADDR_OE_N_o : out std_logic;
 
-    master_o : out t_wishbone_master_out;
-    master_i : in  t_wishbone_master_in;
+    master_o        : out t_wishbone_master_out;
+    master_i        : in  t_wishbone_master_in;
 
-    irq_i     : in  std_logic;
-    irq_ack_o : out std_logic
+    irq_i           : in  std_logic;
+    irq_ack_o       : out std_logic
   );
 
 end xvme64x_core;
@@ -152,11 +153,8 @@ architecture wrapper of xvme64x_core is
   signal user_csr_data_i,
          user_csr_data_o  : std_logic_vector( 7 downto 0);
   signal user_csr_we      : std_logic;
-  signal rst              : std_logic;
 
 begin  -- wrapper
-
-  rst <= not rst_n_i;
 
   U_Wrapped_VME : VME64xCore_Top
     generic map (
@@ -212,6 +210,8 @@ begin  -- wrapper
     port map (
       clk_i           => clk_i,
       rst_n_i         => rst_n_i,
+      rst_n_o         => rst_n_o,
+
       VME_AS_n_i      => VME_AS_n_i,
       VME_RST_n_i     => VME_RST_n_i,
       VME_WRITE_n_i   => VME_WRITE_n_i,
@@ -276,7 +276,7 @@ begin  -- wrapper
     )
     port map (
       clk_i           => clk_i,
-      reset_i         => rst,
+      rst_n_i         => rst_n_i,
       addr_i          => user_csr_addr,
       data_i          => user_csr_data_i,
       data_o          => user_csr_data_o,

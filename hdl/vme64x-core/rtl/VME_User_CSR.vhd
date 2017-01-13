@@ -74,7 +74,7 @@ entity VME_User_CSR is
   );
   port (
     clk_i               : in  std_logic;
-    reset_i             : in  std_logic;
+    rst_n_i             : in  std_logic;
 
     addr_i              : in  std_logic_vector(18 downto 2);
     data_i              : in  std_logic_vector( 7 downto 0);
@@ -108,7 +108,7 @@ begin
   process (clk_i)
   begin
     if rising_edge(clk_i) then
-      if reset_i = '1' then
+      if rst_n_i = '0' then
         s_reg_irq_vector  <= x"00";
         s_reg_irq_level   <= x"00";
         s_reg_endian      <= x"00";
@@ -133,7 +133,7 @@ begin
   process (clk_i)
   begin
     if rising_edge(clk_i) then
-      if reset_i = '1' then
+      if rst_n_i = '0' then
         data_o <= x"00";
       else
         case s_addr is
