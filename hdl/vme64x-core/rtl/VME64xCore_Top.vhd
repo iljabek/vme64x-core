@@ -111,20 +111,21 @@ use work.vme64x_pack.all;
 
 entity VME64xCore_Top is
   generic (
-    g_clock          : integer  := c_clk_period;    -- Clock period (ns)
-    g_wb_data_width  : integer  := c_width;         -- WB data width: must be 32 or 64
-    g_wb_addr_width  : integer  := c_addr_width;    -- WB address width: 64 or less
+    g_clock           : integer   := c_clk_period;  -- Clock period (ns)
+    g_wb_data_width   : integer   := c_width;       -- WB data width: must be 32 or 64
+    g_wb_addr_width   : integer   := c_addr_width;  -- WB address width: 64 or less
+    g_user_csr_ext    : boolean   := false;         -- Use external user CSR
 
     -- Manufacturer ID: IEEE OUID
     --                  e.g. CERN is 0x080030
-    g_manufacturer_id : std_logic_vector(23 downto 0)   := x"000000";
+    g_manufacturer_id : std_logic_vector(23 downto 0)   := c_cern_id;
 
     -- Board ID: Per manufacturer, each board shall have an unique ID
     --           e.g. SVEC = 408 (CERN IDs: http://cern.ch/boardid)
-    g_board_id        : std_logic_vector(31 downto 0)   := x"00000000";
+    g_board_id        : std_logic_vector(31 downto 0)   := c_svec_id;
 
     -- Revision ID: user defined revision code
-    g_revision_id     : std_logic_vector(31 downto 0)   := x"00000000";
+    g_revision_id     : std_logic_vector(31 downto 0)   := c_revision_id;
 
     -- Program ID: Defined per AV1:
     --               0x00      = Not used
@@ -134,7 +135,7 @@ entity VME64xCore_Top is
     --               0x80-0xEF = Reserved for future use
     --               0xF0-0xFE = Reserved for Boot Firmware (P1275)
     --               0xFF      = Not to be used
-    g_program_id      : std_logic_vector(7 downto 0)    := x"00";
+    g_program_id      : std_logic_vector(7 downto 0)    := c_program_id;
 
     -- Pointer to a user defined ASCII string
     g_ascii_ptr       : std_logic_vector(23 downto 0)   := x"000000";
@@ -143,11 +144,11 @@ entity VME64xCore_Top is
     g_beg_user_cr     : std_logic_vector(23 downto 0)   := x"000000";
     g_end_user_cr     : std_logic_vector(23 downto 0)   := x"000000";
 
-    g_beg_cram        : std_logic_vector(23 downto 0)   := x"000000";
-    g_end_cram        : std_logic_vector(23 downto 0)   := x"000000";
+    g_beg_cram        : std_logic_vector(23 downto 0)   := x"001003";
+    g_end_cram        : std_logic_vector(23 downto 0)   := x"0013ff";
 
-    g_beg_user_csr    : std_logic_vector(23 downto 0)   := x"000000";
-    g_end_user_csr    : std_logic_vector(23 downto 0)   := x"000000";
+    g_beg_user_csr    : std_logic_vector(23 downto 0)   := x"07ff33";
+    g_end_user_csr    : std_logic_vector(23 downto 0)   := x"07ff5f";
 
     g_beg_sn          : std_logic_vector(23 downto 0)   := x"000000";
     g_end_sn          : std_logic_vector(23 downto 0)   := x"000000";
@@ -159,8 +160,8 @@ entity VME64xCore_Top is
     g_f0_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
 
     -- Function 1
-    g_f1_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
-    g_f1_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+    g_f1_adem         : std_logic_vector( 31 downto 0)  := x"fff80000";
+    g_f1_amcap        : std_logic_vector( 63 downto 0)  := x"bb000000_00000000";
     g_f1_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
     g_f1_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
 
@@ -251,18 +252,22 @@ entity VME64xCore_Top is
     WE_o    : out std_logic;
     STALL_i : in  std_logic;
 
-    -- For the swapper
-    endian_i        : in  std_logic_vector(2 downto 0) := (others => '0');
-
-    -- User CR/CSR
+    -- User CSR
+    -- The following signals are used when g_user_csr_ext = true
+    -- otherwise they are connected to the internal user CSR.
+    endian_i        : in  std_logic_vector( 2 downto 0) := (others => '0');
+    irq_level_i     : in  std_logic_vector( 7 downto 0) := (others => '0');
+    irq_vector_i    : in  std_logic_vector( 7 downto 0) := (others => '0');
     user_csr_addr_o : out std_logic_vector(18 downto 2);
     user_csr_data_i : in  std_logic_vector( 7 downto 0) := (others => '0');
     user_csr_data_o : out std_logic_vector( 7 downto 0);
     user_csr_we_o   : out std_logic;
 
+    -- User CR
     user_cr_addr_o  : out std_logic_vector(18 downto 2);
     user_cr_data_i  : in  std_logic_vector( 7 downto 0) := (others => '0');
 
+    -- Functions
     f0_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
     f1_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
     f2_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
@@ -286,13 +291,10 @@ entity VME64xCore_Top is
                                   -- Interrupt cycle it sends a pulse to the
                                   -- IRQ Generator
 
-    irq_i     : in  std_logic;    -- Interrupt request; the IRQ Generator/your
+    irq_i     : in  std_logic     -- Interrupt request; the IRQ Generator/your
                                   -- Wb application sends a pulse to the IRQ
                                   -- Controller which asserts one of the IRQ
                                   -- lines.
-
-    irq_level_i   : in  std_logic_vector(7 downto 0) := (others => '0');
-    irq_vector_i  : in  std_logic_vector(7 downto 0) := (others => '0')
   );
 
 end VME64xCore_Top;
@@ -329,8 +331,16 @@ architecture RTL of VME64xCore_Top is
   signal s_f7_ader             : std_logic_vector(31 downto 0);
   signal s_module_reset        : std_logic;
   signal s_module_enable       : std_logic;
-  signal s_bar                 : std_logic_vector(4 downto 0);
+  signal s_bar                 : std_logic_vector( 4 downto 0);
   signal s_vme_berr_n          : std_logic;
+
+  signal s_irq_vector          : std_logic_vector( 7 downto 0);
+  signal s_irq_level           : std_logic_vector( 7 downto 0);
+  signal s_endian              : std_logic_vector( 2 downto 0);
+  signal s_user_csr_addr       : std_logic_vector(18 downto 2);
+  signal s_user_csr_data_i     : std_logic_vector( 7 downto 0);
+  signal s_user_csr_data_o     : std_logic_vector( 7 downto 0);
+  signal s_user_csr_we         : std_logic;
 
   -- Oversampled input signals
   signal s_VME_RST_n              : std_logic_vector(2 downto 0);
@@ -453,7 +463,7 @@ begin
       f5_ader_i       => s_f5_ader,
       f6_ader_i       => s_f6_ader,
       f7_ader_i       => s_f7_ader,
-      endian_i        => endian_i,
+      endian_i        => s_endian,
       module_enable_i => s_module_enable,
       bar_i           => s_bar
     );
@@ -503,8 +513,8 @@ begin
       VME_AS_n_i      => s_VME_AS_n(2),
       VME_DS_n_i      => s_VME_DS_n(5 downto 4),
       VME_ADDR_123_i  => VME_ADDR_i(3 downto 1),
-      INT_Level_i     => irq_level_i,
-      INT_Vector_i    => irq_vector_i,
+      INT_Level_i     => s_irq_level,
+      INT_Vector_i    => s_irq_vector,
       INT_Req_i       => irq_i,
       VME_IRQ_n_o     => s_VME_IRQ_n_o,
       VME_IACKOUT_n_o => VME_IACKOUT_n_o,
@@ -582,10 +592,10 @@ begin
       data_o              => s_cr_csr_data_o,
       we_i                => s_cr_csr_we,
 
-      user_csr_addr_o     => user_csr_addr_o,
-      user_csr_data_i     => user_csr_data_i,
-      user_csr_data_o     => user_csr_data_o,
-      user_csr_we_o       => user_csr_we_o,
+      user_csr_addr_o     => s_user_csr_addr,
+      user_csr_data_i     => s_user_csr_data_i,
+      user_csr_data_o     => s_user_csr_data_o,
+      user_csr_we_o       => s_user_csr_we,
 
       user_cr_addr_o      => user_cr_addr_o,
       user_cr_data_i      => user_cr_data_i,
@@ -617,5 +627,36 @@ begin
       f6_dfs_adem_i       => f6_dfs_adem_i,
       f7_dfs_adem_i       => f7_dfs_adem_i
     );
+
+  -- User CSR space
+  gen_int_user_csr : if g_user_csr_ext = false generate
+    Inst_VME_User_CSR : VME_User_CSR
+      generic map (
+        g_wb_data_width => g_wb_data_width
+      )
+      port map (
+        clk_i        => clk_i,
+        rst_n_i      => s_reset_n,
+        addr_i       => s_user_csr_addr,
+        data_i       => s_user_csr_data_o,
+        data_o       => s_user_csr_data_i,
+        we_i         => s_user_csr_we,
+        irq_vector_o => s_irq_vector,
+        irq_level_o  => s_irq_level,
+        endian_o     => s_endian,
+        time_i       => x"0000000000",
+        bytes_i      => x"0000"
+      );
+  end generate;
+  gen_ext_user_csr : if g_user_csr_ext = true generate
+    s_user_csr_data_i <= user_csr_data_i;
+    s_endian          <= endian_i;
+    s_irq_vector      <= irq_vector_i;
+    s_irq_level       <= irq_level_i;
+  end generate;
+
+  user_csr_addr_o <= s_user_csr_addr;
+  user_csr_data_o <= s_user_csr_data_o;
+  user_csr_we_o   <= s_user_csr_we;
 
 end RTL;

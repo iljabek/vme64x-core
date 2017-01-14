@@ -340,54 +340,55 @@ package vme64x_pack is
 
   component VME64xCore_Top
     generic (
-      g_clock           : integer;
-      g_wb_data_width   : integer;
-      g_wb_addr_width   : integer;
-      g_manufacturer_id : std_logic_vector(23 downto 0);
-      g_board_id        : std_logic_vector(31 downto 0);
-      g_revision_id     : std_logic_vector(31 downto 0);
-      g_program_id      : std_logic_vector(7 downto 0);
-      g_ascii_ptr       : std_logic_vector(23 downto 0);
-      g_beg_user_cr     : std_logic_vector(23 downto 0);
-      g_end_user_cr     : std_logic_vector(23 downto 0);
-      g_beg_cram        : std_logic_vector(23 downto 0);
-      g_end_cram        : std_logic_vector(23 downto 0);
-      g_beg_user_csr    : std_logic_vector(23 downto 0);
-      g_end_user_csr    : std_logic_vector(23 downto 0);
-      g_beg_sn          : std_logic_vector(23 downto 0);
-      g_end_sn          : std_logic_vector(23 downto 0);
-      g_f0_adem         : std_logic_vector( 31 downto 0);
-      g_f0_amcap        : std_logic_vector( 63 downto 0);
-      g_f0_xamcap       : std_logic_vector(255 downto 0);
-      g_f0_dawpr        : std_logic_vector(  7 downto 0);
-      g_f1_adem         : std_logic_vector( 31 downto 0);
-      g_f1_amcap        : std_logic_vector( 63 downto 0);
-      g_f1_xamcap       : std_logic_vector(255 downto 0);
-      g_f1_dawpr        : std_logic_vector(  7 downto 0);
-      g_f2_adem         : std_logic_vector( 31 downto 0);
-      g_f2_amcap        : std_logic_vector( 63 downto 0);
-      g_f2_xamcap       : std_logic_vector(255 downto 0);
-      g_f2_dawpr        : std_logic_vector(  7 downto 0);
-      g_f3_adem         : std_logic_vector( 31 downto 0);
-      g_f3_amcap        : std_logic_vector( 63 downto 0);
-      g_f3_xamcap       : std_logic_vector(255 downto 0);
-      g_f3_dawpr        : std_logic_vector(  7 downto 0);
-      g_f4_adem         : std_logic_vector( 31 downto 0);
-      g_f4_amcap        : std_logic_vector( 63 downto 0);
-      g_f4_xamcap       : std_logic_vector(255 downto 0);
-      g_f4_dawpr        : std_logic_vector(  7 downto 0);
-      g_f5_adem         : std_logic_vector( 31 downto 0);
-      g_f5_amcap        : std_logic_vector( 63 downto 0);
-      g_f5_xamcap       : std_logic_vector(255 downto 0);
-      g_f5_dawpr        : std_logic_vector(  7 downto 0);
-      g_f6_adem         : std_logic_vector( 31 downto 0);
-      g_f6_amcap        : std_logic_vector( 63 downto 0);
-      g_f6_xamcap       : std_logic_vector(255 downto 0);
-      g_f6_dawpr        : std_logic_vector(  7 downto 0);
-      g_f7_adem         : std_logic_vector( 31 downto 0);
-      g_f7_amcap        : std_logic_vector( 63 downto 0);
-      g_f7_xamcap       : std_logic_vector(255 downto 0);
-      g_f7_dawpr        : std_logic_vector(  7 downto 0)
+      g_clock           : integer                         := c_clk_period;
+      g_wb_data_width   : integer                         := c_width;
+      g_wb_addr_width   : integer                         := c_addr_width;
+      g_user_csr_ext    : boolean                         := false;
+      g_manufacturer_id : std_logic_vector(23 downto 0)   := c_cern_id;
+      g_board_id        : std_logic_vector(31 downto 0)   := c_svec_id;
+      g_revision_id     : std_logic_vector(31 downto 0)   := c_revision_id;
+      g_program_id      : std_logic_vector(7 downto 0)    := c_program_id;
+      g_ascii_ptr       : std_logic_vector(23 downto 0)   := x"000000";
+      g_beg_user_cr     : std_logic_vector(23 downto 0)   := x"000000";
+      g_end_user_cr     : std_logic_vector(23 downto 0)   := x"000000";
+      g_beg_cram        : std_logic_vector(23 downto 0)   := x"001003";
+      g_end_cram        : std_logic_vector(23 downto 0)   := x"0013ff";
+      g_beg_user_csr    : std_logic_vector(23 downto 0)   := x"07ff33";
+      g_end_user_csr    : std_logic_vector(23 downto 0)   := x"07ff5f";
+      g_beg_sn          : std_logic_vector(23 downto 0)   := x"000000";
+      g_end_sn          : std_logic_vector(23 downto 0)   := x"000000";
+      g_f0_adem         : std_logic_vector( 31 downto 0)  := x"ff000000";
+      g_f0_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_0000bb00";
+      g_f0_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+      g_f0_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+      g_f1_adem         : std_logic_vector( 31 downto 0)  := x"fff80000";
+      g_f1_amcap        : std_logic_vector( 63 downto 0)  := x"bb000000_00000000";
+      g_f1_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+      g_f1_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+      g_f2_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
+      g_f2_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+      g_f2_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+      g_f2_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+      g_f3_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
+      g_f3_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+      g_f3_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+      g_f3_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+      g_f4_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
+      g_f4_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+      g_f4_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+      g_f4_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+      g_f5_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
+      g_f5_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+      g_f5_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+      g_f5_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+      g_f6_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
+      g_f6_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+      g_f6_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+      g_f6_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+      g_f7_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
+      g_f7_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+      g_f7_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+      g_f7_dawpr        : std_logic_vector(  7 downto 0)  := x"84"
     );
     port (
       clk_i           : in  std_logic;
@@ -430,6 +431,8 @@ package vme64x_pack is
       WE_o            : out std_logic;
       STALL_i         : in  std_logic;
       endian_i        : in  std_logic_vector( 2 downto 0) := (others => '0');
+      irq_level_i     : in  std_logic_vector( 7 downto 0) := (others => '0');
+      irq_vector_i    : in  std_logic_vector( 7 downto 0) := (others => '0');
       user_csr_addr_o : out std_logic_vector(18 downto 2);
       user_csr_data_i : in  std_logic_vector( 7 downto 0) := (others => '0');
       user_csr_data_o : out std_logic_vector( 7 downto 0);
@@ -453,9 +456,7 @@ package vme64x_pack is
       f6_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
       f7_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
       irq_ack_o       : out std_logic;
-      irq_i           : in  std_logic;
-      irq_level_i     : in  std_logic_vector(7 downto 0)  := (others => '0');
-      irq_vector_i    : in  std_logic_vector(7 downto 0)  := (others => '0')
+      irq_i           : in  std_logic
     );
   end component;
 
@@ -917,6 +918,7 @@ package body vme64x_pack is
     cr(16#001#) := x"00";  -- Length of CR (excluding CRC)
     cr(16#002#) := x"03";
     cr(16#003#) := x"ff";
+
     cr(16#004#) := x"81";  -- CR data access width
     cr(16#005#) := x"81";  -- CSR data access width
     cr(16#006#) := x"02";  -- CR/CSR Space Specification ID
@@ -974,6 +976,11 @@ package body vme64x_pack is
     cr(16#035#) := end_sn(23 downto 16);
     cr(16#036#) := end_sn(15 downto  8);
     cr(16#037#) := end_sn( 7 downto  0);
+
+    cr(16#038#) := x"04";  -- Slave characteristics parameter
+    cr(16#039#) := x"00";  -- User-defined slave characteristics parameter
+
+    cr(16#03D#) := x"0E";  -- Interrupter capabilities
 
     cr(16#03F#) := x"81";  -- CRAM data access width
 

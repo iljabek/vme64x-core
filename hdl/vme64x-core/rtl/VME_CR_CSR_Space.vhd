@@ -233,14 +233,15 @@ architecture rtl of VME_CR_CSR_Space is
   signal s_reg_cram_owner       : std_logic_vector(7 downto 0);
   signal s_reg_usr_bit_reg      : std_logic_vector(7 downto 0);
 
-  type t_reg_array is array (0 to 7) of std_logic_vector(31 downto 0);
+  type t_reg_array is array (integer range <>) of std_logic_vector(31 downto 0);
 
-  signal s_reg_ader             : t_reg_array;
-  signal s_ader                 : t_reg_array;
-  signal s_faf_ader             : t_reg_array;
-  signal s_dfs_adem             : t_reg_array;
+  signal s_reg_ader             : t_reg_array(0 to 7);
+  signal s_ader                 : t_reg_array(0 to 7);
+  signal s_faf_ader             : t_reg_array(0 to 7);
+  signal s_dfs_adem             : t_reg_array(0 to 7);
 
-  constant c_adem : t_reg_array := (
+  constant c_adem : t_reg_array(-1 to 7) := (
+    x"00000000",
     g_f0_adem, g_f1_adem, g_f2_adem, g_f3_adem,
     g_f4_adem, g_f5_adem, g_f6_adem, g_f7_adem
   );
@@ -411,17 +412,7 @@ begin
 
   process (s_reg_ader, s_faf_ader, s_dfs_adem)
   begin
-    -- Function 0
-    if c_adem(0)(ADEM_FAF) = '1' then
-      s_ader(0) <= s_faf_ader(0);
-    elsif c_adem(0)(ADEM_DFS) = '1' and s_reg_ader(0)(ADER_DFSR) = '1' then
-      s_ader(0) <= s_dfs_adem(0)(31 downto 8) & s_reg_ader(0)(7 downto 0);
-    else
-      s_ader(0) <= s_reg_ader(0);
-    end if;
-
-    -- Function 1..7
-    for i in 1 to 7 loop
+    for i in 0 to 7 loop
       if (c_adem(i-1)(ADEM_EFM) = '1' and c_adem(i-1)(ADEM_FAF) = '1') or
          (c_adem(i-1)(ADEM_EFM) = '0' and c_adem(i)(ADEM_FAF) = '1')
       then
