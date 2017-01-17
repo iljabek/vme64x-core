@@ -38,8 +38,8 @@ use work.vme64x_pack.all;
 
 entity VME_CRAM is
   generic (
-    g_beg_cram : std_logic_vector(23 downto 0);
-    g_end_cram : std_logic_vector(23 downto 0)
+    g_BEG_CRAM : std_logic_vector(23 downto 0);
+    g_END_CRAM : std_logic_vector(23 downto 0)
   );
   port (
     clk_i   : in  std_logic;
@@ -52,7 +52,7 @@ end VME_CRAM;
 
 architecture rtl of VME_CRAM is
 
-  type t_cram is array (f_size(g_beg_cram, g_end_cram)-1 downto 0)
+  type t_cram is array (f_size(g_BEG_CRAM, g_END_CRAM)-1 downto 0)
                  of std_logic_vector(7 downto 0);
 
   signal s_cram   : t_cram;

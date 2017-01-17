@@ -73,8 +73,8 @@ use work.vme64x_pack.all;
 
 entity VME_Wb_master is
   generic (
-    g_wb_data_width : integer;
-    g_wb_addr_width : integer
+    g_WB_DATA_WIDTH : integer;
+    g_WB_ADDR_WIDTH : integer
   );
   port (
     memReq_i        : in  std_logic;
@@ -95,11 +95,11 @@ entity VME_Wb_master is
     err_i           : in  std_logic;
     cyc_o           : out std_logic;
     memReq_o        : out std_logic;
-    WBdata_o        : out std_logic_vector(g_wb_data_width-1 downto 0);
-    wbData_i        : in  std_logic_vector(g_wb_data_width-1 downto 0);
-    locAddr_o       : out std_logic_vector(g_wb_addr_width-1 downto 0);
+    WBdata_o        : out std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
+    wbData_i        : in  std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
+    locAddr_o       : out std_logic_vector(g_WB_ADDR_WIDTH-1 downto 0);
     memAckWB_i      : in  std_logic;
-    WbSel_o         : out std_logic_vector(g_wb_data_width/8-1 downto 0);
+    WbSel_o         : out std_logic_vector(g_WB_DATA_WIDTH/8-1 downto 0);
     RW_o            : out std_logic
   );
 end VME_Wb_master;
@@ -111,7 +111,7 @@ architecture Behavioral of VME_Wb_master is
   signal s_AckWithError : std_logic;
   signal s_wbData_i     : std_logic_vector(63 downto 0);
   signal s_select       : std_logic_vector(8 downto 0);
-  signal s_DATi_sample  : std_logic_vector(g_wb_data_width-1 downto 0);
+  signal s_DATi_sample  : std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
 
 begin
 
@@ -153,11 +153,11 @@ begin
   end process;
 
   -- shift data and address for WB data bus 64 bits
-  gen64: if (g_wb_data_width = 64) generate
+  gen64: if (g_WB_DATA_WIDTH = 64) generate
     process (clk_i)
     begin
       if rising_edge(clk_i) then
-        locAddr_o <= std_logic_vector(resize(unsigned(rel_locAddr_i) srl 3,g_wb_addr_width));
+        locAddr_o <= std_logic_vector(resize(unsigned(rel_locAddr_i) srl 3,g_WB_ADDR_WIDTH));
       end if;
     end process;
 
@@ -226,11 +226,11 @@ begin
   end generate gen64;
 
   -- shift data and address for WB data bus 32 bits
-  gen32: if (g_wb_data_width = 32) generate
+  gen32: if (g_WB_DATA_WIDTH = 32) generate
     process (clk_i)
     begin
       if rising_edge(clk_i) then
-        locAddr_o <= std_logic_vector(resize(unsigned(rel_locAddr_i) srl 2, g_wb_addr_width));
+        locAddr_o <= std_logic_vector(resize(unsigned(rel_locAddr_i) srl 2, g_WB_ADDR_WIDTH));
       end if;
     end process;
 
@@ -250,21 +250,21 @@ begin
     begin
       if rising_edge(clk_i) then
         case sel_i is
-          when "10000000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 24, g_wb_data_width));
-          when "01000000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 16, g_wb_data_width));
-          when "00100000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 8,  g_wb_data_width));
-          when "00010000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i),        g_wb_data_width));
-          when "00001000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 24, g_wb_data_width));
-          when "00000100" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 16, g_wb_data_width));
-          when "00000010" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 8,  g_wb_data_width));
-          when "00000001" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i),        g_wb_data_width));
-          when "11000000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 16, g_wb_data_width));
-          when "00110000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i),        g_wb_data_width));
-          when "00001100" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 16, g_wb_data_width));
-          when "00000011" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i),        g_wb_data_width));
-          when "11110000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i),        g_wb_data_width));
-          when "00001111" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i),        g_wb_data_width));
-          when "11111111" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i),        g_wb_data_width));
+          when "10000000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 24, g_WB_DATA_WIDTH));
+          when "01000000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 16, g_WB_DATA_WIDTH));
+          when "00100000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 8,  g_WB_DATA_WIDTH));
+          when "00010000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i),        g_WB_DATA_WIDTH));
+          when "00001000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 24, g_WB_DATA_WIDTH));
+          when "00000100" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 16, g_WB_DATA_WIDTH));
+          when "00000010" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 8,  g_WB_DATA_WIDTH));
+          when "00000001" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i),        g_WB_DATA_WIDTH));
+          when "11000000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 16, g_WB_DATA_WIDTH));
+          when "00110000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i),        g_WB_DATA_WIDTH));
+          when "00001100" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 16, g_WB_DATA_WIDTH));
+          when "00000011" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i),        g_WB_DATA_WIDTH));
+          when "11110000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i),        g_WB_DATA_WIDTH));
+          when "00001111" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i),        g_WB_DATA_WIDTH));
+          when "11111111" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i),        g_WB_DATA_WIDTH));
           when others => null;
         end case;
 

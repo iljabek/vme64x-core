@@ -111,21 +111,21 @@ use work.vme64x_pack.all;
 
 entity VME64xCore_Top is
   generic (
-    g_clock           : integer   := c_clk_period;  -- Clock period (ns)
-    g_wb_data_width   : integer   := c_width;       -- WB data width: must be 32 or 64
-    g_wb_addr_width   : integer   := c_addr_width;  -- WB address width: 64 or less
-    g_user_csr_ext    : boolean   := false;         -- Use external user CSR
+    g_CLOCK_PERIOD    : integer   := c_CLOCK_PERIOD;  -- Clock period (ns)
+    g_WB_DATA_WIDTH   : integer   := c_DATA_WIDTH;    -- WB data width: must be 32 or 64
+    g_WB_ADDR_WIDTH   : integer   := c_ADDR_WIDTH;    -- WB addr width: 64 or less
+    g_USER_CSR_EXT    : boolean   := false;           -- Use external user CSR
 
     -- Manufacturer ID: IEEE OUID
     --                  e.g. CERN is 0x080030
-    g_manufacturer_id : std_logic_vector(23 downto 0)   := c_cern_id;
+    g_MANUFACTURER_ID : std_logic_vector(23 downto 0)   := c_CERN_ID;
 
     -- Board ID: Per manufacturer, each board shall have an unique ID
     --           e.g. SVEC = 408 (CERN IDs: http://cern.ch/boardid)
-    g_board_id        : std_logic_vector(31 downto 0)   := c_svec_id;
+    g_BOARD_ID        : std_logic_vector(31 downto 0)   := c_SVEC_ID;
 
     -- Revision ID: user defined revision code
-    g_revision_id     : std_logic_vector(31 downto 0)   := c_revision_id;
+    g_REVISION_ID     : std_logic_vector(31 downto 0)   := c_REVISION_ID;
 
     -- Program ID: Defined per AV1:
     --               0x00      = Not used
@@ -135,71 +135,71 @@ entity VME64xCore_Top is
     --               0x80-0xEF = Reserved for future use
     --               0xF0-0xFE = Reserved for Boot Firmware (P1275)
     --               0xFF      = Not to be used
-    g_program_id      : std_logic_vector(7 downto 0)    := c_program_id;
+    g_PROGRAM_ID      : std_logic_vector(7 downto 0)    := c_PROGRAM_ID;
 
     -- Pointer to a user defined ASCII string
-    g_ascii_ptr       : std_logic_vector(23 downto 0)   := x"000000";
+    g_ASCII_PTR       : std_logic_vector(23 downto 0)   := x"000000";
 
     -- User CR/CSR, CRAM & serial number pointers
-    g_beg_user_cr     : std_logic_vector(23 downto 0)   := x"000000";
-    g_end_user_cr     : std_logic_vector(23 downto 0)   := x"000000";
+    g_BEG_USER_CR     : std_logic_vector(23 downto 0)   := x"000000";
+    g_END_USER_CR     : std_logic_vector(23 downto 0)   := x"000000";
 
-    g_beg_cram        : std_logic_vector(23 downto 0)   := x"001003";
-    g_end_cram        : std_logic_vector(23 downto 0)   := x"0013ff";
+    g_BEG_CRAM        : std_logic_vector(23 downto 0)   := x"001003";
+    g_END_CRAM        : std_logic_vector(23 downto 0)   := x"0013ff";
 
-    g_beg_user_csr    : std_logic_vector(23 downto 0)   := x"07ff33";
-    g_end_user_csr    : std_logic_vector(23 downto 0)   := x"07ff5f";
+    g_BEG_USER_CSR    : std_logic_vector(23 downto 0)   := x"07ff33";
+    g_END_USER_CSR    : std_logic_vector(23 downto 0)   := x"07ff5f";
 
-    g_beg_sn          : std_logic_vector(23 downto 0)   := x"000000";
-    g_end_sn          : std_logic_vector(23 downto 0)   := x"000000";
+    g_BEG_SN          : std_logic_vector(23 downto 0)   := x"000000";
+    g_END_SN          : std_logic_vector(23 downto 0)   := x"000000";
 
     -- Function 0
-    g_f0_adem         : std_logic_vector( 31 downto 0)  := x"ff000000";
-    g_f0_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_0000bb00";
-    g_f0_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-    g_f0_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+    g_F0_ADEM         : std_logic_vector( 31 downto 0)  := x"ff000000";
+    g_F0_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_0000bb00";
+    g_F0_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_F0_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     -- Function 1
-    g_f1_adem         : std_logic_vector( 31 downto 0)  := x"fff80000";
-    g_f1_amcap        : std_logic_vector( 63 downto 0)  := x"bb000000_00000000";
-    g_f1_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-    g_f1_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+    g_F1_ADEM         : std_logic_vector( 31 downto 0)  := x"fff80000";
+    g_F1_AMCAP        : std_logic_vector( 63 downto 0)  := x"bb000000_00000000";
+    g_F1_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_F1_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     -- Function 2
-    g_f2_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
-    g_f2_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_f2_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-    g_f2_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+    g_F2_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
+    g_F2_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+    g_F2_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_F2_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     -- Function 3
-    g_f3_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
-    g_f3_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_f3_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-    g_f3_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+    g_F3_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
+    g_F3_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+    g_F3_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_F3_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     -- Function 4
-    g_f4_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
-    g_f4_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_f4_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-    g_f4_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+    g_F4_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
+    g_F4_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+    g_F4_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_F4_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     -- Function 5
-    g_f5_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
-    g_f5_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_f5_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-    g_f5_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+    g_F5_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
+    g_F5_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+    g_F5_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_F5_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     -- Function 6
-    g_f6_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
-    g_f6_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_f6_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-    g_f6_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+    g_F6_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
+    g_F6_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+    g_F6_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_F6_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     -- Function 7
-    g_f7_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
-    g_f7_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_f7_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-    g_f7_dawpr        : std_logic_vector(  7 downto 0)  := x"84"
+    g_F7_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
+    g_F7_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+    g_F7_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_F7_DAWPR        : std_logic_vector(  7 downto 0)  := x"84"
   );
   port (
     clk_i           : in  std_logic;
@@ -240,20 +240,20 @@ entity VME64xCore_Top is
     VME_RETRY_OE_o  : out std_logic;
 
     -- WishBone
-    DAT_i   : in  std_logic_vector(g_wb_data_width-1 downto 0);
-    DAT_o   : out std_logic_vector(g_wb_data_width-1 downto 0);
-    ADR_o   : out std_logic_vector(g_wb_addr_width-1 downto 0);
+    DAT_i   : in  std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
+    DAT_o   : out std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
+    ADR_o   : out std_logic_vector(g_WB_ADDR_WIDTH-1 downto 0);
     CYC_o   : out std_logic;
     ERR_i   : in  std_logic;
     RTY_i   : in  std_logic;
-    SEL_o   : out std_logic_vector(g_wb_data_width/8-1 downto 0);
+    SEL_o   : out std_logic_vector(g_WB_DATA_WIDTH/8-1 downto 0);
     STB_o   : out std_logic;
     ACK_i   : in  std_logic;
     WE_o    : out std_logic;
     STALL_i : in  std_logic;
 
     -- User CSR
-    -- The following signals are used when g_user_csr_ext = true
+    -- The following signals are used when g_USER_CSR_EXT = true
     -- otherwise they are connected to the internal user CSR.
     endian_i        : in  std_logic_vector( 2 downto 0) := (others => '0');
     irq_level_i     : in  std_logic_vector( 7 downto 0) := (others => '0');
@@ -376,39 +376,39 @@ begin
   ------------------------------------------------------------------------------
   Inst_VME_bus : VME_bus
     generic map (
-      g_clock         => g_clock,
-      g_wb_data_width => g_wb_data_width,
-      g_wb_addr_width => g_wb_addr_width,
-      g_beg_user_cr   => g_beg_user_cr,
-      g_end_user_cr   => g_end_user_cr,
-      g_beg_cram      => g_beg_cram,
-      g_end_cram      => g_end_cram,
-      g_beg_user_csr  => g_beg_user_csr,
-      g_end_user_csr  => g_end_user_csr,
-      g_f0_adem       => g_f0_adem,
-      g_f0_amcap      => g_f0_amcap,
-      g_f0_xamcap     => g_f0_xamcap,
-      g_f1_adem       => g_f1_adem,
-      g_f1_amcap      => g_f1_amcap,
-      g_f1_xamcap     => g_f1_xamcap,
-      g_f2_adem       => g_f2_adem,
-      g_f2_amcap      => g_f2_amcap,
-      g_f2_xamcap     => g_f2_xamcap,
-      g_f3_adem       => g_f3_adem,
-      g_f3_amcap      => g_f3_amcap,
-      g_f3_xamcap     => g_f3_xamcap,
-      g_f4_adem       => g_f4_adem,
-      g_f4_amcap      => g_f4_amcap,
-      g_f4_xamcap     => g_f4_xamcap,
-      g_f5_adem       => g_f5_adem,
-      g_f5_amcap      => g_f5_amcap,
-      g_f5_xamcap     => g_f5_xamcap,
-      g_f6_adem       => g_f6_adem,
-      g_f6_amcap      => g_f6_amcap,
-      g_f6_xamcap     => g_f6_xamcap,
-      g_f7_adem       => g_f7_adem,
-      g_f7_amcap      => g_f7_amcap,
-      g_f7_xamcap     => g_f7_xamcap
+      g_CLOCK_PERIOD  => g_CLOCK_PERIOD,
+      g_WB_DATA_WIDTH => g_WB_DATA_WIDTH,
+      g_WB_ADDR_WIDTH => g_WB_ADDR_WIDTH,
+      g_BEG_USER_CR   => g_BEG_USER_CR,
+      g_END_USER_CR   => g_END_USER_CR,
+      g_BEG_CRAM      => g_BEG_CRAM,
+      g_END_CRAM      => g_END_CRAM,
+      g_BEG_USER_CSR  => g_BEG_USER_CSR,
+      g_END_USER_CSR  => g_END_USER_CSR,
+      g_F0_ADEM       => g_F0_ADEM,
+      g_F0_AMCAP      => g_F0_AMCAP,
+      g_F0_XAMCAP     => g_F0_XAMCAP,
+      g_F1_ADEM       => g_F1_ADEM,
+      g_F1_AMCAP      => g_F1_AMCAP,
+      g_F1_XAMCAP     => g_F1_XAMCAP,
+      g_F2_ADEM       => g_F2_ADEM,
+      g_F2_AMCAP      => g_F2_AMCAP,
+      g_F2_XAMCAP     => g_F2_XAMCAP,
+      g_F3_ADEM       => g_F3_ADEM,
+      g_F3_AMCAP      => g_F3_AMCAP,
+      g_F3_XAMCAP     => g_F3_XAMCAP,
+      g_F4_ADEM       => g_F4_ADEM,
+      g_F4_AMCAP      => g_F4_AMCAP,
+      g_F4_XAMCAP     => g_F4_XAMCAP,
+      g_F5_ADEM       => g_F5_ADEM,
+      g_F5_AMCAP      => g_F5_AMCAP,
+      g_F5_XAMCAP     => g_F5_XAMCAP,
+      g_F6_ADEM       => g_F6_ADEM,
+      g_F6_AMCAP      => g_F6_AMCAP,
+      g_F6_XAMCAP     => g_F6_XAMCAP,
+      g_F7_ADEM       => g_F7_ADEM,
+      g_F7_AMCAP      => g_F7_AMCAP,
+      g_F7_XAMCAP     => g_F7_XAMCAP
     )
     port map (
       clk_i           => clk_i,
@@ -504,11 +504,11 @@ begin
   ------------------------------------------------------------------------------
   Inst_VME_IRQ_Controller : VME_IRQ_Controller
     generic map (
-      g_retry_timeout => 1000000/g_clock    -- 1ms timeout
+      g_RETRY_TIMEOUT => 1000000/g_CLOCK_PERIOD     -- 1ms timeout
     )
     port map (
       clk_i           => clk_i,
-      reset_n_i       => s_reset_n,         -- asserted when low
+      reset_n_i       => s_reset_n,                 -- asserted when low
       VME_IACKIN_n_i  => s_VME_IACKIN_n(2),
       VME_AS_n_i      => s_VME_AS_n(2),
       VME_DS_n_i      => s_VME_DS_n(5 downto 4),
@@ -529,51 +529,51 @@ begin
   ------------------------------------------------------------------------------
   Inst_VME_CR_CSR_Space : VME_CR_CSR_Space
     generic map (
-       g_manufacturer_id  => g_manufacturer_id,
-       g_board_id         => g_board_id,
-       g_revision_id      => g_revision_id,
-       g_program_id       => g_program_id,
-       g_ascii_ptr        => g_ascii_ptr,
-       g_beg_user_cr      => g_beg_user_cr,
-       g_end_user_cr      => g_end_user_cr,
-       g_beg_cram         => g_beg_cram,
-       g_end_cram         => g_end_cram,
-       g_beg_user_csr     => g_beg_user_csr,
-       g_end_user_csr     => g_end_user_csr,
-       g_beg_sn           => g_beg_sn,
-       g_end_sn           => g_end_sn,
-       g_f0_adem          => g_f0_adem,
-       g_f0_amcap         => g_f0_amcap,
-       g_f0_xamcap        => g_f0_xamcap,
-       g_f0_dawpr         => g_f0_dawpr,
-       g_f1_adem          => g_f1_adem,
-       g_f1_amcap         => g_f1_amcap,
-       g_f1_xamcap        => g_f1_xamcap,
-       g_f1_dawpr         => g_f1_dawpr,
-       g_f2_adem          => g_f2_adem,
-       g_f2_amcap         => g_f2_amcap,
-       g_f2_xamcap        => g_f2_xamcap,
-       g_f2_dawpr         => g_f2_dawpr,
-       g_f3_adem          => g_f3_adem,
-       g_f3_amcap         => g_f3_amcap,
-       g_f3_xamcap        => g_f3_xamcap,
-       g_f3_dawpr         => g_f3_dawpr,
-       g_f4_adem          => g_f4_adem,
-       g_f4_amcap         => g_f4_amcap,
-       g_f4_xamcap        => g_f4_xamcap,
-       g_f4_dawpr         => g_f4_dawpr,
-       g_f5_adem          => g_f5_adem,
-       g_f5_amcap         => g_f5_amcap,
-       g_f5_xamcap        => g_f5_xamcap,
-       g_f5_dawpr         => g_f5_dawpr,
-       g_f6_adem          => g_f6_adem,
-       g_f6_amcap         => g_f6_amcap,
-       g_f6_xamcap        => g_f6_xamcap,
-       g_f6_dawpr         => g_f6_dawpr,
-       g_f7_adem          => g_f7_adem,
-       g_f7_amcap         => g_f7_amcap,
-       g_f7_xamcap        => g_f7_xamcap,
-       g_f7_dawpr         => g_f7_dawpr
+       g_MANUFACTURER_ID  => g_MANUFACTURER_ID,
+       g_BOARD_ID         => g_BOARD_ID,
+       g_REVISION_ID      => g_REVISION_ID,
+       g_PROGRAM_ID       => g_PROGRAM_ID,
+       g_ASCII_PTR        => g_ASCII_PTR,
+       g_BEG_USER_CR      => g_BEG_USER_CR,
+       g_END_USER_CR      => g_END_USER_CR,
+       g_BEG_CRAM         => g_BEG_CRAM,
+       g_END_CRAM         => g_END_CRAM,
+       g_BEG_USER_CSR     => g_BEG_USER_CSR,
+       g_END_USER_CSR     => g_END_USER_CSR,
+       g_BEG_SN           => g_BEG_SN,
+       g_END_SN           => g_END_SN,
+       g_F0_ADEM          => g_F0_ADEM,
+       g_F0_AMCAP         => g_F0_AMCAP,
+       g_F0_XAMCAP        => g_F0_XAMCAP,
+       g_F0_DAWPR         => g_F0_DAWPR,
+       g_F1_ADEM          => g_F1_ADEM,
+       g_F1_AMCAP         => g_F1_AMCAP,
+       g_F1_XAMCAP        => g_F1_XAMCAP,
+       g_F1_DAWPR         => g_F1_DAWPR,
+       g_F2_ADEM          => g_F2_ADEM,
+       g_F2_AMCAP         => g_F2_AMCAP,
+       g_F2_XAMCAP        => g_F2_XAMCAP,
+       g_F2_DAWPR         => g_F2_DAWPR,
+       g_F3_ADEM          => g_F3_ADEM,
+       g_F3_AMCAP         => g_F3_AMCAP,
+       g_F3_XAMCAP        => g_F3_XAMCAP,
+       g_F3_DAWPR         => g_F3_DAWPR,
+       g_F4_ADEM          => g_F4_ADEM,
+       g_F4_AMCAP         => g_F4_AMCAP,
+       g_F4_XAMCAP        => g_F4_XAMCAP,
+       g_F4_DAWPR         => g_F4_DAWPR,
+       g_F5_ADEM          => g_F5_ADEM,
+       g_F5_AMCAP         => g_F5_AMCAP,
+       g_F5_XAMCAP        => g_F5_XAMCAP,
+       g_F5_DAWPR         => g_F5_DAWPR,
+       g_F6_ADEM          => g_F6_ADEM,
+       g_F6_AMCAP         => g_F6_AMCAP,
+       g_F6_XAMCAP        => g_F6_XAMCAP,
+       g_F6_DAWPR         => g_F6_DAWPR,
+       g_F7_ADEM          => g_F7_ADEM,
+       g_F7_AMCAP         => g_F7_AMCAP,
+       g_F7_XAMCAP        => g_F7_XAMCAP,
+       g_F7_DAWPR         => g_F7_DAWPR
     )
     port map (
       clk_i               => clk_i,
@@ -629,10 +629,10 @@ begin
     );
 
   -- User CSR space
-  gen_int_user_csr : if g_user_csr_ext = false generate
+  gen_int_user_csr : if g_USER_CSR_EXT = false generate
     Inst_VME_User_CSR : VME_User_CSR
       generic map (
-        g_wb_data_width => g_wb_data_width
+        g_WB_DATA_WIDTH => g_WB_DATA_WIDTH
       )
       port map (
         clk_i        => clk_i,
@@ -648,7 +648,7 @@ begin
         bytes_i      => x"0000"
       );
   end generate;
-  gen_ext_user_csr : if g_user_csr_ext = true generate
+  gen_ext_user_csr : if g_USER_CSR_EXT = true generate
     s_user_csr_data_i <= user_csr_data_i;
     s_endian          <= endian_i;
     s_irq_vector      <= irq_vector_i;

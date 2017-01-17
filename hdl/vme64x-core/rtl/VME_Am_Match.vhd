@@ -136,7 +136,7 @@ begin
       elsif decode = '1' then
         for i in AmMatch'range loop
           if DFS_i(i) = '1' then
-            if s_FUNC_ADER(i)(ADER_XAM_MODE) = '0' then
+            if s_FUNC_ADER(i)(c_ADER_XAM_MODE) = '0' then
               if unsigned(s_FUNC_ADER(i)(7 downto 2)) = unsigned(Am) then
                 AmMatch(i) <= s_amcap_match(i);
               else
@@ -150,7 +150,7 @@ begin
               end if;
             end if;
           else
-            if s_FUNC_ADER(i)(ADER_XAM_MODE) = '1' then
+            if s_FUNC_ADER(i)(c_ADER_XAM_MODE) = '1' then
               AmMatch(i) <= s_xamcap_match(i) and s_amcap_match(i);
             else
               AmMatch(i) <= s_amcap_match(i);

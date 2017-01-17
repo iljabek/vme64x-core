@@ -17,14 +17,14 @@
 --   To achieve the previous memory map layout, it is necessary to set the
 --   following generics on the VME64xCore_Top:
 --
---     g_beg_user_csr => x"07ff33",
---     g_end_user_csr => x"07ff5f",
+--     g_BEG_USER_CSR => x"07ff33",
+--     g_END_USER_CSR => x"07ff5f",
 --
 --   However, for new designs it would be better to choose somewhere outside
 --   the reserved area (from x"7fc00" to x"7ff5f"). For example:
 --
---     g_beg_user_csr => x"07fbd3",
---     g_end_user_csr => x"07fbff",
+--     g_BEG_USER_CSR => x"07fbd3",
+--     g_END_USER_CSR => x"07fbff",
 --
 --   The following registers are implemented:
 --                            _
@@ -70,7 +70,7 @@ use work.vme64x_pack.all;
 
 entity VME_User_CSR is
   generic (
-    g_wb_data_width     : integer
+    g_WB_DATA_WIDTH     : integer
   );
   port (
     clk_i               : in  std_logic;
@@ -102,7 +102,7 @@ begin
 
   s_addr <= unsigned(addr_i);
 
-  s_reg_wb32bits <= x"01" when g_wb_data_width = 32 else x"00";
+  s_reg_wb32bits <= x"01" when g_WB_DATA_WIDTH = 32 else x"00";
 
   -- Write
   process (clk_i)
@@ -115,9 +115,9 @@ begin
       else
         if we_i = '1' then
           case s_addr is
-            when c_addr_irq_vector(18 downto 2) => s_reg_irq_vector <= data_i;
-            when c_addr_irq_level(18 downto 2)  => s_reg_irq_level  <= data_i;
-            when c_addr_endian(18 downto 2)     => s_reg_endian     <= data_i;
+            when c_ADDR_IRQ_VECTOR(18 downto 2) => s_reg_irq_vector <= data_i;
+            when c_ADDR_IRQ_LEVEL(18 downto 2)  => s_reg_irq_level  <= data_i;
+            when c_ADDR_ENDIAN(18 downto 2)     => s_reg_endian     <= data_i;
             when others                         => null;
           end case;
         end if;
@@ -137,17 +137,17 @@ begin
         data_o <= x"00";
       else
         case s_addr is
-          when c_addr_irq_vector(18 downto 2) => data_o <= s_reg_irq_vector;
-          when c_addr_irq_level(18 downto 2)  => data_o <= s_reg_irq_level;
-          when c_addr_endian(18 downto 2)     => data_o <= s_reg_endian;
-          when c_addr_time0_ns(18 downto 2)   => data_o <= time_i( 7 downto  0);
-          when c_addr_time1_ns(18 downto 2)   => data_o <= time_i(15 downto  8);
-          when c_addr_time2_ns(18 downto 2)   => data_o <= time_i(23 downto 16);
-          when c_addr_time3_ns(18 downto 2)   => data_o <= time_i(31 downto 24);
-          when c_addr_time4_ns(18 downto 2)   => data_o <= time_i(39 downto 32);
-          when c_addr_bytes0(18 downto 2)     => data_o <= bytes_i( 7 downto 0);
-          when c_addr_bytes1(18 downto 2)     => data_o <= bytes_i(15 downto 8);
-          when c_addr_wb32bits(18 downto 2)   => data_o <= s_reg_wb32bits;
+          when c_ADDR_IRQ_VECTOR(18 downto 2) => data_o <= s_reg_irq_vector;
+          when c_ADDR_IRQ_LEVEL(18 downto 2)  => data_o <= s_reg_irq_level;
+          when c_ADDR_ENDIAN(18 downto 2)     => data_o <= s_reg_endian;
+          when c_ADDR_TIME0_NS(18 downto 2)   => data_o <= time_i( 7 downto  0);
+          when c_ADDR_TIME1_NS(18 downto 2)   => data_o <= time_i(15 downto  8);
+          when c_ADDR_TIME2_NS(18 downto 2)   => data_o <= time_i(23 downto 16);
+          when c_ADDR_TIME3_NS(18 downto 2)   => data_o <= time_i(31 downto 24);
+          when c_ADDR_TIME4_NS(18 downto 2)   => data_o <= time_i(39 downto 32);
+          when c_ADDR_BYTES0(18 downto 2)     => data_o <= bytes_i( 7 downto 0);
+          when c_ADDR_BYTES1(18 downto 2)     => data_o <= bytes_i(15 downto 8);
+          when c_ADDR_WB32BITS(18 downto 2)   => data_o <= s_reg_wb32bits;
           when others                         => data_o <= x"ff";
         end case;
       end if;

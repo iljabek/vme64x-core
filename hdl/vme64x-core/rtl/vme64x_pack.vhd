@@ -41,65 +41,61 @@ package vme64x_pack is
   -- Constants
   ------------------------------------------------------------------------------
 
-  --WB data width:
-  constant c_width        : integer := 64;    -- must be 32 or 64!
+  constant c_CLOCK_PERIOD     : integer := 10;  -- Clock period (ns)
+  constant c_DATA_WIDTH       : integer := 64;  -- WB data width: must be 32 or 64
+  constant c_ADDR_WIDTH       : integer := 9;   -- WB addr width: 64 or less
 
-  -- WB addr width:
-  constant c_addr_width   : integer := 9;
-
-  -- Tclk in ns used to calculate the data transfer rate
-  constant c_clk_period   : integer := 10;
-
-  -- add here the default boards ID:
-  constant c_svec_id      : std_logic_vector(31 downto 0) := x"00000198";
-  constant c_cern_id      : std_logic_vector(23 downto 0) := x"080030";
-  constant c_revision_id  : std_logic_vector(31 downto 0) := x"00000001";
-  constant c_program_id   : std_logic_vector( 7 downto 0) := x"5a";
+  -- Default boards IDs
+  constant c_SVEC_ID          : std_logic_vector(31 downto 0) := x"00000198";
+  constant c_CERN_ID          : std_logic_vector(23 downto 0) := x"080030";
+  constant c_REVISION_ID      : std_logic_vector(31 downto 0) := x"00000001";
+  constant c_PROGRAM_ID       : std_logic_vector( 7 downto 0) := x"5a";
 
   -- Bits in ADEM/ADER registers
-  constant ADEM_FAF       : integer := 3;
-  constant ADEM_DFS       : integer := 2;
-  constant ADEM_EFD       : integer := 1;
-  constant ADEM_EFM       : integer := 0;
+  constant c_ADEM_FAF         : integer := 3;
+  constant c_ADEM_DFS         : integer := 2;
+  constant c_ADEM_EFD         : integer := 1;
+  constant c_ADEM_EFM         : integer := 0;
 
-  constant ADER_DFSR      : integer := 1;
-  constant ADER_XAM_MODE  : integer := 0;
+  constant c_ADER_DFSR        : integer := 1;
+  constant c_ADER_XAM_MODE    : integer := 0;
 
   -- AM table.
   -- References:
   -- Table 2-3 "Address Modifier Codes" pages 21/22 VME64std ANSI/VITA 1-1994
   -- Table 2.4 "Extended Address Modifier Code" page 12 2eSST ANSI/VITA 1.5-2003(R2009)
-  constant c_A24_S_sup    : std_logic_vector(5 downto 0) := "111101";    -- 0x3d
-  constant c_A24_S        : std_logic_vector(5 downto 0) := "111001";    -- 0x39
-  constant c_A24_BLT      : std_logic_vector(5 downto 0) := "111011";    -- 0x3b
-  constant c_A24_BLT_sup  : std_logic_vector(5 downto 0) := "111111";    -- 0x3f
-  constant c_A24_MBLT     : std_logic_vector(5 downto 0) := "111000";    -- 0x38
-  constant c_A24_MBLT_sup : std_logic_vector(5 downto 0) := "111100";    -- 0x3c
-  constant c_A24_LCK      : std_logic_vector(5 downto 0) := "110010";    -- 0x32
-  constant c_CR_CSR       : std_logic_vector(5 downto 0) := "101111";    -- 0x2f
-  constant c_A16          : std_logic_vector(5 downto 0) := "101001";    -- 0x29
-  constant c_A16_sup      : std_logic_vector(5 downto 0) := "101101";    -- 0x2d
-  constant c_A16_LCK      : std_logic_vector(5 downto 0) := "101100";    -- 0x2c
-  constant c_A32          : std_logic_vector(5 downto 0) := "001001";    -- 0x09
-  constant c_A32_sup      : std_logic_vector(5 downto 0) := "001101";    -- 0x0d
-  constant c_A32_BLT      : std_logic_vector(5 downto 0) := "001011";    -- 0x0b
-  constant c_A32_BLT_sup  : std_logic_vector(5 downto 0) := "001111";    -- 0x0f
-  constant c_A32_MBLT     : std_logic_vector(5 downto 0) := "001000";    -- 0x08
-  constant c_A32_MBLT_sup : std_logic_vector(5 downto 0) := "001100";    -- 0x0c
-  constant c_A32_LCK      : std_logic_vector(5 downto 0) := "000101";    -- 0x05
-  constant c_A64          : std_logic_vector(5 downto 0) := "000001";    -- 0x01
-  constant c_A64_BLT      : std_logic_vector(5 downto 0) := "000011";    -- 0x03
-  constant c_A64_MBLT     : std_logic_vector(5 downto 0) := "000000";    -- 0x00
-  constant c_A64_LCK      : std_logic_vector(5 downto 0) := "000100";    -- 0x04
-  constant c_TWOedge      : std_logic_vector(5 downto 0) := "100000";    -- 0x20
-  constant c_A32_2eVME    : std_logic_vector(7 downto 0) := "00000001";  -- 0x21
-  constant c_A64_2eVME    : std_logic_vector(7 downto 0) := "00000010";  -- 0x22
-  constant c_A32_2eSST    : std_logic_vector(7 downto 0) := "00010001";  -- 0x11
-  constant c_A64_2eSST    : std_logic_vector(7 downto 0) := "00010010";  -- 0x12
+  constant c_AM_A24_S_SUP     : std_logic_vector(5 downto 0) := "111101";    -- 0x3d
+  constant c_AM_A24_S         : std_logic_vector(5 downto 0) := "111001";    -- 0x39
+  constant c_AM_A24_BLT       : std_logic_vector(5 downto 0) := "111011";    -- 0x3b
+  constant c_AM_A24_BLT_SUP   : std_logic_vector(5 downto 0) := "111111";    -- 0x3f
+  constant c_AM_A24_MBLT      : std_logic_vector(5 downto 0) := "111000";    -- 0x38
+  constant c_AM_A24_MBLT_SUP  : std_logic_vector(5 downto 0) := "111100";    -- 0x3c
+  constant c_AM_A24_LCK       : std_logic_vector(5 downto 0) := "110010";    -- 0x32
+  constant c_AM_CR_CSR        : std_logic_vector(5 downto 0) := "101111";    -- 0x2f
+  constant c_AM_A16           : std_logic_vector(5 downto 0) := "101001";    -- 0x29
+  constant c_AM_A16_SUP       : std_logic_vector(5 downto 0) := "101101";    -- 0x2d
+  constant c_AM_A16_LCK       : std_logic_vector(5 downto 0) := "101100";    -- 0x2c
+  constant c_AM_A32           : std_logic_vector(5 downto 0) := "001001";    -- 0x09
+  constant c_AM_A32_SUP       : std_logic_vector(5 downto 0) := "001101";    -- 0x0d
+  constant c_AM_A32_BLT       : std_logic_vector(5 downto 0) := "001011";    -- 0x0b
+  constant c_AM_A32_BLT_SUP   : std_logic_vector(5 downto 0) := "001111";    -- 0x0f
+  constant c_AM_A32_MBLT      : std_logic_vector(5 downto 0) := "001000";    -- 0x08
+  constant c_AM_A32_MBLT_SUP  : std_logic_vector(5 downto 0) := "001100";    -- 0x0c
+  constant c_AM_A32_LCK       : std_logic_vector(5 downto 0) := "000101";    -- 0x05
+  constant c_AM_A64           : std_logic_vector(5 downto 0) := "000001";    -- 0x01
+  constant c_AM_A64_BLT       : std_logic_vector(5 downto 0) := "000011";    -- 0x03
+  constant c_AM_A64_MBLT      : std_logic_vector(5 downto 0) := "000000";    -- 0x00
+  constant c_AM_A64_LCK       : std_logic_vector(5 downto 0) := "000100";    -- 0x04
+  constant c_AM_TWOEDGE       : std_logic_vector(5 downto 0) := "100000";    -- 0x20
+
+  constant c_AM_A32_2EVME     : std_logic_vector(7 downto 0) := "00000001";  -- 0x01
+  constant c_AM_A64_2EVME     : std_logic_vector(7 downto 0) := "00000010";  -- 0x02
+  constant c_AM_A32_2ESST     : std_logic_vector(7 downto 0) := "00010001";  -- 0x11
+  constant c_AM_A64_2ESST     : std_logic_vector(7 downto 0) := "00010010";  -- 0x12
 
   -- Defined CR area
-  constant c_beg_cr             : unsigned(19 downto 0) := x"00000";
-  constant c_end_cr             : unsigned(19 downto 0) := x"00FFF";
+  constant c_BEG_CR           : unsigned(19 downto 0) := x"00000";
+  constant c_END_CR           : unsigned(19 downto 0) := x"00FFF";
 
   -- Defined CSR area
   -- NOTE: by the standard, the defined CSR area is from 7FC00..7FFFF and the
@@ -108,61 +104,61 @@ package vme64x_pack is
   --       Therefore, to allow compatibility with that version, the reserved
   --       area is not decoded as part of the defined CSR. However, it is not
   --       advisable to place any registers in this area in new designs.
-  constant c_beg_csr            : unsigned(19 downto 0) := x"7FF60";
-  constant c_end_csr            : unsigned(19 downto 0) := x"7FFFF";
+  constant c_BEG_CSR          : unsigned(19 downto 0) := x"7FF60";
+  constant c_END_CSR          : unsigned(19 downto 0) := x"7FFFF";
 
   -- Defined CSR addresses
-  constant c_addr_bar           : unsigned(19 downto 0) := x"7FFFF";
-  constant c_addr_bit_set_reg   : unsigned(19 downto 0) := x"7FFFB";
-  constant c_addr_bit_clr_reg   : unsigned(19 downto 0) := x"7FFF7";
-  constant c_addr_cram_owner    : unsigned(19 downto 0) := x"7FFF3";
-  constant c_addr_usr_set_reg   : unsigned(19 downto 0) := x"7FFEF";
-  constant c_addr_usr_clr_reg   : unsigned(19 downto 0) := x"7FFEB";
-  constant c_addr_f7_ader_0     : unsigned(19 downto 0) := x"7FFDF";
-  constant c_addr_f7_ader_1     : unsigned(19 downto 0) := x"7FFDB";
-  constant c_addr_f7_ader_2     : unsigned(19 downto 0) := x"7FFD7";
-  constant c_addr_f7_ader_3     : unsigned(19 downto 0) := x"7FFD3";
-  constant c_addr_f6_ader_0     : unsigned(19 downto 0) := x"7FFCF";
-  constant c_addr_f6_ader_1     : unsigned(19 downto 0) := x"7FFCB";
-  constant c_addr_f6_ader_2     : unsigned(19 downto 0) := x"7FFC7";
-  constant c_addr_f6_ader_3     : unsigned(19 downto 0) := x"7FFC3";
-  constant c_addr_f5_ader_0     : unsigned(19 downto 0) := x"7FFBF";
-  constant c_addr_f5_ader_1     : unsigned(19 downto 0) := x"7FFBB";
-  constant c_addr_f5_ader_2     : unsigned(19 downto 0) := x"7FFB7";
-  constant c_addr_f5_ader_3     : unsigned(19 downto 0) := x"7FFB3";
-  constant c_addr_f4_ader_0     : unsigned(19 downto 0) := x"7FFAF";
-  constant c_addr_f4_ader_1     : unsigned(19 downto 0) := x"7FFAB";
-  constant c_addr_f4_ader_2     : unsigned(19 downto 0) := x"7FFA7";
-  constant c_addr_f4_ader_3     : unsigned(19 downto 0) := x"7FFA3";
-  constant c_addr_f3_ader_0     : unsigned(19 downto 0) := x"7FF9F";
-  constant c_addr_f3_ader_1     : unsigned(19 downto 0) := x"7FF9B";
-  constant c_addr_f3_ader_2     : unsigned(19 downto 0) := x"7FF97";
-  constant c_addr_f3_ader_3     : unsigned(19 downto 0) := x"7FF93";
-  constant c_addr_f2_ader_0     : unsigned(19 downto 0) := x"7FF8F";
-  constant c_addr_f2_ader_1     : unsigned(19 downto 0) := x"7FF8B";
-  constant c_addr_f2_ader_2     : unsigned(19 downto 0) := x"7FF87";
-  constant c_addr_f2_ader_3     : unsigned(19 downto 0) := x"7FF83";
-  constant c_addr_f1_ader_0     : unsigned(19 downto 0) := x"7FF7F";
-  constant c_addr_f1_ader_1     : unsigned(19 downto 0) := x"7FF7B";
-  constant c_addr_f1_ader_2     : unsigned(19 downto 0) := x"7FF77";
-  constant c_addr_f1_ader_3     : unsigned(19 downto 0) := x"7FF73";
-  constant c_addr_f0_ader_0     : unsigned(19 downto 0) := x"7FF6F";
-  constant c_addr_f0_ader_1     : unsigned(19 downto 0) := x"7FF6B";
-  constant c_addr_f0_ader_2     : unsigned(19 downto 0) := x"7FF67";
-  constant c_addr_f0_ader_3     : unsigned(19 downto 0) := x"7FF63";
+  constant c_ADDR_BAR         : unsigned(19 downto 0) := x"7FFFF";
+  constant c_ADDR_BIT_SET_REG : unsigned(19 downto 0) := x"7FFFB";
+  constant c_ADDR_BIT_CLR_REG : unsigned(19 downto 0) := x"7FFF7";
+  constant c_ADDR_CRAM_OWNER  : unsigned(19 downto 0) := x"7FFF3";
+  constant c_ADDR_USR_SET_REG : unsigned(19 downto 0) := x"7FFEF";
+  constant c_ADDR_USR_CLR_REG : unsigned(19 downto 0) := x"7FFEB";
+  constant c_ADDR_F7_ADER_0   : unsigned(19 downto 0) := x"7FFDF";
+  constant c_ADDR_F7_ADER_1   : unsigned(19 downto 0) := x"7FFDB";
+  constant c_ADDR_F7_ADER_2   : unsigned(19 downto 0) := x"7FFD7";
+  constant c_ADDR_F7_ADER_3   : unsigned(19 downto 0) := x"7FFD3";
+  constant c_ADDR_F6_ADER_0   : unsigned(19 downto 0) := x"7FFCF";
+  constant c_ADDR_F6_ADER_1   : unsigned(19 downto 0) := x"7FFCB";
+  constant c_ADDR_F6_ADER_2   : unsigned(19 downto 0) := x"7FFC7";
+  constant c_ADDR_F6_ADER_3   : unsigned(19 downto 0) := x"7FFC3";
+  constant c_ADDR_F5_ADER_0   : unsigned(19 downto 0) := x"7FFBF";
+  constant c_ADDR_F5_ADER_1   : unsigned(19 downto 0) := x"7FFBB";
+  constant c_ADDR_F5_ADER_2   : unsigned(19 downto 0) := x"7FFB7";
+  constant c_ADDR_F5_ADER_3   : unsigned(19 downto 0) := x"7FFB3";
+  constant c_ADDR_F4_ADER_0   : unsigned(19 downto 0) := x"7FFAF";
+  constant c_ADDR_F4_ADER_1   : unsigned(19 downto 0) := x"7FFAB";
+  constant c_ADDR_F4_ADER_2   : unsigned(19 downto 0) := x"7FFA7";
+  constant c_ADDR_F4_ADER_3   : unsigned(19 downto 0) := x"7FFA3";
+  constant c_ADDR_F3_ADER_0   : unsigned(19 downto 0) := x"7FF9F";
+  constant c_ADDR_F3_ADER_1   : unsigned(19 downto 0) := x"7FF9B";
+  constant c_ADDR_F3_ADER_2   : unsigned(19 downto 0) := x"7FF97";
+  constant c_ADDR_F3_ADER_3   : unsigned(19 downto 0) := x"7FF93";
+  constant c_ADDR_F2_ADER_0   : unsigned(19 downto 0) := x"7FF8F";
+  constant c_ADDR_F2_ADER_1   : unsigned(19 downto 0) := x"7FF8B";
+  constant c_ADDR_F2_ADER_2   : unsigned(19 downto 0) := x"7FF87";
+  constant c_ADDR_F2_ADER_3   : unsigned(19 downto 0) := x"7FF83";
+  constant c_ADDR_F1_ADER_0   : unsigned(19 downto 0) := x"7FF7F";
+  constant c_ADDR_F1_ADER_1   : unsigned(19 downto 0) := x"7FF7B";
+  constant c_ADDR_F1_ADER_2   : unsigned(19 downto 0) := x"7FF77";
+  constant c_ADDR_F1_ADER_3   : unsigned(19 downto 0) := x"7FF73";
+  constant c_ADDR_F0_ADER_0   : unsigned(19 downto 0) := x"7FF6F";
+  constant c_ADDR_F0_ADER_1   : unsigned(19 downto 0) := x"7FF6B";
+  constant c_ADDR_F0_ADER_2   : unsigned(19 downto 0) := x"7FF67";
+  constant c_ADDR_F0_ADER_3   : unsigned(19 downto 0) := x"7FF63";
 
   -- User CSR addresses
-  constant c_addr_irq_vector    : unsigned(19 downto 0) := x"0002F";
-  constant c_addr_irq_level     : unsigned(19 downto 0) := x"0002B";
-  constant c_addr_endian        : unsigned(19 downto 0) := x"00023";
-  constant c_addr_time0_ns      : unsigned(19 downto 0) := x"0001F";
-  constant c_addr_time1_ns      : unsigned(19 downto 0) := x"0001B";
-  constant c_addr_time2_ns      : unsigned(19 downto 0) := x"00017";
-  constant c_addr_time3_ns      : unsigned(19 downto 0) := x"00013";
-  constant c_addr_time4_ns      : unsigned(19 downto 0) := x"0000F";
-  constant c_addr_bytes0        : unsigned(19 downto 0) := x"0000B";
-  constant c_addr_bytes1        : unsigned(19 downto 0) := x"00007";
-  constant c_addr_wb32bits      : unsigned(19 downto 0) := x"00003";
+  constant c_ADDR_IRQ_VECTOR  : unsigned(19 downto 0) := x"0002F";
+  constant c_ADDR_IRQ_LEVEL   : unsigned(19 downto 0) := x"0002B";
+  constant c_ADDR_ENDIAN      : unsigned(19 downto 0) := x"00023";
+  constant c_ADDR_TIME0_NS    : unsigned(19 downto 0) := x"0001F";
+  constant c_ADDR_TIME1_NS    : unsigned(19 downto 0) := x"0001B";
+  constant c_ADDR_TIME2_NS    : unsigned(19 downto 0) := x"00017";
+  constant c_ADDR_TIME3_NS    : unsigned(19 downto 0) := x"00013";
+  constant c_ADDR_TIME4_NS    : unsigned(19 downto 0) := x"0000F";
+  constant c_ADDR_BYTES0      : unsigned(19 downto 0) := x"0000B";
+  constant c_ADDR_BYTES1      : unsigned(19 downto 0) := x"00007";
+  constant c_ADDR_WB32BITS    : unsigned(19 downto 0) := x"00003";
 
   ------------------------------------------------------------------------------
   -- Types
@@ -340,55 +336,55 @@ package vme64x_pack is
 
   component VME64xCore_Top
     generic (
-      g_clock           : integer                         := c_clk_period;
-      g_wb_data_width   : integer                         := c_width;
-      g_wb_addr_width   : integer                         := c_addr_width;
-      g_user_csr_ext    : boolean                         := false;
-      g_manufacturer_id : std_logic_vector(23 downto 0)   := c_cern_id;
-      g_board_id        : std_logic_vector(31 downto 0)   := c_svec_id;
-      g_revision_id     : std_logic_vector(31 downto 0)   := c_revision_id;
-      g_program_id      : std_logic_vector(7 downto 0)    := c_program_id;
-      g_ascii_ptr       : std_logic_vector(23 downto 0)   := x"000000";
-      g_beg_user_cr     : std_logic_vector(23 downto 0)   := x"000000";
-      g_end_user_cr     : std_logic_vector(23 downto 0)   := x"000000";
-      g_beg_cram        : std_logic_vector(23 downto 0)   := x"001003";
-      g_end_cram        : std_logic_vector(23 downto 0)   := x"0013ff";
-      g_beg_user_csr    : std_logic_vector(23 downto 0)   := x"07ff33";
-      g_end_user_csr    : std_logic_vector(23 downto 0)   := x"07ff5f";
-      g_beg_sn          : std_logic_vector(23 downto 0)   := x"000000";
-      g_end_sn          : std_logic_vector(23 downto 0)   := x"000000";
-      g_f0_adem         : std_logic_vector( 31 downto 0)  := x"ff000000";
-      g_f0_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_0000bb00";
-      g_f0_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-      g_f0_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
-      g_f1_adem         : std_logic_vector( 31 downto 0)  := x"fff80000";
-      g_f1_amcap        : std_logic_vector( 63 downto 0)  := x"bb000000_00000000";
-      g_f1_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-      g_f1_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
-      g_f2_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
-      g_f2_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_f2_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-      g_f2_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
-      g_f3_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
-      g_f3_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_f3_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-      g_f3_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
-      g_f4_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
-      g_f4_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_f4_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-      g_f4_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
-      g_f5_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
-      g_f5_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_f5_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-      g_f5_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
-      g_f6_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
-      g_f6_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_f6_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-      g_f6_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
-      g_f7_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
-      g_f7_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_f7_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-      g_f7_dawpr        : std_logic_vector(  7 downto 0)  := x"84"
+      g_CLOCK_PERIOD    : integer                         := c_CLOCK_PERIOD;
+      g_WB_DATA_WIDTH   : integer                         := c_DATA_WIDTH;
+      g_WB_ADDR_WIDTH   : integer                         := c_ADDR_WIDTH;
+      g_USER_CSR_EXT    : boolean                         := false;
+      g_MANUFACTURER_ID : std_logic_vector(23 downto 0)   := c_CERN_ID;
+      g_BOARD_ID        : std_logic_vector(31 downto 0)   := c_SVEC_ID;
+      g_REVISION_ID     : std_logic_vector(31 downto 0)   := c_REVISION_ID;
+      g_PROGRAM_ID      : std_logic_vector(7 downto 0)    := c_PROGRAM_ID;
+      g_ASCII_PTR       : std_logic_vector(23 downto 0)   := x"000000";
+      g_BEG_USER_CR     : std_logic_vector(23 downto 0)   := x"000000";
+      g_END_USER_CR     : std_logic_vector(23 downto 0)   := x"000000";
+      g_BEG_CRAM        : std_logic_vector(23 downto 0)   := x"001003";
+      g_END_CRAM        : std_logic_vector(23 downto 0)   := x"0013ff";
+      g_BEG_USER_CSR    : std_logic_vector(23 downto 0)   := x"07ff33";
+      g_END_USER_CSR    : std_logic_vector(23 downto 0)   := x"07ff5f";
+      g_BEG_SN          : std_logic_vector(23 downto 0)   := x"000000";
+      g_END_SN          : std_logic_vector(23 downto 0)   := x"000000";
+      g_F0_ADEM         : std_logic_vector( 31 downto 0)  := x"ff000000";
+      g_F0_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_0000bb00";
+      g_F0_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+      g_F0_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
+      g_F1_ADEM         : std_logic_vector( 31 downto 0)  := x"fff80000";
+      g_F1_AMCAP        : std_logic_vector( 63 downto 0)  := x"bb000000_00000000";
+      g_F1_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+      g_F1_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
+      g_F2_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
+      g_F2_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+      g_F2_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+      g_F2_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
+      g_F3_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
+      g_F3_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+      g_F3_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+      g_F3_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
+      g_F4_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
+      g_F4_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+      g_F4_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+      g_F4_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
+      g_F5_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
+      g_F5_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+      g_F5_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+      g_F5_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
+      g_F6_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
+      g_F6_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+      g_F6_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+      g_F6_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
+      g_F7_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
+      g_F7_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+      g_F7_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+      g_F7_DAWPR        : std_logic_vector(  7 downto 0)  := x"84"
     );
     port (
       clk_i           : in  std_logic;
@@ -419,13 +415,13 @@ package vme64x_pack is
       VME_ADDR_DIR_o  : out std_logic;
       VME_ADDR_OE_N_o : out std_logic;
       VME_RETRY_OE_o  : out std_logic;
-      DAT_i           : in  std_logic_vector(g_wb_data_width-1 downto 0);
-      DAT_o           : out std_logic_vector(g_wb_data_width-1 downto 0);
-      ADR_o           : out std_logic_vector(g_wb_addr_width-1 downto 0);
+      DAT_i           : in  std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
+      DAT_o           : out std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
+      ADR_o           : out std_logic_vector(g_WB_ADDR_WIDTH-1 downto 0);
       CYC_o           : out std_logic;
       ERR_i           : in  std_logic;
       RTY_i           : in  std_logic;
-      SEL_o           : out std_logic_vector(g_wb_data_width/8-1 downto 0);
+      SEL_o           : out std_logic_vector(g_WB_DATA_WIDTH/8-1 downto 0);
       STB_o           : out std_logic;
       ACK_i           : in  std_logic;
       WE_o            : out std_logic;
@@ -462,39 +458,39 @@ package vme64x_pack is
 
   component VME_bus is
     generic (
-      g_clock         : integer;
-      g_wb_data_width : integer;
-      g_wb_addr_width : integer;
-      g_beg_user_cr   : std_logic_vector( 23 downto 0);
-      g_end_user_cr   : std_logic_vector( 23 downto 0);
-      g_beg_cram      : std_logic_vector( 23 downto 0);
-      g_end_cram      : std_logic_vector( 23 downto 0);
-      g_beg_user_csr  : std_logic_vector( 23 downto 0);
-      g_end_user_csr  : std_logic_vector( 23 downto 0);
-      g_f0_adem       : std_logic_vector( 31 downto 0);
-      g_f0_amcap      : std_logic_vector( 63 downto 0);
-      g_f0_xamcap     : std_logic_vector(255 downto 0);
-      g_f1_adem       : std_logic_vector( 31 downto 0);
-      g_f1_amcap      : std_logic_vector( 63 downto 0);
-      g_f1_xamcap     : std_logic_vector(255 downto 0);
-      g_f2_adem       : std_logic_vector( 31 downto 0);
-      g_f2_amcap      : std_logic_vector( 63 downto 0);
-      g_f2_xamcap     : std_logic_vector(255 downto 0);
-      g_f3_adem       : std_logic_vector( 31 downto 0);
-      g_f3_amcap      : std_logic_vector( 63 downto 0);
-      g_f3_xamcap     : std_logic_vector(255 downto 0);
-      g_f4_adem       : std_logic_vector( 31 downto 0);
-      g_f4_amcap      : std_logic_vector( 63 downto 0);
-      g_f4_xamcap     : std_logic_vector(255 downto 0);
-      g_f5_adem       : std_logic_vector( 31 downto 0);
-      g_f5_amcap      : std_logic_vector( 63 downto 0);
-      g_f5_xamcap     : std_logic_vector(255 downto 0);
-      g_f6_adem       : std_logic_vector( 31 downto 0);
-      g_f6_amcap      : std_logic_vector( 63 downto 0);
-      g_f6_xamcap     : std_logic_vector(255 downto 0);
-      g_f7_adem       : std_logic_vector( 31 downto 0);
-      g_f7_amcap      : std_logic_vector( 63 downto 0);
-      g_f7_xamcap     : std_logic_vector(255 downto 0)
+      g_CLOCK_PERIOD  : integer;
+      g_WB_DATA_WIDTH : integer;
+      g_WB_ADDR_WIDTH : integer;
+      g_BEG_USER_CR   : std_logic_vector( 23 downto 0);
+      g_END_USER_CR   : std_logic_vector( 23 downto 0);
+      g_BEG_CRAM      : std_logic_vector( 23 downto 0);
+      g_END_CRAM      : std_logic_vector( 23 downto 0);
+      g_BEG_USER_CSR  : std_logic_vector( 23 downto 0);
+      g_END_USER_CSR  : std_logic_vector( 23 downto 0);
+      g_F0_ADEM       : std_logic_vector( 31 downto 0);
+      g_F0_AMCAP      : std_logic_vector( 63 downto 0);
+      g_F0_XAMCAP     : std_logic_vector(255 downto 0);
+      g_F1_ADEM       : std_logic_vector( 31 downto 0);
+      g_F1_AMCAP      : std_logic_vector( 63 downto 0);
+      g_F1_XAMCAP     : std_logic_vector(255 downto 0);
+      g_F2_ADEM       : std_logic_vector( 31 downto 0);
+      g_F2_AMCAP      : std_logic_vector( 63 downto 0);
+      g_F2_XAMCAP     : std_logic_vector(255 downto 0);
+      g_F3_ADEM       : std_logic_vector( 31 downto 0);
+      g_F3_AMCAP      : std_logic_vector( 63 downto 0);
+      g_F3_XAMCAP     : std_logic_vector(255 downto 0);
+      g_F4_ADEM       : std_logic_vector( 31 downto 0);
+      g_F4_AMCAP      : std_logic_vector( 63 downto 0);
+      g_F4_XAMCAP     : std_logic_vector(255 downto 0);
+      g_F5_ADEM       : std_logic_vector( 31 downto 0);
+      g_F5_AMCAP      : std_logic_vector( 63 downto 0);
+      g_F5_XAMCAP     : std_logic_vector(255 downto 0);
+      g_F6_ADEM       : std_logic_vector( 31 downto 0);
+      g_F6_AMCAP      : std_logic_vector( 63 downto 0);
+      g_F6_XAMCAP     : std_logic_vector(255 downto 0);
+      g_F7_ADEM       : std_logic_vector( 31 downto 0);
+      g_F7_AMCAP      : std_logic_vector( 63 downto 0);
+      g_F7_XAMCAP     : std_logic_vector(255 downto 0)
     );
     port (
       clk_i           : in  std_logic;
@@ -522,10 +518,10 @@ package vme64x_pack is
       VME_IACK_n_i    : in  std_logic;
       stb_o           : out std_logic;
       ack_i           : in  std_logic;
-      dat_o           : out std_logic_vector(g_wb_data_width-1 downto 0);
-      dat_i           : in  std_logic_vector(g_wb_data_width-1 downto 0);
-      adr_o           : out std_logic_vector(g_wb_addr_width-1 downto 0);
-      sel_o           : out std_logic_vector(g_wb_data_width/8-1 downto 0);
+      dat_o           : out std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
+      dat_i           : in  std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
+      adr_o           : out std_logic_vector(g_WB_ADDR_WIDTH-1 downto 0);
+      sel_o           : out std_logic_vector(g_WB_DATA_WIDTH/8-1 downto 0);
       we_o            : out std_logic;
       cyc_o           : out std_logic;
       err_i           : in  std_logic;
@@ -632,51 +628,51 @@ package vme64x_pack is
 
   component VME_CR_CSR_Space is
     generic (
-      g_manufacturer_id : std_logic_vector(23 downto 0);
-      g_board_id        : std_logic_vector(31 downto 0);
-      g_revision_id     : std_logic_vector(31 downto 0);
-      g_program_id      : std_logic_vector(7 downto 0);
-      g_ascii_ptr       : std_logic_vector(23 downto 0);
-      g_beg_user_cr     : std_logic_vector(23 downto 0);
-      g_end_user_cr     : std_logic_vector(23 downto 0);
-      g_beg_cram        : std_logic_vector(23 downto 0);
-      g_end_cram        : std_logic_vector(23 downto 0);
-      g_beg_user_csr    : std_logic_vector(23 downto 0);
-      g_end_user_csr    : std_logic_vector(23 downto 0);
-      g_beg_sn          : std_logic_vector(23 downto 0);
-      g_end_sn          : std_logic_vector(23 downto 0);
-      g_f0_adem         : std_logic_vector( 31 downto 0);
-      g_f0_amcap        : std_logic_vector( 63 downto 0);
-      g_f0_xamcap       : std_logic_vector(255 downto 0);
-      g_f0_dawpr        : std_logic_vector(  7 downto 0);
-      g_f1_adem         : std_logic_vector( 31 downto 0);
-      g_f1_amcap        : std_logic_vector( 63 downto 0);
-      g_f1_xamcap       : std_logic_vector(255 downto 0);
-      g_f1_dawpr        : std_logic_vector(  7 downto 0);
-      g_f2_adem         : std_logic_vector( 31 downto 0);
-      g_f2_amcap        : std_logic_vector( 63 downto 0);
-      g_f2_xamcap       : std_logic_vector(255 downto 0);
-      g_f2_dawpr        : std_logic_vector(  7 downto 0);
-      g_f3_adem         : std_logic_vector( 31 downto 0);
-      g_f3_amcap        : std_logic_vector( 63 downto 0);
-      g_f3_xamcap       : std_logic_vector(255 downto 0);
-      g_f3_dawpr        : std_logic_vector(  7 downto 0);
-      g_f4_adem         : std_logic_vector( 31 downto 0);
-      g_f4_amcap        : std_logic_vector( 63 downto 0);
-      g_f4_xamcap       : std_logic_vector(255 downto 0);
-      g_f4_dawpr        : std_logic_vector(  7 downto 0);
-      g_f5_adem         : std_logic_vector( 31 downto 0);
-      g_f5_amcap        : std_logic_vector( 63 downto 0);
-      g_f5_xamcap       : std_logic_vector(255 downto 0);
-      g_f5_dawpr        : std_logic_vector(  7 downto 0);
-      g_f6_adem         : std_logic_vector( 31 downto 0);
-      g_f6_amcap        : std_logic_vector( 63 downto 0);
-      g_f6_xamcap       : std_logic_vector(255 downto 0);
-      g_f6_dawpr        : std_logic_vector(  7 downto 0);
-      g_f7_adem         : std_logic_vector( 31 downto 0);
-      g_f7_amcap        : std_logic_vector( 63 downto 0);
-      g_f7_xamcap       : std_logic_vector(255 downto 0);
-      g_f7_dawpr        : std_logic_vector(  7 downto 0)
+      g_MANUFACTURER_ID : std_logic_vector(23 downto 0);
+      g_BOARD_ID        : std_logic_vector(31 downto 0);
+      g_REVISION_ID     : std_logic_vector(31 downto 0);
+      g_PROGRAM_ID      : std_logic_vector(7 downto 0);
+      g_ASCII_PTR       : std_logic_vector(23 downto 0);
+      g_BEG_USER_CR     : std_logic_vector(23 downto 0);
+      g_END_USER_CR     : std_logic_vector(23 downto 0);
+      g_BEG_CRAM        : std_logic_vector(23 downto 0);
+      g_END_CRAM        : std_logic_vector(23 downto 0);
+      g_BEG_USER_CSR    : std_logic_vector(23 downto 0);
+      g_END_USER_CSR    : std_logic_vector(23 downto 0);
+      g_BEG_SN          : std_logic_vector(23 downto 0);
+      g_END_SN          : std_logic_vector(23 downto 0);
+      g_F0_ADEM         : std_logic_vector( 31 downto 0);
+      g_F0_AMCAP        : std_logic_vector( 63 downto 0);
+      g_F0_XAMCAP       : std_logic_vector(255 downto 0);
+      g_F0_DAWPR        : std_logic_vector(  7 downto 0);
+      g_F1_ADEM         : std_logic_vector( 31 downto 0);
+      g_F1_AMCAP        : std_logic_vector( 63 downto 0);
+      g_F1_XAMCAP       : std_logic_vector(255 downto 0);
+      g_F1_DAWPR        : std_logic_vector(  7 downto 0);
+      g_F2_ADEM         : std_logic_vector( 31 downto 0);
+      g_F2_AMCAP        : std_logic_vector( 63 downto 0);
+      g_F2_XAMCAP       : std_logic_vector(255 downto 0);
+      g_F2_DAWPR        : std_logic_vector(  7 downto 0);
+      g_F3_ADEM         : std_logic_vector( 31 downto 0);
+      g_F3_AMCAP        : std_logic_vector( 63 downto 0);
+      g_F3_XAMCAP       : std_logic_vector(255 downto 0);
+      g_F3_DAWPR        : std_logic_vector(  7 downto 0);
+      g_F4_ADEM         : std_logic_vector( 31 downto 0);
+      g_F4_AMCAP        : std_logic_vector( 63 downto 0);
+      g_F4_XAMCAP       : std_logic_vector(255 downto 0);
+      g_F4_DAWPR        : std_logic_vector(  7 downto 0);
+      g_F5_ADEM         : std_logic_vector( 31 downto 0);
+      g_F5_AMCAP        : std_logic_vector( 63 downto 0);
+      g_F5_XAMCAP       : std_logic_vector(255 downto 0);
+      g_F5_DAWPR        : std_logic_vector(  7 downto 0);
+      g_F6_ADEM         : std_logic_vector( 31 downto 0);
+      g_F6_AMCAP        : std_logic_vector( 63 downto 0);
+      g_F6_XAMCAP       : std_logic_vector(255 downto 0);
+      g_F6_DAWPR        : std_logic_vector(  7 downto 0);
+      g_F7_ADEM         : std_logic_vector( 31 downto 0);
+      g_F7_AMCAP        : std_logic_vector( 63 downto 0);
+      g_F7_XAMCAP       : std_logic_vector(255 downto 0);
+      g_F7_DAWPR        : std_logic_vector(  7 downto 0)
     );
     port (
       clk_i               : in  std_logic;
@@ -764,7 +760,7 @@ package vme64x_pack is
 
   component VME_User_CSR is
     generic (
-      g_wb_data_width     : integer
+      g_WB_DATA_WIDTH     : integer
     );
     port (
       clk_i               : in  std_logic;
@@ -783,8 +779,8 @@ package vme64x_pack is
 
   component VME_Wb_master is
     generic (
-      g_wb_data_width : integer;
-      g_wb_addr_width : integer
+      g_WB_DATA_WIDTH : integer;
+      g_WB_ADDR_WIDTH : integer
     );
     port (
       memReq_i        : in  std_logic;
@@ -799,7 +795,7 @@ package vme64x_pack is
       stall_i         : in  std_logic;
       rty_i           : in  std_logic;
       err_i           : in  std_logic;
-      wbData_i        : in  std_logic_vector(g_wb_data_width-1 downto 0);
+      wbData_i        : in  std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
       memAckWB_i      : in  std_logic;
       locDataOut_o    : out std_logic_vector(63 downto 0);
       memAckWb_o      : out std_logic;
@@ -807,9 +803,9 @@ package vme64x_pack is
       rty_o           : out std_logic;
       cyc_o           : out std_logic;
       memReq_o        : out std_logic;
-      WBdata_o        : out std_logic_vector(g_wb_data_width-1 downto 0);
-      locAddr_o       : out std_logic_vector(g_wb_addr_width-1 downto 0);
-      WbSel_o         : out std_logic_vector(g_wb_data_width/8-1 downto 0);
+      WBdata_o        : out std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
+      locAddr_o       : out std_logic_vector(g_WB_ADDR_WIDTH-1 downto 0);
+      WbSel_o         : out std_logic_vector(g_WB_DATA_WIDTH/8-1 downto 0);
       RW_o            : out std_logic
     );
   end component VME_Wb_master;
@@ -824,7 +820,7 @@ package vme64x_pack is
 
   component VME_IRQ_Controller
     generic (
-      g_retry_timeout : integer range 1024 to 16777215
+      g_RETRY_TIMEOUT : integer range 1024 to 16777215
     );
     port (
       clk_i           : in  std_logic;
@@ -847,8 +843,8 @@ package vme64x_pack is
 
   component VME_CRAM is
     generic (
-      g_beg_cram : std_logic_vector(23 downto 0);
-      g_end_cram : std_logic_vector(23 downto 0)
+      g_BEG_CRAM : std_logic_vector(23 downto 0);
+      g_END_CRAM : std_logic_vector(23 downto 0)
     );
     port (
       clk_i   : in  std_logic;

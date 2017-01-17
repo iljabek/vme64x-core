@@ -129,7 +129,7 @@ use work.vme64x_pack.all;
 
 entity VME_IRQ_Controller is
   generic (
-    g_retry_timeout : integer range 1024 to 16777215
+    g_RETRY_TIMEOUT : integer range 1024 to 16777215
   );
   port (
     clk_i           : in  std_logic;
@@ -224,7 +224,7 @@ begin
               retry_state <= WAIT_IRQ;
             else
               retry_count <= retry_count + 1;
-              if (retry_count = g_retry_timeout) then
+              if (retry_count = g_RETRY_TIMEOUT) then
                 retry_state <= WAIT_IRQ;
               end if;
             end if;

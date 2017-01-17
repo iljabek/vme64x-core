@@ -308,7 +308,7 @@ begin
 
   -- Check if the CR/CSR space is addressed
   Confaccess <= '1'
-    when unsigned(BAR_i) = unsigned(Addr(23 downto 19)) and Am = c_CR_CSR
+    when unsigned(BAR_i) = unsigned(Addr(23 downto 19)) and Am = c_AM_CR_CSR
     else '0';
 
 end Behavioral;

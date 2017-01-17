@@ -37,70 +37,70 @@ use work.vme64x_pack.all;
 
 entity xvme64x_core is
   generic (
-    g_clock_period    : integer                         := c_clk_period;
-    g_wb_data_width   : integer                         := c_wishbone_data_width;
-    g_wb_addr_width   : integer                         := c_wishbone_address_width;
-    g_user_csr_ext    : boolean                         := false;
+    g_CLOCK_PERIOD    : integer                         := c_CLOCK_PERIOD;
+    g_WB_DATA_WIDTH   : integer                         := c_wishbone_data_width;
+    g_WB_ADDR_WIDTH   : integer                         := c_wishbone_address_width;
+    g_USER_CSR_EXT    : boolean                         := false;
 
     -- CR/CSR
-    g_manufacturer_id : std_logic_vector(23 downto 0)   := c_cern_id;
-    g_board_id        : std_logic_vector(31 downto 0)   := c_svec_id;
-    g_revision_id     : std_logic_vector(31 downto 0)   := c_revision_id;
-    g_program_id      : std_logic_vector(7 downto 0)    := c_program_id;
+    g_MANUFACTURER_ID : std_logic_vector(23 downto 0)   := c_CERN_ID;
+    g_BOARD_ID        : std_logic_vector(31 downto 0)   := c_SVEC_ID;
+    g_REVISION_ID     : std_logic_vector(31 downto 0)   := c_REVISION_ID;
+    g_PROGRAM_ID      : std_logic_vector(7 downto 0)    := c_PROGRAM_ID;
 
-    g_ascii_ptr       : std_logic_vector(23 downto 0)   := x"000000";
+    g_ASCII_PTR       : std_logic_vector(23 downto 0)   := x"000000";
 
-    g_beg_user_cr     : std_logic_vector(23 downto 0)   := x"000000";
-    g_end_user_cr     : std_logic_vector(23 downto 0)   := x"000000";
+    g_BEG_USER_CR     : std_logic_vector(23 downto 0)   := x"000000";
+    g_END_USER_CR     : std_logic_vector(23 downto 0)   := x"000000";
 
-    g_beg_cram        : std_logic_vector(23 downto 0)   := x"001003";
-    g_end_cram        : std_logic_vector(23 downto 0)   := x"0013ff";
+    g_BEG_CRAM        : std_logic_vector(23 downto 0)   := x"001003";
+    g_END_CRAM        : std_logic_vector(23 downto 0)   := x"0013ff";
 
-    g_beg_user_csr    : std_logic_vector(23 downto 0)   := x"07ff33";
-    g_end_user_csr    : std_logic_vector(23 downto 0)   := x"07ff5f";
+    g_BEG_USER_CSR    : std_logic_vector(23 downto 0)   := x"07ff33";
+    g_END_USER_CSR    : std_logic_vector(23 downto 0)   := x"07ff5f";
 
-    g_beg_sn          : std_logic_vector(23 downto 0)   := x"000000";
-    g_end_sn          : std_logic_vector(23 downto 0)   := x"000000";
+    g_BEG_SN          : std_logic_vector(23 downto 0)   := x"000000";
+    g_END_SN          : std_logic_vector(23 downto 0)   := x"000000";
 
-    g_f0_adem         : std_logic_vector( 31 downto 0)  := x"ff000000";
-    g_f0_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_0000bb00";
-    g_f0_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-    g_f0_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+    g_F0_ADEM         : std_logic_vector( 31 downto 0)  := x"ff000000";
+    g_F0_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_0000bb00";
+    g_F0_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_F0_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
-    g_f1_adem         : std_logic_vector( 31 downto 0)  := x"fff80000";
-    g_f1_amcap        : std_logic_vector( 63 downto 0)  := x"bb000000_00000000";
-    g_f1_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-    g_f1_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+    g_F1_ADEM         : std_logic_vector( 31 downto 0)  := x"fff80000";
+    g_F1_AMCAP        : std_logic_vector( 63 downto 0)  := x"bb000000_00000000";
+    g_F1_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_F1_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
-    g_f2_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
-    g_f2_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_f2_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-    g_f2_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+    g_F2_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
+    g_F2_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+    g_F2_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_F2_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
-    g_f3_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
-    g_f3_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_f3_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-    g_f3_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+    g_F3_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
+    g_F3_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+    g_F3_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_F3_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
-    g_f4_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
-    g_f4_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_f4_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-    g_f4_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+    g_F4_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
+    g_F4_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+    g_F4_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_F4_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
-    g_f5_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
-    g_f5_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_f5_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-    g_f5_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+    g_F5_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
+    g_F5_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+    g_F5_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_F5_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
-    g_f6_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
-    g_f6_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_f6_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-    g_f6_dawpr        : std_logic_vector(  7 downto 0)  := x"84";
+    g_F6_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
+    g_F6_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+    g_F6_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_F6_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
-    g_f7_adem         : std_logic_vector( 31 downto 0)  := x"00000000";
-    g_f7_amcap        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_f7_xamcap       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
-    g_f7_dawpr        : std_logic_vector(  7 downto 0)  := x"84"
+    g_F7_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
+    g_F7_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+    g_F7_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
+    g_F7_DAWPR        : std_logic_vector(  7 downto 0)  := x"84"
   );
   port (
     clk_i           : in  std_logic;
@@ -182,54 +182,54 @@ begin  -- wrapper
 
   U_Wrapped_VME : VME64xCore_Top
     generic map (
-      g_clock           => g_clock_period,
-      g_wb_data_width   => g_wb_data_width,
-      g_wb_addr_width   => g_wb_addr_width,
-      g_manufacturer_id => g_manufacturer_id,
-      g_board_id        => g_board_id,
-      g_revision_id     => g_revision_id,
-      g_program_id      => g_program_id,
-      g_ascii_ptr       => g_ascii_ptr,
-      g_beg_user_cr     => g_beg_user_cr,
-      g_end_user_cr     => g_end_user_cr,
-      g_beg_cram        => g_beg_cram,
-      g_end_cram        => g_end_cram,
-      g_beg_user_csr    => g_beg_user_csr,
-      g_end_user_csr    => g_end_user_csr,
-      g_beg_sn          => g_beg_sn,
-      g_end_sn          => g_end_sn,
-      g_f0_adem         => g_f0_adem,
-      g_f0_amcap        => g_f0_amcap,
-      g_f0_xamcap       => g_f0_xamcap,
-      g_f0_dawpr        => g_f0_dawpr,
-      g_f1_adem         => g_f1_adem,
-      g_f1_amcap        => g_f1_amcap,
-      g_f1_xamcap       => g_f1_xamcap,
-      g_f1_dawpr        => g_f1_dawpr,
-      g_f2_adem         => g_f2_adem,
-      g_f2_amcap        => g_f2_amcap,
-      g_f2_xamcap       => g_f2_xamcap,
-      g_f2_dawpr        => g_f2_dawpr,
-      g_f3_adem         => g_f3_adem,
-      g_f3_amcap        => g_f3_amcap,
-      g_f3_xamcap       => g_f3_xamcap,
-      g_f3_dawpr        => g_f3_dawpr,
-      g_f4_adem         => g_f4_adem,
-      g_f4_amcap        => g_f4_amcap,
-      g_f4_xamcap       => g_f4_xamcap,
-      g_f4_dawpr        => g_f4_dawpr,
-      g_f5_adem         => g_f5_adem,
-      g_f5_amcap        => g_f5_amcap,
-      g_f5_xamcap       => g_f5_xamcap,
-      g_f5_dawpr        => g_f5_dawpr,
-      g_f6_adem         => g_f6_adem,
-      g_f6_amcap        => g_f6_amcap,
-      g_f6_xamcap       => g_f6_xamcap,
-      g_f6_dawpr        => g_f6_dawpr,
-      g_f7_adem         => g_f7_adem,
-      g_f7_amcap        => g_f7_amcap,
-      g_f7_xamcap       => g_f7_xamcap,
-      g_f7_dawpr        => g_f7_dawpr
+      g_CLOCK           => g_CLOCK_PERIOD,
+      g_WB_DATA_WIDTH   => g_WB_DATA_WIDTH,
+      g_WB_ADDR_WIDTH   => g_WB_ADDR_WIDTH,
+      g_MANUFACTURER_ID => g_MANUFACTURER_ID,
+      g_BOARD_ID        => g_BOARD_ID,
+      g_REVISION_ID     => g_REVISION_ID,
+      g_PROGRAM_ID      => g_PROGRAM_ID,
+      g_ASCII_PTR       => g_ASCII_PTR,
+      g_BEG_USER_CR     => g_BEG_USER_CR,
+      g_END_USER_CR     => g_END_USER_CR,
+      g_BEG_CRAM        => g_BEG_CRAM,
+      g_END_CRAM        => g_END_CRAM,
+      g_BEG_USER_CSR    => g_BEG_USER_CSR,
+      g_END_USER_CSR    => g_END_USER_CSR,
+      g_BEG_SN          => g_BEG_SN,
+      g_END_SN          => g_END_SN,
+      g_F0_ADEM         => g_F0_ADEM,
+      g_F0_AMCAP        => g_F0_AMCAP,
+      g_F0_XAMCAP       => g_F0_XAMCAP,
+      g_F0_DAWPR        => g_F0_DAWPR,
+      g_F1_ADEM         => g_F1_ADEM,
+      g_F1_AMCAP        => g_F1_AMCAP,
+      g_F1_XAMCAP       => g_F1_XAMCAP,
+      g_F1_DAWPR        => g_F1_DAWPR,
+      g_F2_ADEM         => g_F2_ADEM,
+      g_F2_AMCAP        => g_F2_AMCAP,
+      g_F2_XAMCAP       => g_F2_XAMCAP,
+      g_F2_DAWPR        => g_F2_DAWPR,
+      g_F3_ADEM         => g_F3_ADEM,
+      g_F3_AMCAP        => g_F3_AMCAP,
+      g_F3_XAMCAP       => g_F3_XAMCAP,
+      g_F3_DAWPR        => g_F3_DAWPR,
+      g_F4_ADEM         => g_F4_ADEM,
+      g_F4_AMCAP        => g_F4_AMCAP,
+      g_F4_XAMCAP       => g_F4_XAMCAP,
+      g_F4_DAWPR        => g_F4_DAWPR,
+      g_F5_ADEM         => g_F5_ADEM,
+      g_F5_AMCAP        => g_F5_AMCAP,
+      g_F5_XAMCAP       => g_F5_XAMCAP,
+      g_F5_DAWPR        => g_F5_DAWPR,
+      g_F6_ADEM         => g_F6_ADEM,
+      g_F6_AMCAP        => g_F6_AMCAP,
+      g_F6_XAMCAP       => g_F6_XAMCAP,
+      g_F6_DAWPR        => g_F6_DAWPR,
+      g_F7_ADEM         => g_F7_ADEM,
+      g_F7_AMCAP        => g_F7_AMCAP,
+      g_F7_XAMCAP       => g_F7_XAMCAP,
+      g_F7_DAWPR        => g_F7_DAWPR
     )
     port map (
       clk_i           => clk_i,

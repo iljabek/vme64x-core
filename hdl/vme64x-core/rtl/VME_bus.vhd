@@ -69,39 +69,39 @@ use work.vme64x_pack.all;
 
 entity VME_bus is
   generic (
-    g_clock         : integer;
-    g_wb_data_width : integer;
-    g_wb_addr_width : integer;
-    g_beg_user_cr   : std_logic_vector( 23 downto 0);
-    g_end_user_cr   : std_logic_vector( 23 downto 0);
-    g_beg_cram      : std_logic_vector( 23 downto 0);
-    g_end_cram      : std_logic_vector( 23 downto 0);
-    g_beg_user_csr  : std_logic_vector( 23 downto 0);
-    g_end_user_csr  : std_logic_vector( 23 downto 0);
-    g_f0_adem       : std_logic_vector( 31 downto 0);
-    g_f0_amcap      : std_logic_vector( 63 downto 0);
-    g_f0_xamcap     : std_logic_vector(255 downto 0);
-    g_f1_adem       : std_logic_vector( 31 downto 0);
-    g_f1_amcap      : std_logic_vector( 63 downto 0);
-    g_f1_xamcap     : std_logic_vector(255 downto 0);
-    g_f2_adem       : std_logic_vector( 31 downto 0);
-    g_f2_amcap      : std_logic_vector( 63 downto 0);
-    g_f2_xamcap     : std_logic_vector(255 downto 0);
-    g_f3_adem       : std_logic_vector( 31 downto 0);
-    g_f3_amcap      : std_logic_vector( 63 downto 0);
-    g_f3_xamcap     : std_logic_vector(255 downto 0);
-    g_f4_adem       : std_logic_vector( 31 downto 0);
-    g_f4_amcap      : std_logic_vector( 63 downto 0);
-    g_f4_xamcap     : std_logic_vector(255 downto 0);
-    g_f5_adem       : std_logic_vector( 31 downto 0);
-    g_f5_amcap      : std_logic_vector( 63 downto 0);
-    g_f5_xamcap     : std_logic_vector(255 downto 0);
-    g_f6_adem       : std_logic_vector( 31 downto 0);
-    g_f6_amcap      : std_logic_vector( 63 downto 0);
-    g_f6_xamcap     : std_logic_vector(255 downto 0);
-    g_f7_adem       : std_logic_vector( 31 downto 0);
-    g_f7_amcap      : std_logic_vector( 63 downto 0);
-    g_f7_xamcap     : std_logic_vector(255 downto 0)
+    g_CLOCK_PERIOD  : integer;
+    g_WB_DATA_WIDTH : integer;
+    g_WB_ADDR_WIDTH : integer;
+    g_BEG_USER_CR   : std_logic_vector( 23 downto 0);
+    g_END_USER_CR   : std_logic_vector( 23 downto 0);
+    g_BEG_CRAM      : std_logic_vector( 23 downto 0);
+    g_END_CRAM      : std_logic_vector( 23 downto 0);
+    g_BEG_USER_CSR  : std_logic_vector( 23 downto 0);
+    g_END_USER_CSR  : std_logic_vector( 23 downto 0);
+    g_F0_ADEM       : std_logic_vector( 31 downto 0);
+    g_F0_AMCAP      : std_logic_vector( 63 downto 0);
+    g_F0_XAMCAP     : std_logic_vector(255 downto 0);
+    g_F1_ADEM       : std_logic_vector( 31 downto 0);
+    g_F1_AMCAP      : std_logic_vector( 63 downto 0);
+    g_F1_XAMCAP     : std_logic_vector(255 downto 0);
+    g_F2_ADEM       : std_logic_vector( 31 downto 0);
+    g_F2_AMCAP      : std_logic_vector( 63 downto 0);
+    g_F2_XAMCAP     : std_logic_vector(255 downto 0);
+    g_F3_ADEM       : std_logic_vector( 31 downto 0);
+    g_F3_AMCAP      : std_logic_vector( 63 downto 0);
+    g_F3_XAMCAP     : std_logic_vector(255 downto 0);
+    g_F4_ADEM       : std_logic_vector( 31 downto 0);
+    g_F4_AMCAP      : std_logic_vector( 63 downto 0);
+    g_F4_XAMCAP     : std_logic_vector(255 downto 0);
+    g_F5_ADEM       : std_logic_vector( 31 downto 0);
+    g_F5_AMCAP      : std_logic_vector( 63 downto 0);
+    g_F5_XAMCAP     : std_logic_vector(255 downto 0);
+    g_F6_ADEM       : std_logic_vector( 31 downto 0);
+    g_F6_AMCAP      : std_logic_vector( 63 downto 0);
+    g_F6_XAMCAP     : std_logic_vector(255 downto 0);
+    g_F7_ADEM       : std_logic_vector( 31 downto 0);
+    g_F7_AMCAP      : std_logic_vector( 63 downto 0);
+    g_F7_XAMCAP     : std_logic_vector(255 downto 0)
   );
   port (
     clk_i           : in  std_logic;
@@ -134,10 +134,10 @@ entity VME_bus is
     -- WB signals
     stb_o           : out std_logic;
     ack_i           : in  std_logic;
-    dat_o           : out std_logic_vector(g_wb_data_width-1 downto 0);
-    dat_i           : in  std_logic_vector(g_wb_data_width-1 downto 0);
-    adr_o           : out std_logic_vector(g_wb_addr_width-1 downto 0);
-    sel_o           : out std_logic_vector(g_wb_data_width/8-1 downto 0);
+    dat_o           : out std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
+    dat_i           : in  std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
+    adr_o           : out std_logic_vector(g_WB_ADDR_WIDTH-1 downto 0);
+    sel_o           : out std_logic_vector(g_WB_DATA_WIDTH/8-1 downto 0);
     we_o            : out std_logic;
     cyc_o           : out std_logic;
     err_i           : in  std_logic;
@@ -283,7 +283,7 @@ begin
 
   -- Calculate the number of LATCH DS states necessary to match the timing
   -- rule 2.39 page 113 VMEbus specification ANSI/IEEE STD1014-1987.
-  s_num_latchDS <= f_latchDS(g_clock);
+  s_num_latchDS <= f_latchDS(g_CLOCK_PERIOD);
 
   -- Used to drive the VME_ADDR_DIR_o
   s_is_d64      <= '1' when s_sel = "11111111" else '0';
@@ -361,25 +361,25 @@ begin
   s_addressingTypeSelect <= s_AMlatched;
 
   with s_addressingTypeSelect select s_addressingType <=
-    A24      when c_A24_S_sup,
-    A24      when c_A24_S,
-    A24_BLT  when c_A24_BLT,
-    A24_BLT  when c_A24_BLT_sup,
-    A24_MBLT when c_A24_MBLT,
-    A24_MBLT when c_A24_MBLT_sup,
-    CR_CSR   when c_CR_CSR,
-    A16      when c_A16,
-    A16      when c_A16_sup,
-    A32      when c_A32,
-    A32      when c_A32_sup,
-    A32_BLT  when c_A32_BLT,
-    A32_BLT  when c_A32_BLT_sup,
-    A32_MBLT when c_A32_MBLT,
-    A32_MBLT when c_A32_MBLT_sup,
-    A64      when c_A64,
-    A64_BLT  when c_A64_BLT,
-    A64_MBLT when c_A64_MBLT,
-    TWOedge  when c_TWOedge,
+    A24      when c_AM_A24_S_SUP,
+    A24      when c_AM_A24_S,
+    A24_BLT  when c_AM_A24_BLT,
+    A24_BLT  when c_AM_A24_BLT_SUP,
+    A24_MBLT when c_AM_A24_MBLT,
+    A24_MBLT when c_AM_A24_MBLT_SUP,
+    CR_CSR   when c_AM_CR_CSR,
+    A16      when c_AM_A16,
+    A16      when c_AM_A16_SUP,
+    A32      when c_AM_A32,
+    A32      when c_AM_A32_SUP,
+    A32_BLT  when c_AM_A32_BLT,
+    A32_BLT  when c_AM_A32_BLT_SUP,
+    A32_MBLT when c_AM_A32_MBLT,
+    A32_MBLT when c_AM_A32_MBLT_SUP,
+    A64      when c_AM_A64,
+    A64_BLT  when c_AM_A64_BLT,
+    A64_MBLT when c_AM_A64_MBLT,
+    TWOedge  when c_AM_TWOEDGE,
     AM_Error when others;
 
   -- Transfer type decoder
@@ -754,7 +754,7 @@ begin
         (s_blockTransferLimit = '1') or
         (s_transferType = BLT and (not(s_typeOfDataTransfer = D32 or s_typeOfDataTransfer = D64))) or
         (s_transferType = MBLT and s_typeOfDataTransfer /= D64) or
-        (s_is_d64 = '1' and g_wb_data_width = 32)
+        (s_is_d64 = '1' and g_WB_DATA_WIDTH = 32)
       then
         s_BERRcondition <= '1';
       else
@@ -1072,8 +1072,8 @@ begin
 
   Inst_Wb_master : VME_Wb_master
     generic map (
-      g_wb_data_width => g_wb_data_width,
-      g_wb_addr_width => g_wb_addr_width
+      g_WB_DATA_WIDTH => g_WB_DATA_WIDTH,
+      g_WB_ADDR_WIDTH => g_WB_ADDR_WIDTH
     )
     port map (
       memReq_i        => s_memReq,
@@ -1128,30 +1128,30 @@ begin
       Ader5          => f5_ader_i,
       Ader6          => f6_ader_i,
       Ader7          => f7_ader_i,
-      Adem0          => g_f0_adem,
-      Adem1          => g_f1_adem,
-      Adem2          => g_f2_adem,
-      Adem3          => g_f3_adem,
-      Adem4          => g_f4_adem,
-      Adem5          => g_f5_adem,
-      Adem6          => g_f6_adem,
-      Adem7          => g_f7_adem,
-      AmCap0         => g_f0_amcap,
-      AmCap1         => g_f1_amcap,
-      AmCap2         => g_f2_amcap,
-      AmCap3         => g_f3_amcap,
-      AmCap4         => g_f4_amcap,
-      AmCap5         => g_f5_amcap,
-      AmCap6         => g_f6_amcap,
-      AmCap7         => g_f7_amcap,
-      XAmCap0        => g_f0_xamcap,
-      XAmCap1        => g_f1_xamcap,
-      XAmCap2        => g_f2_xamcap,
-      XAmCap3        => g_f3_xamcap,
-      XAmCap4        => g_f4_xamcap,
-      XAmCap5        => g_f5_xamcap,
-      XAmCap6        => g_f6_xamcap,
-      XAmCap7        => g_f7_xamcap,
+      Adem0          => g_F0_ADEM,
+      Adem1          => g_F1_ADEM,
+      Adem2          => g_F2_ADEM,
+      Adem3          => g_F3_ADEM,
+      Adem4          => g_F4_ADEM,
+      Adem5          => g_F5_ADEM,
+      Adem6          => g_F6_ADEM,
+      Adem7          => g_F7_ADEM,
+      AmCap0         => g_F0_AMCAP,
+      AmCap1         => g_F1_AMCAP,
+      AmCap2         => g_F2_AMCAP,
+      AmCap3         => g_F3_AMCAP,
+      AmCap4         => g_F4_AMCAP,
+      AmCap5         => g_F5_AMCAP,
+      AmCap6         => g_F6_AMCAP,
+      AmCap7         => g_F7_AMCAP,
+      XAmCap0        => g_F0_XAMCAP,
+      XAmCap1        => g_F1_XAMCAP,
+      XAmCap2        => g_F2_XAMCAP,
+      XAmCap3        => g_F3_XAMCAP,
+      XAmCap4        => g_F4_XAMCAP,
+      XAmCap5        => g_F5_XAMCAP,
+      XAmCap6        => g_F6_XAMCAP,
+      XAmCap7        => g_F7_XAMCAP,
       Am             => s_AMlatched,
       XAm            => std_logic_vector(s_XAM),
       BAR_i          => bar_i,
