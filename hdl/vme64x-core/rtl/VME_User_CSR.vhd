@@ -91,43 +91,55 @@ end VME_User_CSR;
 
 architecture rtl of VME_User_CSR is
 
-  signal s_addr                 : unsigned(18 downto 2);
+  signal s_irq_vector   : std_logic_vector(7 downto 0);
+  signal s_irq_level    : std_logic_vector(7 downto 0);
+  signal s_endian       : std_logic_vector(7 downto 0);
+  signal s_wb32bits     : std_logic_vector(7 downto 0);
 
-  signal s_reg_irq_vector       : std_logic_vector(7 downto 0);
-  signal s_reg_irq_level        : std_logic_vector(7 downto 0);
-  signal s_reg_endian           : std_logic_vector(7 downto 0);
-  signal s_reg_wb32bits         : std_logic_vector(7 downto 0);
+  -- Value for unused memory locations
+  constant c_UNUSED     : std_logic_vector(7 downto 0) := x"ff";
+
+  -- Addresses
+  constant c_IRQ_VECTOR : integer := 16#0002f#/4;
+  constant c_IRQ_LEVEL  : integer := 16#0002b#/4;
+  constant c_ENDIAN     : integer := 16#00023#/4;
+  constant c_TIME0_NS   : integer := 16#0001f#/4;
+  constant c_TIME1_NS   : integer := 16#0001b#/4;
+  constant c_TIME2_NS   : integer := 16#00017#/4;
+  constant c_TIME3_NS   : integer := 16#00013#/4;
+  constant c_TIME4_NS   : integer := 16#0000f#/4;
+  constant c_BYTES0     : integer := 16#0000b#/4;
+  constant c_BYTES1     : integer := 16#00007#/4;
+  constant c_WB32BITS   : integer := 16#00003#/4;
 
 begin
 
-  s_addr <= unsigned(addr_i);
-
-  s_reg_wb32bits <= x"01" when g_WB_DATA_WIDTH = 32 else x"00";
+  s_wb32bits <= x"01" when g_WB_DATA_WIDTH = 32 else x"00";
 
   -- Write
   process (clk_i)
   begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
-        s_reg_irq_vector  <= x"00";
-        s_reg_irq_level   <= x"00";
-        s_reg_endian      <= x"00";
+        s_irq_vector <= x"00";
+        s_irq_level  <= x"00";
+        s_endian     <= x"00";
       else
         if we_i = '1' then
-          case s_addr is
-            when c_ADDR_IRQ_VECTOR(18 downto 2) => s_reg_irq_vector <= data_i;
-            when c_ADDR_IRQ_LEVEL(18 downto 2)  => s_reg_irq_level  <= data_i;
-            when c_ADDR_ENDIAN(18 downto 2)     => s_reg_endian     <= data_i;
-            when others                         => null;
+          case to_integer(unsigned(addr_i)) is
+            when c_IRQ_VECTOR => s_irq_vector <= data_i;
+            when c_IRQ_LEVEL  => s_irq_level  <= data_i;
+            when c_ENDIAN     => s_endian     <= data_i;
+            when others       => null;
           end case;
         end if;
       end if;
     end if;
   end process;
 
-  irq_vector_o  <= s_reg_irq_vector;
-  irq_level_o   <= s_reg_irq_level;
-  endian_o      <= s_reg_endian(2 downto 0);
+  irq_vector_o  <= s_irq_vector;
+  irq_level_o   <= s_irq_level;
+  endian_o      <= s_endian(2 downto 0);
 
   -- Read
   process (clk_i)
@@ -136,19 +148,19 @@ begin
       if rst_n_i = '0' then
         data_o <= x"00";
       else
-        case s_addr is
-          when c_ADDR_IRQ_VECTOR(18 downto 2) => data_o <= s_reg_irq_vector;
-          when c_ADDR_IRQ_LEVEL(18 downto 2)  => data_o <= s_reg_irq_level;
-          when c_ADDR_ENDIAN(18 downto 2)     => data_o <= s_reg_endian;
-          when c_ADDR_TIME0_NS(18 downto 2)   => data_o <= time_i( 7 downto  0);
-          when c_ADDR_TIME1_NS(18 downto 2)   => data_o <= time_i(15 downto  8);
-          when c_ADDR_TIME2_NS(18 downto 2)   => data_o <= time_i(23 downto 16);
-          when c_ADDR_TIME3_NS(18 downto 2)   => data_o <= time_i(31 downto 24);
-          when c_ADDR_TIME4_NS(18 downto 2)   => data_o <= time_i(39 downto 32);
-          when c_ADDR_BYTES0(18 downto 2)     => data_o <= bytes_i( 7 downto 0);
-          when c_ADDR_BYTES1(18 downto 2)     => data_o <= bytes_i(15 downto 8);
-          when c_ADDR_WB32BITS(18 downto 2)   => data_o <= s_reg_wb32bits;
-          when others                         => data_o <= x"ff";
+        case to_integer(unsigned(addr_i)) is
+          when c_IRQ_VECTOR => data_o <= s_irq_vector;
+          when c_IRQ_LEVEL  => data_o <= s_irq_level;
+          when c_ENDIAN     => data_o <= s_endian;
+          when c_TIME0_NS   => data_o <= time_i( 7 downto  0);
+          when c_TIME1_NS   => data_o <= time_i(15 downto  8);
+          when c_TIME2_NS   => data_o <= time_i(23 downto 16);
+          when c_TIME3_NS   => data_o <= time_i(31 downto 24);
+          when c_TIME4_NS   => data_o <= time_i(39 downto 32);
+          when c_BYTES0     => data_o <= bytes_i( 7 downto 0);
+          when c_BYTES1     => data_o <= bytes_i(15 downto 8);
+          when c_WB32BITS   => data_o <= s_wb32bits;
+          when others       => data_o <= c_UNUSED;
         end case;
       end if;
     end if;

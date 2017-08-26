@@ -16,25 +16,24 @@
 --
 --   The main blocks:
 --
---      ________________________________________________________________
---     |                     VME64xCore_Top.vhd                         |
---     |__      ____________________                __________________  |
---     |  |    |                    |              |                  | |
---     |S |    |    VME_bus.vhd     |              |                  | |
---   V |A |    |                    |              |VME_to_WB_FIFO.vhd| |
---   M |M |    |         |          |              |(not implemented) | |
---   E |P |    |  VME    |    WB    |              |                  | |  W
---     |L |    | slave   |  master  |              |                  | |  B
---   B |I |    |         |          |   _______    |                  | |
---   U |N |    |         |          |  | CSR   |   |                  | |  B
---   S |G |    |         |          |  |______ |   |__________________| |  U
---     |  |    |                    |  |       |    _________________   |  S
---     |  |    |                    |  |CRAM   |   |                 |  |
---     |__|    |                    |  |______ |   |  IRQ_Controller |  |
---     |       |                    |  |       |   |                 |  |
---     |       |                    |  | CR    |   |                 |  |
---     |       |____________________|  |_______|   |_________________|  |
---     |________________________________________________________________|
+--      ______________________VME64xCore_Top_____________________
+--     |      ________________   ________   ___________________  |
+--     |___  |                | |        | |                   | |
+--     |   | |    VME Bus     | | Funct  | |                   | |
+--     |   | |                | | Match  | |  VME to WB FIFO   | |
+--     | S | |       |        | |        | | (not implemented) | |
+--   V | A | |  VME  |   WB   | |________| |                   | | W
+--   M | M | | slave | master |  ________  |                   | | B
+--   E | P | |       |        | |        | |                   | |
+--     | L | |       |        | | CR/CSR | |                   | | B
+--   B | I | |       |        | | Space  | |___________________| | U
+--   U | N | |                | |________|  ___________________  | S
+--   S | G | |                |  ________  |                   | |
+--     |   | |                | |        | |  IRQ Controller   | |
+--     |___| |                | |  User  | |                   | |
+--     |     |                | |  CSR   | |                   | |
+--     |     |________________| |________| |___________________| |
+--     |_________________________________________________________|
 --
 --   This core complies with the VME64x specifications and allows "plug and
 --   play" configuration of VME crates.
@@ -268,6 +267,8 @@ entity VME64xCore_Top is
     user_cr_data_i  : in  std_logic_vector( 7 downto 0) := (others => '0');
 
     -- Functions
+    function_o      : out std_logic_vector( 3 downto 0);
+
     f0_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
     f1_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
     f2_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
@@ -301,56 +302,85 @@ end VME64xCore_Top;
 
 architecture RTL of VME64xCore_Top is
 
-  signal s_reset               : std_logic;
-  signal s_reset_n             : std_logic;
+  signal s_reset                : std_logic;
+  signal s_reset_n              : std_logic;
 
-  signal s_VME_DATA_IRQ        : std_logic_vector(31 downto 0);
-  signal s_VME_DATA_VMEbus     : std_logic_vector(31 downto 0);
-  -- signal s_VME_DATA_b          : std_logic_vector(31 downto 0);
-  -- signal s_fifo                : std_logic;
-  signal s_VME_DTACK_VMEbus    : std_logic;
-  signal s_VME_DTACK_IRQ       : std_logic;
-  signal s_VME_DTACK_OE_VMEbus : std_logic;
-  signal s_VME_DTACK_OE_IRQ    : std_logic;
-  signal s_VME_DATA_DIR_VMEbus : std_logic;
-  signal s_VME_DATA_DIR_IRQ    : std_logic;
-  signal s_VME_IRQ_n_o         : std_logic_vector(6 downto 0);
+  signal s_VME_DATA_IRQ         : std_logic_vector(31 downto 0);
+  signal s_VME_DATA_VMEbus      : std_logic_vector(31 downto 0);
+  signal s_VME_DTACK_VMEbus     : std_logic;
+  signal s_VME_DTACK_IRQ        : std_logic;
+  signal s_VME_DTACK_OE_VMEbus  : std_logic;
+  signal s_VME_DTACK_OE_IRQ     : std_logic;
+  signal s_VME_DATA_DIR_VMEbus  : std_logic;
+  signal s_VME_DATA_DIR_IRQ     : std_logic;
+  signal s_VME_IRQ_n_o          : std_logic_vector( 6 downto 0);
 
   -- CR/CSR
-  signal s_cr_csr_addr         : std_logic_vector(18 downto 2);
-  signal s_cr_csr_data_o       : std_logic_vector( 7 downto 0);
-  signal s_cr_csr_data_i       : std_logic_vector( 7 downto 0);
-  signal s_cr_csr_we           : std_logic;
-  signal s_f0_ader             : std_logic_vector(31 downto 0);
-  signal s_f1_ader             : std_logic_vector(31 downto 0);
-  signal s_f2_ader             : std_logic_vector(31 downto 0);
-  signal s_f3_ader             : std_logic_vector(31 downto 0);
-  signal s_f4_ader             : std_logic_vector(31 downto 0);
-  signal s_f5_ader             : std_logic_vector(31 downto 0);
-  signal s_f6_ader             : std_logic_vector(31 downto 0);
-  signal s_f7_ader             : std_logic_vector(31 downto 0);
-  signal s_module_reset        : std_logic;
-  signal s_module_enable       : std_logic;
-  signal s_bar                 : std_logic_vector( 4 downto 0);
-  signal s_vme_berr_n          : std_logic;
+  signal s_cr_csr_addr          : std_logic_vector(18 downto 2);
+  signal s_cr_csr_data_o        : std_logic_vector( 7 downto 0);
+  signal s_cr_csr_data_i        : std_logic_vector( 7 downto 0);
+  signal s_cr_csr_we            : std_logic;
+  signal s_ader                 : t_ader_array(0 to 7);
+  signal s_module_reset         : std_logic;
+  signal s_module_enable        : std_logic;
+  signal s_bar                  : std_logic_vector( 4 downto 0);
+  signal s_vme_berr_n           : std_logic;
 
-  signal s_irq_vector          : std_logic_vector( 7 downto 0);
-  signal s_irq_level           : std_logic_vector( 7 downto 0);
-  signal s_endian              : std_logic_vector( 2 downto 0);
-  signal s_user_csr_addr       : std_logic_vector(18 downto 2);
-  signal s_user_csr_data_i     : std_logic_vector( 7 downto 0);
-  signal s_user_csr_data_o     : std_logic_vector( 7 downto 0);
-  signal s_user_csr_we         : std_logic;
+  signal s_irq_vector           : std_logic_vector( 7 downto 0);
+  signal s_irq_level            : std_logic_vector( 7 downto 0);
+  signal s_endian               : std_logic_vector( 2 downto 0);
+  signal s_user_csr_addr        : std_logic_vector(18 downto 2);
+  signal s_user_csr_data_i      : std_logic_vector( 7 downto 0);
+  signal s_user_csr_data_o      : std_logic_vector( 7 downto 0);
+  signal s_user_csr_we          : std_logic;
+
+  -- Function decoders
+  signal s_addr_decoder_i       : std_logic_vector(63 downto 0);
+  signal s_addr_decoder_o       : std_logic_vector(63 downto 0);
+  signal s_decode               : std_logic;
+  signal s_sel                  : std_logic;
+  signal s_function             : std_logic_vector( 7 downto 0);
+  signal s_am                   : std_logic_vector( 5 downto 0);
+  signal s_xam                  : std_logic_vector( 7 downto 0);
 
   -- Oversampled input signals
-  signal s_VME_RST_n              : std_logic_vector(2 downto 0);
-  signal s_VME_AS_n               : std_logic_vector(2 downto 0);
-  signal s_VME_WRITE_n            : std_logic_vector(2 downto 0);
-  signal s_VME_DS_n               : std_logic_vector(5 downto 0);
-  signal s_VME_IACK_n             : std_logic_vector(2 downto 0);
-  signal s_VME_IACKIN_n           : std_logic_vector(2 downto 0);
+  signal s_VME_RST_n            : std_logic_vector(2 downto 0);
+  signal s_VME_AS_n             : std_logic_vector(2 downto 0);
+  signal s_VME_WRITE_n          : std_logic_vector(2 downto 0);
+  signal s_VME_DS_n             : std_logic_vector(5 downto 0);
+  signal s_VME_IACK_n           : std_logic_vector(2 downto 0);
+  signal s_VME_IACKIN_n         : std_logic_vector(2 downto 0);
+
+  -- CR/CSR parameter arrays
+  -- ADEM array has an extra index (-1) to simplify looping while checking the
+  -- EFM bit of the previous function.
+  constant c_ADEM : t_adem_array(-1 to 7) := (
+    x"0000_0000",
+    g_F0_ADEM, g_F1_ADEM, g_F2_ADEM, g_F3_ADEM,
+    g_F4_ADEM, g_F5_ADEM, g_F6_ADEM, g_F7_ADEM
+  );
+  constant c_AMCAP : t_amcap_array(0 to 7) := (
+    g_F0_AMCAP, g_F1_AMCAP, g_F2_AMCAP, g_F3_AMCAP,
+    g_F4_AMCAP, g_F5_AMCAP, g_F6_AMCAP, g_F7_AMCAP
+  );
+  constant c_XAMCAP : t_xamcap_array(0 to 7) := (
+    g_F0_XAMCAP, g_F1_XAMCAP, g_F2_XAMCAP, g_F3_XAMCAP,
+    g_F4_XAMCAP, g_F5_XAMCAP, g_F6_XAMCAP, g_F7_XAMCAP
+  );
+  constant c_DAWPR : t_dawpr_array(0 to 7) := (
+    g_F0_DAWPR, g_F1_DAWPR, g_F2_DAWPR, g_F3_DAWPR,
+    g_F4_DAWPR, g_F5_DAWPR, g_F6_DAWPR, g_F7_DAWPR
+  );
+
+  signal s_faf_ader : t_ader_array(0 to 7);
+  signal s_dfs_adem : t_adem_array(0 to 7);
 
 begin
+
+  s_faf_ader <= (f0_faf_ader_i, f1_faf_ader_i, f2_faf_ader_i, f3_faf_ader_i,
+                 f4_faf_ader_i, f5_faf_ader_i, f6_faf_ader_i, f7_faf_ader_i);
+  s_dfs_adem <= (f0_dfs_adem_i, f1_dfs_adem_i, f2_dfs_adem_i, f3_dfs_adem_i,
+                 f4_dfs_adem_i, f5_dfs_adem_i, f6_dfs_adem_i, f7_dfs_adem_i);
 
   ------------------------------------------------------------------------------
   -- Metastability
@@ -378,37 +408,7 @@ begin
     generic map (
       g_CLOCK_PERIOD  => g_CLOCK_PERIOD,
       g_WB_DATA_WIDTH => g_WB_DATA_WIDTH,
-      g_WB_ADDR_WIDTH => g_WB_ADDR_WIDTH,
-      g_BEG_USER_CR   => g_BEG_USER_CR,
-      g_END_USER_CR   => g_END_USER_CR,
-      g_BEG_CRAM      => g_BEG_CRAM,
-      g_END_CRAM      => g_END_CRAM,
-      g_BEG_USER_CSR  => g_BEG_USER_CSR,
-      g_END_USER_CSR  => g_END_USER_CSR,
-      g_F0_ADEM       => g_F0_ADEM,
-      g_F0_AMCAP      => g_F0_AMCAP,
-      g_F0_XAMCAP     => g_F0_XAMCAP,
-      g_F1_ADEM       => g_F1_ADEM,
-      g_F1_AMCAP      => g_F1_AMCAP,
-      g_F1_XAMCAP     => g_F1_XAMCAP,
-      g_F2_ADEM       => g_F2_ADEM,
-      g_F2_AMCAP      => g_F2_AMCAP,
-      g_F2_XAMCAP     => g_F2_XAMCAP,
-      g_F3_ADEM       => g_F3_ADEM,
-      g_F3_AMCAP      => g_F3_AMCAP,
-      g_F3_XAMCAP     => g_F3_XAMCAP,
-      g_F4_ADEM       => g_F4_ADEM,
-      g_F4_AMCAP      => g_F4_AMCAP,
-      g_F4_XAMCAP     => g_F4_XAMCAP,
-      g_F5_ADEM       => g_F5_ADEM,
-      g_F5_AMCAP      => g_F5_AMCAP,
-      g_F5_XAMCAP     => g_F5_XAMCAP,
-      g_F6_ADEM       => g_F6_ADEM,
-      g_F6_AMCAP      => g_F6_AMCAP,
-      g_F6_XAMCAP     => g_F6_XAMCAP,
-      g_F7_ADEM       => g_F7_ADEM,
-      g_F7_AMCAP      => g_F7_AMCAP,
-      g_F7_XAMCAP     => g_F7_XAMCAP
+      g_WB_ADDR_WIDTH => g_WB_ADDR_WIDTH
     )
     port map (
       clk_i           => clk_i,
@@ -450,19 +450,20 @@ begin
       rty_i           => RTY_i,
       stall_i         => STALL_i,
 
+      -- Function decoder
+      addr_decoder_i  => s_addr_decoder_o,
+      addr_decoder_o  => s_addr_decoder_i,
+      decode_o        => s_decode,
+      am_o            => s_am,
+      xam_o           => s_xam,
+      sel_i           => s_sel,
+      function_i      => s_function,
+
       -- CR/CSR signals
       cr_csr_addr_o   => s_cr_csr_addr,
       cr_csr_data_i   => s_cr_csr_data_o,
       cr_csr_data_o   => s_cr_csr_data_i,
       cr_csr_we_o     => s_cr_csr_we,
-      f0_ader_i       => s_f0_ader,
-      f1_ader_i       => s_f1_ader,
-      f2_ader_i       => s_f2_ader,
-      f3_ader_i       => s_f3_ader,
-      f4_ader_i       => s_f4_ader,
-      f5_ader_i       => s_f5_ader,
-      f6_ader_i       => s_f6_ader,
-      f7_ader_i       => s_f7_ader,
       endian_i        => s_endian,
       module_enable_i => s_module_enable,
       bar_i           => s_bar
@@ -474,6 +475,31 @@ begin
 
   VME_BERR_o <= not s_vme_berr_n; -- The VME_BERR is asserted when '1' because
                                   -- the buffers on the board invert the logic.
+
+  Inst_VME_Funct_Match : VME_Funct_Match
+    generic map (
+      g_ADEM      => c_ADEM,
+      g_AMCAP     => c_AMCAP,
+      g_XAMCAP    => c_XAMCAP
+    )
+    port map (
+      clk_i       => clk_i,
+      rst_n_i     => s_reset_n,
+
+      addr_i      => s_addr_decoder_i,
+      addr_o      => s_addr_decoder_o,
+      decode_i    => s_decode,
+      am_i        => s_am,
+      xam_i       => s_xam,
+
+      ader_i      => s_ader,
+      dfs_adem_i  => s_dfs_adem,
+
+      sel_o       => s_sel,
+      function_o  => s_function
+    );
+
+  function_o <= s_function;
 
   ------------------------------------------------------------------------------
   -- Output
@@ -529,51 +555,23 @@ begin
   ------------------------------------------------------------------------------
   Inst_VME_CR_CSR_Space : VME_CR_CSR_Space
     generic map (
-       g_MANUFACTURER_ID  => g_MANUFACTURER_ID,
-       g_BOARD_ID         => g_BOARD_ID,
-       g_REVISION_ID      => g_REVISION_ID,
-       g_PROGRAM_ID       => g_PROGRAM_ID,
-       g_ASCII_PTR        => g_ASCII_PTR,
-       g_BEG_USER_CR      => g_BEG_USER_CR,
-       g_END_USER_CR      => g_END_USER_CR,
-       g_BEG_CRAM         => g_BEG_CRAM,
-       g_END_CRAM         => g_END_CRAM,
-       g_BEG_USER_CSR     => g_BEG_USER_CSR,
-       g_END_USER_CSR     => g_END_USER_CSR,
-       g_BEG_SN           => g_BEG_SN,
-       g_END_SN           => g_END_SN,
-       g_F0_ADEM          => g_F0_ADEM,
-       g_F0_AMCAP         => g_F0_AMCAP,
-       g_F0_XAMCAP        => g_F0_XAMCAP,
-       g_F0_DAWPR         => g_F0_DAWPR,
-       g_F1_ADEM          => g_F1_ADEM,
-       g_F1_AMCAP         => g_F1_AMCAP,
-       g_F1_XAMCAP        => g_F1_XAMCAP,
-       g_F1_DAWPR         => g_F1_DAWPR,
-       g_F2_ADEM          => g_F2_ADEM,
-       g_F2_AMCAP         => g_F2_AMCAP,
-       g_F2_XAMCAP        => g_F2_XAMCAP,
-       g_F2_DAWPR         => g_F2_DAWPR,
-       g_F3_ADEM          => g_F3_ADEM,
-       g_F3_AMCAP         => g_F3_AMCAP,
-       g_F3_XAMCAP        => g_F3_XAMCAP,
-       g_F3_DAWPR         => g_F3_DAWPR,
-       g_F4_ADEM          => g_F4_ADEM,
-       g_F4_AMCAP         => g_F4_AMCAP,
-       g_F4_XAMCAP        => g_F4_XAMCAP,
-       g_F4_DAWPR         => g_F4_DAWPR,
-       g_F5_ADEM          => g_F5_ADEM,
-       g_F5_AMCAP         => g_F5_AMCAP,
-       g_F5_XAMCAP        => g_F5_XAMCAP,
-       g_F5_DAWPR         => g_F5_DAWPR,
-       g_F6_ADEM          => g_F6_ADEM,
-       g_F6_AMCAP         => g_F6_AMCAP,
-       g_F6_XAMCAP        => g_F6_XAMCAP,
-       g_F6_DAWPR         => g_F6_DAWPR,
-       g_F7_ADEM          => g_F7_ADEM,
-       g_F7_AMCAP         => g_F7_AMCAP,
-       g_F7_XAMCAP        => g_F7_XAMCAP,
-       g_F7_DAWPR         => g_F7_DAWPR
+      g_MANUFACTURER_ID  => g_MANUFACTURER_ID,
+      g_BOARD_ID         => g_BOARD_ID,
+      g_REVISION_ID      => g_REVISION_ID,
+      g_PROGRAM_ID       => g_PROGRAM_ID,
+      g_ASCII_PTR        => g_ASCII_PTR,
+      g_BEG_USER_CR      => g_BEG_USER_CR,
+      g_END_USER_CR      => g_END_USER_CR,
+      g_BEG_CRAM         => g_BEG_CRAM,
+      g_END_CRAM         => g_END_CRAM,
+      g_BEG_USER_CSR     => g_BEG_USER_CSR,
+      g_END_USER_CSR     => g_END_USER_CSR,
+      g_BEG_SN           => g_BEG_SN,
+      g_END_SN           => g_END_SN,
+      g_ADEM             => c_ADEM,
+      g_AMCAP            => c_AMCAP,
+      g_XAMCAP           => c_XAMCAP,
+      g_DAWPR            => c_DAWPR
     )
     port map (
       clk_i               => clk_i,
@@ -600,32 +598,9 @@ begin
       user_cr_addr_o      => user_cr_addr_o,
       user_cr_data_i      => user_cr_data_i,
 
-      f0_ader_o           => s_f0_ader,
-      f1_ader_o           => s_f1_ader,
-      f2_ader_o           => s_f2_ader,
-      f3_ader_o           => s_f3_ader,
-      f4_ader_o           => s_f4_ader,
-      f5_ader_o           => s_f5_ader,
-      f6_ader_o           => s_f6_ader,
-      f7_ader_o           => s_f7_ader,
-
-      f0_faf_ader_i       => f0_faf_ader_i,
-      f1_faf_ader_i       => f1_faf_ader_i,
-      f2_faf_ader_i       => f2_faf_ader_i,
-      f3_faf_ader_i       => f3_faf_ader_i,
-      f4_faf_ader_i       => f4_faf_ader_i,
-      f5_faf_ader_i       => f5_faf_ader_i,
-      f6_faf_ader_i       => f6_faf_ader_i,
-      f7_faf_ader_i       => f7_faf_ader_i,
-
-      f0_dfs_adem_i       => f0_dfs_adem_i,
-      f1_dfs_adem_i       => f1_dfs_adem_i,
-      f2_dfs_adem_i       => f2_dfs_adem_i,
-      f3_dfs_adem_i       => f3_dfs_adem_i,
-      f4_dfs_adem_i       => f4_dfs_adem_i,
-      f5_dfs_adem_i       => f5_dfs_adem_i,
-      f6_dfs_adem_i       => f6_dfs_adem_i,
-      f7_dfs_adem_i       => f7_dfs_adem_i
+      ader_o              => s_ader,
+      faf_ader_i          => s_faf_ader,
+      dfs_adem_i          => s_dfs_adem
     );
 
   -- User CSR space

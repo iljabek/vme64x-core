@@ -4,166 +4,12 @@
 -- http://www.ohwr.org/projects/vme64x-core
 --------------------------------------------------------------------------------
 --
--- unit name:   VME_Funct_Match (VME_Funct_Match.vhd)
+-- unit name:     VME_Funct_Match (VME_Funct_Match.vhd)
 --
--- author:      Pablo Alvarez Sanchez <pablo.alvarez.sanchez@cern.ch>
---              Davide Pedretti    <davide.pedretti@cern.ch>
+-- author:        Pablo Alvarez Sanchez <pablo.alvarez.sanchez@cern.ch>
+--                Davide Pedretti       <davide.pedretti@cern.ch>
 --
 -- description:
---
---   This component compares the Address with the ADER using the mask bits and
---   if the base address match it asserts the corresponding bit in the
---   FunctMatch vector and it latches the base address that will be subtracted
---   to the Address before accessing the WB bus.
---
---   FunctMatch  /= 0 is necessary but not sufficient to select one function and
---   to access the board, indeed also the AM has to be checked (VME_AM_Match.vhd
---   component).
---
---   For better understanding how this component works here is one example:
---     base address = 0xc0
---     access mode: A32_S  --> AM = 0x09
---   The Master writes the ADERi = 0xc0000024
---     ADEMi = 0xffffff04 --> DFS = '1' --> all the mask bits are '1'!!
---   The Master wants to access the location 0x08: Address= 0xc0000008
---   For i = 0 to 7 check:
---   Check if the ADEMi is compatible with the AM selected: ADEMi[31:8] /= 0
---
---    Address[31:8] and ADEMi[31:8]              ADERi[31:8] and ADEMi[31:8]
---                  |                                        |
---               0xc00000                                 0xc00000
---                  |                 _______                |
---                  |________________|  = ?  |_______________|
---                                   |_______|
---                                 No |     |yes
---           FunctMatch(i) <= '0'_____|     |______FunctMatch(i) <= '1'
---
---   Now with the same ADEMi the master accesses with A16 mode:
---     base address = 0xc0
---     access mode: A16_S  --> AM = 0x29
---   The Master writes the ADERi = 0x0000c0a4
---   The Master wants to access the location 0x08: Address= 0x0000c008
---   For i = 0 to 7 check:
---   Check if the ADEMi is compatible with the AM selected: ADEMi[15:8] /= 0
---
---    Address[31:8] and ADEMi[31:8]              ADERi[31:8] and ADEMi[31:8]
---                  |                                        |
---               0x0000c0                                 0x0000c0
---                  |                 _______                |
---                  |________________|  = ?  |_______________|
---                                   |_______|
---                                 No |     |yes
---           FunctMatch(i) <= '0'_____|     |______FunctMatch(i) <= '1'
---
---   DFS = '1' --> 1 function --> multiple access modes
---   The Master accesses with different modes only changing the ADER registers
---   if the DFS bit is asserted but:
---   It is easy to see that if DFS = '1'  we can only address 256 bytes, indeed
---   eg:
---     base address = 0xc0
---     access mode: A32_S  --> AM = 0x09
---   The Master write the ADERi = 0xc0000024
---   The Master wants to access the location 0x4008: Address= 0xc0004008
---   For i = 0 to 7 check:
---   Check if the ADEMi is compatible with the AM selected: ADEMi[31:8] /= 0
---
---    Address[31:8] and ADEMi[31:8]              ADERi[31:8] and ADEMi[31:8]
---                  |                                        |
---               0xc00040                                 0xc00000
---                  |                 _______                |
---                  |________________|  = ?  |_______________|
---                                   |_______|
---                                 No |     |yes
---           FunctMatch(i) <= '0'_____|     |______FunctMatch(i) <= '1'
---
---   The Master can't access!!
---   Without DFS asserted:
---     base address = 0xc0
---     access mode: A32_S  --> AM = 0x09
---   The Master write the ADERi = 0xc0000024
---   ADEMi = 0xff000000 --> DFS = '0'
---   The Master wants to access the location 0x4008: Address= 0xc0004008
---   For i = 0 to 7 check:
---   Check if the ADEMi is compatible with the AM selected: ADEM[31:8] /= 0
---
---    Address[31:8] and ADEMi[31:8]              ADERi[31:8] and ADEMi[31:8]
---                  |                                        |
---               0xc00000                                 0xc00000
---                  |                 _______                |
---                  |________________|  = ?  |_______________|
---                                   |_______|
---                                 No |     |yes
---           FunctMatch(i) <= '0'_____|     |______FunctMatch(i) <= '1'
---
---   The Master can access!
---     base address = 0xc0
---     access mode: A16_S  --> AM = 0x29
---   The Master writes the ADERi = 0x0000c0a4
---   ADEMi = 0xff000000 --> DFS = '0'  -- The Master can't change the CR space!!
---   The Master wants to access the location 0x08: Address= 0x0000c008
---   For i = 0 to 7 check:
---   Check if the ADEMi is compatible with the AM selected:
---   ADEM[15:8] = 0 --> FunctMatch(i) <= '0'
---   The Master can't access! this mask is not compatible with A16
---
---   DFS = '0' --> 1 function --> only the access modes with the same
---   address width !!
---   Is it possible initialize all the ADER to 0 ?
---   Yes, it is. Indeed now suppose that we are in this situation:
---   ADERi = 0x00000000
---   ADEMi = 0x0000ff00 --> DFS = '0'
---   A VME Master takes the ownership of the VMEbus for accessing another board:
---     base address = 0xc0
---     access mode: A32_S  --> AM = 0x09
---   The Master wants to access the location 0x0008: Address= 0xc0000008
---   For i = 0 to 7 check:
---   Check if the ADEMi is compatible with the AM selected: ADEMi[31:8] /= 0
---
---     Address[31:8] and ADEMi[31:8]              ADERi[31:8] and ADEMi[31:8]
---                  |                                        |
---               0x000000                                 0x000000
---                  |                 _______                |
---                  |________________|  = ?  |_______________|
---                                   |_______|
---                                 No |     |yes
---           FunctMatch(i) <= '0'_____|     |______FunctMatch(i) <= '1'
---
---   FunctMatch(i) is asserted but our Slave will not be the responding Slave,
---   indeed the AmMatch(i) is zero becouse the Master is accessing with A32_S
---   and if DFS is 0  the AMCAPi register has only the A16 or A16_SUP bits
---   asserted!
---   If DFS is '1' AmMatch(i) is zero becouse ADER[7:2] is 0
---   (see VME_Am_Match.vhd) and also FunctMatch(i) is 0 because ADEMi should has
---   all the mask bits '1'.
---
---   An example about A64 access mode:
---     base address = 0xc0
---     access mode: A64_S  --> AM = 0x01
---   ADEM(i)    = 0x00000001 --> EFM = '1' and DFS = '0'
---   ADEM(i+1)  = 0xff000000
---   ADEM64(i)  =  ADEM(i+1) &  ADEM(i)
---   AMCAP(i)   = "0000000000000000000000000000000000000000000000000000000000000010";
---   AMCAP(i+1) = (others => '0')
---   ADER(i)    = 0x00000004
---   ADER(i+1)  = 0xc0000000
---   ADER64(i)  = ADER(i+1) & ADER(i)
---   s_isprev_func64(i+1) --> '1' --> don't check if the function i + 1 is
---   selected because the next ADER and ADEM are used to decode the function i.
---   The Master accesses the location 0x0008: Address= 0xc000000000000008
---   Check if the ADEM64i is compatible with the AM selected:
---   ADEM64(i)[63:10] /= 0
---
---   Address[63:10] and ADEM64(i)[63:10]        ADER64(i)[63:10] and ADEM64(i)[63:10]
---                  |                                        |
---              0xc0000000000000                         0xc0000000000000
---                  |                 _______                |
---                  |________________|  = ?  |_______________|
---                                   |_______|
---                                 No |     |yes
---           FunctMatch(i) <= '0'_____|     |______FunctMatch(i) <= '1'
---
---   For the 2e modes it is the same, it changes only the ADER(i)'s XAM bit that
---   must be '1'.
 --
 -- dependencies:
 --
@@ -191,148 +37,368 @@ use ieee.numeric_std.all;
 use work.vme64x_pack.all;
 
 entity VME_Funct_Match is
+  generic (
+    g_ADEM      : t_adem_array(-1 to 7);
+    g_AMCAP     : t_amcap_array(0 to 7);
+    g_XAMCAP    : t_xamcap_array(0 to 7)
+  );
   port (
-    clk_i         : in  std_logic;
-    reset         : in  std_logic;
-    decode        : in  std_logic;
-    mainFSMreset  : in  std_logic;
-    Addr          : in  std_logic_vector(63 downto 0);
-    AddrWidth     : in  std_logic_vector(1 downto 0);
-    Ader0         : in  std_logic_vector(31 downto 0);
-    Ader1         : in  std_logic_vector(31 downto 0);
-    Ader2         : in  std_logic_vector(31 downto 0);
-    Ader3         : in  std_logic_vector(31 downto 0);
-    Ader4         : in  std_logic_vector(31 downto 0);
-    Ader5         : in  std_logic_vector(31 downto 0);
-    Ader6         : in  std_logic_vector(31 downto 0);
-    Ader7         : in  std_logic_vector(31 downto 0);
-    Adem0         : in  std_logic_vector(31 downto 0);
-    Adem1         : in  std_logic_vector(31 downto 0);
-    Adem2         : in  std_logic_vector(31 downto 0);
-    Adem3         : in  std_logic_vector(31 downto 0);
-    Adem4         : in  std_logic_vector(31 downto 0);
-    Adem5         : in  std_logic_vector(31 downto 0);
-    Adem6         : in  std_logic_vector(31 downto 0);
-    Adem7         : in  std_logic_vector(31 downto 0);
-    FunctMatch    : out std_logic_vector(7 downto 0);
-    DFS_o         : out std_logic_vector(7 downto 0);
-    Nx_Base_Addr  : out std_logic_vector(63 downto 0)
+    clk_i       : in  std_logic;
+    rst_n_i     : in  std_logic;
+
+    addr_i      : in  std_logic_vector(63 downto 0);
+    addr_o      : out std_logic_vector(63 downto 0);
+    decode_i    : in  std_logic;
+    am_i        : in  std_logic_vector( 5 downto 0);
+    xam_i       : in  std_logic_vector( 7 downto 0);
+
+    ader_i      : in  t_ader_array(0 to 7);
+    dfs_adem_i  : in  t_adem_array(0 to 7);
+
+    sel_o       : out std_logic;
+    function_o  : out std_logic_vector( 3 downto 0)
   );
 end VME_Funct_Match;
 
-architecture Behavioral of VME_Funct_Match is
+architecture rtl of VME_Funct_Match is
 
-  signal s_FUNC_ADER,
-         s_FUNC_ADEM      : t_FUNC_32b_array;
-  signal s_FUNC_ADER_64,
-         s_FUNC_ADEM_64   : t_FUNC_64b_array;
-  signal s_isprev_func64  : std_logic_vector(7 downto 0);
-  signal s_locAddr        : unsigned(63 downto 0);
+  type t_addr_array is array (0 to 7) of std_logic_vector(63 downto 0);
+
+  signal s_ader         : t_addr_array;
+  signal s_adem         : t_addr_array;
+
+  -- AM matches ADER AM bits for each function
+  signal s_am_match     : std_logic_vector( 7 downto 0);
+
+  -- AM/XAM in AMCAP/XAMCAP for each function
+  signal s_am_valid     : std_logic_vector( 8 downto 0);
+  signal s_xam_valid    : std_logic_vector( 7 downto 0);
+
+  -- Function index and ADEM from priority encoder
+  signal s_function_sel : std_logic_vector( 7 downto 0);
+  signal s_adem_sel     : std_logic_vector(63 downto 0);
+
+  -- Selected function
+  signal s_function     : std_logic_vector( 7 downto 0);
+  signal s_function_ena : std_logic_vector( 7 downto 0);
+
+  ------------------------------------------------------------------------------
+  -- Generate AM lookup table
+  ------------------------------------------------------------------------------
+  -- There are 64 positions in the LUT corresponding to each AM. Each position
+  -- is a vector whose bit N indicate whether function N accepts this AM.
+  -- For example if s_am_lut(9) = "00001010", this means that functions 1 & 3
+  -- accept AM=9. The lookup table has an extra bit (8) which is set only for
+  -- the 2eVME AMs (0x20 & 0x21) to indicate that these are valid in XAM mode.
+  type t_am_lut is array (0 to 63) of std_logic_vector(8 downto 0);
+
+  function f_gen_am_lut return t_am_lut is
+    variable lut : t_am_lut := (others => "000000000");
+  begin
+    for i in 0 to 63 loop
+      for j in 0 to 7 loop
+        lut(i)(j) := g_AMCAP(j)(i);
+      end loop;
+    end loop;
+    lut(to_integer(unsigned(c_AM_2EVME_6U)))(8) := '1';
+    lut(to_integer(unsigned(c_AM_2EVME_3U)))(8) := '1';
+    return lut;
+  end function;
+
+  signal s_am_lut : t_am_lut := f_gen_am_lut;
+
+  ------------------------------------------------------------------------------
+  -- Generate XAM lookup table
+  ------------------------------------------------------------------------------
+  -- Same purpose as the AM lookup table, with 256 positions for each XAM.
+  type t_xam_lut is array (0 to 255) of std_logic_vector(7 downto 0);
+
+  function f_gen_xam_lut return t_xam_lut is
+    variable lut : t_xam_lut;
+  begin
+    for i in 0 to 255 loop
+      for j in 0 to 7 loop
+        lut(i)(j) := g_XAMCAP(j)(i);
+      end loop;
+    end loop;
+    return lut;
+  end function;
+
+  signal s_xam_lut : t_xam_lut := f_gen_xam_lut;
+
+  ------------------------------------------------------------------------------
+  -- Generate XAM enabled flag
+  ------------------------------------------------------------------------------
+  -- c_XAM_ENA is true when any XAMCAP > 0 to conditionally enable the
+  -- generation of the XAM lookup table.
+  function f_xam_ena return boolean is
+  begin
+    for i in 0 to 7 loop
+      if unsigned(g_XAMCAP(i)) > 0 then
+        return true;
+      end if;
+    end loop;
+    return false;
+  end function;
+
+  constant c_XAM_ENA : boolean := f_xam_ena;
+
+  ------------------------------------------------------------------------------
+  -- Generate function enabled vector
+  ------------------------------------------------------------------------------
+  -- c_ENABLED is true when a function's AMCAP > 0 and the previous
+  -- function does not have the EFM bit set.
+  function f_function_ena return std_logic_vector is
+    variable ena : std_logic_vector(7 downto 0) := (others => '0');
+  begin
+    for i in 0 to 7 loop
+      if unsigned(g_AMCAP(i)) > 0 and g_ADEM(i-1)(c_ADEM_EFM) = '0' then
+        ena(i) := '1';
+      end if;
+    end loop;
+    return ena;
+  end function;
+
+  constant c_ENABLED : std_logic_vector(7 downto 0) := f_function_ena;
+
+  ------------------------------------------------------------------------------
+  -- Generate function EFM/EFD enabled vector
+  ------------------------------------------------------------------------------
+  function f_efm_efd (v : integer) return std_logic_vector is
+    variable e : std_logic_vector(7 downto 0) := (others => '0');
+  begin
+    for i in 0 to 6 loop
+      e(i) := g_ADEM(i)(v);
+    end loop;
+    return e;
+  end function;
+
+  constant c_EFM      : std_logic_vector(7 downto 0)  := f_efm_efd(c_ADEM_EFM);
+  constant c_EFD      : std_logic_vector(7 downto 0)  := f_efm_efd(c_ADEM_EFD);
+  constant c_EFD_ENA  : boolean                       := unsigned(c_EFD) > 0;
+
+  ------------------------------------------------------------------------------
+  -- Generate EFD lookup table
+  ------------------------------------------------------------------------------
+  type t_efd_lut is array (0 to 7) of std_logic_vector(7 downto 0);
+
+  function f_gen_efd_lut return t_efd_lut is
+    variable lut : t_efd_lut;
+  begin
+    for i in 0 to 7 loop
+      if g_ADEM(i-1)(c_ADEM_EFD) = '1' then
+        for j in i-1 downto 0 loop
+          if g_ADEM(j-1)(c_ADEM_EFD) = '0' then
+            lut(i) := std_logic_vector(to_unsigned(j, 8));
+            exit;
+          end if;
+        end loop;
+      else
+        lut(i) := std_logic_vector(to_unsigned(i, 8));
+      end if;
+    end loop;
+    return lut;
+  end function;
+
+  constant c_EFD_LUT : t_efd_lut := f_gen_efd_lut;
+
+  ------------------------------------------------------------------------------
 
 begin
 
-  s_locAddr <= unsigned(Addr);
-
-  p_functMatch : process (clk_i)
-  begin
+  ------------------------------------------------------------------------------
+  -- AM lookup table
+  ------------------------------------------------------------------------------
+  process (clk_i) begin
     if rising_edge(clk_i) then
-      if mainFSMreset = '1' or reset = '1' then
-        FunctMatch   <= (others => '0');
-        Nx_Base_Addr <= (others => '0');
-      elsif decode = '1' then
-        for i in FunctMatch'range loop
+      s_am_valid <= s_am_lut(to_integer(unsigned(am_i)));
+    end if;
+  end process;
 
-          case AddrWidth is
-            when "11" =>
-              if (s_FUNC_ADEM(i)(0) = '1')  and (s_isprev_func64(i) = '0') and
-                 (s_FUNC_ADEM_64(i)(63 downto 10) /= 0)
-              then
-                if (s_FUNC_ADER_64(i)(63 downto 10) and s_FUNC_ADEM_64(i)(63 downto 10)) =
-                   ((s_locAddr(63 downto 10)) and s_FUNC_ADEM_64(i)(63 downto 10))
-                then
-                  FunctMatch(i)               <= '1';
-                  Nx_Base_Addr(63 downto 10)  <= std_logic_vector(s_FUNC_ADER_64(i)(63 downto 10));
-                  Nx_Base_Addr(9 downto 0)    <= (others => '0');
-                end if;
-              end if;
+  ------------------------------------------------------------------------------
+  -- XAM lookup table
+  ------------------------------------------------------------------------------
+  gen_xam_ena : if c_XAM_ENA = true generate
+    process (clk_i) begin
+      if rising_edge(clk_i) then
+        s_xam_valid <= s_xam_lut(to_integer(unsigned(xam_i)));
+      end if;
+    end process;
+  end generate;
+  gen_xam_dis : if c_XAM_ENA = false generate
+    s_xam_valid <= x"00";
+  end generate;
 
-            when "10" =>
-              if (s_FUNC_ADEM(i)(31 downto 8) /=0) and (s_isprev_func64(i) = '0') then
-                if (s_FUNC_ADER(i)(31 downto 8) and s_FUNC_ADEM(i)(31 downto 8)) =
-                   ((s_locAddr(31 downto 8)) and s_FUNC_ADEM(i)(31 downto 8))
-                then
-                  FunctMatch(i)               <= '1';
-                  Nx_Base_Addr(31 downto 8)   <= std_logic_vector(s_FUNC_ADER(i)(31 downto 8));
-                  Nx_Base_Addr(63 downto 32)  <= (others => '0');
-                  Nx_Base_Addr(7 downto 0)    <= (others => '0');
-                end if;
-              end if;
+  ------------------------------------------------------------------------------
+  -- Function match
+  ------------------------------------------------------------------------------
+  gen_match_loop : for i in 0 to 7 generate
+    gen_ena_function: if c_ENABLED(i) = '1' generate
 
-            when "01" =>
-              if (s_FUNC_ADEM(i)(23 downto 8) /=0)  and (s_isprev_func64(i) = '0') then
-                if (s_FUNC_ADER(i)(23 downto 8) and s_FUNC_ADEM(i)(23 downto 8)) =
-                   ((s_locAddr(23 downto 8)) and s_FUNC_ADEM(i)(23 downto 8))
-                then
-                  FunctMatch(i)               <= '1';
-                  Nx_Base_Addr(23 downto 8)   <= std_logic_vector(s_FUNC_ADER(i)(23 downto 8));
-                  Nx_Base_Addr(63 downto 24)  <= (others => '0');
-                  Nx_Base_Addr(7 downto 0)    <= (others => '0');
-                end if;
-              end if;
+      -- Create 64-bit ADEM/ADER based on EFM and DFS setting
+      gen_efm_ena: if c_EFM(i) = '1' generate
+        gen_dfs_ena: if g_ADEM(i)(c_ADEM_DFS) = '1' generate
+            s_adem(i) <= dfs_adem_i(i+1) & dfs_adem_i(i)(c_ADEM_M) & c_ADEM_M_PAD;
+        end generate;
 
-            when "00" =>
-              if (s_FUNC_ADEM(i)(15 downto 8) /=0)  and (s_isprev_func64(i) = '0') then
-                if (s_FUNC_ADER(i)(15 downto 8) and s_FUNC_ADEM(i)(15 downto 8)) =
-                   ((s_locAddr(15 downto 8)) and s_FUNC_ADEM(i)(15 downto 8))
-                then
-                  FunctMatch(i)               <= '1';
-                  Nx_Base_Addr(15 downto 8)   <= std_logic_vector(s_FUNC_ADER(i)(15 downto 8));
-                  Nx_Base_Addr(63 downto 16)  <= (others => '0');
-                  Nx_Base_Addr(7 downto 0)    <= (others => '0');
-                end if;
-              end if;
+        gen_dfs_dis: if g_ADEM(i)(c_ADEM_DFS) = '0' generate
+            s_adem(i) <= g_ADEM(i+1) & g_ADEM(i)(c_ADEM_M) & c_ADEM_M_PAD;
+        end generate;
 
-            when others =>
-          end case;
-        end loop;
+        s_ader(i)(63 downto 32) <= ader_i(i+1);
+      end generate;
 
+      gen_efm_dis: if c_EFM(i) = '0' generate
+        gen_dfs_ena: if g_ADEM(i)(c_ADEM_DFS) = '1' generate
+            s_adem(i) <= x"ffff_ffff" & dfs_adem_i(i)(c_ADEM_M) & c_ADEM_M_PAD;
+        end generate;
+
+        gen_dfs_dis: if g_ADEM(i)(c_ADEM_DFS) = '0' generate
+            s_adem(i) <= x"ffff_ffff" & g_ADEM(i)(c_ADEM_M) & c_ADEM_M_PAD;
+        end generate;
+
+        s_ader(i)(63 downto 32) <= x"0000_0000";
+      end generate;
+
+      process (ader_i(i), am_i, xam_i) begin
+        if ader_i(i)(c_ADER_XAM_MODE) then
+          s_ader(i)(31 downto 0) <= ader_i(i)(c_ADER_C_XAM) & c_ADER_C_XAM_PAD;
+
+          if ader_i(i)(c_ADER_XAM) = xam_i then
+            s_am_match(i) <= '1';
+          else
+            s_am_match(i) <= '1';
+          end if;
+        else
+          s_ader(i)(31 downto 0) <= ader_i(i)(c_ADER_C_AM) & c_ADER_C_AM_PAD;
+
+          if ader_i(i)(c_ADER_AM) = am_i then
+            s_am_match(i) <= '1';
+          else
+            s_am_match(i) <= '1';
+          end if;
+        end if;
+      end process;
+
+      s_function(i) <= '1' when (addr_i and s_adem(i)) = s_ader(i) and
+                                s_am_match(i) = '1'
+                           else '0';
+    end generate;
+
+    gen_dis_function: if c_ENABLED(i) = '0' generate
+      s_adem(i)     <= (others => '0');
+      s_ader(i)     <= (others => '0');
+      s_am_match(i) <= '0';
+      s_function(i) <= '0';
+    end generate;
+  end generate;
+
+  ------------------------------------------------------------------------------
+  -- Function priority encoder
+  ------------------------------------------------------------------------------
+  process (clk_i) begin
+    if rising_edge(clk_i) then
+      if rst_n_i = '0' then
+        s_function_sel <= (others => '0');
+        s_adem_sel     <= (others => '0');
+      else
+        if s_function(0) = '1' then
+          s_function_sel <= "00000001";
+          s_adem_sel     <= s_adem(0);
+        elsif s_function(1) = '1' then
+          s_function_sel <= "00000010";
+          s_adem_sel     <= s_adem(1);
+        elsif s_function(2) = '1' then
+          s_function_sel <= "00000100";
+          s_adem_sel     <= s_adem(2);
+        elsif s_function(3) = '1' then
+          s_function_sel <= "00001000";
+          s_adem_sel     <= s_adem(3);
+        elsif s_function(4) = '1' then
+          s_function_sel <= "00010000";
+          s_adem_sel     <= s_adem(4);
+        elsif s_function(5) = '1' then
+          s_function_sel <= "00100000";
+          s_adem_sel     <= s_adem(5);
+        elsif s_function(6) = '1' then
+          s_function_sel <= "01000000";
+          s_adem_sel     <= s_adem(6);
+        elsif s_function(7) = '1' then
+          s_function_sel <= "10000000";
+          s_adem_sel     <= s_adem(7);
+        end if;
       end if;
     end if;
   end process;
 
-  s_FUNC_ADER(0) <= unsigned(Ader0);
-  s_FUNC_ADER(1) <= unsigned(Ader1);
-  s_FUNC_ADER(2) <= unsigned(Ader2);
-  s_FUNC_ADER(3) <= unsigned(Ader3);
-  s_FUNC_ADER(4) <= unsigned(Ader4);
-  s_FUNC_ADER(5) <= unsigned(Ader5);
-  s_FUNC_ADER(6) <= unsigned(Ader6);
-  s_FUNC_ADER(7) <= unsigned(Ader7);
-  s_FUNC_ADEM(0) <= unsigned(Adem0);
-  s_FUNC_ADEM(1) <= unsigned(Adem1);
-  s_FUNC_ADEM(2) <= unsigned(Adem2);
-  s_FUNC_ADEM(3) <= unsigned(Adem3);
-  s_FUNC_ADEM(4) <= unsigned(Adem4);
-  s_FUNC_ADEM(5) <= unsigned(Adem5);
-  s_FUNC_ADEM(6) <= unsigned(Adem6);
-  s_FUNC_ADEM(7) <= unsigned(Adem7);
+  ------------------------------------------------------------------------------
+  -- Check of AM/XAM against AMCAP/XAMCAP
+  ------------------------------------------------------------------------------
+  process (s_ader, s_am_valid, s_xam_valid, s_function_sel) begin
+    for i in 0 to 7 loop
+      if s_ader(i)(c_ADER_XAM_MODE) = '1' then
+        s_function_ena(i) <= s_function_sel(i) and s_am_valid(i) and
+                             s_xam_valid(i) and s_am_valid(8);
+      else
+        s_function_ena(i) <= s_function_sel(i) and s_am_valid(i);
+      end if;
+    end loop;
+  end process;
 
-  GDFS : for i in 0 to 7 generate
-    DFS_o(i) <= s_FUNC_ADEM(i)(c_ADEM_DFS);
-  end generate GDFS;
+  ------------------------------------------------------------------------------
+  -- Address output latch
+  ------------------------------------------------------------------------------
+  process (clk_i) begin
+    if rising_edge(clk_i) then
+      if rst_n_i = '0' then
+        addr_o <= (others => '0');
+      else
+        if decode_i then
+          addr_o <= addr_i and not s_adem_sel;
+        end if;
+      end if;
+    end if;
+  end process;
 
-  GADER_64 : for i in 0 to 6 generate
-    s_FUNC_ADER_64(i) <= s_FUNC_ADER(i+1)&s_FUNC_ADER(i);
-  end generate GADER_64;
+  ------------------------------------------------------------------------------
+  -- EFD decoder and output latch
+  ------------------------------------------------------------------------------
+  gen_efd_ena: if c_EFD_ENA = true generate
+    process (clk_i) begin
+      if rising_edge(clk_i) then
+        if rst_n_i = '0' then
+          function_o <= (others => '0');
+        else
+          if decode_i then
+            case s_function_ena is
+              when "00000001" => function_o <= c_EFD_LUT(0);
+              when "00000010" => function_o <= c_EFD_LUT(1);
+              when "00000100" => function_o <= c_EFD_LUT(2);
+              when "00001000" => function_o <= c_EFD_LUT(3);
+              when "00010000" => function_o <= c_EFD_LUT(4);
+              when "00100000" => function_o <= c_EFD_LUT(5);
+              when "01000000" => function_o <= c_EFD_LUT(6);
+              when "10000000" => function_o <= c_EFD_LUT(7);
+              when others     => function_o <= (others => '0');
+            end case;
+          end if;
+        end if;
+      end if;
+    end process;
+  end generate;
 
-  s_FUNC_ADER_64(7) <= (others => '0');
+  gen_efd_dis: if c_EFD_ENA = false generate
+    process (clk_i) begin
+      if rising_edge(clk_i) then
+        if rst_n_i = '0' then
+          function_o <= (others => '0');
+        else
+          if decode_i then
+            function_o <= s_function_ena;
+          end if;
+        end if;
+      end if;
+    end process;
+  end generate;
 
-  GADEM_64 : for i in 0 to 6 generate
-    s_FUNC_ADEM_64(i)    <= s_FUNC_ADEM(i+1)&s_FUNC_ADEM(i);
-    s_isprev_func64(i+1) <= s_FUNC_ADEM(i)(0);
-  end generate GADEM_64;
-
-  s_isprev_func64(0) <= '0';
-  s_FUNC_ADEM_64(7)  <= (others => '0');
-
-end Behavioral;
+end rtl;

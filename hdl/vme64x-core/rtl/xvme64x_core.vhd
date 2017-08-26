@@ -142,6 +142,7 @@ entity xvme64x_core is
     irq_level_i     : in  std_logic_vector( 7 downto 0) := (others => '0');
     irq_vector_i    : in  std_logic_vector( 7 downto 0) := (others => '0');
     endian_i        : in  std_logic_vector( 2 downto 0) := (others => '0');
+    function_o      : out std_logic_vector( 3 downto 0);
 
     user_csr_addr_o : out std_logic_vector(18 downto 2);
     user_csr_data_i : in  std_logic_vector( 7 downto 0) := (others => '0');
@@ -275,6 +276,7 @@ begin  -- wrapper
       STALL_i         => master_i.stall,
 
       endian_i        => endian_i,
+      function_o      => function_o,
 
       user_csr_addr_o => user_csr_addr_o,
       user_csr_data_i => user_csr_data_i,

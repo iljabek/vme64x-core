@@ -1,3 +1,4 @@
+--------------------------------------------------------------------------------
 -- CERN (BE-CO-HT)
 -- VME64x Core
 -- http://www.ohwr.org/projects/vme64x-core
@@ -13,23 +14,22 @@
 --   This block acts as interface between the VMEbus and the CR/CSR space or
 --   WBbus.
 --
---                      _____________VME_bus________________
---                     |                                    |
---                     |         ______     _______         |
---                     |        | A  D |   |       |    ____|
---                     |        | C  E |   | M   F |   |  W |
---                     |        | C  C |   | A   S |   |  B |
---             VME     |        | E  O |   | I   M |   |    |
---             BUS     |        | S  D |   | N     |   |  M |
---                     |        | S  E |   |       |   |  A |
---                     |        |______|   |_______|   |  S |
---                     |         __________________    |  T |
---                     |        |                  |   |  E |
---                     |        |   OTHER DATA &   |   |  R |
---                     |        |   ADDR PROCESS   |   |____|
---                     |        |                  |        |
---                     |        |__________________|        |
---                     |____________________________________|
+--                      _________VME_bus__________
+--                     |  __________________      |
+--                     | |                  |  ___|
+--                     | |                  | |   |
+--                     | |      MAIN        | | W |
+--                   V | |                  | | B | W
+--                   M | |      FSM         | |   | B
+--                   E | |                  | | M |
+--                     | |                  | | A | B
+--                   B | |__________________| | S | U
+--                   U |  __________________  | T | S
+--                   S | |                  | | E |
+--                     | |   OTHER DATA &   | | R |
+--                     | |   ADDR PROCESS   | |___|
+--                     | |__________________|     |
+--                     |__________________________|
 --
 --   The Access decode component decodes the address to check if the board is
 --   the responding Slave. This component is of fundamental importance, indeed
@@ -71,37 +71,7 @@ entity VME_bus is
   generic (
     g_CLOCK_PERIOD  : integer;
     g_WB_DATA_WIDTH : integer;
-    g_WB_ADDR_WIDTH : integer;
-    g_BEG_USER_CR   : std_logic_vector( 23 downto 0);
-    g_END_USER_CR   : std_logic_vector( 23 downto 0);
-    g_BEG_CRAM      : std_logic_vector( 23 downto 0);
-    g_END_CRAM      : std_logic_vector( 23 downto 0);
-    g_BEG_USER_CSR  : std_logic_vector( 23 downto 0);
-    g_END_USER_CSR  : std_logic_vector( 23 downto 0);
-    g_F0_ADEM       : std_logic_vector( 31 downto 0);
-    g_F0_AMCAP      : std_logic_vector( 63 downto 0);
-    g_F0_XAMCAP     : std_logic_vector(255 downto 0);
-    g_F1_ADEM       : std_logic_vector( 31 downto 0);
-    g_F1_AMCAP      : std_logic_vector( 63 downto 0);
-    g_F1_XAMCAP     : std_logic_vector(255 downto 0);
-    g_F2_ADEM       : std_logic_vector( 31 downto 0);
-    g_F2_AMCAP      : std_logic_vector( 63 downto 0);
-    g_F2_XAMCAP     : std_logic_vector(255 downto 0);
-    g_F3_ADEM       : std_logic_vector( 31 downto 0);
-    g_F3_AMCAP      : std_logic_vector( 63 downto 0);
-    g_F3_XAMCAP     : std_logic_vector(255 downto 0);
-    g_F4_ADEM       : std_logic_vector( 31 downto 0);
-    g_F4_AMCAP      : std_logic_vector( 63 downto 0);
-    g_F4_XAMCAP     : std_logic_vector(255 downto 0);
-    g_F5_ADEM       : std_logic_vector( 31 downto 0);
-    g_F5_AMCAP      : std_logic_vector( 63 downto 0);
-    g_F5_XAMCAP     : std_logic_vector(255 downto 0);
-    g_F6_ADEM       : std_logic_vector( 31 downto 0);
-    g_F6_AMCAP      : std_logic_vector( 63 downto 0);
-    g_F6_XAMCAP     : std_logic_vector(255 downto 0);
-    g_F7_ADEM       : std_logic_vector( 31 downto 0);
-    g_F7_AMCAP      : std_logic_vector( 63 downto 0);
-    g_F7_XAMCAP     : std_logic_vector(255 downto 0)
+    g_WB_ADDR_WIDTH : integer
   );
   port (
     clk_i           : in  std_logic;
@@ -144,19 +114,20 @@ entity VME_bus is
     rty_i           : in  std_logic;
     stall_i         : in  std_logic;
 
+    -- Function decoder
+    addr_decoder_i  : in  std_logic_vector(63 downto 0);
+    addr_decoder_o  : out std_logic_vector(63 downto 0);
+    decode_o        : out std_logic;
+    am_o            : out std_logic_vector( 5 downto 0);
+    xam_o           : out std_logic_vector( 7 downto 0);
+    sel_i           : in  std_logic;
+    function_i      : in  std_logic_vector( 7 downto 0);
+
     --CR/CSR space signals:
     cr_csr_addr_o   : out std_logic_vector(18 downto 2);
     cr_csr_data_i   : in  std_logic_vector( 7 downto 0);
     cr_csr_data_o   : out std_logic_vector( 7 downto 0);
     cr_csr_we_o     : out std_logic;
-    f0_ader_i       : in  std_logic_vector(31 downto 0);
-    f1_ader_i       : in  std_logic_vector(31 downto 0);
-    f2_ader_i       : in  std_logic_vector(31 downto 0);
-    f3_ader_i       : in  std_logic_vector(31 downto 0);
-    f4_ader_i       : in  std_logic_vector(31 downto 0);
-    f5_ader_i       : in  std_logic_vector(31 downto 0);
-    f6_ader_i       : in  std_logic_vector(31 downto 0);
-    f7_ader_i       : in  std_logic_vector(31 downto 0);
     endian_i        : in  std_logic_vector(2 downto 0);
     module_enable_i : in  std_logic;
     bar_i           : in  std_logic_vector(4 downto 0)
@@ -188,7 +159,7 @@ architecture RTL of VME_bus is
   signal s_locAddrBeforeOffset      : unsigned(63 downto 0);
   signal s_phase1addr               : unsigned(63 downto 0);          -- for 2e transfers
   signal s_phase2addr               : unsigned(63 downto 0);          --
-  --signal s_phase3addr              : unsigned(63 downto 0);           --
+  --signal s_phase3addr               : unsigned(63 downto 0);          --
   signal s_addrOffset               : unsigned(17 downto 0);          -- block transfers|
   signal s_DataShift                : unsigned(5 downto 0);
   -- uncomment if 2e is implemented:
@@ -202,7 +173,6 @@ architecture RTL of VME_bus is
   signal s_LWORDlatched             : std_logic;                      -- Stores LWORD on falling edge of AS
   signal s_DSlatched                : std_logic_vector(1 downto 0);   -- Stores DS
   signal s_AMlatched                : std_logic_vector(5 downto 0);   -- Latch on AS f. edge
-  signal s_XAM                      : unsigned(7 downto 0);           -- Stores received XAM
 
   -- Type of data transfer (depending on VME_DS_n, VME_LWORD_n and VME_ADDR(1))
   signal s_typeOfDataTransfer       : t_typeOfDataTransfer;
@@ -240,8 +210,8 @@ architecture RTL of VME_bus is
   --signal s_berr_2                   : std_logic;                      --
 
   -- Access decode signals
-  signal s_confAccess               : std_logic;                      -- Asserted when CR or CSR is addressed
-  signal s_cardSel                  : std_logic;                      -- Asserted when WB memory is addressed
+  signal s_conf_sel                 : std_logic;                      -- Asserted when CR or CSR is addressed
+  signal s_card_sel                 : std_logic;                      -- Asserted when WB memory is addressed
 
   -- WishBone signals
   signal s_sel                      : unsigned(7 downto 0);           -- SEL WB signal
@@ -256,7 +226,6 @@ architecture RTL of VME_bus is
   signal s_prev_VME_AS_n            : std_logic;
   signal s_is_d64                   : std_logic;
   signal s_base_addr                : unsigned(63 downto 0);
-  signal s_nx_base_addr             : std_logic_vector(63 downto 0);
   signal s_VMEdata64In              : unsigned(63 downto 0);
 
   signal s_BERR_out                 : std_logic;
@@ -379,7 +348,8 @@ begin
     A64      when c_AM_A64,
     A64_BLT  when c_AM_A64_BLT,
     A64_MBLT when c_AM_A64_MBLT,
-    TWOedge  when c_AM_TWOEDGE,
+    TWOedge  when c_AM_2EVME_6U,
+    TWOedge  when c_AM_2EVME_3U,
     AM_Error when others;
 
   -- Transfer type decoder
@@ -484,9 +454,9 @@ begin
             --if s_addressingType = TWOedge then
             ---- start 2e transfer
             --s_mainFSMstate <= WAIT_FOR_DS_2e;
-            if s_confAccess = '1' or s_cardSel = '1' then
-              -- confAccess = '1' it means CR/CSR space addressed
-              -- s_cardSel  = '1' it means WB application addressed
+            if s_conf_sel = '1' or s_card_sel = '1' then
+              -- conf_sel = '1' it means CR/CSR space addressed
+              -- card_sel  = '1' it means WB application addressed
               s_mainFSMstate <= WAIT_FOR_DS;
             else
               s_mainFSMstate <= DECODE_ACCESS;
@@ -974,9 +944,9 @@ begin
   process (clk_i)
   begin
     if rising_edge(clk_i) then
-      if s_cardSel = '1' then
+      if s_card_sel = '1' then
         s_locDataOut <= unsigned(s_locDataOutWb);
-      elsif s_confAccess = '1' then
+      elsif s_conf_sel = '1' then
         s_locDataOut <= resize(unsigned(cr_csr_data_i), s_locDataOut'length);
       else
         s_locDataOut <= (others => '0');
@@ -1078,7 +1048,7 @@ begin
     port map (
       memReq_i        => s_memReq,
       clk_i           => clk_i,
-      cardSel_i       => s_cardSel,
+      cardSel_i       => s_card_sel,
       reset_i         => s_wbMaster_rst,
       BERRcondition_i => s_BERRcondition,
       sel_i           => std_logic_vector(s_sel),
@@ -1105,64 +1075,19 @@ begin
   we_o <= not s_rw;
 
   ------------------------------------------------------------------------------
-  -- Decoder
+  -- Function Decoder
   ------------------------------------------------------------------------------
-  -- This component check if the board is addressed; if the CR/CSR space is
-  -- addressed the Confaccess signal is asserted
-  -- If the Wb memory is addressed the CardSel signal is asserted.
-  s_XAM <= (others => '0');
+  s_base_addr    <= unsigned(addr_decoder_i);
+  addr_decoder_o <= std_logic_vector(s_locAddr);
+  decode_o       <= s_decode;
+  am_o           <= s_amlatched;
+  xam_o          <= (others => '0');
+  s_card_sel     <= sel_i;
 
-  Inst_Access_Decode : VME_Access_Decode
-    port map (
-      clk_i          => clk_i,
-      reset          => rst_i,
-      mainFSMreset   => s_mainFSMreset,
-      decode         => s_decode,
-      ModuleEnable   => module_enable_i,
-      Addr           => std_logic_vector(s_locAddr),
-      Ader0          => f0_ader_i,
-      Ader1          => f1_ader_i,
-      Ader2          => f2_ader_i,
-      Ader3          => f3_ader_i,
-      Ader4          => f4_ader_i,
-      Ader5          => f5_ader_i,
-      Ader6          => f6_ader_i,
-      Ader7          => f7_ader_i,
-      Adem0          => g_F0_ADEM,
-      Adem1          => g_F1_ADEM,
-      Adem2          => g_F2_ADEM,
-      Adem3          => g_F3_ADEM,
-      Adem4          => g_F4_ADEM,
-      Adem5          => g_F5_ADEM,
-      Adem6          => g_F6_ADEM,
-      Adem7          => g_F7_ADEM,
-      AmCap0         => g_F0_AMCAP,
-      AmCap1         => g_F1_AMCAP,
-      AmCap2         => g_F2_AMCAP,
-      AmCap3         => g_F3_AMCAP,
-      AmCap4         => g_F4_AMCAP,
-      AmCap5         => g_F5_AMCAP,
-      AmCap6         => g_F6_AMCAP,
-      AmCap7         => g_F7_AMCAP,
-      XAmCap0        => g_F0_XAMCAP,
-      XAmCap1        => g_F1_XAMCAP,
-      XAmCap2        => g_F2_XAMCAP,
-      XAmCap3        => g_F3_XAMCAP,
-      XAmCap4        => g_F4_XAMCAP,
-      XAmCap5        => g_F5_XAMCAP,
-      XAmCap6        => g_F6_XAMCAP,
-      XAmCap7        => g_F7_XAMCAP,
-      Am             => s_AMlatched,
-      XAm            => std_logic_vector(s_XAM),
-      BAR_i          => bar_i,
-      AddrWidth      => s_addrWidth,
-      Funct_Sel      => open,
-      Base_Addr      => s_nx_base_addr,
-      Confaccess     => s_confAccess,
-      CardSel        => s_cardSel
-    );
-
-  s_base_addr <= unsigned(s_nx_base_addr);
+  -- Decode accesses to CR/CSR
+  s_conf_sel <= '1' when s_locAddr(23 downto 19) = unsigned(bar_i) and
+                         s_amlatched = c_AM_CR_CSR
+                    else '0';
 
   ------------------------------------------------------------------------------
   -- Acknowledge
@@ -1182,7 +1107,7 @@ begin
       if rst_i = '1' then
         s_memAckCSR <= '0';
       else
-        if s_memReq = '1' and s_confAccess = '1' then
+        if s_memReq = '1' and s_conf_sel = '1' then
           s_memAckCSR <= '1';
         else
           s_memAckCSR <= '0';
@@ -1197,9 +1122,9 @@ begin
   cr_csr_data_o <= std_logic_vector(s_locDataIn(7 downto 0));
   cr_csr_addr_o <= std_logic_vector(s_locAddr(18 downto 2));
 
-  cr_csr_we_o   <= '1' when s_memReq      = '1' and
-                            s_confAccess  = '1' and
-                            s_RW          = '0'
+  cr_csr_we_o   <= '1' when s_memReq   = '1' and
+                            s_conf_sel = '1' and
+                            s_RW       = '0'
                             else '0';
 
   ------------------------------------------------------------------------------
