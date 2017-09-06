@@ -384,7 +384,6 @@ package vme64x_pack is
       am_o            : out std_logic_vector( 5 downto 0);
       xam_o           : out std_logic_vector( 7 downto 0);
       sel_i           : in  std_logic;
-      function_i      : in  std_logic_vector( 3 downto 0);
       cr_csr_addr_o   : out std_logic_vector(18 downto 2);
       cr_csr_data_i   : in  std_logic_vector( 7 downto 0);
       cr_csr_data_o   : out std_logic_vector( 7 downto 0);
@@ -412,7 +411,7 @@ package vme64x_pack is
       ader_i      : in  t_ader_array(0 to 7);
       dfs_adem_i  : in  t_adem_array(0 to 7);
       sel_o       : out std_logic;
-      function_o  : out std_logic_vector( 3 downto 0)
+      function_o  : out std_logic_vector( 2 downto 0)
     );
   end component VME_Funct_Match;
 

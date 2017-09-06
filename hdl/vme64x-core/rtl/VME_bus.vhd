@@ -121,7 +121,6 @@ entity VME_bus is
     am_o            : out std_logic_vector( 5 downto 0);
     xam_o           : out std_logic_vector( 7 downto 0);
     sel_i           : in  std_logic;
-    function_i      : in  std_logic_vector( 7 downto 0);
 
     --CR/CSR space signals:
     cr_csr_addr_o   : out std_logic_vector(18 downto 2);

@@ -183,7 +183,7 @@ begin  -- wrapper
 
   U_Wrapped_VME : VME64xCore_Top
     generic map (
-      g_CLOCK           => g_CLOCK_PERIOD,
+      g_CLOCK_PERIOD    => g_CLOCK_PERIOD,
       g_WB_DATA_WIDTH   => g_WB_DATA_WIDTH,
       g_WB_ADDR_WIDTH   => g_WB_ADDR_WIDTH,
       g_MANUFACTURER_ID => g_MANUFACTURER_ID,

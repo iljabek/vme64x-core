@@ -267,7 +267,7 @@ entity VME64xCore_Top is
     user_cr_data_i  : in  std_logic_vector( 7 downto 0) := (others => '0');
 
     -- Functions
-    function_o      : out std_logic_vector( 3 downto 0);
+    function_o      : out std_logic_vector( 2 downto 0);
 
     f0_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
     f1_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
@@ -339,7 +339,7 @@ architecture RTL of VME64xCore_Top is
   signal s_addr_decoder_o       : std_logic_vector(63 downto 0);
   signal s_decode               : std_logic;
   signal s_sel                  : std_logic;
-  signal s_function             : std_logic_vector( 7 downto 0);
+  signal s_function             : std_logic_vector( 2 downto 0);
   signal s_am                   : std_logic_vector( 5 downto 0);
   signal s_xam                  : std_logic_vector( 7 downto 0);
 
@@ -457,7 +457,6 @@ begin
       am_o            => s_am,
       xam_o           => s_xam,
       sel_i           => s_sel,
-      function_i      => s_function,
 
       -- CR/CSR signals
       cr_csr_addr_o   => s_cr_csr_addr,

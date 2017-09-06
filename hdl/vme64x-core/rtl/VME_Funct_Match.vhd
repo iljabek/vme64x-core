@@ -47,6 +47,7 @@ entity VME_Funct_Match is
     rst_n_i     : in  std_logic;
 
     addr_i      : in  std_logic_vector(63 downto 0);
+    -- Sub-address of the function (the part not masked by adem).
     addr_o      : out std_logic_vector(63 downto 0);
     decode_i    : in  std_logic;
     am_i        : in  std_logic_vector( 5 downto 0);
@@ -55,8 +56,10 @@ entity VME_Funct_Match is
     ader_i      : in  t_ader_array(0 to 7);
     dfs_adem_i  : in  t_adem_array(0 to 7);
 
+    -- Set when a function is selected (ie function_o is valid).
     sel_o       : out std_logic;
-    function_o  : out std_logic_vector( 3 downto 0)
+    -- Selected function.
+    function_o  : out std_logic_vector( 2 downto 0)
   );
 end VME_Funct_Match;
 
@@ -129,12 +132,12 @@ architecture rtl of VME_Funct_Match is
   ------------------------------------------------------------------------------
   -- Generate XAM enabled flag
   ------------------------------------------------------------------------------
-  -- c_XAM_ENA is true when any XAMCAP > 0 to conditionally enable the
+  -- c_XAM_ENA is true when any XAMCAP /= 0 to conditionally enable the
   -- generation of the XAM lookup table.
   function f_xam_ena return boolean is
   begin
     for i in 0 to 7 loop
-      if unsigned(g_XAMCAP(i)) > 0 then
+      if g_XAMCAP(i) /= (255 downto 0 => '0') then
         return true;
       end if;
     end loop;
@@ -146,19 +149,21 @@ architecture rtl of VME_Funct_Match is
   ------------------------------------------------------------------------------
   -- Generate function enabled vector
   ------------------------------------------------------------------------------
-  -- c_ENABLED is true when a function's AMCAP > 0 and the previous
-  -- function does not have the EFM bit set.
   function f_function_ena return std_logic_vector is
     variable ena : std_logic_vector(7 downto 0) := (others => '0');
   begin
     for i in 0 to 7 loop
-      if unsigned(g_AMCAP(i)) > 0 and g_ADEM(i-1)(c_ADEM_EFM) = '0' then
+      if g_AMCAP(i) /= (63 downto 0 => '0')
+        and (i = 0 or g_ADEM(i-1)(c_ADEM_EFM) = '0')
+      then
         ena(i) := '1';
       end if;
     end loop;
     return ena;
   end function;
 
+  -- c_ENABLED is true when a function's AMCAP /= 0 and the previous
+  -- function does not have the EFM bit set.
   constant c_ENABLED : std_logic_vector(7 downto 0) := f_function_ena;
 
   ------------------------------------------------------------------------------
@@ -167,6 +172,8 @@ architecture rtl of VME_Funct_Match is
   function f_efm_efd (v : integer) return std_logic_vector is
     variable e : std_logic_vector(7 downto 0) := (others => '0');
   begin
+    -- EFM and EFD are not meaningful for function 7 (as there is no next
+    -- function).
     for i in 0 to 6 loop
       e(i) := g_ADEM(i)(v);
     end loop;
@@ -175,34 +182,30 @@ architecture rtl of VME_Funct_Match is
 
   constant c_EFM      : std_logic_vector(7 downto 0)  := f_efm_efd(c_ADEM_EFM);
   constant c_EFD      : std_logic_vector(7 downto 0)  := f_efm_efd(c_ADEM_EFD);
-  constant c_EFD_ENA  : boolean                       := unsigned(c_EFD) > 0;
+  constant c_EFD_ENA  : boolean                       := c_EFD /= x"00";
 
   ------------------------------------------------------------------------------
   -- Generate EFD lookup table
   ------------------------------------------------------------------------------
-  type t_efd_lut is array (0 to 7) of std_logic_vector(7 downto 0);
+  type t_efd_lut is array (0 to 7) of std_logic_vector(2 downto 0);
 
   function f_gen_efd_lut return t_efd_lut is
     variable lut : t_efd_lut;
   begin
-    for i in 0 to 7 loop
+    lut(0) := "000";
+    for i in 1 to 7 loop
       if g_ADEM(i-1)(c_ADEM_EFD) = '1' then
-        for j in i-1 downto 0 loop
-          if g_ADEM(j-1)(c_ADEM_EFD) = '0' then
-            lut(i) := std_logic_vector(to_unsigned(j, 8));
-            exit;
-          end if;
-        end loop;
+        lut(i) := lut(i - 1);
       else
-        lut(i) := std_logic_vector(to_unsigned(i, 8));
+        lut(i) := std_logic_vector(to_unsigned(i, 3));
       end if;
     end loop;
     return lut;
   end function;
 
+  -- Map from function defined by address to real function. Handle extra
+  -- decoders.
   constant c_EFD_LUT : t_efd_lut := f_gen_efd_lut;
-
-  ------------------------------------------------------------------------------
 
 begin
 
@@ -237,6 +240,7 @@ begin
 
       -- Create 64-bit ADEM/ADER based on EFM and DFS setting
       gen_efm_ena: if c_EFM(i) = '1' generate
+        --  Extra mask
         gen_dfs_ena: if g_ADEM(i)(c_ADEM_DFS) = '1' generate
             s_adem(i) <= dfs_adem_i(i+1) & dfs_adem_i(i)(c_ADEM_M) & c_ADEM_M_PAD;
         end generate;
@@ -261,13 +265,13 @@ begin
       end generate;
 
       process (ader_i(i), am_i, xam_i) begin
-        if ader_i(i)(c_ADER_XAM_MODE) then
+        if ader_i(i)(c_ADER_XAM_MODE) = '1' then
           s_ader(i)(31 downto 0) <= ader_i(i)(c_ADER_C_XAM) & c_ADER_C_XAM_PAD;
 
           if ader_i(i)(c_ADER_XAM) = xam_i then
             s_am_match(i) <= '1';
           else
-            s_am_match(i) <= '1';
+            s_am_match(i) <= '0';
           end if;
         else
           s_ader(i)(31 downto 0) <= ader_i(i)(c_ADER_C_AM) & c_ADER_C_AM_PAD;
@@ -275,7 +279,7 @@ begin
           if ader_i(i)(c_ADER_AM) = am_i then
             s_am_match(i) <= '1';
           else
-            s_am_match(i) <= '1';
+            s_am_match(i) <= '0';
           end if;
         end if;
       end process;
@@ -353,7 +357,7 @@ begin
       if rst_n_i = '0' then
         addr_o <= (others => '0');
       else
-        if decode_i then
+        if decode_i = '1' then
           addr_o <= addr_i and not s_adem_sel;
         end if;
       end if;
@@ -363,42 +367,27 @@ begin
   ------------------------------------------------------------------------------
   -- EFD decoder and output latch
   ------------------------------------------------------------------------------
-  gen_efd_ena: if c_EFD_ENA = true generate
-    process (clk_i) begin
-      if rising_edge(clk_i) then
-        if rst_n_i = '0' then
-          function_o <= (others => '0');
-        else
-          if decode_i then
-            case s_function_ena is
-              when "00000001" => function_o <= c_EFD_LUT(0);
-              when "00000010" => function_o <= c_EFD_LUT(1);
-              when "00000100" => function_o <= c_EFD_LUT(2);
-              when "00001000" => function_o <= c_EFD_LUT(3);
-              when "00010000" => function_o <= c_EFD_LUT(4);
-              when "00100000" => function_o <= c_EFD_LUT(5);
-              when "01000000" => function_o <= c_EFD_LUT(6);
-              when "10000000" => function_o <= c_EFD_LUT(7);
-              when others     => function_o <= (others => '0');
-            end case;
-          end if;
+  process (clk_i) begin
+    if rising_edge(clk_i) then
+      if rst_n_i = '0' then
+        function_o <= (others => '0');
+      else
+        if decode_i = '1' then
+          sel_o <= '1';
+          case s_function_ena is
+            when "00000001" => function_o <= c_EFD_LUT(0);
+            when "00000010" => function_o <= c_EFD_LUT(1);
+            when "00000100" => function_o <= c_EFD_LUT(2);
+            when "00001000" => function_o <= c_EFD_LUT(3);
+            when "00010000" => function_o <= c_EFD_LUT(4);
+            when "00100000" => function_o <= c_EFD_LUT(5);
+            when "01000000" => function_o <= c_EFD_LUT(6);
+            when "10000000" => function_o <= c_EFD_LUT(7);
+            when others     => function_o <= (others => '0');
+                               sel_o <= '0';
+          end case;
         end if;
       end if;
-    end process;
-  end generate;
-
-  gen_efd_dis: if c_EFD_ENA = false generate
-    process (clk_i) begin
-      if rising_edge(clk_i) then
-        if rst_n_i = '0' then
-          function_o <= (others => '0');
-        else
-          if decode_i then
-            function_o <= s_function_ena;
-          end if;
-        end if;
-      end if;
-    end process;
-  end generate;
-
+    end if;
+  end process;
 end rtl;
