@@ -310,7 +310,7 @@ begin
   process (clk_i)
   begin
     if rising_edge(clk_i) then
-      s_cr_data <= s_cr_rom(to_integer(s_addr));
+      s_cr_data <= s_cr_rom(to_integer(s_addr) mod 1024);
     end if;
   end process;
 
@@ -488,7 +488,7 @@ begin
 
     s_cram_we     <= we_i and s_cram_access;
     s_cram_waddr  <= s_addr - c_BEG_CRAM;
-    s_cram_data   <= s_cram(to_integer(s_cram_raddr));
+    s_cram_data   <= s_cram(to_integer(s_cram_raddr) mod c_CRAM_SIZE);
 
     process (clk_i) begin
       if rising_edge(clk_i) then
