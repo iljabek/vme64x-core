@@ -4,11 +4,13 @@ end;
 library ieee;
 use ieee.std_logic_1164.all;
 use work.vme64x_pack.all;
+use std.textio.all;
+use ieee.std_logic_textio.all;
 
 architecture behaviour of top_tb is
   --  Clock
   constant g_CLOCK_PERIOD : natural := 10;  -- in ns
-  
+
   --  WB widths
   constant g_WB_DATA_WIDTH   : integer   := 32;
   constant g_WB_ADDR_WIDTH   : integer   := 32;
@@ -81,7 +83,17 @@ architecture behaviour of top_tb is
   signal f7_dfs_adem_i   : std_logic_vector(31 downto 0) := (others => '0');
   signal irq_ack_o       : std_logic;
   signal irq_i           : std_logic;
+
+  constant slave_ga : std_logic_vector (4 downto 0) := b"0_1101";
+
 begin
+  set_ga: block
+  begin
+    VME_GA_i (4 downto 0) <= not slave_ga;
+    VME_GA_i (5) <= not (slave_ga (4) xor slave_ga (3) xor slave_ga (2)
+                         xor slave_ga (1) xor slave_ga (0));
+  end block;
+
   dut: entity work.VME64xCore_Top
     generic map (g_CLOCK_PERIOD => g_CLOCK_PERIOD,
                  g_WB_DATA_WIDTH => g_WB_DATA_WIDTH,
@@ -164,14 +176,51 @@ begin
   end process;
 
   tb: process
+    function to_vme_addr (addr : std_logic_vector (31 downto 0))
+      return std_logic_vector is
+    begin
+      return addr (31 downto 1);
+    end to_vme_addr;
+
+    variable l : line;
   begin
     rst_n_i <= '0';
+    VME_RST_n_i <= '0';
     VME_AS_n_i <= '1';
     VME_ADDR_i <= (others => '1');
     VME_AM_i <= (others => '1');
+    VME_DS_n_i <= "11";
+    for i in 1 to 2 loop
+      wait until rising_edge (clk_i);
+    end loop;
+    VME_RST_n_i <= '1';
+    rst_n_i <= '1';
     for i in 1 to 8 loop
       wait until rising_edge (clk_i);
     end loop;
+
+    --  Read CR
+    VME_ADDR_i <= to_vme_addr (x"0007_FFFF");
+    VME_AM_i <= c_AM_CR_CSR;
+    VME_LWORD_n_i <= '1';
+    VME_IACK_n_i <= '1';
+    wait for 35 ns;
+    VME_AS_n_i <= '0';
+    VME_WRITE_n_i <= '1';
+    report "wait for !dtack and !berr" severity note;
+    if not (VME_DTACK_OE_o = '0' and VME_BERR_o = '0') then
+      wait until VME_DTACK_OE_o = '0' and VME_BERR_o = '0';
+    end if;
+
+    VME_DS_n_i <= "10";
+    report "wait for dtack" severity note;
+    wait until VME_DTACK_OE_o = '1' and VME_DTACK_n_o = '0';
+    report "done" severity note;
+    assert VME_DATA_DIR_o = '1';
+    assert VME_DATA_OE_N_o = '0';
+    write (l, string'("Data is: "));
+    write(l, VME_DATA_o (7 downto 0));
+    writeline (output, l);
 
     assert false report "end of simulation" severity failure;
     wait;
