@@ -9,6 +9,150 @@ use ieee.std_logic_textio.all;
 use work.vme64x_pack.all;
 
 architecture behaviour of top_tb is
+  subtype cfg_addr_t is std_logic_vector (19 downto 0);
+  subtype byte_t is std_logic_vector (7 downto 0);
+  subtype vme_am_t is std_logic_vector (5 downto 0);
+
+  function hex1 (v : std_logic_vector (3 downto 0)) return character is
+  begin
+    case v is
+      when x"0" => return '0';
+      when x"1" => return '1';
+      when x"2" => return '2';
+      when x"3" => return '3';
+      when x"4" => return '4';
+      when x"5" => return '5';
+      when x"6" => return '6';
+      when x"7" => return '7';
+      when x"8" => return '8';
+      when x"9" => return '9';
+      when x"a" => return 'a';
+      when x"b" => return 'b';
+      when x"c" => return 'c';
+      when x"d" => return 'd';
+      when x"e" => return 'e';
+      when x"f" => return 'f';
+      when "ZZZZ" => return 'z';
+      when others => return '?';
+    end case;
+  end hex1;
+
+  function hex2 (v : byte_t) return string is
+  begin
+    return hex1 (v(7 downto 4)) & hex1 (v(3 downto 0));
+  end hex2;
+
+  function hex6 (v : std_logic_vector (23 downto 0)) return string is
+    variable res : string (6 downto 1);
+  begin
+    for i in res'range loop
+      res (i) := hex1 (v (i * 4 - 1 downto i * 4 - 4));
+    end loop;
+    return res;
+  end hex6;
+
+  function hex8 (v : std_logic_vector (31 downto 0)) return string is
+    variable res : string (8 downto 1);
+  begin
+    for i in res'range loop
+      res (i) := hex1 (v (i * 4 - 1 downto i * 4 - 4));
+    end loop;
+    return res;
+  end hex8;
+
+  function hex (v : std_logic_vector) return string
+  is
+    constant ndigits : natural := v'length / 4;
+    subtype av_t is std_logic_vector (ndigits * 4 - 1 downto 0);
+    alias av : av_t is v;
+    variable res : string (ndigits downto 1);
+  begin
+    for i in res'range loop
+      res (i) := hex1 (av (i * 4 - 1 downto i * 4 - 4));
+    end loop;
+    return res;
+  end hex;
+
+  --  Decode DAWPR byte
+  function Disp_DAWPR (v : byte_t) return string is
+  begin
+    case v is
+      when x"81" => return "D08(O)";
+      when x"82" => return "D08(EO)";
+      when x"83" => return "D16 + D08";
+      when x"84" => return "D32 + D16 + D08";
+      when x"85" => return "MD32 + D16 + D08";
+      when others => return "??";
+    end case;
+  end Disp_DAWPR;
+
+  function Image_AM (am : natural range 0 to 63) return String is
+  begin
+    case am is
+      when 16#3f# => return "A24S-BLT";
+      when 16#3e# => return "A24S-PRG";
+      when 16#3d# => return "A24S-DAT";
+      when 16#3c# => return "A24S-MBL";
+      when 16#3b# => return "A24U-BLT";
+      when 16#3a# => return "A24U-PRG";
+      when 16#39# => return "A24U-DAT";
+      when 16#38# => return "A24U-MBL";
+
+      when 16#37# => return "A40x-BLT";
+      when 16#36# => return "Resvd-46";
+      when 16#35# => return "A40x-LCK";
+      when 16#34# => return "A40x-TFR";
+      when 16#33# => return "Resvd-33";
+      when 16#32# => return "A24x-LCK";
+      when 16#31# => return "Resvd-31";
+      when 16#30# => return "Resvd-30";
+
+      when 16#2f# => return "CR-CSR  ";
+      when 16#2e# => return "Resvd-2e";
+      when 16#2d# => return "A16S    ";
+      when 16#2c# => return "A16x-LCK";
+      when 16#2b# => return "Resvd-2b";
+      when 16#2a# => return "Resvd-2a";
+      when 16#29# => return "A16U    ";
+      when 16#28# => return "Resvd-28";
+
+      when 16#27# downto 16#20# => return "Resvd-2x";
+      when 16#1f# downto 16#10# => return "UD-1x";
+
+      when 16#0f# => return "A32S-BLT";
+      when 16#0e# => return "A32S-PRG";
+      when 16#0d# => return "A32S-DAT";
+      when 16#0c# => return "A32S-MBL";
+      when 16#0b# => return "A32U-BLT";
+      when 16#0a# => return "A32U-PRG";
+      when 16#09# => return "A32U-DAT";
+      when 16#08# => return "A32U-MBL";
+
+      when 16#07# => return "Resvd-07";
+      when 16#06# => return "Resvd-06";
+      when 16#05# => return "A32x-LCK";
+      when 16#04# => return "A64x-LCK";
+      when 16#03# => return "A64x-BLT";
+      when 16#02# => return "Resvd-02";
+      when 16#01# => return "A64x-TFR";
+      when 16#00# => return "A64x-MBL";
+    end case;
+  end Image_AM;
+
+  procedure Disp_AMCAP (cap : std_logic_vector (63 downto 0)) is
+  begin
+    if cap = (cap'range => '0') then
+      write (output, " -");
+    else
+      for i in cap'range loop
+        if cap (i) = '1' then
+          write (output, " ");
+          write (output, Image_AM (i));
+        end if;
+      end loop;
+    end if;
+  end Disp_AMCAP;
+
   --  Clock
   constant g_CLOCK_PERIOD : natural := 10;  -- in ns
 
@@ -87,6 +231,7 @@ architecture behaviour of top_tb is
 
   constant slave_ga : std_logic_vector (4 downto 0) := b"0_1101";
 
+  signal bus_timer : std_logic;
 begin
   set_ga: block
   begin
@@ -176,35 +321,80 @@ begin
     wait for (g_CLOCK_PERIOD / 2) * 1 ns;
   end process;
 
-  tb: process
-    subtype cfg_addr_t is std_logic_vector (19 downto 0);
-    subtype byte_t is std_logic_vector (7 downto 0);
+  bus_timer_proc : process (clk_i)
+    type state_t is (IDLE, WAIT_DS, COUNTING, WAIT_END, ERR);
+    variable state : state_t;
+    variable count : natural;
+  begin
+    if rising_edge (clk_i) then
+      if VME_RST_n_i = '0' then
+        state := IDLE;
+        bus_timer <= '0';
+      else
+        bus_timer <= '0';
 
+        case state is
+          when IDLE =>
+            if VME_AS_n_i = '0' then
+              state := WAIT_DS;
+            end if;
+          when WAIT_DS =>
+            count := 20;
+            if VME_DS_n_i /= "11" then
+              state := COUNTING;
+            end if;
+          when COUNTING =>
+            if VME_DS_n_i = "11" then
+              state := WAIT_END;
+            else
+              if count = 0 then
+                state := ERR;
+              else
+                count := count - 1;
+              end if;
+            end if;
+          when WAIT_END =>
+            if VME_AS_n_i = '1' then
+              state := IDLE;
+            end if;
+
+          when ERR =>
+            bus_timer <= '1';
+            if VME_AS_n_i = '1' then
+              state := IDLE;
+            end if;
+        end case;
+      end if;
+    end if;
+  end process;
+
+  tb: process
     constant c_log : boolean := False;
 
-    -- Convert a CR/CSR address to the VME address.  Insert GA, strip A0.
+    -- Convert a CR/CSR address to the VME address: insert GA.
     -- The ADDR is on 20 bits (so the x"" notation can be used), but as
     -- ADDR(19) is stipped, it must be '0'.
     function to_vme_cfg_addr (addr : cfg_addr_t)
       return std_logic_vector is
     begin
       assert addr (19) = '0' report "a19 is discarded" severity error;
-      return x"00" & slave_ga & addr (18 downto 1);
+      return x"00" & slave_ga & addr (18 downto 0);
     end to_vme_cfg_addr;
 
-    procedure read8_conf (addr : cfg_addr_t;
-                          variable data : out byte_t)
+    procedure read8 (addr : std_logic_vector (31 downto 0);
+                     am : vme_am_t;
+                     variable data : out byte_t)
     is
       variable l : line;
+      variable res : byte_t;
     begin
       if c_log then
-        write (l, string'("read8_conf at 0x"));
-        hwrite (l, addr);
-        writeline (output, l);
+        write (output, "read8 at 0x" & hex (addr) & " ["
+               & Image_AM (to_integer (unsigned (am))) & " ]" & LF);
       end if;
 
-      VME_ADDR_i <= to_vme_cfg_addr (addr);
-      VME_AM_i <= c_AM_CR_CSR;
+      VME_ADDR_i <= addr (31 downto 1);
+      VME_AM_i <= am;
       VME_LWORD_n_i <= '1';
       VME_IACK_n_i <= '1';
       wait for 35 ns;
@@ -214,21 +404,41 @@ begin
         wait until VME_DTACK_OE_o = '0' and VME_BERR_o = '0';
       end if;
 
-      VME_DS_n_i <= "10";
-      wait until VME_DTACK_OE_o = '1' and VME_DTACK_n_o = '0';
-      assert VME_DATA_DIR_o = '1' report "bad data_dir_o";
-      assert VME_DATA_OE_N_o = '0' report "bad data_oe_n_o";
-      data := VME_DATA_o (7 downto 0);
+      if addr (0) = '0' then
+        VME_DS_n_i <= "01";
+      else
+        VME_DS_n_i <= "10";
+      end if;
+      wait until (VME_DTACK_OE_o = '1' and VME_DTACK_n_o = '0')
+        or bus_timer = '1';
+      if bus_timer = '0' then
+        assert VME_DATA_DIR_o = '1' report "bad data_dir_o";
+        assert VME_DATA_OE_N_o = '0' report "bad data_oe_n_o";
+        if addr (0) = '0' then
+          res := VME_DATA_o (15 downto 8);
+        else
+          res := VME_DATA_o (7 downto 0);
+        end if;
+      else
+        res := "XXXXXXXX";
+      end if;
+      data := res;
 
       --  Release
       VME_AS_n_i <= '1';
       VME_DS_n_i <= "11";
 
       if c_log then
-        write (l, string'(" => 0x"));
-        hwrite(l, VME_DATA_o (7 downto 0));
-        writeline (output, l);
+        write (output," => 0x" & hex(res) & LF);
       end if;
+    end read8;
+
+    procedure read8_conf (addr : cfg_addr_t;
+                          variable data : out byte_t)
+    is
+      variable l : line;
+    begin
+      read8 (to_vme_cfg_addr (addr), c_AM_CR_CSR, data);
     end read8_conf;
 
     procedure read8_conf_mb (addr : cfg_addr_t;
@@ -263,7 +473,7 @@ begin
       if not (VME_DTACK_OE_o = '0' and VME_BERR_o = '0') then
         wait until VME_DTACK_OE_o = '0' and VME_BERR_o = '0';
       end if;
-      VME_ADDR_i <= to_vme_cfg_addr (addr);
+      VME_ADDR_i <= to_vme_cfg_addr (addr)(0 to 30);
       VME_AM_i <= c_AM_CR_CSR;
       VME_LWORD_n_i <= '1';
       VME_IACK_n_i <= '1';
@@ -286,79 +496,6 @@ begin
       wait until VME_DTACK_OE_o = '0' or VME_DTACK_n_o = '1';
       VME_AS_n_i <= '1';
     end write8_conf;
-
-    function hex1 (v : std_logic_vector (3 downto 0)) return character is
-    begin
-      case v is
-        when x"0" => return '0';
-        when x"1" => return '1';
-        when x"2" => return '2';
-        when x"3" => return '3';
-        when x"4" => return '4';
-        when x"5" => return '5';
-        when x"6" => return '6';
-        when x"7" => return '7';
-        when x"8" => return '8';
-        when x"9" => return '9';
-        when x"a" => return 'a';
-        when x"b" => return 'b';
-        when x"c" => return 'c';
-        when x"d" => return 'd';
-        when x"e" => return 'e';
-        when x"f" => return 'f';
-        when "ZZZZ" => return 'z';
-        when others => return '?';
-      end case;
-    end hex1;
-
-    function hex2 (v : byte_t) return string is
-    begin
-      return hex1 (v(7 downto 4)) & hex1 (v(3 downto 0));
-    end hex2;
-
-    function hex6 (v : std_logic_vector (23 downto 0)) return string is
-      variable res : string (6 downto 1);
-    begin
-      for i in res'range loop
-        res (i) := hex1 (v (i * 4 - 1 downto i * 4 - 4));
-      end loop;
-      return res;
-    end hex6;
-
-    function hex8 (v : std_logic_vector (31 downto 0)) return string is
-      variable res : string (8 downto 1);
-    begin
-      for i in res'range loop
-        res (i) := hex1 (v (i * 4 - 1 downto i * 4 - 4));
-      end loop;
-      return res;
-    end hex8;
-
-    function hex (v : std_logic_vector) return string
-    is
-      constant ndigits : natural := v'length / 4;
-      subtype av_t is std_logic_vector (ndigits * 4 - 1 downto 0);
-      alias av : av_t is v;
-      variable res : string (ndigits downto 1);
-    begin
-      for i in res'range loop
-        res (i) := hex1 (av (i * 4 - 1 downto i * 4 - 4));
-      end loop;
-      return res;
-    end hex;
-
-    --  Decode DAWPR byte
-    function Disp_DAWPR (v : byte_t) return string is
-    begin
-      case v is
-        when x"81" => return "D08(O)";
-        when x"82" => return "D08(EO)";
-        when x"83" => return "D16 + D08";
-        when x"84" => return "D32 + D16 + D08";
-        when x"85" => return "MD32 + D16 + D08";
-        when others => return "??";
-      end case;
-    end Disp_DAWPR;
 
     procedure Dump_CR
     is
@@ -461,7 +598,9 @@ begin
       for i in 0 to 7 loop
         read8_conf_mb (std_logic_vector (unsigned'(x"0_0123") + i * 32), b8);
         write (output, "CR FN" & natural'image (i) & " AMCAP:    0x"
-               & hex (b8) & LF);
+               & hex (b8) & " [");
+        Disp_AMCAP (b8);
+        write (output, " ]" & LF);
       end loop;
 
 
@@ -490,7 +629,6 @@ begin
 
       read8_conf_mb (x"0_06d3", b32);
       write (output, "CR mastr XAMCAP: 0x" & hex (b32) & LF);
-
     end Dump_CR;
 
     variable l : line;
@@ -528,10 +666,25 @@ begin
     read8_conf (x"7_ff63", d);
     assert d = x"00" report "bad initial ADER0 value" severity error;
 
-    --  Set ADER
+    -- Set ADER
     write8_conf (x"7_ff63", x"56");
+    write8_conf (x"7_ff6f", c_AM_A32 & "00");
     read8_conf  (x"7_ff63", d);
     assert d = x"56" report "bad ADER0 value" severity error;
+
+    -- Try to read (but card is not yet enabled)
+    read8 (x"56_00_00_00", c_AM_A32, d);
+    report "read data: " & hex (d);
+    assert d = "XXXXXXXX" report "unexpected reply" severity error;
+
+    -- Enable card
+    write8_conf (x"7_fffb", b"0001_0000");
+    read8_conf  (x"7_fffb", d);
+    assert d = b"0001_0000" report "module must be enabled" severity error;
+
+    --  WB read
+    read8 (x"56_00_00_00", c_AM_A32, d);
+    report "read data: " & hex (d);
 
     assert false report "end of simulation" severity failure;
     wait;
