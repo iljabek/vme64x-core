@@ -90,8 +90,8 @@ begin
   set_ga: block
   begin
     VME_GA_i (4 downto 0) <= not slave_ga;
-    VME_GA_i (5) <= not (slave_ga (4) xor slave_ga (3) xor slave_ga (2)
-                         xor slave_ga (1) xor slave_ga (0));
+    VME_GA_i (5) <= (slave_ga (4) xor slave_ga (3) xor slave_ga (2)
+                     xor slave_ga (1) xor slave_ga (0));
   end block;
 
   dut: entity work.VME64xCore_Top
@@ -176,14 +176,60 @@ begin
   end process;
 
   tb: process
-    function to_vme_addr (addr : std_logic_vector (31 downto 0))
+    subtype cfg_addr_t is std_logic_vector (19 downto 0);
+    subtype byte_t is std_logic_vector (7 downto 0);
+
+    constant c_log : boolean := True;
+
+    -- Convert a CR/CSR address to the VME address.  Insert GA, strip A0.
+    -- The ADDR is on 20 bits (so the x"" notation can be used), but as
+    -- ADDR(19) is stipped, it must be '0'.
+    function to_vme_cfg_addr (addr : cfg_addr_t)
       return std_logic_vector is
     begin
-      return addr (31 downto 1);
-    end to_vme_addr;
+      assert addr (19) = '0' report "a19 is discarded" severity error;
+      return x"00" & slave_ga & addr (18 downto 1);
+    end to_vme_cfg_addr;
+
+    procedure read8_conf (addr : cfg_addr_t;
+                          variable data : out byte_t)
+    is
+      variable l : line;
+    begin
+      if c_log then
+        write (l, string'("read8_conf at 0x"));
+        hwrite (l, addr);
+        writeline (output, l);
+      end if;
+
+      VME_ADDR_i <= to_vme_cfg_addr (addr);
+      VME_AM_i <= c_AM_CR_CSR;
+      VME_LWORD_n_i <= '1';
+      VME_IACK_n_i <= '1';
+      wait for 35 ns;
+      VME_AS_n_i <= '0';
+      VME_WRITE_n_i <= '1';
+      if not (VME_DTACK_OE_o = '0' and VME_BERR_o = '0') then
+        wait until VME_DTACK_OE_o = '0' and VME_BERR_o = '0';
+      end if;
+
+      VME_DS_n_i <= "10";
+      wait until VME_DTACK_OE_o = '1' and VME_DTACK_n_o = '0';
+      assert VME_DATA_DIR_o = '1';
+      assert VME_DATA_OE_N_o = '0';
+      data := VME_DATA_o (7 downto 0);
+
+      if c_log then
+        write (l, string'(" => 0x"));
+        hwrite(l, VME_DATA_o (7 downto 0));
+        writeline (output, l);
+      end if;
+    end read8_conf;
 
     variable l : line;
+    variable d : byte_t;
   begin
+    --  VME reset
     rst_n_i <= '0';
     VME_RST_n_i <= '0';
     VME_AS_n_i <= '1';
@@ -200,27 +246,8 @@ begin
     end loop;
 
     --  Read CR
-    VME_ADDR_i <= to_vme_addr (x"0007_FFFF");
-    VME_AM_i <= c_AM_CR_CSR;
-    VME_LWORD_n_i <= '1';
-    VME_IACK_n_i <= '1';
-    wait for 35 ns;
-    VME_AS_n_i <= '0';
-    VME_WRITE_n_i <= '1';
-    report "wait for !dtack and !berr" severity note;
-    if not (VME_DTACK_OE_o = '0' and VME_BERR_o = '0') then
-      wait until VME_DTACK_OE_o = '0' and VME_BERR_o = '0';
-    end if;
-
-    VME_DS_n_i <= "10";
-    report "wait for dtack" severity note;
-    wait until VME_DTACK_OE_o = '1' and VME_DTACK_n_o = '0';
-    report "done" severity note;
-    assert VME_DATA_DIR_o = '1';
-    assert VME_DATA_OE_N_o = '0';
-    write (l, string'("Data is: "));
-    write(l, VME_DATA_o (7 downto 0));
-    writeline (output, l);
+    read8_conf (x"7_FFFF", d);
+    assert d = slave_ga & "000" report "bad CR/CSR BAR value" severity error;
 
     assert false report "end of simulation" severity failure;
     wait;
