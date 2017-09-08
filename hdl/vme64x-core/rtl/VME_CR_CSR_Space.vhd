@@ -328,7 +328,7 @@ begin
 
   -- Write
   process (clk_i)
-    variable v_addr  : unsigned(6 downto 2);
+    variable v_addr  : unsigned(18 downto 2);
     variable v_index : integer;
     variable v_byte  : integer;
   begin
@@ -371,7 +371,7 @@ begin
               s_reg_usr_bit_reg <= s_reg_usr_bit_reg and not data_i;
 
             when c_ADER_REG_BEG to c_ADER_REG_END =>
-              v_addr  := s_addr(6 downto 2) - to_unsigned(c_ADER_REG_BEG, 5);
+              v_addr  := s_addr(18 downto 2) - to_unsigned(c_ADER_REG_BEG, 17);
               v_index := to_integer(v_addr(6 downto 4));
               v_byte  := 3-to_integer(v_addr(3 downto 2));
               s_reg_ader(v_index)(8*v_byte+7 downto 8*v_byte) <= data_i;
@@ -438,7 +438,7 @@ begin
 
   -- Read
   process (clk_i)
-    variable v_addr  : unsigned(6 downto 2);
+    variable v_addr  : unsigned(18 downto 2);
     variable v_index : integer;
     variable v_byte  : integer;
   begin
@@ -466,7 +466,7 @@ begin
             s_csr_data <= s_reg_usr_bit_reg;
 
           when c_ADER_REG_BEG to c_ADER_REG_END =>
-            v_addr  := s_addr(6 downto 2) - to_unsigned(c_ADER_REG_BEG, 5);
+            v_addr  := s_addr(18 downto 2) - to_unsigned(c_ADER_REG_BEG, 17);
             v_index := to_integer(v_addr(6 downto 4));
             v_byte  := 3-to_integer(v_addr(3 downto 2));
             s_csr_data <= s_ader(v_index)(8*v_byte+7 downto 8*v_byte);
