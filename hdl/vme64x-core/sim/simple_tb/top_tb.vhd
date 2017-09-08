@@ -179,7 +179,7 @@ begin
     subtype cfg_addr_t is std_logic_vector (19 downto 0);
     subtype byte_t is std_logic_vector (7 downto 0);
 
-    constant c_log : boolean := True;
+    constant c_log : boolean := False;
 
     -- Convert a CR/CSR address to the VME address.  Insert GA, strip A0.
     -- The ADDR is on 20 bits (so the x"" notation can be used), but as
@@ -219,12 +219,108 @@ begin
       assert VME_DATA_OE_N_o = '0';
       data := VME_DATA_o (7 downto 0);
 
+      --  Release
+      VME_AS_n_i <= '1';
+      VME_DS_n_i <= "11";
+
       if c_log then
         write (l, string'(" => 0x"));
         hwrite(l, VME_DATA_o (7 downto 0));
         writeline (output, l);
       end if;
     end read8_conf;
+
+    function hex1 (v : std_logic_vector (3 downto 0)) return character is
+    begin
+      case v is
+        when x"0" => return '0';
+        when x"1" => return '1';
+        when x"2" => return '2';
+        when x"3" => return '3';
+        when x"4" => return '4';
+        when x"5" => return '5';
+        when x"6" => return '6';
+        when x"7" => return '7';
+        when x"8" => return '8';
+        when x"9" => return '9';
+        when x"a" => return 'a';
+        when x"b" => return 'b';
+        when x"c" => return 'c';
+        when x"d" => return 'd';
+        when x"e" => return 'e';
+        when x"f" => return 'f';
+        when "ZZZZ" => return 'z';
+        when others => return '?';
+      end case;
+    end hex1;
+
+    function hex2 (v : byte_t) return string is
+    begin
+      return hex1 (v(7 downto 4)) & hex1 (v(3 downto 0));
+    end hex2;
+
+    procedure Dump_CR
+    is
+      variable d : byte_t;
+    begin
+      read8_conf (x"0_0003", d);
+      write (output, "CR checksum:     0x" & hex2 (d) & LF);
+
+      read8_conf (x"0_0013", d);
+      assert d = x"81" report "invalid data width at 0x13" severity error;
+      write (output, "CR data width:   0x" & hex2 (d) & LF);
+
+      read8_conf (x"0_0017", d);
+      assert d = x"81" report "invalid data width at 0x17" severity error;
+      write (output, "CSR data width:  0x" & hex2 (d) & LF);
+
+      read8_conf (x"0_001b", d);
+      assert d = x"02" report "invalid spec ID at 0x1b" severity error;
+      write (output, "CR/CSR version:  0x" & hex2 (d) & LF);
+
+      read8_conf (x"0_001f", d);
+      assert d = x"43" report "invalid valid CR byte at 0x1f" severity error;
+      write (output, "CR valid 'C':    0x" & hex2 (d) & LF);
+
+      read8_conf (x"0_0023", d);
+      assert d = x"52" report "invalid valid CR byte at 0x23" severity error;
+      write (output, "CR valid 'R':    0x" & hex2 (d) & LF);
+
+      read8_conf (x"0_0027", d);
+      write (output, "CR Manu ID (2):  0x" & hex2 (d) & LF);
+      read8_conf (x"0_002b", d);
+      write (output, "CR Manu ID (1):  0x" & hex2 (d) & LF);
+      read8_conf (x"0_002f", d);
+      write (output, "CR Manu ID (0):  0x" & hex2 (d) & LF);
+
+      read8_conf (x"0_0033", d);
+      write (output, "CR Board ID (3): 0x" & hex2 (d) & LF);
+      read8_conf (x"0_0037", d);
+      write (output, "CR Board ID (2): 0x" & hex2 (d) & LF);
+      read8_conf (x"0_003b", d);
+      write (output, "CR Board ID (1): 0x" & hex2 (d) & LF);
+      read8_conf (x"0_003f", d);
+      write (output, "CR Board ID (0): 0x" & hex2 (d) & LF);
+
+      read8_conf (x"0_0043", d);
+      write (output, "CR Rev ID (3):   0x" & hex2 (d) & LF);
+      read8_conf (x"0_0047", d);
+      write (output, "CR Rev ID (2):   0x" & hex2 (d) & LF);
+      read8_conf (x"0_004b", d);
+      write (output, "CR Rev ID (1):   0x" & hex2 (d) & LF);
+      read8_conf (x"0_004f", d);
+      write (output, "CR Rev ID (0):   0x" & hex2 (d) & LF);
+
+      read8_conf (x"0_0053", d);
+      write (output, "CR ASCII ptr(2): 0x" & hex2 (d) & LF);
+      read8_conf (x"0_0057", d);
+      write (output, "CR ASCII ptr(1): 0x" & hex2 (d) & LF);
+      read8_conf (x"0_005b", d);
+      write (output, "CR ASCII ptr(0): 0x" & hex2 (d) & LF);
+
+      read8_conf (x"0_007F", d);
+      write (output, "CR Program ID:   0x" & hex2 (d) & LF);
+    end Dump_CR;
 
     variable l : line;
     variable d : byte_t;
@@ -245,9 +341,12 @@ begin
       wait until rising_edge (clk_i);
     end loop;
 
-    --  Read CR
+    --  Read CSR
     read8_conf (x"7_FFFF", d);
     assert d = slave_ga & "000" report "bad CR/CSR BAR value" severity error;
+
+    --  READ CR
+    Dump_CR;
 
     assert false report "end of simulation" severity failure;
     wait;
