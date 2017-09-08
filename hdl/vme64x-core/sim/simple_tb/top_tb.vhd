@@ -216,8 +216,8 @@ begin
 
       VME_DS_n_i <= "10";
       wait until VME_DTACK_OE_o = '1' and VME_DTACK_n_o = '0';
-      assert VME_DATA_DIR_o = '1';
-      assert VME_DATA_OE_N_o = '0';
+      assert VME_DATA_DIR_o = '1' report "bad data_dir_o";
+      assert VME_DATA_OE_N_o = '0' report "bad data_oe_n_o";
       data := VME_DATA_o (7 downto 0);
 
       --  Release
@@ -246,6 +246,46 @@ begin
         ad := cfg_addr_t (unsigned(ad) + 4);
       end loop;
     end read8_conf_mb;
+
+    procedure write8_conf (addr : cfg_addr_t;
+                           data : byte_t)
+    is
+      variable l : line;
+    begin
+      if c_log then
+        write (l, string'("write8_conf at 0x"));
+        hwrite (l, addr);
+        write (l, string'(" <= "));
+        hwrite (l, data);
+        writeline (output, l);
+      end if;
+
+      if not (VME_DTACK_OE_o = '0' and VME_BERR_o = '0') then
+        wait until VME_DTACK_OE_o = '0' and VME_BERR_o = '0';
+      end if;
+      VME_ADDR_i <= to_vme_cfg_addr (addr);
+      VME_AM_i <= c_AM_CR_CSR;
+      VME_LWORD_n_i <= '1';
+      VME_IACK_n_i <= '1';
+      wait for 35 ns;
+      VME_AS_n_i <= '0';
+      VME_WRITE_n_i <= '0';
+      VME_DS_n_i <= "10";
+
+      wait until VME_DTACK_OE_o = '1' and VME_DTACK_n_o = '0';
+      VME_DS_n_i <= "11";
+
+      wait until VME_DTACK_OE_o = '0' or VME_DTACK_n_o = '1';
+      assert VME_DATA_DIR_o = '0' report "bad data_dir_o (wr)";
+      VME_DATA_i (7 downto 0) <= data;
+      VME_DS_n_i <= "10";
+
+      wait until VME_DTACK_OE_o = '1' and VME_DTACK_n_o = '0';
+      VME_DS_n_i <= "11";
+
+      wait until VME_DTACK_OE_o = '0' or VME_DTACK_n_o = '1';
+      VME_AS_n_i <= '1';
+    end write8_conf;
 
     function hex1 (v : std_logic_vector (3 downto 0)) return character is
     begin
@@ -307,6 +347,19 @@ begin
       return res;
     end hex;
 
+    --  Decode DAWPR byte
+    function Disp_DAWPR (v : byte_t) return string is
+    begin
+      case v is
+        when x"81" => return "D08(O)";
+        when x"82" => return "D08(EO)";
+        when x"83" => return "D16 + D08";
+        when x"84" => return "D32 + D16 + D08";
+        when x"85" => return "MD32 + D16 + D08";
+        when others => return "??";
+      end case;
+    end Disp_DAWPR;
+
     procedure Dump_CR
     is
       variable d : byte_t;
@@ -353,7 +406,7 @@ begin
       read8_conf (x"0_007F", d);
       write (output, "CR Program ID:   0x" & hex2 (d) & LF);
 
-      --  VVME64x
+      --  VME64x
       read8_conf_mb (x"0_0083", b3);
       write (output, "CR BEG_USER_CR:  0x" & hex6 (b3) & LF);
 
@@ -399,39 +452,17 @@ begin
       read8_conf (x"0_00FF", d);
       write (output, "CR CRAM acc wd:  0x" & hex2 (d) & LF);
 
-      read8_conf (x"0_0103", d);
-      write (output, "CR FN0 DAW:      0x" & hex2 (d) & LF);
-      read8_conf (x"0_0107", d);
-      write (output, "CR FN1 DAW:      0x" & hex2 (d) & LF);
-      read8_conf (x"0_010b", d);
-      write (output, "CR FN2 DAW:      0x" & hex2 (d) & LF);
-      read8_conf (x"0_010f", d);
-      write (output, "CR FN3 DAW:      0x" & hex2 (d) & LF);
-      read8_conf (x"0_0113", d);
-      write (output, "CR FN4 DAW:      0x" & hex2 (d) & LF);
-      read8_conf (x"0_0117", d);
-      write (output, "CR FN5 DAW:      0x" & hex2 (d) & LF);
-      read8_conf (x"0_011b", d);
-      write (output, "CR FN6 DAW:      0x" & hex2 (d) & LF);
-      read8_conf (x"0_011f", d);
-      write (output, "CR FN7 DAW:      0x" & hex2 (d) & LF);
+      for i in 0 to 7 loop
+        read8_conf (std_logic_vector (unsigned'(x"0_0103") + i * 4), d);
+        write (output, "CR FN" & natural'image (i) & " DAW:     0x"
+               & hex2 (d) & "  [" & Disp_DAWPR (d) & ']' & LF);
+      end loop;
 
-      read8_conf_mb (x"0_0123", b8);
-      write (output, "CR FN0 AMCAP:    0x" & hex (b8) & LF);
-      read8_conf_mb (x"0_0143", b8);
-      write (output, "CR FN1 AMCAP:    0x" & hex (b8) & LF);
-      read8_conf_mb (x"0_0163", b8);
-      write (output, "CR FN2 AMCAP:    0x" & hex (b8) & LF);
-      read8_conf_mb (x"0_0183", b8);
-      write (output, "CR FN3 AMCAP:    0x" & hex (b8) & LF);
-      read8_conf_mb (x"0_01a3", b8);
-      write (output, "CR FN4 AMCAP:    0x" & hex (b8) & LF);
-      read8_conf_mb (x"0_01c3", b8);
-      write (output, "CR FN5 AMCAP:    0x" & hex (b8) & LF);
-      read8_conf_mb (x"0_01e3", b8);
-      write (output, "CR FN6 AMCAP:    0x" & hex (b8) & LF);
-      read8_conf_mb (x"0_0203", b8);
-      write (output, "CR FN7 AMCAP:    0x" & hex (b8) & LF);
+      for i in 0 to 7 loop
+        read8_conf_mb (std_logic_vector (unsigned'(x"0_0123") + i * 32), b8);
+        write (output, "CR FN" & natural'image (i) & " AMCAP:    0x"
+               & hex (b8) & LF);
+      end loop;
 
 
       read8_conf_mb (x"0_0223", b32);
@@ -485,8 +516,22 @@ begin
     read8_conf (x"7_FFFF", d);
     assert d = slave_ga & "000" report "bad CR/CSR BAR value" severity error;
 
+    read8_conf (x"7_FFFB", d);
+    write (output, "CSR bit reg:     0x" & hex (d) & LF);
+    read8_conf (x"7_FFEF", d);
+    write (output, "CSR usr bit reg: 0x" & hex (d) & LF);
+
     --  READ CR
     Dump_CR;
+
+    --  Check ADER is 0
+    read8_conf (x"7_ff63", d);
+    assert d = x"00" report "bad initial ADER0 value" severity error;
+
+    --  Set ADER
+    write8_conf (x"7_ff63", x"56");
+    read8_conf  (x"7_ff63", d);
+    assert d = x"56" report "bad ADER0 value" severity error;
 
     assert false report "end of simulation" severity failure;
     wait;
