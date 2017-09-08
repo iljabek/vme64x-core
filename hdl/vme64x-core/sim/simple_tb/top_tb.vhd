@@ -2,10 +2,11 @@ entity top_tb is
 end;
 
 library ieee;
-use ieee.std_logic_1164.all;
-use work.vme64x_pack.all;
 use std.textio.all;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 use ieee.std_logic_textio.all;
+use work.vme64x_pack.all;
 
 architecture behaviour of top_tb is
   --  Clock
@@ -230,6 +231,22 @@ begin
       end if;
     end read8_conf;
 
+    procedure read8_conf_mb (addr : cfg_addr_t;
+                             variable data : out std_logic_vector)
+    is
+      variable ad : cfg_addr_t := addr;
+      constant bsize : natural := data'length / 8;
+      subtype d_type is std_logic_vector (bsize * 8 - 1 downto 0);
+      alias d : d_type is data;
+    begin
+      assert data'length mod 8 = 0 report "data is not a multiple of bytes"
+        severity error;
+      for i in bsize - 1 downto 0 loop
+        read8_conf (ad, d (i * 8 + 7 downto i * 8));
+        ad := cfg_addr_t (unsigned(ad) + 4);
+      end loop;
+    end read8_conf_mb;
+
     function hex1 (v : std_logic_vector (3 downto 0)) return character is
     begin
       case v is
@@ -259,9 +276,44 @@ begin
       return hex1 (v(7 downto 4)) & hex1 (v(3 downto 0));
     end hex2;
 
+    function hex6 (v : std_logic_vector (23 downto 0)) return string is
+      variable res : string (6 downto 1);
+    begin
+      for i in res'range loop
+        res (i) := hex1 (v (i * 4 - 1 downto i * 4 - 4));
+      end loop;
+      return res;
+    end hex6;
+
+    function hex8 (v : std_logic_vector (31 downto 0)) return string is
+      variable res : string (8 downto 1);
+    begin
+      for i in res'range loop
+        res (i) := hex1 (v (i * 4 - 1 downto i * 4 - 4));
+      end loop;
+      return res;
+    end hex8;
+
+    function hex (v : std_logic_vector) return string
+    is
+      constant ndigits : natural := v'length / 4;
+      subtype av_t is std_logic_vector (ndigits * 4 - 1 downto 0);
+      alias av : av_t is v;
+      variable res : string (ndigits downto 1);
+    begin
+      for i in res'range loop
+        res (i) := hex1 (av (i * 4 - 1 downto i * 4 - 4));
+      end loop;
+      return res;
+    end hex;
+
     procedure Dump_CR
     is
       variable d : byte_t;
+      variable b3 : std_logic_vector (23 downto 0);
+      variable w : std_logic_vector (31 downto 0);
+      variable b8 : std_logic_vector (63 downto 0);
+      variable b32 : std_logic_vector (255 downto 0);
     begin
       read8_conf (x"0_0003", d);
       write (output, "CR checksum:     0x" & hex2 (d) & LF);
@@ -286,40 +338,128 @@ begin
       assert d = x"52" report "invalid valid CR byte at 0x23" severity error;
       write (output, "CR valid 'R':    0x" & hex2 (d) & LF);
 
-      read8_conf (x"0_0027", d);
-      write (output, "CR Manu ID (2):  0x" & hex2 (d) & LF);
-      read8_conf (x"0_002b", d);
-      write (output, "CR Manu ID (1):  0x" & hex2 (d) & LF);
-      read8_conf (x"0_002f", d);
-      write (output, "CR Manu ID (0):  0x" & hex2 (d) & LF);
+      read8_conf_mb (x"0_0027", b3);
+      write (output, "CR Manu ID:      0x" & hex6 (b3) & LF);
 
-      read8_conf (x"0_0033", d);
-      write (output, "CR Board ID (3): 0x" & hex2 (d) & LF);
-      read8_conf (x"0_0037", d);
-      write (output, "CR Board ID (2): 0x" & hex2 (d) & LF);
-      read8_conf (x"0_003b", d);
-      write (output, "CR Board ID (1): 0x" & hex2 (d) & LF);
-      read8_conf (x"0_003f", d);
-      write (output, "CR Board ID (0): 0x" & hex2 (d) & LF);
+      read8_conf_mb (x"0_0033", w);
+      write (output, "CR Board ID:     0x" & hex8 (w) & LF);
 
-      read8_conf (x"0_0043", d);
-      write (output, "CR Rev ID (3):   0x" & hex2 (d) & LF);
-      read8_conf (x"0_0047", d);
-      write (output, "CR Rev ID (2):   0x" & hex2 (d) & LF);
-      read8_conf (x"0_004b", d);
-      write (output, "CR Rev ID (1):   0x" & hex2 (d) & LF);
-      read8_conf (x"0_004f", d);
-      write (output, "CR Rev ID (0):   0x" & hex2 (d) & LF);
+      read8_conf_mb (x"0_0043", w);
+      write (output, "CR Rev ID:       0x" & hex8 (w) & LF);
 
-      read8_conf (x"0_0053", d);
-      write (output, "CR ASCII ptr(2): 0x" & hex2 (d) & LF);
-      read8_conf (x"0_0057", d);
-      write (output, "CR ASCII ptr(1): 0x" & hex2 (d) & LF);
-      read8_conf (x"0_005b", d);
-      write (output, "CR ASCII ptr(0): 0x" & hex2 (d) & LF);
+      read8_conf_mb (x"0_0053", b3);
+      write (output, "CR ASCII ptr:    0x" & hex6 (b3) & LF);
 
       read8_conf (x"0_007F", d);
       write (output, "CR Program ID:   0x" & hex2 (d) & LF);
+
+      --  VVME64x
+      read8_conf_mb (x"0_0083", b3);
+      write (output, "CR BEG_USER_CR:  0x" & hex6 (b3) & LF);
+
+      read8_conf_mb (x"0_008F", b3);
+      write (output, "CR END_USER_CR:  0x" & hex6 (b3) & LF);
+
+      read8_conf_mb (x"0_009B", b3);
+      write (output, "CR BEG_CRAM:     0x" & hex6 (b3) & LF);
+
+      read8_conf_mb (x"0_00A7", b3);
+      write (output, "CR END_CRAM:     0x" & hex6 (b3) & LF);
+
+      read8_conf_mb (x"0_00B3", b3);
+      write (output, "CR BEG_USER_CSR: 0x" & hex6 (b3) & LF);
+
+      read8_conf_mb (x"0_00B3", b3);
+      write (output, "CR END_USER_CSR: 0x" & hex6 (b3) & LF);
+
+      read8_conf_mb (x"0_00CB", b3);
+      write (output, "CR BEG_SN:       0x" & hex6 (b3) & LF);
+
+      read8_conf_mb (x"0_00D7", b3);
+      write (output, "CR END_SN:       0x" & hex6 (b3) & LF);
+
+      read8_conf (x"0_00E3", d);
+      write (output, "CR Slave charac: 0x" & hex2 (d) & LF);
+
+      read8_conf (x"0_00E7", d);
+      write (output, "CR user-def:     0x" & hex2 (d) & LF);
+
+      read8_conf (x"0_00EB", d);
+      write (output, "CR master chara: 0x" & hex2 (d) & LF);
+
+      read8_conf (x"0_00EF", d);
+      write (output, "CR user-def:     0x" & hex2 (d) & LF);
+
+      read8_conf (x"0_00F3", d);
+      write (output, "CR INT hand cap: 0x" & hex2 (d) & LF);
+
+      read8_conf (x"0_00F7", d);
+      write (output, "CR INT cap:      0x" & hex2 (d) & LF);
+
+      read8_conf (x"0_00FF", d);
+      write (output, "CR CRAM acc wd:  0x" & hex2 (d) & LF);
+
+      read8_conf (x"0_0103", d);
+      write (output, "CR FN0 DAW:      0x" & hex2 (d) & LF);
+      read8_conf (x"0_0107", d);
+      write (output, "CR FN1 DAW:      0x" & hex2 (d) & LF);
+      read8_conf (x"0_010b", d);
+      write (output, "CR FN2 DAW:      0x" & hex2 (d) & LF);
+      read8_conf (x"0_010f", d);
+      write (output, "CR FN3 DAW:      0x" & hex2 (d) & LF);
+      read8_conf (x"0_0113", d);
+      write (output, "CR FN4 DAW:      0x" & hex2 (d) & LF);
+      read8_conf (x"0_0117", d);
+      write (output, "CR FN5 DAW:      0x" & hex2 (d) & LF);
+      read8_conf (x"0_011b", d);
+      write (output, "CR FN6 DAW:      0x" & hex2 (d) & LF);
+      read8_conf (x"0_011f", d);
+      write (output, "CR FN7 DAW:      0x" & hex2 (d) & LF);
+
+      read8_conf_mb (x"0_0123", b8);
+      write (output, "CR FN0 AMCAP:    0x" & hex (b8) & LF);
+      read8_conf_mb (x"0_0143", b8);
+      write (output, "CR FN1 AMCAP:    0x" & hex (b8) & LF);
+      read8_conf_mb (x"0_0163", b8);
+      write (output, "CR FN2 AMCAP:    0x" & hex (b8) & LF);
+      read8_conf_mb (x"0_0183", b8);
+      write (output, "CR FN3 AMCAP:    0x" & hex (b8) & LF);
+      read8_conf_mb (x"0_01a3", b8);
+      write (output, "CR FN4 AMCAP:    0x" & hex (b8) & LF);
+      read8_conf_mb (x"0_01c3", b8);
+      write (output, "CR FN5 AMCAP:    0x" & hex (b8) & LF);
+      read8_conf_mb (x"0_01e3", b8);
+      write (output, "CR FN6 AMCAP:    0x" & hex (b8) & LF);
+      read8_conf_mb (x"0_0203", b8);
+      write (output, "CR FN7 AMCAP:    0x" & hex (b8) & LF);
+
+
+      read8_conf_mb (x"0_0223", b32);
+      write (output, "CR FN0 XAMCAP:   0x" & hex (b32) & LF);
+      read8_conf_mb (x"0_02a3", b32);
+      write (output, "CR FN1 XAMCAP:   0x" & hex (b32) & LF);
+      --  ...
+
+      read8_conf_mb (x"0_0623", w);
+      write (output, "CR FN0 ADEM:     0x" & hex (w) & LF);
+      read8_conf_mb (x"0_0633", w);
+      write (output, "CR FN1 ADEM:     0x" & hex (w) & LF);
+      -- ...
+
+      read8_conf_mb (x"7_FF63", w);
+      write (output, "CR FN0 ADER:     0x" & hex (w) & LF);
+      read8_conf_mb (x"7_FF73", w);
+      write (output, "CR FN1 ADER:     0x" & hex (w) & LF);
+
+      read8_conf (x"0_06af", d);
+      write (output, "CR master DAWPR: 0x" & hex2 (d) & LF);
+
+      read8_conf_mb (x"0_06b3", b8);
+      write (output, "CR master AMCAP: 0x" & hex (b8) & LF);
+
+      read8_conf_mb (x"0_06d3", b32);
+      write (output, "CR mastr XAMCAP: 0x" & hex (b32) & LF);
+
     end Dump_CR;
 
     variable l : line;
