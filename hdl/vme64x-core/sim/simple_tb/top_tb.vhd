@@ -368,6 +368,28 @@ begin
     end if;
   end process;
 
+  wb_p : process (clk_i)
+    type slv_array is array (0 to 2**14 - 1) of std_logic_vector (31 downto 0);
+    variable mem : slv_array := (others => x"1234_5678");
+  begin
+    if rising_edge (clk_i) then
+      if rst_n_o = '0' then
+        ERR_i <= '0';
+        RTY_i <= '0';
+        STALL_i <= '0'; --  ??
+        ACK_i <= '0';
+      else
+        ACK_i <= '0';
+        if STB_o = '1' then
+          if WE_o = '0' then
+            DAT_i <= mem (to_integer (unsigned (ADR_o (13 + 2 downto 2))));
+            ACK_i <= '1';
+          end if;
+        end if;
+      end if;
+    end if;
+  end process;
+  
   tb: process
     constant c_log : boolean := False;
 
@@ -684,6 +706,9 @@ begin
 
     --  WB read
     read8 (x"56_00_00_00", c_AM_A32, d);
+    report "read data: " & hex (d);
+
+    read8 (x"56_00_00_01", c_AM_A32, d);
     report "read data: " & hex (d);
 
     assert false report "end of simulation" severity failure;
