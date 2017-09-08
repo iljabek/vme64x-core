@@ -291,28 +291,22 @@ begin
   --
   -- Bytes position on VMEbus:
   --
-  -- A24-A31 | A16-A23 | A08-A15 | A00-A07 | D24-D31 | D16-D23 | D08-D15 | D00-D07
-  --         |         |         |         |         |         | BYTE(0) |
-  --         |         |         |         |         |         |         | BYTE(1)
-  --         |         |         |         |         |         | BYTE(2) |
-  --         |         |         |         |         |         |         | BYTE(3)
-  --         |         |         |         |         |         | BYTE(0) | BYTE(1)
-  --         |         |         |         |         |         | BYTE(2) | BYTE(3)
-  --         |         |         |         |  BYTE(0)| BYTE(1) | BYTE(2) | BYTE(3)
-  --  BYTE(0)| BYTE(1) | BYTE(2) | BYTE(3) |  BYTE(4)| BYTE(5) | BYTE(6) | BYTE(7)
+  -- A24-31 | A16-23 | A08-15 | A00-07 | D24-31 | D16-23 | D08-15 | D00-07
+  --        |        |        |        |        |        | BYTE 0 |
+  --        |        |        |        |        |        |        | BYTE 1
+  --        |        |        |        |        |        | BYTE 2 |
+  --        |        |        |        |        |        |        | BYTE 3
+  --        |        |        |        |        |        | BYTE 0 | BYTE 1
+  --        |        |        |        |        |        | BYTE 2 | BYTE 3
+  --        |        |        |        | BYTE 0 | BYTE 1 | BYTE 2 | BYTE 3
+  -- BYTE 0 | BYTE 1 | BYTE 2 | BYTE 3 | BYTE 4 | BYTE 5 | BYTE 6 | BYTE 7
   with s_typeOfDataTransferSelect select s_typeOfDataTransfer <=
-    D08_0     when "01010",
-    D08_0     when "01011",
-    D08_1     when "10010",
-    D08_1     when "10011",
-    D08_2     when "01110",
-    D08_2     when "01111",
-    D08_3     when "10110",
-    D08_3     when "10111",
-    D16_01    when "00010",
-    D16_01    when "00011",
-    D16_23    when "00110",
-    D16_23    when "00111",
+    D08_0     when "01010" | "01011",
+    D08_1     when "10010" | "10011",
+    D08_2     when "01110" | "01111",
+    D08_3     when "10110" | "10111",
+    D16_01    when "00010" | "00011",
+    D16_23    when "00110" | "00111",
     D32       when "00001",
     D64       when "00000",
     TypeError when others;
@@ -446,7 +440,8 @@ begin
             end if;
 
           when DECODE_ACCESS =>
-            -- check if this slave board is addressed and if it is, check the access mode
+            -- check if this slave board is addressed and if it is, check
+            -- the access mode
             s_decode  <= '1';
             s_DSlatch <= '1';
             -- uncomment for using 2e modes:
@@ -455,11 +450,12 @@ begin
             --s_mainFSMstate <= WAIT_FOR_DS_2e;
             if s_conf_sel = '1' or s_card_sel = '1' then
               -- conf_sel = '1' it means CR/CSR space addressed
-              -- card_sel  = '1' it means WB application addressed
+              -- card_sel = '1' it means WB application addressed
               s_mainFSMstate <= WAIT_FOR_DS;
             else
               s_mainFSMstate <= DECODE_ACCESS;
-              -- another board will answer; wait here the rising edge on VME_AS_i
+              -- another board will answer; wait here the rising edge on
+              -- VME_AS_i
             end if;
 
           when WAIT_FOR_DS =>
