@@ -1,4 +1,5 @@
 entity top_tb is
+  generic (scenario : natural range 0 to 1 := 1);
 end;
 
 library ieee;
@@ -370,7 +371,16 @@ begin
 
   wb_p : process (clk_i)
     type slv_array is array (0 to 2**14 - 1) of std_logic_vector (31 downto 0);
-    variable mem : slv_array := (others => x"1234_5678");
+    variable mem : slv_array := (0 => x"0000_0000",
+                                 1 => x"0000_0001",
+                                 2 => x"0000_0002",
+                                 3 => x"0000_0003",
+
+                                 4 => x"0000_0004",
+                                 5 => x"0000_0500",
+                                 6 => x"0006_0000",
+                                 7 => x"0700_0000",
+                                 others => x"8765_4321");
   begin
     if rising_edge (clk_i) then
       if rst_n_o = '0' then
@@ -382,14 +392,14 @@ begin
         ACK_i <= '0';
         if STB_o = '1' then
           if WE_o = '0' then
-            DAT_i <= mem (to_integer (unsigned (ADR_o (13 + 2 downto 2))));
+            DAT_i <= mem (to_integer (unsigned (ADR_o (13 downto 0))));
             ACK_i <= '1';
           end if;
         end if;
       end if;
     end if;
   end process;
-  
+
   tb: process
     constant c_log : boolean := False;
 
@@ -656,6 +666,7 @@ begin
     variable l : line;
     variable d : byte_t;
   begin
+    --  Each scenario starts with a reset.
     --  VME reset
     rst_n_i <= '0';
     VME_RST_n_i <= '0';
@@ -672,44 +683,49 @@ begin
       wait until rising_edge (clk_i);
     end loop;
 
-    --  Read CSR
-    read8_conf (x"7_FFFF", d);
-    assert d = slave_ga & "000" report "bad CR/CSR BAR value" severity error;
+    case scenario is
+      when 0 =>
+        --  Read CSR
+        read8_conf (x"7_FFFF", d);
+        assert d = slave_ga & "000"
+          report "bad CR/CSR BAR value" severity error;
 
-    read8_conf (x"7_FFFB", d);
-    write (output, "CSR bit reg:     0x" & hex (d) & LF);
-    read8_conf (x"7_FFEF", d);
-    write (output, "CSR usr bit reg: 0x" & hex (d) & LF);
+        read8_conf (x"7_FFFB", d);
+        write (output, "CSR bit reg:     0x" & hex (d) & LF);
+        read8_conf (x"7_FFEF", d);
+        write (output, "CSR usr bit reg: 0x" & hex (d) & LF);
 
-    --  READ CR
-    Dump_CR;
+        --  READ CR
+        Dump_CR;
 
-    --  Check ADER is 0
-    read8_conf (x"7_ff63", d);
-    assert d = x"00" report "bad initial ADER0 value" severity error;
+      when 1 =>
+        --  Check ADER is 0
+        read8_conf (x"7_ff63", d);
+        assert d = x"00" report "bad initial ADER0 value" severity error;
 
-    -- Set ADER
-    write8_conf (x"7_ff63", x"56");
-    write8_conf (x"7_ff6f", c_AM_A32 & "00");
-    read8_conf  (x"7_ff63", d);
-    assert d = x"56" report "bad ADER0 value" severity error;
+        -- Set ADER
+        write8_conf (x"7_ff63", x"56");
+        write8_conf (x"7_ff6f", c_AM_A32 & "00");
+        read8_conf  (x"7_ff63", d);
+        assert d = x"56" report "bad ADER0 value" severity error;
 
-    -- Try to read (but card is not yet enabled)
-    read8 (x"56_00_00_00", c_AM_A32, d);
-    report "read data: " & hex (d);
-    assert d = "XXXXXXXX" report "unexpected reply" severity error;
+        -- Try to read (but card is not yet enabled)
+        read8 (x"56_00_00_00", c_AM_A32, d);
+        assert d = "XXXXXXXX" report "unexpected reply" severity error;
 
-    -- Enable card
-    write8_conf (x"7_fffb", b"0001_0000");
-    read8_conf  (x"7_fffb", d);
-    assert d = b"0001_0000" report "module must be enabled" severity error;
+        -- Enable card
+        write8_conf (x"7_fffb", b"0001_0000");
+        read8_conf  (x"7_fffb", d);
+        assert d = b"0001_0000" report "module must be enabled" severity error;
+        report "read data: " & hex (d);
 
-    --  WB read
-    read8 (x"56_00_00_00", c_AM_A32, d);
-    report "read data: " & hex (d);
+        --  WB read
+        read8 (x"56_00_00_00", c_AM_A32, d);
+        report "read data: " & hex (d);
 
-    read8 (x"56_00_00_01", c_AM_A32, d);
-    report "read data: " & hex (d);
+        read8 (x"56_00_00_01", c_AM_A32, d);
+        report "read data: " & hex (d);
+    end case;
 
     assert false report "end of simulation" severity failure;
     wait;
