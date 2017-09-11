@@ -1077,7 +1077,7 @@ begin
   decode_o       <= s_decode;
   am_o           <= s_amlatched;
   xam_o          <= (others => '0');
-  s_card_sel     <= sel_i;
+  s_card_sel     <= sel_i and module_enable_i;
 
   -- Decode accesses to CR/CSR
   s_conf_sel <= '1' when s_locAddr(23 downto 19) = unsigned(bar_i) and
