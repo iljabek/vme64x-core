@@ -12,6 +12,7 @@ use work.vme64x_pack.all;
 architecture behaviour of top_tb is
   subtype cfg_addr_t is std_logic_vector (19 downto 0);
   subtype byte_t is std_logic_vector (7 downto 0);
+  subtype word_t is std_logic_vector (15 downto 0);
   subtype vme_am_t is std_logic_vector (5 downto 0);
 
   function hex1 (v : std_logic_vector (3 downto 0)) return character is
@@ -423,7 +424,6 @@ begin
                      am : vme_am_t;
                      variable data : out byte_t)
     is
-      variable l : line;
       variable res : byte_t;
     begin
       if c_log then
@@ -458,7 +458,7 @@ begin
           res := VME_DATA_o (7 downto 0);
         end if;
       else
-        res := "XXXXXXXX";
+        res := (others => 'X');
       end if;
       data := res;
 
@@ -470,6 +470,50 @@ begin
         write (output," => 0x" & hex(res) & LF);
       end if;
     end read8;
+
+    procedure read16 (addr : std_logic_vector (31 downto 0);
+                     am : vme_am_t;
+                     variable data : out word_t)
+    is
+      variable res : word_t;
+    begin
+      if c_log then
+        write (output, "read16 at 0x" & hex (addr) & " ["
+               & Image_AM (to_integer (unsigned (am))) & " ]" & LF);
+      end if;
+
+      VME_ADDR_i <= addr (31 downto 1);
+      VME_AM_i <= am;
+      VME_LWORD_n_i <= '1';
+      VME_IACK_n_i <= '1';
+      wait for 35 ns;
+      VME_AS_n_i <= '0';
+      VME_WRITE_n_i <= '1';
+      if not (VME_DTACK_OE_o = '0' and VME_BERR_o = '0') then
+        wait until VME_DTACK_OE_o = '0' and VME_BERR_o = '0';
+      end if;
+
+      assert addr (0) = '0' report "unaligned read16" severity error;
+      VME_DS_n_i <= "00";
+      wait until (VME_DTACK_OE_o = '1' and VME_DTACK_n_o = '0')
+        or bus_timer = '1';
+      if bus_timer = '0' then
+        assert VME_DATA_DIR_o = '1' report "bad data_dir_o";
+        assert VME_DATA_OE_N_o = '0' report "bad data_oe_n_o";
+        res := VME_DATA_o (15 downto 0);
+      else
+        res := (others => 'X');
+      end if;
+      data := res;
+
+      --  Release
+      VME_AS_n_i <= '1';
+      VME_DS_n_i <= "11";
+
+      if c_log then
+        write (output," => 0x" & hex(res) & LF);
+      end if;
+    end read16;
 
     procedure read8_conf (addr : cfg_addr_t;
                           variable data : out byte_t)
@@ -518,7 +562,7 @@ begin
       wait for 35 ns;
       VME_AS_n_i <= '0';
       VME_WRITE_n_i <= '0';
-      
+
       VME_DATA_i (7 downto 0) <= data;
       VME_DS_n_i <= "10";
 
@@ -663,8 +707,8 @@ begin
       write (output, "CR mastr XAMCAP: 0x" & hex (b32) & LF);
     end Dump_CR;
 
-    variable l : line;
-    variable d : byte_t;
+    variable d8 : byte_t;
+    variable d16 : word_t;
   begin
     --  Each scenario starts with a reset.
     --  VME reset
@@ -686,47 +730,50 @@ begin
     case scenario is
       when 0 =>
         --  Read CSR
-        read8_conf (x"7_FFFF", d);
-        assert d = slave_ga & "000"
+        read8_conf (x"7_FFFF", d8);
+        assert d8 = slave_ga & "000"
           report "bad CR/CSR BAR value" severity error;
 
-        read8_conf (x"7_FFFB", d);
-        write (output, "CSR bit reg:     0x" & hex (d) & LF);
-        read8_conf (x"7_FFEF", d);
-        write (output, "CSR usr bit reg: 0x" & hex (d) & LF);
+        read8_conf (x"7_FFFB", d8);
+        write (output, "CSR bit reg:     0x" & hex (d8) & LF);
+        read8_conf (x"7_FFEF", d8);
+        write (output, "CSR usr bit reg: 0x" & hex (d8) & LF);
 
         --  READ CR
         Dump_CR;
 
       when 1 =>
         --  Check ADER is 0
-        read8_conf (x"7_ff63", d);
-        assert d = x"00" report "bad initial ADER0 value" severity error;
+        read8_conf (x"7_ff63", d8);
+        assert d8 = x"00" report "bad initial ADER0 value" severity error;
 
         -- Set ADER
         write8_conf (x"7_ff63", x"56");
         write8_conf (x"7_ff6f", c_AM_A32 & "00");
-        read8_conf  (x"7_ff63", d);
-        assert d = x"56" report "bad ADER0 value" severity error;
+        read8_conf  (x"7_ff63", d8);
+        assert d8 = x"56" report "bad ADER0 value" severity error;
 
         -- Try to read (but card is not yet enabled)
-        read8 (x"56_00_00_00", c_AM_A32, d);
-        assert d = "XXXXXXXX" report "unexpected reply" severity error;
+        read8 (x"56_00_00_00", c_AM_A32, d8);
+        assert d8 = "XXXXXXXX" report "unexpected reply" severity error;
 
         -- Enable card
         write8_conf (x"7_fffb", b"0001_0000");
-        read8_conf  (x"7_fffb", d);
-        assert d = b"0001_0000" report "module must be enabled"
+        read8_conf  (x"7_fffb", d8);
+        assert d8 = b"0001_0000" report "module must be enabled"
           severity error;
-        report "read data: " & hex (d);
+        report "read data: " & hex (d8);
 
         --  WB read
-        read8 (x"56_00_00_00", c_AM_A32, d);
-        assert d = x"00" report "bad read at 000" severity error;
+        read8 (x"56_00_00_00", c_AM_A32, d8);
+        assert d8 = x"00" report "bad read at 000" severity error;
 
-        read8 (x"56_00_00_07", c_AM_A32, d);
-        assert d = x"01" report "bad read at 007" severity error;
-        report "read data: " & hex (d);
+        read8 (x"56_00_00_07", c_AM_A32, d8);
+        assert d8 = x"01" report "bad read at 007" severity error;
+        report "read data: " & hex (d8);
+
+        read16 (x"56_00_00_12", c_AM_A32, d16);
+        assert d16 = x"0004" report "bad read at 012" severity error;
     end case;
 
     wait for 10 ns;
