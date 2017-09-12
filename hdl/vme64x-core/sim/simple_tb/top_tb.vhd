@@ -1,5 +1,5 @@
 entity top_tb is
-  generic (scenario : natural range 0 to 1 := 1);
+  generic (scenario : natural range 0 to 2 := 2);
 end;
 
 library ieee;
@@ -365,7 +365,10 @@ begin
 
           when ERR =>
             bus_timer <= '1';
-            if VME_AS_n_i = '1' then
+            -- VITAL 1 Rule 2.60
+            -- Once it has driven BERR* low, the bus timer MUST NOT release
+            -- BERR* until it detected both DS0* and DS1* high.
+            if VME_DS_n_i = "11" then
               state := IDLE;
             end if;
         end case;
@@ -375,7 +378,7 @@ begin
 
   --  WB slave: a simple sram
   wb_p : process (clk_i)
-    constant sram_addr_wd : natural := 14;
+    constant sram_addr_wd : natural := 10;
     type sram_array is array (0 to 2**sram_addr_wd - 1)
       of std_logic_vector (31 downto 0);
     variable sram : sram_array := (0 => x"0000_0000",
@@ -389,6 +392,7 @@ begin
                                    7 => x"0700_0000",
                                    others => x"8765_4321");
     variable idx : natural;
+    variable int_cnt : natural;
   begin
     if rising_edge (clk_i) then
       if rst_n_o = '0' then
@@ -396,26 +400,50 @@ begin
         RTY_i <= '0';
         STALL_i <= '0'; --  ??
         ACK_i <= '0';
+
+        int_cnt := 0;
       else
         ACK_i <= '0';
+
+        -- Interrupt timer
+        irq_i <= '0';
+        if int_cnt > 0 then
+          int_cnt := int_cnt - 1;
+          if int_cnt = 0 then
+            irq_i <= '1';
+          end if;
+        end if;
+
         if STB_o = '1' then
           ACK_i <= '1';
           idx := to_integer (unsigned (ADR_o (sram_addr_wd - 1 downto 0)));
           if WE_o = '0' then
             -- Read
-            DAT_i <= sram (idx);
+            if ADR_o (13) = '1' then
+              DAT_i <= std_logic_vector (to_unsigned (int_cnt, 32));
+            else
+              DAT_i <= sram (idx);
+            end if;
           else
             -- Write
-            for i in 3 downto 0 loop
-              if sel_o(i) = '1' then
-                sram(idx)(8*i + 7 downto 8*i) := DAT_o (8*i + 7 downto 8*i);
+            if ADR_o (13) = '1' then
+              if sel_o (0) = '1' then
+                int_cnt := to_integer(unsigned(DAT_o(7 downto 0)));
               end if;
-            end loop;
+            else
+              for i in 3 downto 0 loop
+                if sel_o(i) = '1' then
+                  sram(idx)(8*i + 7 downto 8*i) := DAT_o (8*i + 7 downto 8*i);
+                end if;
+              end loop;
+            end if;
           end if;
         end if;
       end if;
     end if;
   end process;
+
+  VME_IACKIN_n_i <= VME_IACK_n_i;
 
   tb: process
     constant c_log : boolean := False;
@@ -676,6 +704,38 @@ begin
       write8(to_vme_cfg_addr (addr), c_AM_CR_CSR, data);
     end write8_conf;
 
+    procedure ack_int (vec : out byte_t) is
+    begin
+      if VME_IRQ_o = "0000000" then
+        vec := (others => 'X');
+        return;
+      end if;
+
+      for i in 6 downto 0 loop
+        if VME_IRQ_o (i) = '1' then
+          VME_ADDR_i (3 downto 1) <= std_logic_vector (to_unsigned (i + 1, 3));
+          exit;
+        end if;
+      end loop;
+      VME_IACK_n_i <= '0';
+      wait for 35 ns;
+      VME_AS_n_i <= '0';
+      if not (VME_DTACK_OE_o = '0' and VME_BERR_o = '0') then
+        wait until VME_DTACK_OE_o = '0' and VME_BERR_o = '0';
+      end if;
+
+      VME_DS_n_i <= "10";
+      read_wait_dtack;
+      if bus_timer = '0' then
+        vec := VME_DATA_o (7 downto 0);
+      else
+        vec := (others => 'X');
+      end if;
+
+      read_release;
+      VME_IACK_n_i <= '1';
+    end ack_int;
+
     procedure Dump_CR
     is
       variable d : byte_t;
@@ -896,6 +956,46 @@ begin
         write32 (x"56_00_00_18", c_AM_A32, x"2345_6789");
         read32 (x"56_00_00_18", c_AM_A32, d32);
         assert d32 = x"2345_6789" report "bad read at 018 (2)" severity error;
+
+      when 2 =>
+        -- Test interrupts
+
+        -- Set ADER
+        write8_conf (x"7_ff63", x"67");
+        write8_conf (x"7_ff6f", c_AM_A32 & "00");
+
+        -- Enable card
+        write8_conf (x"7_fffb", b"0001_0000");
+        read8_conf  (x"7_fffb", d8);
+
+        -- Set IRQ level
+        write8_conf (x"7_ff5b", x"03");
+
+        write8 (x"67_00_80_03", c_AM_A32, x"02");
+        wait for 2 * g_CLOCK_PERIOD * 1 ns;
+        assert VME_IRQ_o = "0000100" report "IRQ incorrectly reported"
+          severity error;
+
+        ack_int (d8);
+        assert d8 = x"00" report "incorrect vector" severity error;
+        assert VME_IRQ_o = "0000000" report "IRQ not disabled after ack"
+          severity error;
+
+        -- Set IRQ vector
+        write8_conf (x"7_ff5f", x"a3");
+
+        write8 (x"67_00_80_03", c_AM_A32, x"20");
+        assert VME_IRQ_o = "0000000" report "IRQ not expected"
+          severity error;
+        wait for 32 * g_CLOCK_PERIOD * 1 ns;
+        assert VME_IRQ_o = "0000100" report "IRQ incorrectly reported"
+          severity error;
+
+        ack_int (d8);
+        assert d8 = x"a3" report "incorrect vector" severity error;
+        assert VME_IRQ_o = "0000000" report "IRQ not disabled after ack"
+          severity error;
+
     end case;
 
     wait for 10 ns;
