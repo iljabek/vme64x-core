@@ -388,6 +388,7 @@ begin
                                    6 => x"0006_0000",
                                    7 => x"0700_0000",
                                    others => x"8765_4321");
+    variable idx : natural;
   begin
     if rising_edge (clk_i) then
       if rst_n_o = '0' then
@@ -398,10 +399,18 @@ begin
       else
         ACK_i <= '0';
         if STB_o = '1' then
+          ACK_i <= '1';
+          idx := to_integer (unsigned (ADR_o (sram_addr_wd - 1 downto 0)));
           if WE_o = '0' then
-            DAT_i <= sram (to_integer
-                           (unsigned (ADR_o (sram_addr_wd - 1 downto 0))));
-            ACK_i <= '1';
+            -- Read
+            DAT_i <= sram (idx);
+          else
+            -- Write
+            for i in 3 downto 0 loop
+              if sel_o(i) = '1' then
+                sram(idx)(8*i + 7 downto 8*i) := DAT_o (8*i + 7 downto 8*i);
+              end if;
+            end loop;
           end if;
         end if;
       end if;
@@ -574,6 +583,38 @@ begin
       end loop;
     end read8_conf_mb;
 
+    procedure write8 (addr : std_logic_vector (31 downto 0);
+                      am : vme_am_t;
+                      data : byte_t)
+    is
+      variable l : line;
+    begin
+      if not (VME_DTACK_OE_o = '0' and VME_BERR_o = '0') then
+        wait until VME_DTACK_OE_o = '0' and VME_BERR_o = '0';
+      end if;
+      VME_ADDR_i <= addr(31 downto 1);
+      VME_AM_i <= am;
+      VME_LWORD_n_i <= '1';
+      VME_IACK_n_i <= '1';
+      wait for 35 ns;
+      VME_AS_n_i <= '0';
+      VME_WRITE_n_i <= '0';
+
+      if addr (0) = '0' then
+        VME_DS_n_i <= "01";
+        VME_DATA_i (15 downto 8) <= data;
+      else
+        VME_DS_n_i <= "10";
+        VME_DATA_i (7 downto 0) <= data;
+      end if;
+
+      wait until VME_DTACK_OE_o = '1' and VME_DTACK_n_o = '0';
+      VME_DS_n_i <= "11";
+
+      wait until VME_DTACK_OE_o = '0' or VME_DTACK_n_o = '1';
+      VME_AS_n_i <= '1';
+    end write8;
+
     procedure write8_conf (addr : cfg_addr_t;
                            data : byte_t)
     is
@@ -587,25 +628,7 @@ begin
         writeline (output, l);
       end if;
 
-      if not (VME_DTACK_OE_o = '0' and VME_BERR_o = '0') then
-        wait until VME_DTACK_OE_o = '0' and VME_BERR_o = '0';
-      end if;
-      VME_ADDR_i <= to_vme_cfg_addr (addr)(0 to 30);
-      VME_AM_i <= c_AM_CR_CSR;
-      VME_LWORD_n_i <= '1';
-      VME_IACK_n_i <= '1';
-      wait for 35 ns;
-      VME_AS_n_i <= '0';
-      VME_WRITE_n_i <= '0';
-
-      VME_DATA_i (7 downto 0) <= data;
-      VME_DS_n_i <= "10";
-
-      wait until VME_DTACK_OE_o = '1' and VME_DTACK_n_o = '0';
-      VME_DS_n_i <= "11";
-
-      wait until VME_DTACK_OE_o = '0' or VME_DTACK_n_o = '1';
-      VME_AS_n_i <= '1';
+      write8(to_vme_cfg_addr (addr), c_AM_CR_CSR, data);
     end write8_conf;
 
     procedure Dump_CR
@@ -813,6 +836,11 @@ begin
 
         read32 (x"56_00_00_14", c_AM_A32, d32);
         assert d32 = x"0000_0500" report "bad read at 014" severity error;
+
+        write8 (x"56_00_00_14", c_AM_A32, x"1f");
+        read32 (x"56_00_00_14", c_AM_A32, d32);
+        assert d32 = x"1f00_0500" report "bad read at 014 (2)" severity error;
+
     end case;
 
     wait for 10 ns;
