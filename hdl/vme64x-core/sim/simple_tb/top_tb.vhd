@@ -33,7 +33,8 @@ architecture behaviour of top_tb is
       when x"d" => return 'd';
       when x"e" => return 'e';
       when x"f" => return 'f';
-      when "ZZZZ" => return 'z';
+      when "ZZZZ" => return 'Z';
+      when "XXXX" => return 'X';
       when others => return '?';
     end case;
   end hex1;
@@ -241,7 +242,7 @@ begin
                      xor slave_ga (1) xor slave_ga (0));
   end block;
 
-  dut: entity work.VME64xCore_Top
+  vme64xcore: VME64xCore_Top
     generic map (g_CLOCK_PERIOD => g_CLOCK_PERIOD,
                  g_WB_DATA_WIDTH => g_WB_DATA_WIDTH,
                  g_WB_ADDR_WIDTH => g_WB_ADDR_WIDTH)
@@ -322,6 +323,7 @@ begin
     wait for (g_CLOCK_PERIOD / 2) * 1 ns;
   end process;
 
+  --  Bus timer.  See VME spec 2.3.3 Bus Timer
   bus_timer_proc : process (clk_i)
     type state_t is (IDLE, WAIT_DS, COUNTING, WAIT_END, ERR);
     variable state : state_t;
@@ -369,18 +371,21 @@ begin
     end if;
   end process;
 
+  --  WB slave: a simple sram
   wb_p : process (clk_i)
-    type slv_array is array (0 to 2**14 - 1) of std_logic_vector (31 downto 0);
-    variable mem : slv_array := (0 => x"0000_0000",
-                                 1 => x"0000_0001",
-                                 2 => x"0000_0002",
-                                 3 => x"0000_0003",
+    constant sram_addr_wd : natural := 14;
+    type sram_array is array (0 to 2**sram_addr_wd - 1)
+      of std_logic_vector (31 downto 0);
+    variable sram : sram_array := (0 => x"0000_0000",
+                                   1 => x"0000_0001",
+                                   2 => x"0000_0002",
+                                   3 => x"0000_0003",
 
-                                 4 => x"0000_0004",
-                                 5 => x"0000_0500",
-                                 6 => x"0006_0000",
-                                 7 => x"0700_0000",
-                                 others => x"8765_4321");
+                                   4 => x"0000_0004",
+                                   5 => x"0000_0500",
+                                   6 => x"0006_0000",
+                                   7 => x"0700_0000",
+                                   others => x"8765_4321");
   begin
     if rising_edge (clk_i) then
       if rst_n_o = '0' then
@@ -392,7 +397,8 @@ begin
         ACK_i <= '0';
         if STB_o = '1' then
           if WE_o = '0' then
-            DAT_i <= mem (to_integer (unsigned (ADR_o (13 downto 0))));
+            DAT_i <= sram (to_integer
+                           (unsigned (ADR_o (sram_addr_wd - 1 downto 0))));
             ACK_i <= '1';
           end if;
         end if;
@@ -512,13 +518,7 @@ begin
       wait for 35 ns;
       VME_AS_n_i <= '0';
       VME_WRITE_n_i <= '0';
-      VME_DS_n_i <= "10";
-
-      wait until VME_DTACK_OE_o = '1' and VME_DTACK_n_o = '0';
-      VME_DS_n_i <= "11";
-
-      wait until VME_DTACK_OE_o = '0' or VME_DTACK_n_o = '1';
-      assert VME_DATA_DIR_o = '0' report "bad data_dir_o (wr)";
+      
       VME_DATA_i (7 downto 0) <= data;
       VME_DS_n_i <= "10";
 
@@ -716,17 +716,20 @@ begin
         -- Enable card
         write8_conf (x"7_fffb", b"0001_0000");
         read8_conf  (x"7_fffb", d);
-        assert d = b"0001_0000" report "module must be enabled" severity error;
+        assert d = b"0001_0000" report "module must be enabled"
+          severity error;
         report "read data: " & hex (d);
 
         --  WB read
         read8 (x"56_00_00_00", c_AM_A32, d);
-        report "read data: " & hex (d);
+        assert d = x"00" report "bad read at 000" severity error;
 
-        read8 (x"56_00_00_01", c_AM_A32, d);
+        read8 (x"56_00_00_07", c_AM_A32, d);
+        assert d = x"01" report "bad read at 007" severity error;
         report "read data: " & hex (d);
     end case;
 
+    wait for 10 ns;
     assert false report "end of simulation" severity failure;
     wait;
   end process;

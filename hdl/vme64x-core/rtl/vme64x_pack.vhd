@@ -137,7 +137,6 @@ package vme64x_pack is
     A64,
     A64_BLT,
     A64_MBLT,
-    TWOedge,
     AM_Error
   );
 
@@ -145,7 +144,6 @@ package vme64x_pack is
     SINGLE,
     BLT,
     MBLT,
-    TWOe,
     error
   );
 
@@ -162,52 +160,6 @@ package vme64x_pack is
   type t_2eType is (
     TWOe_VME,
     TWOe_SST
-  );
-
-  type t_mainFSMstates is (
-    IDLE,
-    DECODE_ACCESS,
-    WAIT_FOR_DS,
-    LATCH_DS1,
-    LATCH_DS2,
-    LATCH_DS3,
-    LATCH_DS4,
-    CHECK_TRANSFER_TYPE,
-    MEMORY_REQ,
-    DATA_TO_BUS,
-    DTACK_LOW,
-    DECIDE_NEXT_CYCLE,
-    INCREMENT_ADDR,
-    SET_DATA_PHASE
-    --UGLY_WAIT_TO_MAKE_DECODING_WORK
-    -- uncomment for using 2e modes:
-    --WAIT_FOR_DS_2e,
-    --ADDR_PHASE_1,
-    --ADDR_PHASE_2,
-    --ADDR_PHASE_3,
-    --DECODE_ACCESS_2e,
-    --DTACK_PHASE_1,
-    --DTACK_PHASE_2,
-    --DTACK_PHASE_3,
-    --TWOeVME_WRITE,
-    --TWOeVME_READ,
-    --TWOeVME_MREQ_RD,
-    --WAIT_WR_1,
-    --WAIT_WR_2,
-    --WAIT_WB_ACK_WR,
-    --WAIT_WB_ACK_RD,
-    --TWOeVME_TOGGLE_WR,
-    --TWOeVME_TOGGLE_RD,
-    --TWOe_FIFO_WRITE,
-    --TWOe_TOGGLE_DTACK,
-    --TWOeVME_INCR_ADDR,
-    --TWOe_WAIT_FOR_DS1,
-    --TWOe_FIFO_WAIT_READ,
-    --TWOe_FIFO_READ,
-    --TWOe_CHECK_BEAT,
-    --TWOe_RELEASE_DTACK,
-    --TWOe_END_1,
-    --TWOe_END_2
   );
 
   ------------------------------------------------------------------------------
@@ -315,7 +267,7 @@ package vme64x_pack is
       user_csr_we_o   : out std_logic;
       user_cr_addr_o  : out std_logic_vector(18 downto 2);
       user_cr_data_i  : in  std_logic_vector( 7 downto 0) := (others => '0');
-      function_o      : out std_logic_vector( 3 downto 0);
+      function_o      : out std_logic_vector( 2 downto 0);
       f0_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
       f1_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
       f2_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
@@ -353,7 +305,6 @@ package vme64x_pack is
       VME_RETRY_OE_o  : out std_logic;
       VME_WRITE_n_i   : in  std_logic;
       VME_DS_n_i      : in  std_logic_vector(1 downto 0);
-      VME_DS_ant_n_i  : in  std_logic_vector(1 downto 0);
       VME_DTACK_n_o   : out std_logic;
       VME_DTACK_OE_o  : out std_logic;
       VME_BERR_n_o    : out std_logic;
@@ -396,7 +347,7 @@ package vme64x_pack is
 
   component VME_Funct_Match is
     generic (
-      g_ADEM      : t_adem_array(-1 to 7);
+      g_ADEM      : t_adem_array(0 to 7);
       g_AMCAP     : t_amcap_array(0 to 7);
       g_XAMCAP    : t_xamcap_array(0 to 7)
     );
@@ -430,7 +381,7 @@ package vme64x_pack is
       g_END_USER_CSR    : std_logic_vector(23 downto 0);
       g_BEG_SN          : std_logic_vector(23 downto 0);
       g_END_SN          : std_logic_vector(23 downto 0);
-      g_ADEM            : t_adem_array(-1 to 7);
+      g_ADEM            : t_adem_array(0 to 7);
       g_AMCAP           : t_amcap_array(0 to 7);
       g_XAMCAP          : t_xamcap_array(0 to 7);
       g_DAWPR           : t_dawpr_array(0 to 7)
