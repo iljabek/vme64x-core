@@ -122,7 +122,7 @@ entity VME_CR_CSR_Space is
     g_END_USER_CSR    : std_logic_vector(23 downto 0);
     g_BEG_SN          : std_logic_vector(23 downto 0);
     g_END_SN          : std_logic_vector(23 downto 0);
-    g_ADEM            : t_adem_array(-1 to 7);
+    g_ADEM            : t_adem_array(0 to 7);
     g_AMCAP           : t_amcap_array(0 to 7);
     g_XAMCAP          : t_xamcap_array(0 to 7);
     g_DAWPR           : t_dawpr_array(0 to 7)
@@ -404,15 +404,18 @@ begin
     for i in 0 to 7 loop
       -- When FAF function or upper bits of previous FAF function, readback
       -- and output ADER given at the FAF inputs.
-      if (g_ADEM(i-1)(c_ADEM_EFM) = '1' and g_ADEM(i-1)(c_ADEM_FAF) = '1') or
-         (g_ADEM(i-1)(c_ADEM_EFM) = '0' and g_ADEM( i )(c_ADEM_FAF) = '1')
+      if (i /= 0 and
+          g_ADEM(i-1)(c_ADEM_EFM) = '1' and g_ADEM(i-1)(c_ADEM_FAF) = '1') or
+         ((i = 0 or g_ADEM(i-1)(c_ADEM_EFM) = '0') and
+          g_ADEM( i )(c_ADEM_FAF) = '1')
       then
         s_ader(i) <= faf_ader_i(i);
         ader_o(i) <= faf_ader_i(i);
 
       -- When upper bits of previous DFS function and DFSR enabled, readback
       -- the ADEM value and output zero.
-      elsif g_ADEM(i-1)(c_ADEM_EFM) = '1' and g_ADEM(i-1)(c_ADEM_DFS) = '1' and
+      elsif i /= 0 and
+            g_ADEM(i-1)(c_ADEM_EFM) = '1' and g_ADEM(i-1)(c_ADEM_DFS) = '1' and
             s_reg_ader(i-1)(c_ADER_DFSR) = '1'
       then
         s_ader(i) <= dfs_adem_i(i);
@@ -420,7 +423,8 @@ begin
 
       -- When a DFS function and DFSR enabled, readback the ADEM and output
       -- zero.
-      elsif g_ADEM(i-1)(c_ADEM_EFM) = '0' and g_ADEM(i)(c_ADEM_DFS) = '1' and
+      elsif (i = 0 or g_ADEM(i-1)(c_ADEM_EFM) = '0') and
+            g_ADEM(i)(c_ADEM_DFS) = '1' and
             s_reg_ader(i)(c_ADER_DFSR) = '1'
       then
         v_ader_b0   := (c_ADER_DFSR => s_reg_ader(i)(c_ADER_DFSR),

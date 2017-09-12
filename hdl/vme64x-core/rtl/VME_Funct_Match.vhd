@@ -38,7 +38,7 @@ use work.vme64x_pack.all;
 
 entity VME_Funct_Match is
   generic (
-    g_ADEM      : t_adem_array(-1 to 7);
+    g_ADEM      : t_adem_array(0 to 7);
     g_AMCAP     : t_amcap_array(0 to 7);
     g_XAMCAP    : t_xamcap_array(0 to 7)
   );

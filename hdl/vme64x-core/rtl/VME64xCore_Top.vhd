@@ -354,8 +354,7 @@ architecture RTL of VME64xCore_Top is
   -- CR/CSR parameter arrays
   -- ADEM array has an extra index (-1) to simplify looping while checking the
   -- EFM bit of the previous function.
-  constant c_ADEM : t_adem_array(-1 to 7) := (
-    x"0000_0000",
+  constant c_ADEM : t_adem_array(0 to 7) := (
     g_F0_ADEM, g_F1_ADEM, g_F2_ADEM, g_F3_ADEM,
     g_F4_ADEM, g_F5_ADEM, g_F6_ADEM, g_F7_ADEM
   );
@@ -422,7 +421,6 @@ begin
       VME_RETRY_OE_o  => VME_RETRY_OE_o,
       VME_WRITE_n_i   => s_VME_WRITE_n(2),
       VME_DS_n_i      => s_VME_DS_n(5 downto 4),
-      VME_DS_ant_n_i  => s_VME_DS_n(3 downto 2),
       VME_DTACK_n_o   => s_VME_DTACK_VMEbus,
       VME_DTACK_OE_o  => s_VME_DTACK_OE_VMEbus,
       VME_BERR_n_o    => s_vme_berr_n,
