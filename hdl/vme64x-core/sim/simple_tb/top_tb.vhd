@@ -13,6 +13,7 @@ architecture behaviour of top_tb is
   subtype cfg_addr_t is std_logic_vector (19 downto 0);
   subtype byte_t is std_logic_vector (7 downto 0);
   subtype word_t is std_logic_vector (15 downto 0);
+  subtype lword_t is std_logic_vector (31 downto 0);
   subtype vme_am_t is std_logic_vector (5 downto 0);
 
   function hex1 (v : std_logic_vector (3 downto 0)) return character is
@@ -420,6 +421,37 @@ begin
       return x"00" & slave_ga & addr (18 downto 0);
     end to_vme_cfg_addr;
 
+    procedure read_setup_addr (addr : std_logic_vector (31 downto 0);
+                               am : vme_am_t) is
+    begin
+      VME_ADDR_i <= addr (31 downto 1);
+      VME_AM_i <= am;
+      VME_IACK_n_i <= '1';
+      wait for 35 ns;
+      VME_AS_n_i <= '0';
+      VME_WRITE_n_i <= '1';
+      if not (VME_DTACK_OE_o = '0' and VME_BERR_o = '0') then
+        wait until VME_DTACK_OE_o = '0' and VME_BERR_o = '0';
+      end if;
+    end read_setup_addr;
+
+    procedure read_wait_dtack is
+    begin
+      wait until (VME_DTACK_OE_o = '1' and VME_DTACK_n_o = '0')
+        or bus_timer = '1';
+      if bus_timer = '0' then
+        assert VME_DATA_DIR_o = '1' report "bad data_dir_o";
+        assert VME_DATA_OE_N_o = '0' report "bad data_oe_n_o";
+      end if;
+    end read_wait_dtack;
+
+    procedure read_release is
+    begin
+      --  Release
+      VME_AS_n_i <= '1';
+      VME_DS_n_i <= "11";
+    end read_release;
+
     procedure read8 (addr : std_logic_vector (31 downto 0);
                      am : vme_am_t;
                      variable data : out byte_t)
@@ -431,27 +463,16 @@ begin
                & Image_AM (to_integer (unsigned (am))) & " ]" & LF);
       end if;
 
-      VME_ADDR_i <= addr (31 downto 1);
-      VME_AM_i <= am;
       VME_LWORD_n_i <= '1';
-      VME_IACK_n_i <= '1';
-      wait for 35 ns;
-      VME_AS_n_i <= '0';
-      VME_WRITE_n_i <= '1';
-      if not (VME_DTACK_OE_o = '0' and VME_BERR_o = '0') then
-        wait until VME_DTACK_OE_o = '0' and VME_BERR_o = '0';
-      end if;
+      read_setup_addr (addr, am);
 
       if addr (0) = '0' then
         VME_DS_n_i <= "01";
       else
         VME_DS_n_i <= "10";
       end if;
-      wait until (VME_DTACK_OE_o = '1' and VME_DTACK_n_o = '0')
-        or bus_timer = '1';
+      read_wait_dtack;
       if bus_timer = '0' then
-        assert VME_DATA_DIR_o = '1' report "bad data_dir_o";
-        assert VME_DATA_OE_N_o = '0' report "bad data_oe_n_o";
         if addr (0) = '0' then
           res := VME_DATA_o (15 downto 8);
         else
@@ -462,9 +483,7 @@ begin
       end if;
       data := res;
 
-      --  Release
-      VME_AS_n_i <= '1';
-      VME_DS_n_i <= "11";
+      read_release;
 
       if c_log then
         write (output," => 0x" & hex(res) & LF);
@@ -482,43 +501,59 @@ begin
                & Image_AM (to_integer (unsigned (am))) & " ]" & LF);
       end if;
 
-      VME_ADDR_i <= addr (31 downto 1);
-      VME_AM_i <= am;
       VME_LWORD_n_i <= '1';
-      VME_IACK_n_i <= '1';
-      wait for 35 ns;
-      VME_AS_n_i <= '0';
-      VME_WRITE_n_i <= '1';
-      if not (VME_DTACK_OE_o = '0' and VME_BERR_o = '0') then
-        wait until VME_DTACK_OE_o = '0' and VME_BERR_o = '0';
-      end if;
+      read_setup_addr (addr, am);
 
       assert addr (0) = '0' report "unaligned read16" severity error;
       VME_DS_n_i <= "00";
-      wait until (VME_DTACK_OE_o = '1' and VME_DTACK_n_o = '0')
-        or bus_timer = '1';
+      read_wait_dtack;
       if bus_timer = '0' then
-        assert VME_DATA_DIR_o = '1' report "bad data_dir_o";
-        assert VME_DATA_OE_N_o = '0' report "bad data_oe_n_o";
         res := VME_DATA_o (15 downto 0);
       else
         res := (others => 'X');
       end if;
       data := res;
 
-      --  Release
-      VME_AS_n_i <= '1';
-      VME_DS_n_i <= "11";
+      read_release;
 
       if c_log then
         write (output," => 0x" & hex(res) & LF);
       end if;
     end read16;
 
-    procedure read8_conf (addr : cfg_addr_t;
-                          variable data : out byte_t)
+    procedure read32 (addr : std_logic_vector (31 downto 0);
+                      am : vme_am_t;
+                      variable data : out lword_t)
     is
-      variable l : line;
+      variable res : lword_t;
+    begin
+      if c_log then
+        write (output, "read32 at 0x" & hex (addr) & " ["
+               & Image_AM (to_integer (unsigned (am))) & " ]" & LF);
+      end if;
+
+      VME_LWORD_n_i <= '0';
+      read_setup_addr (addr, am);
+
+      assert addr (1 downto 0) = "00" report "unaligned read32" severity error;
+      VME_DS_n_i <= "00";
+      read_wait_dtack;
+      if bus_timer = '0' then
+        res := VME_DATA_o (31 downto 0);
+      else
+        res := (others => 'X');
+      end if;
+      data := res;
+
+      read_release;
+
+      if c_log then
+        write (output," => 0x" & hex(res) & LF);
+      end if;
+    end read32;
+
+    procedure read8_conf (addr : cfg_addr_t;
+                          variable data : out byte_t) is
     begin
       read8 (to_vme_cfg_addr (addr), c_AM_CR_CSR, data);
     end read8_conf;
@@ -709,6 +744,7 @@ begin
 
     variable d8 : byte_t;
     variable d16 : word_t;
+    variable d32 : lword_t;
   begin
     --  Each scenario starts with a reset.
     --  VME reset
@@ -774,6 +810,9 @@ begin
 
         read16 (x"56_00_00_12", c_AM_A32, d16);
         assert d16 = x"0004" report "bad read at 012" severity error;
+
+        read32 (x"56_00_00_14", c_AM_A32, d32);
+        assert d32 = x"0000_0500" report "bad read at 014" severity error;
     end case;
 
     wait for 10 ns;

@@ -176,7 +176,7 @@ architecture RTL of VME_bus is
 
     -- Reformat address according to AM.
     REFORMAT_ADDRESS,
-    
+
     -- Decoding ADDR and AM (selecting card or conf).
     DECODE_ACCESS_0,
     DECODE_ACCESS_1,
@@ -245,7 +245,7 @@ architecture RTL of VME_bus is
 
   signal s_BERR_out                 : std_logic;
   signal s_sw_reset                 : std_logic;
-  
+
   --  Set on the cycle to decode access (ADDR + AM)
   signal s_decode                   : std_logic;
   signal s_AckWb                    : std_logic;
@@ -311,14 +311,14 @@ begin
   --        |        |        |        | BYTE 0 | BYTE 1 | BYTE 2 | BYTE 3
   -- BYTE 0 | BYTE 1 | BYTE 2 | BYTE 3 | BYTE 4 | BYTE 5 | BYTE 6 | BYTE 7
   with s_typeOfDataTransferSelect select s_typeOfDataTransfer <=
-    D08_0     when "01010" | "01011",
-    D08_1     when "10010" | "10011",
-    D08_2     when "01110" | "01111",
-    D08_3     when "10110" | "10111",
-    D16_01    when "00010" | "00011",
-    D16_23    when "00110" | "00111",
-    D32       when "00001",
-    D64       when "00000",
+    D08_0     when b"01_010" | b"01_011",
+    D08_1     when b"10_010" | b"10_011",
+    D08_2     when b"01_110" | b"01_111",
+    D08_3     when b"10_110" | b"10_111",
+    D16_01    when b"00_010" | b"00_011",
+    D16_23    when b"00_110" | b"00_111",
+    D32       when b"00_001",
+    D64       when b"00_000",
     TypeError when others;
 
   -- Shift data when DS=01 and LWORD=1
@@ -381,7 +381,7 @@ begin
         s_retry          <= '0';
         s_BERR_out       <= '0';
         s_mainFSMstate <= IDLE;
-        
+
         s_VMEaddrLatched <= (others => '0');
         s_LWORDlatched   <= '0';
         s_AMlatched      <= (others => '0');
@@ -414,7 +414,7 @@ begin
             if VME_AS_n_i = '0' and VME_IACK_n_i = '1' then
               -- if AS falling edge --> start access
               s_mainFSMstate <= REFORMAT_ADDRESS;
-              
+
               -- Store ADDR, AM and LWORD
               s_VMEaddrLatched <= VME_DATA_i & VME_ADDR_i;
               s_LWORDlatched   <= VME_LWORD_n_i;
@@ -490,7 +490,7 @@ begin
             s_transferActive <= '1';
             if s_DS_latch_count = 0 then
               s_mainFSMstate <= CHECK_TRANSFER_TYPE;
-              s_DSlatched    <= VME_DS_n_i; 
+              s_DSlatched    <= VME_DS_n_i;
             else
               s_mainFSMstate   <= LATCH_DS;
               s_DS_latch_count <= s_DS_latch_count - 1;
@@ -526,7 +526,7 @@ begin
             s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
             s_dataPhase      <= s_dataPhase;
             s_transferActive <= '1';
-            
+
             if s_memAck = '1' then
               -- WB ack
               if VME_WRITE_n_i = '0' then
@@ -622,7 +622,7 @@ begin
             else
               s_mainFSMstate <= WAIT_END;
             end if;
-            
+
           when others =>
             s_mainFSMstate <= IDLE;
 
@@ -794,7 +794,7 @@ begin
             s_addrOffset <= s_addrOffset + 1;
           when D16_01 | D16_23 =>
             s_addrOffset <= s_addrOffset + 2;
-          when D32 => 
+          when D32 =>
             s_addrOffset <= s_addrOffset + 4;
           when D64 =>
             if s_transferType = MBLT then
