@@ -643,6 +643,23 @@ begin
       write_wait_dtack;
     end write16;
 
+    procedure write32 (addr : std_logic_vector (31 downto 0);
+                       am : vme_am_t;
+                       data : lword_t)
+    is
+      variable l : line;
+    begin
+      assert addr(1 downto 0) = "00"
+        report "unaligned write16" severity error;
+
+      write_setup_addr (addr, '0', am);
+
+      VME_DS_n_i <= "00";
+      VME_DATA_i (31 downto 0) <= data;
+
+      write_wait_dtack;
+    end write32;
+
     procedure write8_conf (addr : cfg_addr_t;
                            data : byte_t)
     is
@@ -873,6 +890,12 @@ begin
         read32 (x"56_00_00_14", c_AM_A32, d32);
         assert d32 = x"1f00_abcd" report "bad read at 014 (3)" severity error;
 
+        read32 (x"56_00_00_18", c_AM_A32, d32);
+        assert d32 = x"0006_0000" report "bad read at 018 (1)" severity error;
+
+        write32 (x"56_00_00_18", c_AM_A32, x"2345_6789");
+        read32 (x"56_00_00_18", c_AM_A32, d32);
+        assert d32 = x"2345_6789" report "bad read at 018 (2)" severity error;
     end case;
 
     wait for 10 ns;
