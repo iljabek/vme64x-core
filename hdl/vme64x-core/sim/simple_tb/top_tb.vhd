@@ -1,5 +1,5 @@
 entity top_tb is
-  generic (scenario : natural range 0 to 2 := 2);
+  generic (scenario : natural range 0 to 3 := 3);
 end;
 
 library ieee;
@@ -14,6 +14,11 @@ architecture behaviour of top_tb is
   subtype byte_t is std_logic_vector (7 downto 0);
   subtype word_t is std_logic_vector (15 downto 0);
   subtype lword_t is std_logic_vector (31 downto 0);
+
+  type byte_array_t is array (natural range <>) of byte_t;
+  type word_array_t is array (natural range <>) of word_t;
+  type lword_array_t is array (natural range <>) of lword_t;
+
   subtype vme_am_t is std_logic_vector (5 downto 0);
 
   function hex1 (v : std_logic_vector (3 downto 0)) return character is
@@ -611,6 +616,35 @@ begin
       end loop;
     end read8_conf_mb;
 
+    procedure read32_blt (addr : std_logic_vector (31 downto 0);
+                          am : vme_am_t;
+                          variable data : out lword_array_t)
+    is
+      variable res : lword_t;
+    begin
+      VME_LWORD_n_i <= '0';
+      read_setup_addr (addr, am);
+
+      assert addr (1 downto 0) = "00"
+        report "unaligned read32_blt" severity error;
+      for i in data'range loop
+        VME_DS_n_i <= "00";
+        read_wait_dtack;
+        if bus_timer = '0' then
+          data (i) := VME_DATA_o (31 downto 0);
+        else
+          data (i) := (others => 'X');
+        end if;
+        if i /= data'right then
+          VME_DS_n_i <= "11";
+          wait until (VME_DTACK_OE_o = '0' or VME_DTACK_n_o = '1')
+            and VME_BERR_o = '0';
+        end if;
+      end loop;
+
+      read_release;
+    end read32_blt;
+
     procedure write_setup_addr (addr : std_logic_vector (31 downto 0);
                                 lword_n : std_logic;
                                 am : vme_am_t) is
@@ -873,6 +907,8 @@ begin
     variable d8 : byte_t;
     variable d16 : word_t;
     variable d32 : lword_t;
+
+    variable v32 : lword_array_t (0 to 64);
   begin
     --  Each scenario starts with a reset.
     --  VME reset
@@ -966,7 +1002,6 @@ begin
 
         -- Enable card
         write8_conf (x"7_fffb", b"0001_0000");
-        read8_conf  (x"7_fffb", d8);
 
         -- Set IRQ level
         write8_conf (x"7_ff5b", x"03");
@@ -996,6 +1031,31 @@ begin
         assert VME_IRQ_o = "0000000" report "IRQ not disabled after ack"
           severity error;
 
+      when 3 =>
+        -- Test block transfers
+
+        -- Set ADER
+        write8_conf (x"7_ff63", x"64");
+        write8_conf (x"7_ff6f", c_AM_A32_BLT & "00");
+
+        -- Enable card
+        write8_conf (x"7_fffb", b"0001_0000");
+
+        read32_blt (x"64_00_00_00", c_AM_A32_BLT, v32 (0 to 4));
+        assert v32 (0) = x"0000_0000"
+          and  v32 (1) = x"0000_0001"
+          and  v32 (2) = x"0000_0002"
+          and  v32 (3) = x"0000_0003"
+          and  v32 (4) = x"0000_0004"
+          report "incorrect BLT data" severity error;
+
+        read32_blt (x"64_00_00_10", c_AM_A32_BLT, v32 (0 to 4));
+        assert v32 (0) = x"0000_0004"
+          and  v32 (1) = x"0000_0500"
+          and  v32 (2) = x"0006_0000"
+          and  v32 (3) = x"0700_0000"
+          and  v32 (4) = x"8765_4321"
+          report "incorrect BLT data" severity error;
     end case;
 
     wait for 10 ns;
