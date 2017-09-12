@@ -583,22 +583,38 @@ begin
       end loop;
     end read8_conf_mb;
 
-    procedure write8 (addr : std_logic_vector (31 downto 0);
-                      am : vme_am_t;
-                      data : byte_t)
-    is
-      variable l : line;
+    procedure write_setup_addr (addr : std_logic_vector (31 downto 0);
+                                lword_n : std_logic;
+                                am : vme_am_t) is
     begin
       if not (VME_DTACK_OE_o = '0' and VME_BERR_o = '0') then
         wait until VME_DTACK_OE_o = '0' and VME_BERR_o = '0';
       end if;
       VME_ADDR_i <= addr(31 downto 1);
       VME_AM_i <= am;
-      VME_LWORD_n_i <= '1';
+      VME_LWORD_n_i <= lword_n;
       VME_IACK_n_i <= '1';
       wait for 35 ns;
       VME_AS_n_i <= '0';
       VME_WRITE_n_i <= '0';
+    end write_setup_addr;
+
+    procedure write_wait_dtack is
+    begin
+      wait until VME_DTACK_OE_o = '1' and VME_DTACK_n_o = '0';
+      VME_DS_n_i <= "11";
+
+      wait until VME_DTACK_OE_o = '0' or VME_DTACK_n_o = '1';
+      VME_AS_n_i <= '1';
+    end write_wait_dtack;
+
+    procedure write8 (addr : std_logic_vector (31 downto 0);
+                      am : vme_am_t;
+                      data : byte_t)
+    is
+      variable l : line;
+    begin
+      write_setup_addr (addr, '1', am);
 
       if addr (0) = '0' then
         VME_DS_n_i <= "01";
@@ -608,12 +624,24 @@ begin
         VME_DATA_i (7 downto 0) <= data;
       end if;
 
-      wait until VME_DTACK_OE_o = '1' and VME_DTACK_n_o = '0';
-      VME_DS_n_i <= "11";
-
-      wait until VME_DTACK_OE_o = '0' or VME_DTACK_n_o = '1';
-      VME_AS_n_i <= '1';
+      write_wait_dtack;
     end write8;
+
+    procedure write16 (addr : std_logic_vector (31 downto 0);
+                      am : vme_am_t;
+                      data : word_t)
+    is
+      variable l : line;
+    begin
+      assert addr(0) = '0' report "unaligned write16" severity error;
+
+      write_setup_addr (addr, '1', am);
+
+      VME_DS_n_i <= "00";
+      VME_DATA_i (15 downto 0) <= data;
+
+      write_wait_dtack;
+    end write16;
 
     procedure write8_conf (addr : cfg_addr_t;
                            data : byte_t)
@@ -840,6 +868,10 @@ begin
         write8 (x"56_00_00_14", c_AM_A32, x"1f");
         read32 (x"56_00_00_14", c_AM_A32, d32);
         assert d32 = x"1f00_0500" report "bad read at 014 (2)" severity error;
+
+        write16 (x"56_00_00_16", c_AM_A32, x"abcd");
+        read32 (x"56_00_00_14", c_AM_A32, d32);
+        assert d32 = x"1f00_abcd" report "bad read at 014 (3)" severity error;
 
     end case;
 
