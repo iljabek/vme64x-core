@@ -616,6 +616,13 @@ begin
       end loop;
     end read8_conf_mb;
 
+    procedure read_blt_end_cycle is
+    begin
+      VME_DS_n_i <= "11";
+      wait until (VME_DTACK_OE_o = '0' or VME_DTACK_n_o = '1')
+        and VME_BERR_o = '0';
+    end read_blt_end_cycle;
+
     procedure read32_blt (addr : std_logic_vector (31 downto 0);
                           am : vme_am_t;
                           variable data : out lword_array_t)
@@ -636,14 +643,38 @@ begin
           data (i) := (others => 'X');
         end if;
         if i /= data'right then
-          VME_DS_n_i <= "11";
-          wait until (VME_DTACK_OE_o = '0' or VME_DTACK_n_o = '1')
-            and VME_BERR_o = '0';
+          read_blt_end_cycle;
         end if;
       end loop;
 
       read_release;
     end read32_blt;
+
+    procedure read16_blt (addr : std_logic_vector (31 downto 0);
+                          am : vme_am_t;
+                          variable data : out word_array_t)
+    is
+      variable res : lword_t;
+    begin
+      VME_LWORD_n_i <= '1';
+      read_setup_addr (addr, am);
+
+      assert addr (0) = '0' report "unaligned read16_blt" severity error;
+      for i in data'range loop
+        VME_DS_n_i <= "00";
+        read_wait_dtack;
+        if bus_timer = '0' then
+          data (i) := VME_DATA_o (15 downto 0);
+        else
+          data (i) := (others => 'X');
+        end if;
+        if i /= data'right then
+          read_blt_end_cycle;
+        end if;
+      end loop;
+
+      read_release;
+    end read16_blt;
 
     procedure write_setup_addr (addr : std_logic_vector (31 downto 0);
                                 lword_n : std_logic;
@@ -661,20 +692,24 @@ begin
       VME_WRITE_n_i <= '0';
     end write_setup_addr;
 
-    procedure write_wait_dtack is
+    procedure write_wait_dtack_pulse is
     begin
       wait until VME_DTACK_OE_o = '1' and VME_DTACK_n_o = '0';
       VME_DS_n_i <= "11";
 
       wait until VME_DTACK_OE_o = '0' or VME_DTACK_n_o = '1';
+    end write_wait_dtack_pulse;
+
+    procedure write_wait_dtack is
+    begin
+      write_wait_dtack_pulse;
+
       VME_AS_n_i <= '1';
     end write_wait_dtack;
 
     procedure write8 (addr : std_logic_vector (31 downto 0);
                       am : vme_am_t;
-                      data : byte_t)
-    is
-      variable l : line;
+                      data : byte_t) is
     begin
       write_setup_addr (addr, '1', am);
 
@@ -690,10 +725,8 @@ begin
     end write8;
 
     procedure write16 (addr : std_logic_vector (31 downto 0);
-                      am : vme_am_t;
-                      data : word_t)
-    is
-      variable l : line;
+                       am : vme_am_t;
+                       data : word_t) is
     begin
       assert addr(0) = '0' report "unaligned write16" severity error;
 
@@ -707,9 +740,7 @@ begin
 
     procedure write32 (addr : std_logic_vector (31 downto 0);
                        am : vme_am_t;
-                       data : lword_t)
-    is
-      variable l : line;
+                       data : lword_t) is
     begin
       assert addr(1 downto 0) = "00"
         report "unaligned write16" severity error;
@@ -721,6 +752,25 @@ begin
 
       write_wait_dtack;
     end write32;
+
+    procedure write32_blt (addr : std_logic_vector (31 downto 0);
+                           am : vme_am_t;
+                           data : lword_array_t) is
+    begin
+      assert addr(1 downto 0) = "00"
+        report "unaligned write16" severity error;
+
+      write_setup_addr (addr, '0', am);
+
+      for i in data'range loop
+        VME_DS_n_i <= "00";
+        VME_DATA_i (31 downto 0) <= data (i);
+
+        write_wait_dtack_pulse;
+      end loop;
+
+      VME_AS_n_i <= '1';
+    end write32_blt;
 
     procedure write8_conf (addr : cfg_addr_t;
                            data : byte_t)
@@ -909,6 +959,7 @@ begin
     variable d32 : lword_t;
 
     variable v32 : lword_array_t (0 to 64);
+    variable v16 : word_array_t (0 to 64);
   begin
     --  Each scenario starts with a reset.
     --  VME reset
@@ -1041,21 +1092,38 @@ begin
         -- Enable card
         write8_conf (x"7_fffb", b"0001_0000");
 
-        read32_blt (x"64_00_00_00", c_AM_A32_BLT, v32 (0 to 4));
-        assert v32 (0) = x"0000_0000"
-          and  v32 (1) = x"0000_0001"
-          and  v32 (2) = x"0000_0002"
-          and  v32 (3) = x"0000_0003"
-          and  v32 (4) = x"0000_0004"
-          report "incorrect BLT data" severity error;
-
         read32_blt (x"64_00_00_10", c_AM_A32_BLT, v32 (0 to 4));
         assert v32 (0) = x"0000_0004"
           and  v32 (1) = x"0000_0500"
           and  v32 (2) = x"0006_0000"
           and  v32 (3) = x"0700_0000"
           and  v32 (4) = x"8765_4321"
-          report "incorrect BLT data" severity error;
+          report "incorrect BLT data 32" severity error;
+
+        if false then
+          --  D16 BLT not supported
+          read16_blt (x"64_00_00_14", c_AM_A32_BLT, v16 (0 to 5));
+          assert v16 (0) = x"0000"
+            and v16 (1) = x"0500"
+            and v16 (2) = x"0006"
+            and v16 (3) = x"0000"
+            and v16 (4) = x"0700"
+            and v16 (5) = x"0000"
+            report "incorrect BLT data 16" severity error;
+        end if;
+
+        v32 (0 to 3) := (x"00_11_22_33",
+                         x"44_55_66_77",
+                         x"88_99_aa_bb",
+                         x"cc_dd_ee_ff");
+        write32_blt (x"64_00_01_00", c_AM_A32_BLT, v32 (0 to 3));
+        read32_blt (x"64_00_01_00", c_AM_A32_BLT, v32 (0 to 4));
+        assert v32 (0 to 4) = (x"00_11_22_33",
+                               x"44_55_66_77",
+                               x"88_99_aa_bb",
+                               x"cc_dd_ee_ff",
+                               x"87_65_43_21")
+          report "incorrect BLT data 32 r/w" severity error;
     end case;
 
     wait for 10 ns;
