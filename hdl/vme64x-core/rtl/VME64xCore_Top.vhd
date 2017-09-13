@@ -267,7 +267,7 @@ entity VME64xCore_Top is
     user_cr_data_i  : in  std_logic_vector( 7 downto 0) := (others => '0');
 
     -- Functions
-    function_o      : out std_logic_vector( 2 downto 0);
+    function_o      : out std_logic_vector( 3 downto 0);
 
     f0_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
     f1_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
@@ -496,7 +496,8 @@ begin
       function_o  => s_function
     );
 
-  function_o <= s_function;
+  function_o (2 downto 0) <= s_function;
+  function_o (3) <= '0'; --  FIXME: purpose of that bit ?
 
   ------------------------------------------------------------------------------
   -- Output

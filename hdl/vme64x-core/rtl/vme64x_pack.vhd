@@ -267,7 +267,7 @@ package vme64x_pack is
       user_csr_we_o   : out std_logic;
       user_cr_addr_o  : out std_logic_vector(18 downto 2);
       user_cr_data_i  : in  std_logic_vector( 7 downto 0) := (others => '0');
-      function_o      : out std_logic_vector( 2 downto 0);
+      function_o      : out std_logic_vector( 3 downto 0);
       f0_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
       f1_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
       f2_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
