@@ -139,9 +139,7 @@ architecture RTL of VME_bus is
   -- External buffer signals
   signal s_dtackOE                  : std_logic;
   signal s_dataDir                  : std_logic;
-  signal s_dataOE                   : std_logic;
   signal s_addrDir                  : std_logic;
-  signal s_addrOE                   : std_logic;
 
   -- Local data & address
   signal s_locDataIn                : std_logic_vector(63 downto 0);
@@ -221,11 +219,6 @@ architecture RTL of VME_bus is
   signal s_transferActive           : std_logic;                      -- active VME transfer
   signal s_retry                    : std_logic;                      -- RETRY signal
 
-  -- uncomment if 2e is implemented:
-  --signal s_berr                     : std_logic;                      -- BERR signal
-  --signal s_berr_1                   : std_logic;                      --
-  --signal s_berr_2                   : std_logic;                      --
-
   -- Access decode signals
   signal s_conf_sel                 : std_logic;                      -- Asserted when CR or CSR is addressed
   signal s_card_sel                 : std_logic;                      -- Asserted when WB memory is addressed
@@ -267,7 +260,7 @@ begin
   s_is_d64      <= '1' when s_sel = "11111111" else '0';
 
   -- These output signals are connected to the buffers on the board
-  -- SN74VMEH22501A Function table:
+  -- SN74VMEH22501A Function table:  (A is fpga, B is VME connector)
   --   OEn | DIR | OUTPUT                 OEAB   |   OEBYn   |   OUTPUT
   --    H  |  X  |   Z                      L    |     H     |     Z
   --    L  |  H  | A to B                   H    |     H     |   A to B
@@ -275,12 +268,10 @@ begin
   --                                        H    |     L     |A to B, B to Y |
 
   VME_DATA_DIR_o  <= s_dataDir;
-  VME_DATA_OE_N_o <= s_dataOE;
+  VME_DATA_OE_N_o <= '0'; -- Driven IFF DIR = 1
   VME_ADDR_DIR_o  <= s_addrDir;
-  VME_ADDR_OE_N_o <= s_addrOE;
+  VME_ADDR_OE_N_o <= '0'; -- Driven IFF DIR = 1
   VME_DTACK_OE_o  <= s_dtackOE;
-
-  -- VME DTACK:
   VME_DTACK_n_o <= s_mainDTACK;
 
   ------------------------------------------------------------------------------
@@ -370,9 +361,7 @@ begin
         s_dtackOE        <= '0';
         s_mainDTACK      <= '1';
         s_dataDir        <= '0';
-        s_dataOE         <= '0';
         s_addrDir        <= '0';
-        s_addrOE         <= '0';
         s_incrementAddr  <= '0';
         s_dataPhase      <= '0';
         s_dataToOutput   <= '0';
@@ -391,9 +380,7 @@ begin
         s_dtackOE        <= '0';
         s_mainDTACK      <= '1';
         s_dataDir        <= '0';
-        s_dataOE         <= '0';
         s_addrDir        <= '0';
-        s_addrOE         <= '0';
         s_incrementAddr  <= '0';
         s_dataPhase      <= '0';
         s_dataToOutput   <= '0';
@@ -671,9 +658,6 @@ begin
   p_BERRdriver : process (clk_i)
   begin
     if rising_edge(clk_i) then
-      -- uncomment if 2e is implemented:
-      --    s_berr_1      <= s_berr;
-      --    s_berr_2      <= s_berr and s_berr_1;
       if (s_BERR_out = '1') then
         VME_BERR_n_o <= '0';
       else
