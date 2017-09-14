@@ -144,28 +144,43 @@ architecture RTL of VME_bus is
   -- Local data & address
   signal s_locDataIn                : std_logic_vector(63 downto 0);
   signal s_locDataOut               : std_logic_vector(63 downto 0);          -- Local data
-  signal s_rel_locAddr              : unsigned(63 downto 0);          -- Local address
-  signal s_addrOffset               : unsigned(17 downto 0);          -- block transfers|
+  signal s_locAddr                  : std_logic_vector(63 downto 0);          -- Local address
   signal s_DataShift                : std_logic;
   signal s_locDataOutSwap           : std_logic_vector(63 downto 0);
   signal s_locDataInSwap            : std_logic_vector(63 downto 0);
   signal s_locDataOutWb             : std_logic_vector(63 downto 0);
 
-  -- Latched signals
-  signal s_VMEaddrLatched           : std_logic_vector(63 downto 1);          -- Latch on AS falling edge
-  signal s_LWORDlatched             : std_logic;                      -- Stores LWORD on falling edge of AS
-  signal s_DSlatched                : std_logic_vector(1 downto 0);   -- Stores DS
-  signal s_AMlatched                : std_logic_vector(5 downto 0);   -- Latch on AS f. edge
+  -- VME latched signals
+  signal s_ADDRlatched              : std_logic_vector(63 downto 1);
+  signal s_LWORDlatched             : std_logic;
+  signal s_DSlatched                : std_logic_vector(1 downto 0);
+  signal s_AMlatched                : std_logic_vector(5 downto 0);
 
-  -- Type of data transfer (depending on VME_DS_n, VME_LWORD_n and VME_ADDR(1))
-  signal s_typeOfDataTransfer       : t_typeOfDataTransfer;
-  signal s_typeOfDataTransferSelect : std_logic_vector(4 downto 0);
+  type t_addressingType is (
+    A24,
+    A24_BLT,
+    A24_MBLT,
+    CR_CSR,
+    A16,
+    A32,
+    A32_BLT,
+    A32_MBLT,
+    A64,
+    A64_BLT,
+    A64_MBLT,
+    AM_Error
+  );
+
+  type t_transferType is (
+    SINGLE,
+    BLT,
+    MBLT,
+    error
+  );
 
   -- Addressing type (depending on VME_AM_i)
   signal s_addressingType           : t_addressingType;
   signal s_transferType             : t_transferType;
-  signal s_XAMtype                  : t_XAMtype;
-  signal s_2eType                   : t_2eType;
   signal s_addrWidth                : std_logic_vector(1 downto 0);
 
   type t_mainFSMstates is (
@@ -186,7 +201,7 @@ architecture RTL of VME_bus is
     -- Wait until DS is stable (and asserted).
     LATCH_DS,
 
-    -- Decode transfer type, generate WB request
+    -- Decode DS, generate WB request
     CHECK_TRANSFER_TYPE,
 
     -- Wait for WB reply
@@ -197,8 +212,12 @@ architecture RTL of VME_bus is
 
     -- Assert DTACK
     DTACK_LOW,
+
     DECIDE_NEXT_CYCLE,
+
+    --  Increment address for block transfers
     INCREMENT_ADDR,
+
     SET_DATA_PHASE,
 
     --  Wait until AS is deasserted
@@ -207,33 +226,30 @@ architecture RTL of VME_bus is
 
   -- Main FSM signals
   signal s_mainFSMstate             : t_mainFSMstates;
-  signal s_dataToAddrBus            : std_logic;                      -- (for D64) --> multiplexed transfer
-  signal s_dataToOutput             : std_logic;                      -- Puts data to VME data bus
-  signal s_mainDTACK                : std_logic;                      -- DTACK driving
-  signal s_memAck                   : std_logic;                      -- Memory acknowledge
-  signal s_memAckCSR                : std_logic;                      -- CR/CSR acknowledge
-  signal s_memReq                   : std_logic;                      -- Global memory request
-  signal s_incrementAddr            : std_logic;                      -- Increments local address
-  signal s_blockTransferLimit       : std_logic;                      -- Block transfer limit
-  signal s_dataPhase                : std_logic;                      -- for A64 and multipl. transf.
-  signal s_transferActive           : std_logic;                      -- active VME transfer
-  signal s_retry                    : std_logic;                      -- RETRY signal
+  signal s_dataToAddrBus            : std_logic;   -- (for D64) --> MBLT
+  signal s_dataToOutput             : std_logic;   -- Puts data to VME data bus
+  signal s_mainDTACK                : std_logic;   -- DTACK driving
+  signal s_memAck                   : std_logic;   -- Memory acknowledge
+  signal s_memAckCSR                : std_logic;   -- CR/CSR acknowledge
+  signal s_memReq                   : std_logic;   -- Global memory request
+  signal s_incrementAddr            : std_logic;   -- Increments local address
+  signal s_dataPhase                : std_logic;   -- for A64 and MBLT
+  signal s_transferActive           : std_logic;   -- active VME transfer
+  signal s_retry                    : std_logic;   -- RETRY signal
 
   -- Access decode signals
-  signal s_conf_sel                 : std_logic;                      -- Asserted when CR or CSR is addressed
-  signal s_card_sel                 : std_logic;                      -- Asserted when WB memory is addressed
+  signal s_conf_sel                 : std_logic;   -- CR or CSR is addressed
+  signal s_card_sel                 : std_logic;   -- WB memory is addressed
 
   -- WishBone signals
-  signal s_sel                      : std_logic_vector(7 downto 0);           -- SEL WB signal
-  signal s_nx_sel                   : std_logic_vector(7 downto 0);
+  signal s_sel                      : std_logic_vector(7 downto 0);  -- SEL WB
 
   -- Error signals
-  signal s_BERRcondition            : std_logic;                      -- Condition for asserting BERR
+  signal s_BERRcondition            : std_logic;   -- Condition to set BERR
   signal s_wberr1                   : std_logic;
   signal s_rty1                     : std_logic;
 
   -- Initialization signals
-  signal s_prev_VME_AS_n            : std_logic;
   signal s_is_d64                   : std_logic;
 
   signal s_BERR_out                 : std_logic;
@@ -255,9 +271,6 @@ architecture RTL of VME_bus is
 
   signal s_DS_latch_count           : unsigned (2 downto 0);
 begin
-
-  -- Used to drive the VME_ADDR_DIR_o
-  s_is_d64      <= '1' when s_sel = "11111111" else '0';
 
   -- These output signals are connected to the buffers on the board
   -- SN74VMEH22501A Function table:  (A is fpga, B is VME connector)
@@ -282,8 +295,6 @@ begin
   -- A2 is used to select the D64 type  (D64 --> MBLT and 2edge cycles)
   -- VME DATA --> BIG ENDIAN
 
-  s_typeOfDataTransferSelect <= s_DSlatched & s_VMEaddrLatched(1) &
-                                s_LWORDlatched & s_VMEaddrLatched(2);
 
   -- These 5 bits are not sufficient to descriminate the D32 and D64 data
   -- transfer type; indeed the D32 access with A2 = '0' (eg 0x010)
@@ -301,21 +312,9 @@ begin
   --        |        |        |        |        |        | BYTE 2 | BYTE 3
   --        |        |        |        | BYTE 0 | BYTE 1 | BYTE 2 | BYTE 3
   -- BYTE 0 | BYTE 1 | BYTE 2 | BYTE 3 | BYTE 4 | BYTE 5 | BYTE 6 | BYTE 7
-  with s_typeOfDataTransferSelect select s_typeOfDataTransfer <=
-    D08_0     when b"01_010" | b"01_011",
-    D08_1     when b"10_010" | b"10_011",
-    D08_2     when b"01_110" | b"01_111",
-    D08_3     when b"10_110" | b"10_111",
-    D16_01    when b"00_010" | b"00_011",
-    D16_23    when b"00_110" | b"00_111",
-    D32       when b"00_001",
-    D64       when b"00_000",
-    TypeError when others;
 
-  -- Shift data when DS=01 and LWORD=1
-  with s_typeOfDataTransferSelect select s_DataShift <=
-    '1' when "01010" | "01011" | "01110" | "01111",
-    '0' when others;
+  -- Shift data when DS=01 (LWORD=1)
+  s_DataShift <= '1' when s_DSlatched = "01" else '0';
 
   -- Address modifier decoder
   -- Either the supervisor or user access modes are supported
@@ -346,10 +345,15 @@ begin
     "10" when A32 | A32_BLT | A32_MBLT,
     "11" when others;
 
+  -- Used to drive the VME_ADDR_DIR_o
+  s_is_d64 <= '1' when s_transferType = MBLT else '0';
+
+
   ------------------------------------------------------------------------------
   -- MAIN FSM
   ------------------------------------------------------------------------------
-  p_VMEmainFSM : process (clk_i)
+  p_VMEmainFSM : process (clk_i) is
+    variable addr_word_incr : natural range 0 to 7;
   begin
     if rising_edge(clk_i) then
       if rst_i = '1' or VME_AS_n_i = '1' then
@@ -370,8 +374,9 @@ begin
         s_retry          <= '0';
         s_BERR_out       <= '0';
         s_mainFSMstate <= IDLE;
+        s_sel <= "00000000";
 
-        s_VMEaddrLatched <= (others => '0');
+        s_ADDRlatched <= (others => '0');
         s_LWORDlatched   <= '0';
         s_AMlatched      <= (others => '0');
       else
@@ -403,7 +408,7 @@ begin
               s_mainFSMstate <= REFORMAT_ADDRESS;
 
               -- Store ADDR, AM and LWORD
-              s_VMEaddrLatched <= VME_DATA_i & VME_ADDR_i;
+              s_ADDRlatched <= VME_DATA_i & VME_ADDR_i;
               s_LWORDlatched   <= VME_LWORD_n_i;
               s_AMlatched      <= VME_AM_i;
 
@@ -415,11 +420,11 @@ begin
             -- Reformat address according to the mode (A16, A24, A32 or A64)
             case s_addrWidth is
               when "00" =>
-                s_VMEaddrLatched (63 downto 16) <= (others => '0');  -- A16
+                s_ADDRlatched (63 downto 16) <= (others => '0');  -- A16
               when "01" =>
-                s_VMEaddrLatched (63 downto 24) <= (others => '0');  -- A24
+                s_ADDRlatched (63 downto 24) <= (others => '0');  -- A24
               when "10" =>
-                s_VMEaddrLatched (63 downto 32) <= (others => '0');  -- A32
+                s_ADDRlatched (63 downto 32) <= (others => '0');  -- A32
               when others =>
                 null; -- A64
             end case;
@@ -446,7 +451,7 @@ begin
               -- card_sel = '1' it means WB application addressed
               s_mainFSMstate <= WAIT_FOR_DS;
               -- Keep only the local part of the address
-              s_VMEaddrLatched <= addr_decoder_i (63 downto 1);
+              s_ADDRlatched <= addr_decoder_i (63 downto 1);
             else
               -- another board will answer; wait here the rising edge on
               -- VME_AS_i (done by top if).
@@ -489,6 +494,34 @@ begin
             s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
             s_dataPhase      <= s_dataPhase;
             s_transferActive <= '1';
+
+            --  Translate DS+LWORD+MBLT+AS to WB byte selects
+            if s_LWORDlatched = '0' then
+              if s_transferType = MBLT then
+                s_sel <= "11111111";
+              else
+                if s_ADDRlatched(2) = '0' then
+                  s_sel <= "11110000";
+                else
+                  s_sel <= "00001111";
+                end if;
+              end if;
+            else
+              s_sel <= "00000000";
+              case s_ADDRlatched(2 downto 1) is
+                when "00" =>
+                  s_sel (7 downto 6) <= not s_DSlatched (1 downto 0);
+                when "01" =>
+                  s_sel (5 downto 4) <= not s_DSlatched (1 downto 0);
+                when "10" =>
+                  s_sel (3 downto 2) <= not s_DSlatched (1 downto 0);
+                when "11" =>
+                  s_sel (1 downto 0) <= not s_DSlatched (1 downto 0);
+                when others =>
+                  null;
+              end case;
+            end if;
+
             if (s_transferType = SINGLE or s_transferType = BLT) and
                (s_addrWidth /= "11")
             then
@@ -594,6 +627,26 @@ begin
             s_dataPhase      <= s_dataPhase;
             s_transferActive <= '1';
             s_incrementAddr  <= '1';
+
+            if s_LWORDlatched = '0' then
+              if s_transferType = MBLT then
+                addr_word_incr := 4;
+              else
+                addr_word_incr := 2;
+              end if;
+            else
+              if s_DSlatched (0) = '0' then
+                -- Next word for D16 or D08(O)
+                addr_word_incr := 1;
+              else
+                addr_word_incr := 0;
+              end if;
+            end if;
+            -- Only increment within the window, don't check the limit.
+            -- BLT  --> limit = 256 bytes  (rule 2.12a ANSI/VITA 1-1994)
+            -- MBLT --> limit = 2048 bytes (rule 2.78  ANSI/VITA 1-1994)
+            s_ADDRlatched (11 downto 1) <= std_logic_vector
+              (unsigned(s_ADDRlatched (11 downto 1)) + addr_word_incr);
             s_mainFSMstate   <= WAIT_FOR_DS;
 
           when SET_DATA_PHASE =>
@@ -680,11 +733,7 @@ begin
         s_BERRcondition <= '0';
       elsif
         ((s_transferType = error or s_wberr1 = '1') and s_transferActive = '1') or
-        (s_typeOfDataTransfer = TypeError) or
         (s_addressingType = AM_Error) or
-        (s_blockTransferLimit = '1') or
-        (s_transferType = BLT and (not(s_typeOfDataTransfer = D32 or s_typeOfDataTransfer = D64))) or
-        (s_transferType = MBLT and s_typeOfDataTransfer /= D64) or
         (s_is_d64 = '1' and g_WB_DATA_WIDTH = 32)
       then
         s_BERRcondition <= '1';
@@ -693,14 +742,6 @@ begin
       end if;
     end if;
   end process;
-
-  -- generate the error condition if block transfer overflows the limit
-  -- BLT  --> block transfer limit = 256 bytes  (rule 2.12a ANSI/VITA 1-1994)
-  -- MBLT --> block transfer limit = 2048 bytes (rule 2.78  ANSI/VITA 1-1994)
-  with s_transferType select s_blockTransferLimit <=
-    s_addrOffset(8)  when BLT,
-    s_addrOffset(11) when MBLT,
-    '0'              when others;
 
   -- wb err handler
   process (clk_i)
@@ -755,45 +796,8 @@ begin
   ------------------------------------------------------------------------------
   -- This process generates the s_locAddr that is used during the access decode
   -- process.
-  -- The s_rel_locAddr is used in the VME_WB_master to address the WB memory
-  process (clk_i)
-  begin
-    if rising_edge(clk_i) then
-      s_rel_locAddr <= unsigned(s_VMEaddrLatched & '0') + s_addrOffset;
-    end if;
-  end process;
-
-  -- Local address incrementing
-  -- This process generates the s_addrOffset
-  -- The s_addrOffset is /= 0 during BLT, MBLT and 2e access modes, when
-  -- the vme64x core increments the address every cycle
-  p_addrIncrementing : process (clk_i)
-  begin
-    if rising_edge(clk_i) then
-      if rst_i = '1' or VME_AS_n_i = '1' then
-        s_addrOffset <= (others => '0');
-      elsif s_incrementAddr = '1' then
-        case s_typeOfDataTransfer is
-          when D08_0 | D08_1 | D08_2 | D08_3 =>
-            s_addrOffset <= s_addrOffset + 1;
-          when D16_01 | D16_23 =>
-            s_addrOffset <= s_addrOffset + 2;
-          when D32 =>
-            s_addrOffset <= s_addrOffset + 4;
-          when D64 =>
-            if s_transferType = MBLT then
-              s_addrOffset <= s_addrOffset + 8;
-            else
-              s_addrOffset <= s_addrOffset + 4;  --BLT D32
-            end if;
-          when others =>
-            s_addrOffset <= s_addrOffset;
-        end case;
-      else
-        s_addrOffset <= s_addrOffset;
-      end if;
-    end if;
-  end process;
+  -- The s_locAddr is used in the VME_WB_master to address the WB memory
+  s_locAddr <= s_ADDRlatched & '0';
 
   ------------------------------------------------------------------------------
   -- Data Handler Process
@@ -859,78 +863,6 @@ begin
   end process;
 
   ------------------------------------------------------------------------------
-  -- Memory Mapping
-  ------------------------------------------------------------------------------
-  -- WB bus width = 64-bits
-  -- Granularity = byte
-  -- WB bus --> BIG ENDIAN
-
-  p_memoryMapping : process (clk_i)
-  begin
-    if rising_edge(clk_i) then
-      case s_typeOfDataTransfer is
-        when D08_0 =>
-          if s_rel_locAddr(2) = '0' then
-            s_nx_sel <= "10000000";
-          else
-            s_nx_sel <= "00001000";
-          end if;
-        when D08_1 =>
-          if s_rel_locAddr(2) = '0' then
-            s_nx_sel <= "01000000";
-          else
-            s_nx_sel <= "00000100";
-          end if;
-        when D08_2 =>
-          if s_rel_locAddr(2) = '0' then
-            s_nx_sel <= "00100000";
-          else
-            s_nx_sel <= "00000010";
-          end if;
-        when D08_3 =>
-          if s_rel_locAddr(2) = '0' then
-            s_nx_sel <= "00010000";
-          else
-            s_nx_sel <= "00000001";
-          end if;
-        when D16_01 =>
-          if s_rel_locAddr(2) = '0' then
-            s_nx_sel <= "11000000";
-          else
-            s_nx_sel <= "00001100";
-          end if;
-        when D16_23 =>
-          if s_rel_locAddr(2) = '0' then
-            s_nx_sel <= "00110000";
-          else
-            s_nx_sel <= "00000011";
-          end if;
-        when D64 =>
-          case s_transferType is
-            when MBLT =>                -- D64
-              s_nx_sel <= "11111111";
-            when others =>              -- D32 BLT or SINGLE
-              if s_rel_locAddr(2) = '0' then
-                s_nx_sel <= "11110000";
-              else
-                s_nx_sel <= "00001111";
-              end if;
-          end case;
-        when D32 =>
-          if s_rel_locAddr(2) = '1' then
-            s_nx_sel <= "00001111";
-          else
-            s_nx_sel <= "11110000";
-          end if;
-        when others =>
-          s_nx_sel <= "00000000";
-      end case;
-    end if;
-  end process;
-
-  s_sel <= s_nx_sel;
-
-  ------------------------------------------------------------------------------
   -- WB Master
   ------------------------------------------------------------------------------
   -- This component acts as WB master for single read/write PIPELINED mode.
@@ -952,7 +884,7 @@ begin
       sel_i           => s_sel,
       locDataInSwap_i => s_locDataInSwap,
       locDataOut_o    => s_locDataOutWb,
-      rel_locAddr_i   => std_logic_vector(s_rel_locAddr),
+      rel_locAddr_i   => s_locAddr,
       memAckWb_o      => s_AckWb,
       err_o           => s_err,
       rty_o           => s_rty,
@@ -975,14 +907,14 @@ begin
   ------------------------------------------------------------------------------
   -- Function Decoder
   ------------------------------------------------------------------------------
-  addr_decoder_o <= s_VMEaddrLatched & '0';
+  addr_decoder_o <= s_ADDRlatched & '0';
   decode_o       <= s_decode;
   am_o           <= s_AMlatched;
   xam_o          <= (others => '0');
   s_card_sel     <= sel_i and module_enable_i;
 
   -- Decode accesses to CR/CSR
-  s_conf_sel <= '1' when s_VMEaddrLatched(23 downto 19) = bar_i
+  s_conf_sel <= '1' when s_ADDRlatched(23 downto 19) = bar_i
                           and s_AMlatched = c_AM_CR_CSR
                     else '0';
 
@@ -1017,7 +949,7 @@ begin
   -- CR/CSR In/Out
   ------------------------------------------------------------------------------
   cr_csr_data_o <= s_locDataIn(7 downto 0);
-  cr_csr_addr_o <= s_VMEaddrLatched(18 downto 2);
+  cr_csr_addr_o <= s_ADDRlatched(18 downto 2);
 
   cr_csr_we_o   <= '1' when s_memReq   = '1' and
                             s_conf_sel = '1' and

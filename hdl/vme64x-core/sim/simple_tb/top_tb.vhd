@@ -218,7 +218,7 @@ architecture behaviour of top_tb is
   signal user_csr_we_o   : std_logic;
   signal user_cr_addr_o  : std_logic_vector(18 downto 2);
   signal user_cr_data_i  : std_logic_vector( 7 downto 0)  := (others => '0');
-  signal function_o      : std_logic_vector( 2 downto 0);
+  signal function_o      : std_logic_vector( 3 downto 0);
   signal f0_faf_ader_i   : std_logic_vector(31 downto 0) := (others => '0');
   signal f1_faf_ader_i   : std_logic_vector(31 downto 0) := (others => '0');
   signal f2_faf_ader_i   : std_logic_vector(31 downto 0) := (others => '0');
