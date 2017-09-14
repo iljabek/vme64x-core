@@ -369,6 +369,7 @@ begin
               v_addr  := s_addr(18 downto 2) - to_unsigned(c_ADER_REG_BEG, 17);
               v_index := to_integer(v_addr(6 downto 4));
               v_byte  := 3-to_integer(v_addr(3 downto 2));
+              --  FIXME: force DFSR and XAM to 0 ?
               s_reg_ader(v_index)(8*v_byte+7 downto 8*v_byte) <= data_i;
 
             when others =>
