@@ -85,7 +85,7 @@ entity VME_Wb_master is
     sel_i           : in  std_logic_vector(7 downto 0);
     locDataInSwap_i : in  std_logic_vector(63 downto 0);
     locDataOut_o    : out std_logic_vector(63 downto 0);
-    rel_locAddr_i   : in  std_logic_vector(63 downto 0);
+    rel_locAddr_i   : in  std_logic_vector(31 downto 0);
     memAckWb_o      : out std_logic;
     err_o           : out std_logic;
     rty_o           : out std_logic;
@@ -157,7 +157,8 @@ begin
     process (clk_i)
     begin
       if rising_edge(clk_i) then
-        locAddr_o <= std_logic_vector(resize(unsigned(rel_locAddr_i) srl 3,g_WB_ADDR_WIDTH));
+        locAddr_o (63 downto 29) <= (others => '0');
+        locAddr_o (28 downto 0) <= rel_locAddr_i (31 downto 3);
       end if;
     end process;
 
@@ -230,7 +231,8 @@ begin
     process (clk_i)
     begin
       if rising_edge(clk_i) then
-        locAddr_o <= std_logic_vector(resize(unsigned(rel_locAddr_i) srl 2, g_WB_ADDR_WIDTH));
+        locAddr_o (31 downto 30) <= (others => '0');
+        locAddr_o (29 downto 0) <= rel_locAddr_i (31 downto 2);
       end if;
     end process;
 

@@ -155,49 +155,41 @@ entity VME64xCore_Top is
     -- Function 0
     g_F0_ADEM         : std_logic_vector( 31 downto 0)  := x"ff000000";
     g_F0_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_0000bb00";
-    g_F0_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
     g_F0_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     -- Function 1
     g_F1_ADEM         : std_logic_vector( 31 downto 0)  := x"fff80000";
     g_F1_AMCAP        : std_logic_vector( 63 downto 0)  := x"bb000000_00000000";
-    g_F1_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
     g_F1_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     -- Function 2
     g_F2_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
     g_F2_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_F2_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
     g_F2_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     -- Function 3
     g_F3_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
     g_F3_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_F3_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
     g_F3_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     -- Function 4
     g_F4_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
     g_F4_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_F4_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
     g_F4_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     -- Function 5
     g_F5_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
     g_F5_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_F5_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
     g_F5_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     -- Function 6
     g_F6_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
     g_F6_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_F6_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
     g_F6_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     -- Function 7
     g_F7_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
     g_F7_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_F7_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
     g_F7_DAWPR        : std_logic_vector(  7 downto 0)  := x"84"
   );
   port (
@@ -269,24 +261,6 @@ entity VME64xCore_Top is
     -- Functions
     function_o      : out std_logic_vector( 3 downto 0);
 
-    f0_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f1_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f2_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f3_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f4_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f5_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f6_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f7_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-
-    f0_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f1_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f2_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f3_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f4_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f5_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f6_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f7_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-
     -- IRQ Generator
     irq_ack_o : out std_logic;    -- when the IRQ controller acknowledges the
                                   -- Interrupt cycle it sends a pulse to the
@@ -335,13 +309,12 @@ architecture RTL of VME64xCore_Top is
   signal s_user_csr_we          : std_logic;
 
   -- Function decoders
-  signal s_addr_decoder_i       : std_logic_vector(63 downto 0);
-  signal s_addr_decoder_o       : std_logic_vector(63 downto 0);
+  signal s_addr_decoder_i       : std_logic_vector(31 downto 0);
+  signal s_addr_decoder_o       : std_logic_vector(31 downto 0);
   signal s_decode               : std_logic;
   signal s_sel                  : std_logic;
   signal s_function             : std_logic_vector( 2 downto 0);
   signal s_am                   : std_logic_vector( 5 downto 0);
-  signal s_xam                  : std_logic_vector( 7 downto 0);
 
   -- Oversampled input signals
   signal s_VME_RST_n            : std_logic_vector(2 downto 0);
@@ -362,25 +335,11 @@ architecture RTL of VME64xCore_Top is
     g_F0_AMCAP, g_F1_AMCAP, g_F2_AMCAP, g_F3_AMCAP,
     g_F4_AMCAP, g_F5_AMCAP, g_F6_AMCAP, g_F7_AMCAP
   );
-  constant c_XAMCAP : t_xamcap_array(0 to 7) := (
-    g_F0_XAMCAP, g_F1_XAMCAP, g_F2_XAMCAP, g_F3_XAMCAP,
-    g_F4_XAMCAP, g_F5_XAMCAP, g_F6_XAMCAP, g_F7_XAMCAP
-  );
   constant c_DAWPR : t_dawpr_array(0 to 7) := (
     g_F0_DAWPR, g_F1_DAWPR, g_F2_DAWPR, g_F3_DAWPR,
     g_F4_DAWPR, g_F5_DAWPR, g_F6_DAWPR, g_F7_DAWPR
   );
-
-  signal s_faf_ader : t_ader_array(0 to 7);
-  signal s_dfs_adem : t_adem_array(0 to 7);
-
 begin
-
-  s_faf_ader <= (f0_faf_ader_i, f1_faf_ader_i, f2_faf_ader_i, f3_faf_ader_i,
-                 f4_faf_ader_i, f5_faf_ader_i, f6_faf_ader_i, f7_faf_ader_i);
-  s_dfs_adem <= (f0_dfs_adem_i, f1_dfs_adem_i, f2_dfs_adem_i, f3_dfs_adem_i,
-                 f4_dfs_adem_i, f5_dfs_adem_i, f6_dfs_adem_i, f7_dfs_adem_i);
-
   ------------------------------------------------------------------------------
   -- Metastability
   ------------------------------------------------------------------------------
@@ -453,7 +412,6 @@ begin
       addr_decoder_o  => s_addr_decoder_i,
       decode_o        => s_decode,
       am_o            => s_am,
-      xam_o           => s_xam,
       sel_i           => s_sel,
 
       -- CR/CSR signals
@@ -476,8 +434,7 @@ begin
   Inst_VME_Funct_Match : VME_Funct_Match
     generic map (
       g_ADEM      => c_ADEM,
-      g_AMCAP     => c_AMCAP,
-      g_XAMCAP    => c_XAMCAP
+      g_AMCAP     => c_AMCAP
     )
     port map (
       clk_i       => clk_i,
@@ -487,11 +444,7 @@ begin
       addr_o      => s_addr_decoder_o,
       decode_i    => s_decode,
       am_i        => s_am,
-      xam_i       => s_xam,
-
       ader_i      => s_ader,
-      dfs_adem_i  => s_dfs_adem,
-
       sel_o       => s_sel,
       function_o  => s_function
     );
@@ -568,7 +521,6 @@ begin
       g_END_SN           => g_END_SN,
       g_ADEM             => c_ADEM,
       g_AMCAP            => c_AMCAP,
-      g_XAMCAP           => c_XAMCAP,
       g_DAWPR            => c_DAWPR
     )
     port map (
@@ -596,9 +548,7 @@ begin
       user_cr_addr_o      => user_cr_addr_o,
       user_cr_data_i      => user_cr_data_i,
 
-      ader_o              => s_ader,
-      faf_ader_i          => s_faf_ader,
-      dfs_adem_i          => s_dfs_adem
+      ader_o              => s_ader
     );
 
   -- User CSR space

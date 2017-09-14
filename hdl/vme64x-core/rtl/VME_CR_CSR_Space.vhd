@@ -124,7 +124,6 @@ entity VME_CR_CSR_Space is
     g_END_SN          : std_logic_vector(23 downto 0);
     g_ADEM            : t_adem_array(0 to 7);
     g_AMCAP           : t_amcap_array(0 to 7);
-    g_XAMCAP          : t_xamcap_array(0 to 7);
     g_DAWPR           : t_dawpr_array(0 to 7)
   );
   port (
@@ -152,9 +151,7 @@ entity VME_CR_CSR_Space is
     user_cr_addr_o      : out std_logic_vector(18 downto 2);
     user_cr_data_i      : in  std_logic_vector( 7 downto 0);
 
-    ader_o              : out t_ader_array(0 to 7);
-    faf_ader_i          : in  t_ader_array(0 to 7);
-    dfs_adem_i          : in  t_adem_array(0 to 7)
+    ader_o              : out t_ader_array(0 to 7)
   );
 end VME_CR_CSR_Space;
 
@@ -167,7 +164,6 @@ architecture rtl of VME_CR_CSR_Space is
   signal s_reg_cram_owner   : std_logic_vector(7 downto 0);
   signal s_reg_usr_bit_reg  : std_logic_vector(7 downto 0);
   signal s_reg_ader         : t_ader_array(0 to 7);
-  signal s_ader             : t_ader_array(0 to 7);
 
   -- CR/CSR
   signal s_cr_access        : std_logic;
@@ -282,7 +278,6 @@ architecture rtl of VME_CR_CSR_Space is
     for i in 0 to 7 loop
       cr(16#040#+i)                    := g_DAWPR(i);             -- Function X DAWPR
       cr(16#048#+i*8  to 16#04f#+i*8)  := f_cr_vec(g_AMCAP(i));   -- Function X AMCAP
-      cr(16#088#+i*32 to 16#0a7#+i*32) := f_cr_vec(g_XAMCAP(i));  -- Function X XAMCAP
       cr(16#188#+i*4  to 16#18b#+i*4)  := f_cr_vec(g_ADEM(i));    -- Function X ADEM
     end loop;
     for i in 1 to cr'length-1 loop
@@ -396,49 +391,7 @@ begin
   module_enable_o   <= s_reg_bit_reg(c_ENABLE_BIT);
   vme_sysfail_ena_o <= s_reg_bit_reg(c_SYSFAIL_EN_BIT);
   module_reset_o    <= s_reg_bit_reg(c_RESET_BIT);
-
-  -- Handle DFS and FAF
-  process (s_reg_ader, faf_ader_i, dfs_adem_i)
-    variable v_ader_b0 : std_logic_vector(7 downto 0);
-  begin
-    for i in 0 to 7 loop
-      -- When FAF function or upper bits of previous FAF function, readback
-      -- and output ADER given at the FAF inputs.
-      if (i /= 0 and
-          g_ADEM(i-1)(c_ADEM_EFM) = '1' and g_ADEM(i-1)(c_ADEM_FAF) = '1') or
-         ((i = 0 or g_ADEM(i-1)(c_ADEM_EFM) = '0') and
-          g_ADEM( i )(c_ADEM_FAF) = '1')
-      then
-        s_ader(i) <= faf_ader_i(i);
-        ader_o(i) <= faf_ader_i(i);
-
-      -- When upper bits of previous DFS function and DFSR enabled, readback
-      -- the ADEM value and output zero.
-      elsif i /= 0 and
-            g_ADEM(i-1)(c_ADEM_EFM) = '1' and g_ADEM(i-1)(c_ADEM_DFS) = '1' and
-            s_reg_ader(i-1)(c_ADER_DFSR) = '1'
-      then
-        s_ader(i) <= dfs_adem_i(i);
-        ader_o(i) <= (others => '0');
-
-      -- When a DFS function and DFSR enabled, readback the ADEM and output
-      -- zero.
-      elsif (i = 0 or g_ADEM(i-1)(c_ADEM_EFM) = '0') and
-            g_ADEM(i)(c_ADEM_DFS) = '1' and
-            s_reg_ader(i)(c_ADER_DFSR) = '1'
-      then
-        v_ader_b0   := (c_ADER_DFSR => s_reg_ader(i)(c_ADER_DFSR),
-                        others => '0');
-        s_ader(i) <= dfs_adem_i(i)(c_ADEM_M) & v_ader_b0;
-        ader_o(i) <= (others => '0');
-
-      -- In all other cases, readback and output the ADER register value.
-      else
-        s_ader(i) <= s_reg_ader(i);
-        ader_o(i) <= s_reg_ader(i);
-      end if;
-    end loop;
-  end process;
+  ader_o            <= s_reg_ader;
 
   -- Read
   process (clk_i)
@@ -473,7 +426,7 @@ begin
             v_addr  := s_addr(18 downto 2) - to_unsigned(c_ADER_REG_BEG, 17);
             v_index := to_integer(v_addr(6 downto 4));
             v_byte  := 3-to_integer(v_addr(3 downto 2));
-            s_csr_data <= s_ader(v_index)(8*v_byte+7 downto 8*v_byte);
+            s_csr_data <= s_reg_ader(v_index)(8*v_byte+7 downto 8*v_byte);
 
           when others =>
             s_csr_data <= c_UNUSED;

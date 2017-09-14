@@ -110,7 +110,6 @@ package vme64x_pack is
   type t_adem_array   is array (integer range <>) of std_logic_vector( 31 downto 0);
   type t_ader_array   is array (integer range <>) of std_logic_vector( 31 downto 0);
   type t_amcap_array  is array (integer range <>) of std_logic_vector( 63 downto 0);
-  type t_xamcap_array is array (integer range <>) of std_logic_vector(255 downto 0);
   type t_dawpr_array  is array (integer range <>) of std_logic_vector(  7 downto 0);
 
   ------------------------------------------------------------------------------
@@ -138,35 +137,27 @@ package vme64x_pack is
       g_END_SN          : std_logic_vector(23 downto 0)   := x"000000";
       g_F0_ADEM         : std_logic_vector( 31 downto 0)  := x"ff000000";
       g_F0_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_0000bb00";
-      g_F0_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
       g_F0_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
       g_F1_ADEM         : std_logic_vector( 31 downto 0)  := x"fff80000";
       g_F1_AMCAP        : std_logic_vector( 63 downto 0)  := x"bb000000_00000000";
-      g_F1_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
       g_F1_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
       g_F2_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
       g_F2_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_F2_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
       g_F2_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
       g_F3_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
       g_F3_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_F3_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
       g_F3_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
       g_F4_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
       g_F4_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_F4_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
       g_F4_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
       g_F5_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
       g_F5_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_F5_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
       g_F5_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
       g_F6_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
       g_F6_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_F6_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
       g_F6_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
       g_F7_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
       g_F7_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_F7_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
       g_F7_DAWPR        : std_logic_vector(  7 downto 0)  := x"84"
     );
     port (
@@ -219,22 +210,6 @@ package vme64x_pack is
       user_cr_addr_o  : out std_logic_vector(18 downto 2);
       user_cr_data_i  : in  std_logic_vector( 7 downto 0) := (others => '0');
       function_o      : out std_logic_vector( 3 downto 0);
-      f0_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-      f1_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-      f2_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-      f3_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-      f4_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-      f5_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-      f6_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-      f7_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-      f0_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-      f1_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-      f2_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-      f3_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-      f4_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-      f5_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-      f6_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-      f7_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
       irq_ack_o       : out std_logic;
       irq_i           : in  std_logic
     );
@@ -280,11 +255,10 @@ package vme64x_pack is
       err_i           : in  std_logic;
       rty_i           : in  std_logic;
       stall_i         : in  std_logic;
-      addr_decoder_i  : in  std_logic_vector(63 downto 0);
-      addr_decoder_o  : out std_logic_vector(63 downto 0);
+      addr_decoder_i  : in  std_logic_vector(31 downto 0);
+      addr_decoder_o  : out std_logic_vector(31 downto 0);
       decode_o        : out std_logic;
       am_o            : out std_logic_vector( 5 downto 0);
-      xam_o           : out std_logic_vector( 7 downto 0);
       sel_i           : in  std_logic;
       cr_csr_addr_o   : out std_logic_vector(18 downto 2);
       cr_csr_data_i   : in  std_logic_vector( 7 downto 0);
@@ -299,19 +273,16 @@ package vme64x_pack is
   component VME_Funct_Match is
     generic (
       g_ADEM      : t_adem_array(0 to 7);
-      g_AMCAP     : t_amcap_array(0 to 7);
-      g_XAMCAP    : t_xamcap_array(0 to 7)
+      g_AMCAP     : t_amcap_array(0 to 7)
     );
     port (
       clk_i       : in  std_logic;
       rst_n_i     : in  std_logic;
-      addr_i      : in  std_logic_vector(63 downto 0);
-      addr_o      : out std_logic_vector(63 downto 0);
+      addr_i      : in  std_logic_vector(31 downto 0);
+      addr_o      : out std_logic_vector(31 downto 0);
       decode_i    : in  std_logic;
       am_i        : in  std_logic_vector( 5 downto 0);
-      xam_i       : in  std_logic_vector( 7 downto 0);
       ader_i      : in  t_ader_array(0 to 7);
-      dfs_adem_i  : in  t_adem_array(0 to 7);
       sel_o       : out std_logic;
       function_o  : out std_logic_vector( 2 downto 0)
     );
@@ -334,7 +305,6 @@ package vme64x_pack is
       g_END_SN          : std_logic_vector(23 downto 0);
       g_ADEM            : t_adem_array(0 to 7);
       g_AMCAP           : t_amcap_array(0 to 7);
-      g_XAMCAP          : t_xamcap_array(0 to 7);
       g_DAWPR           : t_dawpr_array(0 to 7)
     );
     port (
@@ -357,9 +327,7 @@ package vme64x_pack is
       user_csr_we_o       : out std_logic;
       user_cr_addr_o      : out std_logic_vector(18 downto 2);
       user_cr_data_i      : in  std_logic_vector( 7 downto 0);
-      ader_o              : out t_ader_array(0 to 7);
-      faf_ader_i          : in  t_ader_array(0 to 7);
-      dfs_adem_i          : in  t_adem_array(0 to 7)
+      ader_o              : out t_ader_array(0 to 7)
     );
   end component VME_CR_CSR_Space;
 
@@ -395,7 +363,7 @@ package vme64x_pack is
       BERRcondition_i : in  std_logic;
       sel_i           : in  std_logic_vector(7 downto 0);
       locDataInSwap_i : in  std_logic_vector(63 downto 0);
-      rel_locAddr_i   : in  std_logic_vector(63 downto 0);
+      rel_locAddr_i   : in  std_logic_vector(31 downto 0);
       RW_i            : in  std_logic;
       stall_i         : in  std_logic;
       rty_i           : in  std_logic;

@@ -114,8 +114,8 @@ entity VME_bus is
     stall_i         : in  std_logic;
 
     -- Function decoder
-    addr_decoder_i  : in  std_logic_vector(63 downto 0);
-    addr_decoder_o  : out std_logic_vector(63 downto 0);
+    addr_decoder_i  : in  std_logic_vector(31 downto 0);
+    addr_decoder_o  : out std_logic_vector(31 downto 0);
     decode_o        : out std_logic;
     am_o            : out std_logic_vector( 5 downto 0);
     xam_o           : out std_logic_vector( 7 downto 0);
@@ -144,14 +144,14 @@ architecture RTL of VME_bus is
   -- Local data & address
   signal s_locDataIn                : std_logic_vector(63 downto 0);
   signal s_locDataOut               : std_logic_vector(63 downto 0);          -- Local data
-  signal s_locAddr                  : std_logic_vector(63 downto 0);          -- Local address
+  signal s_locAddr                  : std_logic_vector(31 downto 0);          -- Local address
   signal s_DataShift                : std_logic;
   signal s_locDataOutSwap           : std_logic_vector(63 downto 0);
   signal s_locDataInSwap            : std_logic_vector(63 downto 0);
   signal s_locDataOutWb             : std_logic_vector(63 downto 0);
 
   -- VME latched signals
-  signal s_ADDRlatched              : std_logic_vector(63 downto 1);
+  signal s_ADDRlatched              : std_logic_vector(31 downto 1);
   signal s_LWORDlatched             : std_logic;
   signal s_DSlatched                : std_logic_vector(1 downto 0);
   signal s_AMlatched                : std_logic_vector(5 downto 0);
@@ -408,7 +408,7 @@ begin
               s_mainFSMstate <= REFORMAT_ADDRESS;
 
               -- Store ADDR, AM and LWORD
-              s_ADDRlatched <= VME_DATA_i & VME_ADDR_i;
+              s_ADDRlatched    <= VME_ADDR_i;
               s_LWORDlatched   <= VME_LWORD_n_i;
               s_AMlatched      <= VME_AM_i;
 
@@ -420,13 +420,11 @@ begin
             -- Reformat address according to the mode (A16, A24, A32 or A64)
             case s_addrWidth is
               when "00" =>
-                s_ADDRlatched (63 downto 16) <= (others => '0');  -- A16
+                s_ADDRlatched (31 downto 16) <= (others => '0');  -- A16
               when "01" =>
-                s_ADDRlatched (63 downto 24) <= (others => '0');  -- A24
-              when "10" =>
-                s_ADDRlatched (63 downto 32) <= (others => '0');  -- A32
-              when others =>
-                null; -- A64
+                s_ADDRlatched (31 downto 24) <= (others => '0');  -- A24
+              when others => -- A32
+                null;
             end case;
 
             s_mainFSMstate <= DECODE_ACCESS_0;
@@ -451,7 +449,7 @@ begin
               -- card_sel = '1' it means WB application addressed
               s_mainFSMstate <= WAIT_FOR_DS;
               -- Keep only the local part of the address
-              s_ADDRlatched <= addr_decoder_i (63 downto 1);
+              s_ADDRlatched <= addr_decoder_i (31 downto 1);
             else
               -- another board will answer; wait here the rising edge on
               -- VME_AS_i (done by top if).
