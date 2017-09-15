@@ -110,14 +110,8 @@ architecture Behavioral of VME_Wb_master is
   signal s_cyc          : std_logic;
   signal s_AckWithError : std_logic;
   signal s_wbData_i     : std_logic_vector(63 downto 0);
-  signal s_select       : std_logic_vector(8 downto 0);
-  signal s_DATi_sample  : std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
-
+  signal s_memAckWB_d1  : std_logic;
 begin
-
-  s_select <= cardSel_i & sel_i;
-
-  s_wbData_i <= std_logic_vector(resize(unsigned(s_DATi_sample),s_wbData_i'length));
 
   -- stb handler
   process (clk_i)
@@ -148,7 +142,7 @@ begin
   begin
     if rising_edge(clk_i) then
       RW_o        <= RW_i;
-      s_AckWithError <=(memReq_i and cardSel_i and BERRcondition_i);
+      s_AckWithError <= (memReq_i and cardSel_i and BERRcondition_i);
     end if;
   end process;
 
@@ -187,38 +181,38 @@ begin
       end if;
     end process;
 
-    process (s_select, s_wbData_i)
+    process (sel_i, s_wbData_i)
     begin
-      case s_select is
-        when "100000010" =>
+      case sel_i is
+        when "00000010" =>
             locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(15 downto 0)) srl 8,  locDataOut_o'length));
-        when "100000100" =>
+        when "00000100" =>
             locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(23 downto 0)) srl 16, locDataOut_o'length));
-        when "100001000" =>
+        when "00001000" =>
             locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(31 downto 0)) srl 24, locDataOut_o'length));
-        when "100010000" =>
+        when "00010000" =>
             locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(39 downto 0)) srl 32, locDataOut_o'length));
-        when "100100000" =>
+        when "00100000" =>
             locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(47 downto 0)) srl 40, locDataOut_o'length));
-        when "101000000" =>
+        when "01000000" =>
             locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(55 downto 0)) srl 48, locDataOut_o'length));
-        when "110000000" =>
+        when "10000000" =>
             locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(63 downto 0)) srl 56, locDataOut_o'length));
-        when "100001100" =>
+        when "00001100" =>
             locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(31 downto 0)) srl 16, locDataOut_o'length));
-        when "100110000" =>
+        when "00110000" =>
             locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(47 downto 0)) srl 32, locDataOut_o'length));
-        when "111000000" =>
+        when "11000000" =>
             locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(63 downto 0)) srl 48, locDataOut_o'length));
-        when "100000001" =>
+        when "00000001" =>
             locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(7  downto 0)),        locDataOut_o'length));
-        when "100000011" =>
+        when "00000011" =>
             locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(15 downto 0)),        locDataOut_o'length));
-        when "100001111" =>
+        when "00001111" =>
             locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(31 downto 0)),        locDataOut_o'length));
-        when "111110000" =>
+        when "11110000" =>
             locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(63 downto 0)) srl 32, locDataOut_o'length));
-        when "111111111" =>
+        when "11111111" =>
             locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(63 downto 0)),        locDataOut_o'length));
         when others =>
             locDataOut_o <= (others => '0');
@@ -236,89 +230,19 @@ begin
       end if;
     end process;
 
-    process (sel_i)
-    begin
-       if sel_i = "10000000" or sel_i = "01000000" or sel_i = "00100000" or
-          sel_i = "00010000" or sel_i = "11000000" or sel_i = "00110000" or
-          sel_i = "11110000"
-       then
-         s_shift_dx <= '1';
-       else
-         s_shift_dx <= '0';
-       end if;
-    end process;
-
     process (clk_i)
     begin
       if rising_edge(clk_i) then
-        case sel_i is
-          when "10000000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 24, g_WB_DATA_WIDTH));
-          when "01000000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 16, g_WB_DATA_WIDTH));
-          when "00100000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 8,  g_WB_DATA_WIDTH));
-          when "00010000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i),        g_WB_DATA_WIDTH));
-          when "00001000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 24, g_WB_DATA_WIDTH));
-          when "00000100" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 16, g_WB_DATA_WIDTH));
-          when "00000010" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 8,  g_WB_DATA_WIDTH));
-          when "00000001" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i),        g_WB_DATA_WIDTH));
-          when "11000000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 16, g_WB_DATA_WIDTH));
-          when "00110000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i),        g_WB_DATA_WIDTH));
-          when "00001100" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i) sll 16, g_WB_DATA_WIDTH));
-          when "00000011" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i),        g_WB_DATA_WIDTH));
-          when "11110000" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i),        g_WB_DATA_WIDTH));
-          when "00001111" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i),        g_WB_DATA_WIDTH));
-          when "11111111" => WBdata_o <= std_logic_vector(resize(unsigned(locDataInSwap_i),        g_WB_DATA_WIDTH));
-          when others => null;
-        end case;
-
-        if s_shift_dx = '1' then
-          WbSel_o <= sel_i(7 downto 4);
-        else
-          WbSel_o <= sel_i(3 downto 0);
-        end if;
+        WBdata_o <= locDataInSwap_i(31 downto 0);
+        WbSel_o <= sel_i(3 downto 0);
       end if;
     end process;
 
-    process (s_select, s_wbData_i)
-    begin
-      case s_select is
-        when "100000010" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(15 downto 0)) srl 8,  locDataOut_o'length));
-        when "100000100" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(23 downto 0)) srl 16, locDataOut_o'length));
-        when "100001000" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(31 downto 0)) srl 24, locDataOut_o'length));
-        when "100010000" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(7  downto 0)),        locDataOut_o'length));
-        when "100100000" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(15 downto 0)) srl 8,  locDataOut_o'length));
-        when "101000000" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(23 downto 0)) srl 16, locDataOut_o'length));
-        when "110000000" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(31 downto 0)) srl 24, locDataOut_o'length));
-        when "100001100" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(31 downto 0)) srl 16, locDataOut_o'length));
-        when "100110000" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(15 downto 0)),        locDataOut_o'length));
-        when "111000000" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(31 downto 0)) srl 16, locDataOut_o'length));
-        when "100000001" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(7  downto 0)),        locDataOut_o'length));
-        when "100000011" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(15 downto 0)),        locDataOut_o'length));
-        when "100001111" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(31 downto 0)),        locDataOut_o'length));
-        when "111110000" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(31 downto 0)),        locDataOut_o'length));
-        when others =>
-            locDataOut_o <= (others => '0');
-      end case;
-    end process;
+    locDataOut_o <= s_wbData_i;
   end generate gen32;
 
   err_o <= err_i;
   rty_o <= rty_i;
-
-  memAckWb_o <= memAckWB_i or s_AckWithError or rty_i;
 
   -- This process registers the WB data input; this is a warranty that this
   -- data will be stable during all the time the VME_bus component needs to
@@ -327,9 +251,12 @@ begin
   begin
     if rising_edge(clk_i) then
       if memAckWB_i = '1' then
-        s_DATi_sample <= wbData_i;
+        s_wbData_i <= (others => '0');
+        s_wbData_i(wbData_i'range) <= wbData_i;
       end if;
+      s_memAckWb_d1 <= memAckWB_i or s_AckWithError or rty_i;
     end if;
   end process;
 
+  memAckWb_o <= s_memAckWB_d1;
 end Behavioral;

@@ -64,42 +64,34 @@ entity xvme64x_core is
 
     g_F0_ADEM         : std_logic_vector( 31 downto 0)  := x"ff000000";
     g_F0_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_0000bb00";
-    g_F0_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
     g_F0_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     g_F1_ADEM         : std_logic_vector( 31 downto 0)  := x"fff80000";
     g_F1_AMCAP        : std_logic_vector( 63 downto 0)  := x"bb000000_00000000";
-    g_F1_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
     g_F1_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     g_F2_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
     g_F2_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_F2_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
     g_F2_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     g_F3_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
     g_F3_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_F3_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
     g_F3_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     g_F4_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
     g_F4_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_F4_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
     g_F4_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     g_F5_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
     g_F5_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_F5_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
     g_F5_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     g_F6_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
     g_F6_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_F6_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
     g_F6_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     g_F7_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
     g_F7_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_F7_XAMCAP       : std_logic_vector(255 downto 0)  := x"00000000_00000000_00000000_00000000_00000000_00000000_00000000_00000000";
     g_F7_DAWPR        : std_logic_vector(  7 downto 0)  := x"84"
   );
   port (
@@ -150,25 +142,7 @@ entity xvme64x_core is
     user_csr_we_o   : out std_logic;
 
     user_cr_addr_o  : out std_logic_vector(18 downto 2);
-    user_cr_data_i  : in  std_logic_vector( 7 downto 0) := (others => '0');
-
-    f0_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f1_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f2_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f3_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f4_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f5_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f6_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f7_faf_ader_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-
-    f0_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f1_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f2_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f3_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f4_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f5_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f6_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0');
-    f7_dfs_adem_i   : in  std_logic_vector(31 downto 0) := (others => '0')
+    user_cr_data_i  : in  std_logic_vector( 7 downto 0) := (others => '0')
   );
 
 end xvme64x_core;
@@ -201,35 +175,27 @@ begin  -- wrapper
       g_END_SN          => g_END_SN,
       g_F0_ADEM         => g_F0_ADEM,
       g_F0_AMCAP        => g_F0_AMCAP,
-      g_F0_XAMCAP       => g_F0_XAMCAP,
       g_F0_DAWPR        => g_F0_DAWPR,
       g_F1_ADEM         => g_F1_ADEM,
       g_F1_AMCAP        => g_F1_AMCAP,
-      g_F1_XAMCAP       => g_F1_XAMCAP,
       g_F1_DAWPR        => g_F1_DAWPR,
       g_F2_ADEM         => g_F2_ADEM,
       g_F2_AMCAP        => g_F2_AMCAP,
-      g_F2_XAMCAP       => g_F2_XAMCAP,
       g_F2_DAWPR        => g_F2_DAWPR,
       g_F3_ADEM         => g_F3_ADEM,
       g_F3_AMCAP        => g_F3_AMCAP,
-      g_F3_XAMCAP       => g_F3_XAMCAP,
       g_F3_DAWPR        => g_F3_DAWPR,
       g_F4_ADEM         => g_F4_ADEM,
       g_F4_AMCAP        => g_F4_AMCAP,
-      g_F4_XAMCAP       => g_F4_XAMCAP,
       g_F4_DAWPR        => g_F4_DAWPR,
       g_F5_ADEM         => g_F5_ADEM,
       g_F5_AMCAP        => g_F5_AMCAP,
-      g_F5_XAMCAP       => g_F5_XAMCAP,
       g_F5_DAWPR        => g_F5_DAWPR,
       g_F6_ADEM         => g_F6_ADEM,
       g_F6_AMCAP        => g_F6_AMCAP,
-      g_F6_XAMCAP       => g_F6_XAMCAP,
       g_F6_DAWPR        => g_F6_DAWPR,
       g_F7_ADEM         => g_F7_ADEM,
       g_F7_AMCAP        => g_F7_AMCAP,
-      g_F7_XAMCAP       => g_F7_XAMCAP,
       g_F7_DAWPR        => g_F7_DAWPR
     )
     port map (
@@ -288,25 +254,7 @@ begin  -- wrapper
       irq_i           => irq_i,
       irq_ack_o       => irq_ack_o,
       irq_vector_i    => irq_vector_i,
-      irq_level_i     => irq_level_i,
-
-      f0_faf_ader_i   => f0_faf_ader_i,
-      f1_faf_ader_i   => f1_faf_ader_i,
-      f2_faf_ader_i   => f2_faf_ader_i,
-      f3_faf_ader_i   => f3_faf_ader_i,
-      f4_faf_ader_i   => f4_faf_ader_i,
-      f5_faf_ader_i   => f5_faf_ader_i,
-      f6_faf_ader_i   => f6_faf_ader_i,
-      f7_faf_ader_i   => f7_faf_ader_i,
-
-      f0_dfs_adem_i   => f0_dfs_adem_i,
-      f1_dfs_adem_i   => f1_dfs_adem_i,
-      f2_dfs_adem_i   => f2_dfs_adem_i,
-      f3_dfs_adem_i   => f3_dfs_adem_i,
-      f4_dfs_adem_i   => f4_dfs_adem_i,
-      f5_dfs_adem_i   => f5_dfs_adem_i,
-      f6_dfs_adem_i   => f6_dfs_adem_i,
-      f7_dfs_adem_i   => f7_dfs_adem_i
+      irq_level_i     => irq_level_i
     );
 
   master_o.dat <= dat_out(31 downto 0);

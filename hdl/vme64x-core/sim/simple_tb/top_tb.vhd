@@ -1,5 +1,5 @@
 entity top_tb is
-  generic (scenario : natural range 0 to 3 := 3);
+  generic (scenario : natural range 0 to 3 := 1);
 end;
 
 library ieee;
@@ -948,6 +948,8 @@ begin
 
     case scenario is
       when 0 =>
+        --  Disp CR/CSR
+        
         --  Read CSR
         read8_conf (x"7_FFFF", d8);
         assert d8 = slave_ga & "000"
@@ -962,6 +964,8 @@ begin
         Dump_CR;
 
       when 1 =>
+        --  WB data access
+        
         --  Check ADER is 0
         read8_conf (x"7_ff63", d8);
         assert d8 = x"00" report "bad initial ADER0 value" severity error;
@@ -997,6 +1001,7 @@ begin
         read32 (x"56_00_00_14", c_AM_A32, d32);
         assert d32 = x"0000_0500" report "bad read at 014" severity error;
 
+        -- WB write
         write8 (x"56_00_00_14", c_AM_A32, x"1f");
         read32 (x"56_00_00_14", c_AM_A32, d32);
         assert d32 = x"1f00_0500" report "bad read at 014 (2)" severity error;
