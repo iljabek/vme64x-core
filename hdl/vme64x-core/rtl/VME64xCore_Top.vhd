@@ -143,8 +143,8 @@ entity VME64xCore_Top is
     g_BEG_USER_CR     : std_logic_vector(23 downto 0)   := x"000000";
     g_END_USER_CR     : std_logic_vector(23 downto 0)   := x"000000";
 
-    g_BEG_CRAM        : std_logic_vector(23 downto 0)   := x"001003";
-    g_END_CRAM        : std_logic_vector(23 downto 0)   := x"0013ff";
+    g_BEG_CRAM        : std_logic_vector(23 downto 0)   := x"000000"; -- 0x1003
+    g_END_CRAM        : std_logic_vector(23 downto 0)   := x"000000"; -- 0x13ff
 
     g_BEG_USER_CSR    : std_logic_vector(23 downto 0)   := x"07ff33";
     g_END_USER_CSR    : std_logic_vector(23 downto 0)   := x"07ff5f";
