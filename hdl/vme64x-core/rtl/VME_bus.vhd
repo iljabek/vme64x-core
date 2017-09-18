@@ -163,9 +163,6 @@ architecture RTL of VME_bus is
     A32,
     A32_BLT,
     A32_MBLT,
-    A64,
-    A64_BLT,
-    A64_MBLT,
     AM_Error
   );
 
@@ -221,7 +218,7 @@ architecture RTL of VME_bus is
   signal s_mainFSMstate             : t_mainFSMstates;
   signal s_mainDTACK                : std_logic;   -- DTACK driving
   signal s_memReq                   : std_logic;   -- Global memory request
-  signal s_dataPhase                : std_logic;   -- for A64 and MBLT
+  signal s_dataPhase                : std_logic;   -- for MBLT
   signal s_transferActive           : std_logic;   -- active VME transfer
   signal s_retry                    : std_logic;   -- RETRY signal
 
@@ -315,16 +312,13 @@ begin
     A32      when c_AM_A32 | c_AM_A32_SUP,
     A32_BLT  when c_AM_A32_BLT | c_AM_A32_BLT_SUP,
     A32_MBLT when c_AM_A32_MBLT | c_AM_A32_MBLT_SUP,
-    A64      when c_AM_A64,
-    A64_BLT  when c_AM_A64_BLT,
-    A64_MBLT when c_AM_A64_MBLT,
     AM_Error when others;
 
   -- Transfer type decoder
   with s_addressingType select s_transferType <=
-    SINGLE when A24 | CR_CSR | A16 | A32 | A64,
-    BLT    when A24_BLT | A32_BLT | A64_BLT,
-    MBLT   when A24_MBLT | A32_MBLT | A64_MBLT,
+    SINGLE when A24 | CR_CSR | A16 | A32,
+    BLT    when A24_BLT | A32_BLT,
+    MBLT   when A24_MBLT | A32_MBLT,
     error  when others;
 
   -- Used to drive the VME_ADDR_DIR_o
@@ -398,14 +392,14 @@ begin
             end if;
 
           when REFORMAT_ADDRESS =>
-            -- Reformat address according to the mode (A16, A24, A32 or A64)
+            -- Reformat address according to the mode (A16, A24, A32)
             case s_addressingType is
               when A16 =>
                 s_ADDRlatched (31 downto 16) <= (others => '0');  -- A16
               when A24 | A24_BLT | A24_MBLT | CR_CSR =>
                 s_ADDRlatched (31 downto 24) <= (others => '0');  -- A24
-              when others => -- A32
-                null;
+              when others =>
+                null;  -- A32
             end case;
 
             s_mainFSMstate <= DECODE_ACCESS_0;
