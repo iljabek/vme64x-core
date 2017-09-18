@@ -353,11 +353,22 @@ begin
 
             when c_BIT_CLR_REG =>
               s_reg_bit_reg <= s_reg_bit_reg and not data_i;
+              --  VITAL-1-1 Rule 10.27
+              --  4) Ownership shall be released by writing any value with
+              --     bit 2 set (eg 0x04) to the CSR Bit Clear Register
+              --     located at 0x7fff7. This clears the CRAM_OWNER
+              --     register and leaves it with a value of zero and also
+              --     clears the CRAM owned status.
               if data_i(c_CRAM_OWNER_BIT) = '1' then
                 s_reg_cram_owner <= x"00";
               end if;
 
             when c_CRAM_OWNER_REG =>
+              --  VITAL-1-1 Rule 10.27
+              --  2) Writing to CRAM_OWNER register when it contains a non-
+              --     zero value shall not change the value of the
+              --     CRAM_OWNER. That allows the first master that writes
+              --     a non-zero value to acquire ownership.
               if s_reg_cram_owner = x"00" then
                 s_reg_cram_owner <= data_i;
                 s_reg_bit_reg(c_CRAM_OWNER_BIT) <= '1';
