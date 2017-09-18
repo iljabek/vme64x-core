@@ -249,7 +249,7 @@ architecture rtl of VME_CR_CSR_Space is
 
   -- Function to encode the configuration ROM
   function f_cr_encode return t_cr_array is
-    variable cr  : t_cr_array(0 to 1023) := (others => x"00");
+    variable cr  : t_cr_array(0 to 511) := (others => x"00");
     variable crc : unsigned(7 downto 0)  := x"00";
   begin
     cr(16#001# to 16#003#)  := (x"00", x"03", x"ff");             -- Length of CR (excluding checksum)
@@ -280,14 +280,14 @@ architecture rtl of VME_CR_CSR_Space is
       cr(16#048#+i*8  to 16#04f#+i*8)  := f_cr_vec(g_AMCAP(i));   -- Function X AMCAP
       cr(16#188#+i*4  to 16#18b#+i*4)  := f_cr_vec(g_ADEM(i));    -- Function X ADEM
     end loop;
-    for i in 1 to cr'length-1 loop
+    for i in cr'range loop
       crc := crc + unsigned(cr(i));
     end loop;
     cr(16#000#)            := std_logic_vector(crc);              -- Checksum
     return cr;
   end;
 
-  signal s_cr_rom : t_cr_array(0 to 1023) := f_cr_encode;
+  constant s_cr_rom : t_cr_array(0 to 511) := f_cr_encode;
 
   ------------------------------------------------------------------------------
 
@@ -305,7 +305,11 @@ begin
   process (clk_i)
   begin
     if rising_edge(clk_i) then
-      s_cr_data <= s_cr_rom(to_integer(s_addr) mod 1024);
+      if s_addr(11) = '0' then
+        s_cr_data <= s_cr_rom(to_integer(s_addr(10 downto 2)));
+      else
+        s_cr_data <= x"00";
+      end if;
     end if;
   end process;
 
