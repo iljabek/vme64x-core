@@ -327,9 +327,19 @@ begin
 
   -- Write
   process (clk_i)
-    variable v_addr  : unsigned(18 downto 2);
-    variable v_index : integer;
-    variable v_byte  : integer;
+    -- Write to ADER bytes, if implemented. Take advantage of VITAL-1-1 Rule
+    -- 10.19
+    procedure set_ADER (Idx : natural range 0 to 7) is
+      variable v_byte  : integer;
+    begin
+      if g_ADEM (Idx) /= x"0000_0000" then
+        v_byte  := 3 - to_integer(s_addr(3 downto 2));
+        s_reg_ader(Idx)(8*v_byte+7 downto 8*v_byte) <= data_i;
+      end if;
+    end set_ADER;
+
+    variable csr_idx   : unsigned(7 downto 4);
+    variable csr_boff : unsigned(3 downto 2);
   begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
@@ -344,48 +354,66 @@ begin
         s_reg_ader        <= (others => x"00000000");
       else
         if we_i = '1' and s_csr_access = '1' then
-          case to_integer(s_addr) is
-            when c_BAR_REG =>
-              s_reg_bar <= data_i;
+          csr_idx := s_addr(7 downto 4);
+          csr_boff := s_addr(3 downto 2);
+          case csr_idx is
+            when x"f" =>
+              case csr_boff is
+                when "11" => -- BAR
+                  s_reg_bar <= data_i;
+                when "10" => -- Bit Set
+                  s_reg_bit_reg <= s_reg_bit_reg or data_i;
+                when "01" => -- Bit Clr
+                  s_reg_bit_reg <= s_reg_bit_reg and not data_i;
+                  --  VITAL-1-1 Rule 10.27
+                  --  4) Ownership shall be released by writing any value with
+                  --     bit 2 set (eg 0x04) to the CSR Bit Clear Register
+                  --     located at 0x7fff7. This clears the CRAM_OWNER
+                  --     register and leaves it with a value of zero and also
+                  --     clears the CRAM owned status.
+                  if data_i(c_CRAM_OWNER_BIT) = '1' then
+                    s_reg_cram_owner <= x"00";
+                  end if;
+                when "00" => -- CRAM_OWNER
+                  --  VITAL-1-1 Rule 10.27
+                  --  2) Writing to CRAM_OWNER register when it contains a non-
+                  --     zero value shall not change the value of the
+                  --     CRAM_OWNER. That allows the first master that writes
+                  --     a non-zero value to acquire ownership.
+                  if s_reg_cram_owner = x"00" then
+                    s_reg_cram_owner <= data_i;
+                    s_reg_bit_reg(c_CRAM_OWNER_BIT) <= '1';
+                  end if;
+                when others =>
+                  null;
+              end case;
+            when x"e" =>
+              case csr_boff is
+                when "11" => -- User Set
+                  s_reg_usr_bit_reg <= s_reg_usr_bit_reg or data_i;
+                when "10" => -- User Clr
+                  s_reg_usr_bit_reg <= s_reg_usr_bit_reg and not data_i;
+                when others =>
+                  null;
+              end case;
 
-            when c_BIT_SET_REG =>
-              s_reg_bit_reg <= s_reg_bit_reg or data_i;
-
-            when c_BIT_CLR_REG =>
-              s_reg_bit_reg <= s_reg_bit_reg and not data_i;
-              --  VITAL-1-1 Rule 10.27
-              --  4) Ownership shall be released by writing any value with
-              --     bit 2 set (eg 0x04) to the CSR Bit Clear Register
-              --     located at 0x7fff7. This clears the CRAM_OWNER
-              --     register and leaves it with a value of zero and also
-              --     clears the CRAM owned status.
-              if data_i(c_CRAM_OWNER_BIT) = '1' then
-                s_reg_cram_owner <= x"00";
-              end if;
-
-            when c_CRAM_OWNER_REG =>
-              --  VITAL-1-1 Rule 10.27
-              --  2) Writing to CRAM_OWNER register when it contains a non-
-              --     zero value shall not change the value of the
-              --     CRAM_OWNER. That allows the first master that writes
-              --     a non-zero value to acquire ownership.
-              if s_reg_cram_owner = x"00" then
-                s_reg_cram_owner <= data_i;
-                s_reg_bit_reg(c_CRAM_OWNER_BIT) <= '1';
-              end if;
-
-            when c_USR_SET_REG =>
-              s_reg_usr_bit_reg <= s_reg_usr_bit_reg or data_i;
-
-            when c_USR_CLR_REG =>
-              s_reg_usr_bit_reg <= s_reg_usr_bit_reg and not data_i;
-
-            when c_ADER_REG_BEG to c_ADER_REG_END =>
-              v_addr  := s_addr(18 downto 2) - to_unsigned(c_ADER_REG_BEG, 17);
-              v_index := to_integer(v_addr(6 downto 4));
-              v_byte  := 3-to_integer(v_addr(3 downto 2));
-              --  FIXME: force DFSR and XAM to 0 ?
-              s_reg_ader(v_index)(8*v_byte+7 downto 8*v_byte) <= data_i;
+            --  Decompose ADER so that unimplemented one can be removed.
+            when x"d" => -- ADER 7
+              Set_ADER(7);
+            when x"c" => -- ADER 6
+              Set_ADER(6);
+            when x"b" => -- ADER 5
+              Set_ADER(5);
+            when x"a" => -- ADER 4
+              Set_ADER(4);
+            when x"9" => -- ADER 3
+              Set_ADER(3);
+            when x"8" => -- ADER 2
+              Set_ADER(2);
+            when x"7" => -- ADER 1
+              Set_ADER(1);
+            when x"6" => -- ADER 0
+              Set_ADER(0);
 
             when others =>
               null;
@@ -411,41 +439,77 @@ begin
 
   -- Read
   process (clk_i)
+    procedure Get_ADER(Idx : natural range 0 to 7)
+    is
+      variable v_byte  : integer;
+    begin
+      if g_ADEM(Idx) /= x"0000_0000" then
+        v_byte  := 3 - to_integer(s_addr(3 downto 2));
+        s_csr_data <= s_reg_ader(Idx)(8*v_byte+7 downto 8*v_byte);
+      end if;
+    end Get_ADER;
+
+    variable csr_idx   : unsigned(7 downto 4);
+    variable csr_boff : unsigned(3 downto 2);
     variable v_addr  : unsigned(18 downto 2);
     variable v_index : integer;
     variable v_byte  : integer;
   begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
-        s_csr_data <= c_UNUSED;
+        s_csr_data <= x"00";
       else
-        case to_integer(s_addr) is
-          when c_BAR_REG =>
-            s_csr_data <= s_reg_bar;
+        -- VITAL-1-1 Rule 10.14
+        -- All unimplemented locations in the Defined CSR Area shall read as
+        -- 0x00
+        s_csr_data <= x"00";
 
-          when c_BIT_SET_REG =>
-            s_csr_data <= s_reg_bit_reg;
+        csr_idx := s_addr(7 downto 4);
+        csr_boff := s_addr(3 downto 2);
+        case csr_idx is
+          when x"f" =>
+            case csr_boff is
+              when "11" => -- BAR
+                s_csr_data <= s_reg_bar;
+              when "10" => -- Bit Set
+                s_csr_data <= s_reg_bit_reg;
+              when "01" => -- Bit Clr
+                s_csr_data <= s_reg_bit_reg;
+              when "00" => -- CRAM_OWNER
+                s_csr_data <= s_reg_cram_owner;
+              when others =>
+                null;
+            end case;
+          when x"e" =>
+            case csr_boff is
+              when "11" => -- User Set
+                s_csr_data <= s_reg_usr_bit_reg;
+              when "10" => -- User Clr
+                s_csr_data <= s_reg_usr_bit_reg;
+              when others =>
+                null;
+            end case;
 
-          when c_BIT_CLR_REG =>
-            s_csr_data <= s_reg_bit_reg;
-
-          when c_CRAM_OWNER_REG =>
-            s_csr_data <= s_reg_cram_owner;
-
-          when c_USR_SET_REG =>
-            s_csr_data <= s_reg_usr_bit_reg;
-
-          when c_USR_CLR_REG =>
-            s_csr_data <= s_reg_usr_bit_reg;
-
-          when c_ADER_REG_BEG to c_ADER_REG_END =>
-            v_addr  := s_addr(18 downto 2) - to_unsigned(c_ADER_REG_BEG, 17);
-            v_index := to_integer(v_addr(6 downto 4));
-            v_byte  := 3-to_integer(v_addr(3 downto 2));
-            s_csr_data <= s_reg_ader(v_index)(8*v_byte+7 downto 8*v_byte);
+          --  Unroll to disable unused ADER. Not the best readable style.
+          when x"d" =>
+            Get_ADER(7);
+          when x"c" =>
+            Get_ADER(6);
+          when x"b" =>
+            Get_ADER(5);
+          when x"a" =>
+            Get_ADER(4);
+          when x"9" =>
+            Get_ADER(3);
+          when x"8" =>
+            Get_ADER(2);
+          when x"7" =>
+            Get_ADER(1);
+          when x"6" =>
+            Get_ADER(0);
 
           when others =>
-            s_csr_data <= c_UNUSED;
+            null;
         end case;
       end if;
     end if;
