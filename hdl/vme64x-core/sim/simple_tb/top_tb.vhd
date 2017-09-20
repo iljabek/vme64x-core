@@ -1097,6 +1097,10 @@ begin
                                x"cc_dd_ee_ff",
                                x"87_65_43_21")
           report "incorrect BLT data 32 r/w" severity error;
+
+        --  TODO
+        --  A24 tests
+        --  A24 with weird MSBs in address
     end case;
 
     wait for 10 ns;
