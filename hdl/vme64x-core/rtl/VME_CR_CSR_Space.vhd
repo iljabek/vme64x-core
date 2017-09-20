@@ -354,6 +354,12 @@ begin
         s_reg_ader        <= (others => x"00000000");
       else
         if we_i = '1' and s_csr_access = '1' then
+          --  FIXME: the SVEC linux driver assume that this bit is just a
+          --  pulse, and doesn't clear it. Follow this legacy (and incorrect)
+          --  behaviour to be compatible with the driver.  The reset bit will
+          --  be cleared at the next CSR write access.
+          s_reg_bit_reg(c_RESET_BIT) <= '0';
+        
           csr_idx := s_addr(7 downto 4);
           csr_boff := s_addr(3 downto 2);
           case csr_idx is
