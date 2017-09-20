@@ -155,7 +155,7 @@ begin
       severity error;
     assert g_ADEM(i)(c_ADEM_EFM) = '0' report "EFM bit set in ADEM"
       severity error;
-    assert (g_AMCAP(i) and c_AMCAP_ALLOWED) /= (63 downto 0 => '0')
+    assert (g_AMCAP(i) and c_AMCAP_ALLOWED) = g_AMCAP(i)
       report "bit set in AMCAP for not supported AM"
       severity error;
   end generate;
