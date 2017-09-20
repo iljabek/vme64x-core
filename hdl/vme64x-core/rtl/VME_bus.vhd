@@ -116,9 +116,10 @@ entity VME_bus is
     -- Function decoder
     addr_decoder_i  : in  std_logic_vector(31 downto 0);
     addr_decoder_o  : out std_logic_vector(31 downto 0);
-    decode_o        : out std_logic;
+    decode_start_o  : out std_logic;
+    decode_done_i   : in std_logic;
     am_o            : out std_logic_vector( 5 downto 0);
-    sel_i           : in  std_logic;
+    decode_sel_i    : in  std_logic;
 
     --CR/CSR space signals:
     cr_csr_addr_o   : out std_logic_vector(18 downto 2);
@@ -185,9 +186,7 @@ architecture RTL of VME_bus is
     REFORMAT_ADDRESS,
 
     -- Decoding ADDR and AM (selecting card or conf).
-    DECODE_ACCESS_0,
-    DECODE_ACCESS_1,
-    DECODE_ACCESS_2,
+    DECODE_ACCESS,
 
     -- Wait until DS is asserted.
     WAIT_FOR_DS,
@@ -218,6 +217,7 @@ architecture RTL of VME_bus is
   signal s_mainFSMstate             : t_mainFSMstates;
   signal s_mainDTACK                : std_logic;   -- DTACK driving
   signal s_memReq                   : std_logic;   -- Global memory request
+  signal s_WBReq                    : std_logic;   -- WB memory request
   signal s_dataPhase                : std_logic;   -- for MBLT
   signal s_transferActive           : std_logic;   -- active VME transfer
   signal s_retry                    : std_logic;   -- RETRY signal
@@ -241,7 +241,6 @@ architecture RTL of VME_bus is
   signal s_sw_reset                 : std_logic;
 
   --  Set on the cycle to decode access (ADDR + AM)
-  signal s_decode                   : std_logic;
   signal s_AckWb                    : std_logic;
   signal s_err                      : std_logic;
   signal s_rty                      : std_logic;
@@ -340,7 +339,7 @@ begin
         -- software reset, manually reset,
         -- on rising edge of AS.
         s_memReq         <= '0';
-        s_decode         <= '0';
+        decode_start_o   <= '0';
         s_dtackOE        <= '0';
         s_mainDTACK      <= '1';
         s_dataDir        <= '0';
@@ -360,9 +359,11 @@ begin
         VME_LWORD_n_o <= '1';
         VME_DATA_o    <= (others => '0');
 
+        s_card_sel <= '0';
+        s_conf_sel <= '0';
       else
         s_memReq         <= '0';
-        s_decode         <= '0';
+        decode_start_o   <= '0';
         s_dtackOE        <= '0';
         s_mainDTACK      <= '1';
         s_dataDir        <= '0';
@@ -401,39 +402,42 @@ begin
             case s_addressingType is
               when A16 =>
                 s_ADDRlatched (31 downto 16) <= (others => '0');  -- A16
-              when A24 | A24_BLT | A24_MBLT | CR_CSR =>
+              when A24 | A24_BLT | A24_MBLT =>
                 s_ADDRlatched (31 downto 24) <= (others => '0');  -- A24
               when others =>
                 null;  -- A32
             end case;
 
-            s_mainFSMstate <= DECODE_ACCESS_0;
-            s_decode  <= '1';
+            if s_ADDRlatched(23 downto 19) = bar_i
+              and s_AMlatched = c_AM_CR_CSR
+            then
+              -- conf_sel = '1' it means CR/CSR space addressed
+              s_conf_sel <= '1';
+              s_mainFSMstate <= WAIT_FOR_DS;
+            else
+              s_mainFSMstate <= DECODE_ACCESS;
+              decode_start_o  <= '1';
+            end if;
 
-          when DECODE_ACCESS_0 =>
-            s_mainFSMstate <= DECODE_ACCESS_1;
-            s_decode  <= '1';
-
-          when DECODE_ACCESS_1 =>
-            s_mainFSMstate <= DECODE_ACCESS_2;
-            s_decode  <= '0';
-
-          when DECODE_ACCESS_2 =>
+          when DECODE_ACCESS =>
             -- check if this slave board is addressed and if it is, check
             -- the access mode
 
-            if s_conf_sel = '1' then
-              -- conf_sel = '1' it means CR/CSR space addressed
-              s_mainFSMstate <= WAIT_FOR_DS;
-            elsif s_card_sel = '1' then
-              -- card_sel = '1' it means WB application addressed
-              s_mainFSMstate <= WAIT_FOR_DS;
-              -- Keep only the local part of the address
-              s_ADDRlatched <= addr_decoder_i (31 downto 1);
+            if decode_done_i = '1' then
+              if decode_sel_i = '1' and module_enable_i = '1' then
+                -- card_sel = '1' it means WB application addressed
+                s_card_sel <= '1';
+                s_mainFSMstate <= WAIT_FOR_DS;
+                -- Keep only the local part of the address
+                s_ADDRlatched <= addr_decoder_i (31 downto 1);
+              else
+                -- another board will answer; wait here the rising edge on
+                -- VME_AS_i (done by top if).
+                s_mainFSMstate <= WAIT_END;
+              end if;
             else
-              -- another board will answer; wait here the rising edge on
-              -- VME_AS_i (done by top if).
-              s_mainFSMstate <= WAIT_END;
+              -- Not yet decoded.
+              s_mainFSMstate <= DECODE_ACCESS;
             end if;
 
           when WAIT_FOR_DS =>
@@ -538,10 +542,7 @@ begin
                     s_locDataOut <= s_locDataOutWb;
                   end if;
                 elsif s_conf_sel = '1' then
-                  s_locDataOut <= (others => '0');
                   s_locDataOut(7 downto 0) <= cr_csr_data_i;
-                else
-                  s_locDataOut <= (others => '0');
                 end if;
 
                 s_mainFSMstate <= DATA_TO_BUS;
@@ -637,11 +638,8 @@ begin
             s_mainFSMstate   <= WAIT_FOR_DS;
 
           when WAIT_END =>
-            if VME_AS_n_i = '1' then
-              s_mainFSMstate <= IDLE;
-            else
-              s_mainFSMstate <= WAIT_END;
-            end if;
+            -- Will stay here until AS is released.
+            s_mainFSMstate <= WAIT_END;
 
           when others =>
             s_mainFSMstate <= IDLE;
@@ -800,9 +798,8 @@ begin
       g_WB_ADDR_WIDTH => g_WB_ADDR_WIDTH
     )
     port map (
-      memReq_i        => s_memReq,
+      memReq_i        => s_WBReq,
       clk_i           => clk_i,
-      cardSel_i       => s_card_sel,
       reset_i         => s_wbMaster_rst,
       BERRcondition_i => s_BERRcondition,
       sel_i           => s_sel,
@@ -828,18 +825,13 @@ begin
 
   we_o <= not s_rw;
 
+  s_WBReq <= s_card_sel and s_memReq;
+  
   ------------------------------------------------------------------------------
   -- Function Decoder
   ------------------------------------------------------------------------------
   addr_decoder_o <= s_ADDRlatched & '0';
-  decode_o       <= s_decode;
   am_o           <= s_AMlatched;
-  s_card_sel     <= sel_i and module_enable_i;
-
-  -- Decode accesses to CR/CSR
-  s_conf_sel <= '1' when s_ADDRlatched(23 downto 19) = bar_i
-                          and s_AMlatched = c_AM_CR_CSR
-                    else '0';
 
   ------------------------------------------------------------------------------
   -- CR/CSR In/Out

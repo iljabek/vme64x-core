@@ -42,87 +42,46 @@ entity VME_Funct_Match is
     g_AMCAP     : t_amcap_array(0 to 7)
   );
   port (
-    clk_i       : in  std_logic;
-    rst_n_i     : in  std_logic;
+    clk_i          : in  std_logic;
+    rst_n_i        : in  std_logic;
 
-    addr_i      : in  std_logic_vector(31 downto 0);
+    -- Input address (to be decoded).
+    addr_i         : in  std_logic_vector(31 downto 0);
     -- Sub-address of the function (the part not masked by adem).
-    addr_o      : out std_logic_vector(31 downto 0);
-    decode_i    : in  std_logic;
-    am_i        : in  std_logic_vector( 5 downto 0);
+    addr_o         : out std_logic_vector(31 downto 0);
+    decode_start_i : in  std_logic;
+    am_i           : in  std_logic_vector( 5 downto 0);
 
-    ader_i      : in  t_ader_array(0 to 7);
+    ader_i         : in  t_ader_array(0 to 7);
 
     -- Set when a function is selected (ie function_o is valid).
-    sel_o       : out std_logic;
+    decode_sel_o   : out std_logic;
+    -- Set when sel_o is valid (decoding is done).
+    decode_done_o  : out std_logic;
     -- Selected function.
-    function_o  : out std_logic_vector( 2 downto 0)
+    function_o     : out std_logic_vector( 2 downto 0)
   );
 end VME_Funct_Match;
 
 architecture rtl of VME_Funct_Match is
-
-  -- AM matches ADER AM bits for each function
-  signal s_am_match     : std_logic_vector( 7 downto 0);
-
-  -- AM in AMCAP for each function
-  signal s_am_valid     : std_logic_vector( 7 downto 0);
-
   -- Function index and ADEM from priority encoder
-  signal s_function_sel : std_logic_vector( 7 downto 0);
-  signal s_adem_sel     : std_logic_vector(31 downto 0);
-
+  signal s_function_sel : natural range 0 to 7;
+  signal s_function_sel_valid : std_logic;
+  signal s_decode_start_1 : std_logic;
+  
   -- Selected function
-  signal s_function     : std_logic_vector( 7 downto 0);
-  signal s_function_ena : std_logic_vector( 7 downto 0);
+  signal s_function      : std_logic_vector( 7 downto 0);
+  signal s_ader_am_valid : std_logic_vector( 7 downto 0);
 
+  -- List of supported AM.
   constant c_AMCAP_ALLOWED : std_logic_vector(63 downto 0) :=
-    (16#38# to 16#3f# => '1', --  A24
-     16#2f# => '1',           --  CR/CSR
-     16#2d# | 16#29# => '1',  --  A16
-     16#08# to 16#0f# => '1', --  A32
+    (16#3d# to 16#3f# => '1', --  A24
+     16#39# to 16#3b# => '1',
+     16#2d# | 16#29#  => '1', --  A16
+     16#0d# to 16#0f# => '1', --  A32
+     16#09# to 16#0b# => '1',
      others => '0');
   
-  ------------------------------------------------------------------------------
-  -- Generate AM lookup table
-  ------------------------------------------------------------------------------
-  -- There are 64 positions in the LUT corresponding to each AM. Each position
-  -- is a vector whose bit N indicate whether function N accepts this AM.
-  -- For example if s_am_lut(9) = "00001010", this means that functions 1 & 3
-  -- accept AM=9.
-  type t_am_lut is array (0 to 63) of std_logic_vector(7 downto 0);
-
-  function f_gen_am_lut return t_am_lut is
-    variable lut : t_am_lut := (others => "00000000");
-  begin
-    for i in 0 to 63 loop
-      for j in 0 to 7 loop
-        lut(i)(j) := g_AMCAP(j)(i);
-      end loop;
-    end loop;
-    return lut;
-  end function;
-
-  constant c_am_lut : t_am_lut := f_gen_am_lut;
-
-  ------------------------------------------------------------------------------
-  -- Generate function enabled vector
-  ------------------------------------------------------------------------------
-  function f_function_ena return std_logic_vector is
-    variable ena : std_logic_vector(7 downto 0) := (others => '0');
-  begin
-    for i in 0 to 7 loop
-      if g_AMCAP(i) /= (63 downto 0 => '0') then
-        ena(i) := '1';
-      end if;
-    end loop;
-    return ena;
-  end function;
-
-  -- c_ENABLED is true when a function's AMCAP /= 0 and the previous
-  -- function does not have the EFM bit set.
-  constant c_ENABLED : std_logic_vector(7 downto 0) := f_function_ena;
-
   ------------------------------------------------------------------------------
   -- Generate EFD lookup table
   ------------------------------------------------------------------------------
@@ -161,14 +120,18 @@ begin
   end generate;
   
   ------------------------------------------------------------------------------
-  -- Function match
+  -- Address and AM comparators
   ------------------------------------------------------------------------------
   gen_match_loop : for i in 0 to 7 generate
+    -- True in case of match
     s_function(i) <=
       '1' when (((addr_i(c_ADEM_M) and g_ADEM(i)(c_ADEM_M))
                  = ader_i(i)(c_ADEM_M))
                 and (am_i = ader_i(i)(c_ADER_AM)))
       else '0';
+    -- True if the AM part of ADER is enabled by AMCAP
+    s_ader_am_valid(i) <=
+      g_AMCAP(i)(to_integer(unsigned(ader_i(i)(c_ADER_AM))));
   end generate;
 
   ------------------------------------------------------------------------------
@@ -176,17 +139,18 @@ begin
   ------------------------------------------------------------------------------
   process (clk_i) begin
     if rising_edge(clk_i) then
+      s_function_sel <= 0;
+      s_function_sel_valid <= '0';
+      s_decode_start_1 <= '0';
+      
       if rst_n_i = '0' then
-        s_function_sel <= (others => '0');
-        s_adem_sel     <= (others => '0');
-      else
-        s_function_sel <= (others => '0');
-        s_adem_sel     <= (others => '0');
-        
+        null;
+      elsif decode_start_i = '1' then
+        s_decode_start_1 <= '1';
         for i in 0 to 7 loop
           if s_function(i) = '1' then
-            s_function_sel(i) <= '1';
-            s_adem_sel (c_ADEM_M) <= g_adem(i)(c_ADEM_M);
+            s_function_sel <= i;
+            s_function_sel_valid <= s_ader_am_valid(i);
             exit;
           end if;
         end loop;
@@ -194,55 +158,30 @@ begin
     end if;
   end process;
 
-  -----------------------------------------------------------------------------
-  -- AM lookup table
-  -----------------------------------------------------------------------------
-  process (clk_i) begin
-    if rising_edge(clk_i) then
-      s_am_valid <= c_am_lut(to_integer(unsigned(am_i)));
-    end if;
-  end process;
-
-  -- Check of AM against AMCAP
-  s_function_ena <= s_function_sel and s_am_valid;
-
   ------------------------------------------------------------------------------
   -- Address output latch
   ------------------------------------------------------------------------------
-  process (clk_i) begin
+  process (clk_i) is
+    variable mask : std_logic_vector(31 downto 0);
+  begin
     if rising_edge(clk_i) then
-      if rst_n_i = '0' then
+      if rst_n_i = '0' or s_decode_start_1 = '0' then
         addr_o <= (others => '0');
-      else
-        if decode_i = '1' then
-          addr_o <= addr_i and not s_adem_sel;
-        end if;
-      end if;
-    end if;
-  end process;
-
-  ------------------------------------------------------------------------------
-  -- EFD decoder and output latch
-  ------------------------------------------------------------------------------
-  process (clk_i) begin
-    if rising_edge(clk_i) then
-      if rst_n_i = '0' then
         function_o <= (others => '0');
+        decode_done_o <= '0';
+        decode_sel_o <= '0';
       else
-        if decode_i = '1' then
-          sel_o <= '1';
-          case s_function_ena is
-            when "00000001" => function_o <= c_EFD_LUT(0);
-            when "00000010" => function_o <= c_EFD_LUT(1);
-            when "00000100" => function_o <= c_EFD_LUT(2);
-            when "00001000" => function_o <= c_EFD_LUT(3);
-            when "00010000" => function_o <= c_EFD_LUT(4);
-            when "00100000" => function_o <= c_EFD_LUT(5);
-            when "01000000" => function_o <= c_EFD_LUT(6);
-            when "10000000" => function_o <= c_EFD_LUT(7);
-            when others     => function_o <= (others => '0');
-                               sel_o <= '0';
-          end case;
+        -- s_decode_start_1 is set.
+        decode_done_o <= '1';
+        
+        if s_function_sel_valid = '1' then
+          function_o <= c_EFD_LUT(s_function_sel);
+          mask := (others => '0');
+          mask(c_ADEM_M) := g_adem(s_function_sel)(c_ADEM_M);
+          addr_o <= addr_i and not mask;
+          decode_sel_o <= '1';
+        else
+          decode_sel_o <= '0';
         end if;
       end if;
     end if;

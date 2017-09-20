@@ -79,7 +79,6 @@ entity VME_Wb_master is
   port (
     memReq_i        : in  std_logic;
     clk_i           : in  std_logic;
-    cardSel_i       : in  std_logic;
     reset_i         : in  std_logic;
     BERRcondition_i : in  std_logic;
     sel_i           : in  std_logic_vector(3 downto 0);
@@ -114,7 +113,7 @@ begin
     if rising_edge(clk_i) then
       if reset_i = '1' or (stall_i = '0' and s_cyc = '1') then
         memReq_o <= '0';
-      elsif memReq_i = '1' and cardSel_i = '1' and BERRcondition_i = '0' then
+      elsif memReq_i = '1' and BERRcondition_i = '0' then
         memReq_o <= '1';
       end if;
     end if;
@@ -126,7 +125,7 @@ begin
     if rising_edge(clk_i) then
       if reset_i = '1' or memAckWB_i = '1' then
         s_cyc <= '0';
-      elsif memReq_i = '1' and cardSel_i = '1' and BERRcondition_i = '0' then
+      elsif memReq_i = '1' and BERRcondition_i = '0' then
         s_cyc <= '1';
       end if;
     end if;
@@ -137,7 +136,7 @@ begin
   begin
     if rising_edge(clk_i) then
       RW_o        <= RW_i;
-      s_AckWithError <= (memReq_i and cardSel_i and BERRcondition_i);
+      s_AckWithError <= (memReq_i and BERRcondition_i);
     end if;
   end process;
 

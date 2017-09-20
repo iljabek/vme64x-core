@@ -311,8 +311,9 @@ architecture RTL of VME64xCore_Top is
   -- Function decoders
   signal s_addr_decoder_i       : std_logic_vector(31 downto 0);
   signal s_addr_decoder_o       : std_logic_vector(31 downto 0);
-  signal s_decode               : std_logic;
-  signal s_sel                  : std_logic;
+  signal s_decode_start         : std_logic;
+  signal s_decode_done          : std_logic;
+  signal s_decode_sel           : std_logic;
   signal s_function             : std_logic_vector( 2 downto 0);
   signal s_am                   : std_logic_vector( 5 downto 0);
 
@@ -410,9 +411,10 @@ begin
       -- Function decoder
       addr_decoder_i  => s_addr_decoder_o,
       addr_decoder_o  => s_addr_decoder_i,
-      decode_o        => s_decode,
+      decode_start_o  => s_decode_start,
+      decode_done_i   => s_decode_done,
       am_o            => s_am,
-      sel_i           => s_sel,
+      decode_sel_i    => s_decode_sel,
 
       -- CR/CSR signals
       cr_csr_addr_o   => s_cr_csr_addr,
@@ -437,16 +439,17 @@ begin
       g_AMCAP     => c_AMCAP
     )
     port map (
-      clk_i       => clk_i,
-      rst_n_i     => s_reset_n,
+      clk_i          => clk_i,
+      rst_n_i        => s_reset_n,
 
-      addr_i      => s_addr_decoder_i,
-      addr_o      => s_addr_decoder_o,
-      decode_i    => s_decode,
-      am_i        => s_am,
-      ader_i      => s_ader,
-      sel_o       => s_sel,
-      function_o  => s_function
+      addr_i         => s_addr_decoder_i,
+      addr_o         => s_addr_decoder_o,
+      decode_start_i => s_decode_start,
+      am_i           => s_am,
+      ader_i         => s_ader,
+      decode_sel_o   => s_decode_sel,
+      decode_done_o  => s_decode_done,
+      function_o     => s_function
     );
 
   function_o (2 downto 0) <= s_function;

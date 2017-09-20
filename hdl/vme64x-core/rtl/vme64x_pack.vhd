@@ -257,9 +257,10 @@ package vme64x_pack is
       stall_i         : in  std_logic;
       addr_decoder_i  : in  std_logic_vector(31 downto 0);
       addr_decoder_o  : out std_logic_vector(31 downto 0);
-      decode_o        : out std_logic;
+      decode_start_o  : out std_logic;
+      decode_done_i   : in std_logic;
       am_o            : out std_logic_vector( 5 downto 0);
-      sel_i           : in  std_logic;
+      decode_sel_i    : in  std_logic;
       cr_csr_addr_o   : out std_logic_vector(18 downto 2);
       cr_csr_data_i   : in  std_logic_vector( 7 downto 0);
       cr_csr_data_o   : out std_logic_vector( 7 downto 0);
@@ -276,15 +277,16 @@ package vme64x_pack is
       g_AMCAP     : t_amcap_array(0 to 7)
     );
     port (
-      clk_i       : in  std_logic;
-      rst_n_i     : in  std_logic;
-      addr_i      : in  std_logic_vector(31 downto 0);
-      addr_o      : out std_logic_vector(31 downto 0);
-      decode_i    : in  std_logic;
-      am_i        : in  std_logic_vector( 5 downto 0);
-      ader_i      : in  t_ader_array(0 to 7);
-      sel_o       : out std_logic;
-      function_o  : out std_logic_vector( 2 downto 0)
+      clk_i          : in  std_logic;
+      rst_n_i        : in  std_logic;
+      addr_i         : in  std_logic_vector(31 downto 0);
+      addr_o         : out std_logic_vector(31 downto 0);
+      decode_start_i : in  std_logic;
+      am_i           : in  std_logic_vector( 5 downto 0);
+      ader_i         : in  t_ader_array(0 to 7);
+      decode_sel_o   : out std_logic;
+      decode_done_o  : out std_logic;
+      function_o     : out std_logic_vector( 2 downto 0)
     );
   end component VME_Funct_Match;
 
@@ -358,7 +360,6 @@ package vme64x_pack is
     port (
       memReq_i        : in  std_logic;
       clk_i           : in  std_logic;
-      cardSel_i       : in  std_logic;
       reset_i         : in  std_logic;
       BERRcondition_i : in  std_logic;
       sel_i           : in  std_logic_vector(3 downto 0);
