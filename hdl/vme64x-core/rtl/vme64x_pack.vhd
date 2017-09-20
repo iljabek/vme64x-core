@@ -42,8 +42,8 @@ package vme64x_pack is
   ------------------------------------------------------------------------------
 
   constant c_CLOCK_PERIOD     : integer := 10;  -- Clock period (ns)
-  constant c_DATA_WIDTH       : integer := 64;  -- WB data width: must be 32 or 64
-  constant c_ADDR_WIDTH       : integer := 9;   -- WB addr width: 64 or less
+  constant c_DATA_WIDTH       : integer := 32;  -- WB data width: must be 32
+  constant c_ADDR_WIDTH       : integer := 32;  -- WB addr width: 32.
 
   -- Default boards IDs
   constant c_SVEC_ID          : std_logic_vector(31 downto 0) := x"00000198";
