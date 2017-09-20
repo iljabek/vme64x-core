@@ -227,7 +227,7 @@ architecture RTL of VME_bus is
   signal s_card_sel                 : std_logic;   -- WB memory is addressed
 
   -- WishBone signals
-  signal s_sel                      : std_logic_vector(7 downto 0);  -- SEL WB
+  signal s_sel                      : std_logic_vector(3 downto 0);  -- SEL WB
 
   -- Error signals
   signal s_BERRcondition            : std_logic;   -- Condition to set BERR
@@ -259,7 +259,10 @@ architecture RTL of VME_bus is
   --  True if endianness converters are supported.
   constant c_SWAPPER_EN : boolean := False;
 begin
-
+  --  Consistency check.
+  assert g_WB_DATA_WIDTH = 32 report "g_WB_DATA_WIDTH must be set to 32"
+    severity failure;
+  
   -- These output signals are connected to the buffers on the board
   -- SN74VMEH22501A Function table:  (A is fpga, B is VME connector)
   --   OEn | DIR | OUTPUT                 OEAB   |   OEBYn   |   OUTPUT
@@ -347,7 +350,7 @@ begin
         s_retry          <= '0';
         s_BERR_out       <= '0';
         s_mainFSMstate <= IDLE;
-        s_sel <= "00000000";
+        s_sel <= "0000";
 
         s_ADDRlatched    <= (others => '0');
         s_LWORDlatched_n <= '0';
@@ -393,6 +396,8 @@ begin
 
           when REFORMAT_ADDRESS =>
             -- Reformat address according to the mode (A16, A24, A32)
+            -- FIXME: not needed if ADEM are correctly reduced to not compare
+            -- MSBs of A16 or A24 addresses.
             case s_addressingType is
               when A16 =>
                 s_ADDRlatched (31 downto 16) <= (others => '0');  -- A16
@@ -455,7 +460,20 @@ begin
             s_transferActive <= '1';
             if s_DS_latch_count = 0 then
               s_mainFSMstate <= CHECK_TRANSFER_TYPE;
+
+              -- Read DS (which is delayed to avoid metastability).
               s_DSlatched    <= VME_DS_n_i;
+
+              -- Read DATA (which are stable)
+              s_locDataIn(63 downto 33) <= VME_ADDR_i;
+              s_locDataIn(32)           <= VME_LWORD_n_i;
+              if s_LWORDlatched_n = '1' and s_ADDRlatched(1) = '0' then
+                -- Word/byte access with A1=0
+                s_locDataIn(31 downto 16)  <= VME_DATA_i(15 downto 0);
+                s_locDataIn(15 downto 0) <= VME_DATA_i(15 downto 0);
+              else
+                s_locDataIn(31 downto 0)  <= VME_DATA_i;
+              end if;
             else
               s_mainFSMstate   <= LATCH_DS;
               s_DS_latch_count <= s_DS_latch_count - 1;
@@ -468,15 +486,11 @@ begin
             s_dataPhase      <= s_dataPhase;
             s_transferActive <= '1';
 
-            --  Translate DS+LWORD+MBLT+AS to WB byte selects
+            --  Translate DS+LWORD+ADDR to WB byte selects
             if s_LWORDlatched_n = '0' then
-              if s_transferType = MBLT then
-                s_sel <= "11111111";
-              else
-                s_sel <= "00001111";
-              end if;
+              s_sel <= "1111";
             else
-              s_sel <= "00000000";
+              s_sel <= "0000";
               case s_ADDRlatched(1) is
                 when '0' =>
                   s_sel (3 downto 2) <= not s_DSlatched;
@@ -745,22 +759,6 @@ begin
   -- Data Handler Process
   ------------------------------------------------------------------------------
 
-  -- This process aligns the VME data input in the lsb
-  process (clk_i)
-  begin
-    if rising_edge(clk_i) then
-      s_locDataIn(63 downto 33) <= VME_ADDR_i;
-      s_locDataIn(32)           <= VME_LWORD_n_i;
-      if s_LWORDlatched_n = '1' and s_ADDRlatched(1) = '0' then
-        -- Word/byte access with A1=0
-        s_locDataIn(31 downto 16)  <= VME_DATA_i(15 downto 0);
-        s_locDataIn(15 downto 0) <= VME_DATA_i(15 downto 0);
-      else
-        s_locDataIn(31 downto 0)  <= VME_DATA_i;
-      end if;
-    end if;
-  end process;
-
   gen_swapper_ena: if c_SWAPPER_EN generate
     -- Swap the data during read or write operation
     -- sel= 000 --> No swap
@@ -808,8 +806,8 @@ begin
       reset_i         => s_wbMaster_rst,
       BERRcondition_i => s_BERRcondition,
       sel_i           => s_sel,
-      locDataInSwap_i => s_locDataInSwap,
-      locDataOut_o    => s_locDataOutWb,
+      locDataInSwap_i => s_locDataInSwap (31 downto 0),
+      locDataOut_o    => s_locDataOutWb (31 downto 0),
       rel_locAddr_i   => s_locAddr,
       memAckWb_o      => s_AckWb,
       err_o           => s_err,

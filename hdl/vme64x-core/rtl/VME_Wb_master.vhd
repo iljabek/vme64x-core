@@ -82,9 +82,9 @@ entity VME_Wb_master is
     cardSel_i       : in  std_logic;
     reset_i         : in  std_logic;
     BERRcondition_i : in  std_logic;
-    sel_i           : in  std_logic_vector(7 downto 0);
-    locDataInSwap_i : in  std_logic_vector(63 downto 0);
-    locDataOut_o    : out std_logic_vector(63 downto 0);
+    sel_i           : in  std_logic_vector(3 downto 0);
+    locDataInSwap_i : in  std_logic_vector(31 downto 0);
+    locDataOut_o    : out std_logic_vector(31 downto 0);
     rel_locAddr_i   : in  std_logic_vector(31 downto 0);
     memAckWb_o      : out std_logic;
     err_o           : out std_logic;
@@ -105,14 +105,9 @@ entity VME_Wb_master is
 end VME_Wb_master;
 
 architecture Behavioral of VME_Wb_master is
-
-  signal s_shift_dx     : std_logic;
-  signal s_cyc          : std_logic;
   signal s_AckWithError : std_logic;
-  signal s_wbData_i     : std_logic_vector(63 downto 0);
-  signal s_memAckWB_d1  : std_logic;
+  signal s_cyc : std_logic;
 begin
-
   -- stb handler
   process (clk_i)
   begin
@@ -136,7 +131,7 @@ begin
       end if;
     end if;
   end process;
-  cyc_o  <= s_cyc;
+  cyc_o <= s_cyc;
 
   process (clk_i)
   begin
@@ -146,100 +141,24 @@ begin
     end if;
   end process;
 
-  -- shift data and address for WB data bus 64 bits
-  gen64: if (g_WB_DATA_WIDTH = 64) generate
-    process (clk_i)
-    begin
-      if rising_edge(clk_i) then
-        locAddr_o (63 downto 29) <= (others => '0');
-        locAddr_o (28 downto 0) <= rel_locAddr_i (31 downto 3);
-      end if;
-    end process;
-
-    process (clk_i)
-    begin
-      if rising_edge(clk_i) then
-        case sel_i is
-          when "10000000" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap_i) sll 56);
-          when "01000000" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap_i) sll 48);
-          when "00100000" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap_i) sll 40);
-          when "00010000" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap_i) sll 32);
-          when "00001000" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap_i) sll 24);
-          when "00000100" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap_i) sll 16);
-          when "00000010" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap_i) sll 8);
-          when "00000001" => WBdata_o <= locDataInSwap_i;
-          when "11000000" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap_i) sll 48);
-          when "00110000" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap_i) sll 32);
-          when "00001100" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap_i) sll 16);
-          when "00000011" => WBdata_o <= locDataInSwap_i;
-          when "11110000" => WBdata_o <= std_logic_vector(unsigned(locDataInSwap_i) sll 32);
-          when "00001111" => WBdata_o <= locDataInSwap_i;
-          when "11111111" => WBdata_o <= locDataInSwap_i;
-          when others     => null;
-        end case;
-        WbSel_o <= std_logic_vector(sel_i);
-      end if;
-    end process;
-
-    process (sel_i, s_wbData_i)
-    begin
-      case sel_i is
-        when "00000010" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(15 downto 0)) srl 8,  locDataOut_o'length));
-        when "00000100" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(23 downto 0)) srl 16, locDataOut_o'length));
-        when "00001000" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(31 downto 0)) srl 24, locDataOut_o'length));
-        when "00010000" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(39 downto 0)) srl 32, locDataOut_o'length));
-        when "00100000" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(47 downto 0)) srl 40, locDataOut_o'length));
-        when "01000000" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(55 downto 0)) srl 48, locDataOut_o'length));
-        when "10000000" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(63 downto 0)) srl 56, locDataOut_o'length));
-        when "00001100" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(31 downto 0)) srl 16, locDataOut_o'length));
-        when "00110000" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(47 downto 0)) srl 32, locDataOut_o'length));
-        when "11000000" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(63 downto 0)) srl 48, locDataOut_o'length));
-        when "00000001" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(7  downto 0)),        locDataOut_o'length));
-        when "00000011" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(15 downto 0)),        locDataOut_o'length));
-        when "00001111" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(31 downto 0)),        locDataOut_o'length));
-        when "11110000" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(63 downto 0)) srl 32, locDataOut_o'length));
-        when "11111111" =>
-            locDataOut_o <= std_logic_vector(resize(unsigned(s_wbData_i(63 downto 0)),        locDataOut_o'length));
-        when others =>
-            locDataOut_o <= (others => '0');
-      end case;
-    end process;
-  end generate gen64;
-
   -- shift data and address for WB data bus 32 bits
-  gen32: if (g_WB_DATA_WIDTH = 32) generate
-    process (clk_i)
-    begin
-      if rising_edge(clk_i) then
-        locAddr_o (31 downto 30) <= (others => '0');
-        locAddr_o (29 downto 0) <= rel_locAddr_i (31 downto 2);
-      end if;
-    end process;
+  assert g_WB_DATA_WIDTH = 32 severity failure;
+  
+  process (clk_i)
+  begin
+    if rising_edge(clk_i) then
+      locAddr_o (31 downto 30) <= (others => '0');
+      locAddr_o (29 downto 0) <= rel_locAddr_i (31 downto 2);
+    end if;
+  end process;
 
-    process (clk_i)
-    begin
-      if rising_edge(clk_i) then
-        WBdata_o <= locDataInSwap_i(31 downto 0);
-        WbSel_o <= sel_i(3 downto 0);
-      end if;
-    end process;
-
-    locDataOut_o <= s_wbData_i;
-  end generate gen32;
+  process (clk_i)
+  begin
+    if rising_edge(clk_i) then
+      WBdata_o <= locDataInSwap_i;
+      WbSel_o <= sel_i;
+    end if;
+  end process;
 
   err_o <= err_i;
   rty_o <= rty_i;
@@ -251,12 +170,9 @@ begin
   begin
     if rising_edge(clk_i) then
       if memAckWB_i = '1' then
-        s_wbData_i <= (others => '0');
-        s_wbData_i(wbData_i'range) <= wbData_i;
+        locDataOut_o <= wbData_i;
       end if;
-      s_memAckWb_d1 <= memAckWB_i or s_AckWithError or rty_i;
+      memAckWb_o <= memAckWB_i or s_AckWithError or rty_i;
     end if;
   end process;
-
-  memAckWb_o <= s_memAckWB_d1;
 end Behavioral;

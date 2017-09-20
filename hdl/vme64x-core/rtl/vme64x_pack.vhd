@@ -361,8 +361,8 @@ package vme64x_pack is
       cardSel_i       : in  std_logic;
       reset_i         : in  std_logic;
       BERRcondition_i : in  std_logic;
-      sel_i           : in  std_logic_vector(7 downto 0);
-      locDataInSwap_i : in  std_logic_vector(63 downto 0);
+      sel_i           : in  std_logic_vector(3 downto 0);
+      locDataInSwap_i : in  std_logic_vector(31 downto 0);
       rel_locAddr_i   : in  std_logic_vector(31 downto 0);
       RW_i            : in  std_logic;
       stall_i         : in  std_logic;
@@ -370,7 +370,7 @@ package vme64x_pack is
       err_i           : in  std_logic;
       wbData_i        : in  std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
       memAckWB_i      : in  std_logic;
-      locDataOut_o    : out std_logic_vector(63 downto 0);
+      locDataOut_o    : out std_logic_vector(31 downto 0);
       memAckWb_o      : out std_logic;
       err_o           : out std_logic;
       rty_o           : out std_logic;

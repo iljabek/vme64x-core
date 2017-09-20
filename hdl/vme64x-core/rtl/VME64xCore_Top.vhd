@@ -111,8 +111,8 @@ use work.vme64x_pack.all;
 entity VME64xCore_Top is
   generic (
     g_CLOCK_PERIOD    : integer   := c_CLOCK_PERIOD;  -- Clock period (ns)
-    g_WB_DATA_WIDTH   : integer   := c_DATA_WIDTH;    -- WB data width: must be 32 or 64
-    g_WB_ADDR_WIDTH   : integer   := c_ADDR_WIDTH;    -- WB addr width: 64 or less
+    g_WB_DATA_WIDTH   : integer   := c_DATA_WIDTH;    -- WB data width: = 32
+    g_WB_ADDR_WIDTH   : integer   := c_ADDR_WIDTH;    -- WB addr width: <= 32
     g_USER_CSR_EXT    : boolean   := false;           -- Use external user CSR
 
     -- Manufacturer ID: IEEE OUID
