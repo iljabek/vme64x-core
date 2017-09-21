@@ -154,12 +154,12 @@ entity VME64xCore_Top is
 
     -- Function 0
     g_F0_ADEM         : std_logic_vector( 31 downto 0)  := x"ff000000";
-    g_F0_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_0000bb00";
+    g_F0_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_0000ee00";
     g_F0_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     -- Function 1
     g_F1_ADEM         : std_logic_vector( 31 downto 0)  := x"fff80000";
-    g_F1_AMCAP        : std_logic_vector( 63 downto 0)  := x"bb000000_00000000";
+    g_F1_AMCAP        : std_logic_vector( 63 downto 0)  := x"ee000000_00000000";
     g_F1_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
 
     -- Function 2
@@ -340,7 +340,29 @@ architecture RTL of VME64xCore_Top is
     g_F0_DAWPR, g_F1_DAWPR, g_F2_DAWPR, g_F3_DAWPR,
     g_F4_DAWPR, g_F5_DAWPR, g_F6_DAWPR, g_F7_DAWPR
   );
+
+  -- List of supported AM.
+  constant c_AMCAP_ALLOWED : std_logic_vector(63 downto 0) :=
+    (16#3d# to 16#3f# => '1', --  A24
+     16#39# to 16#3b# => '1',
+     16#2d# | 16#29#  => '1', --  A16
+     16#0d# to 16#0f# => '1', --  A32
+     16#09# to 16#0b# => '1',
+     others => '0');
 begin
+  --  Check for invalid bits in ADEM/AMCAP
+  gen_gchecks: for i in 7 downto 0 generate
+    assert c_ADEM(i)(c_ADEM_FAF) = '0' report "FAF bit set in ADEM"
+      severity failure;
+    assert c_ADEM(i)(c_ADEM_DFS) = '0' report "DFS bit set in ADEM"
+      severity failure;
+    assert c_ADEM(i)(c_ADEM_EFM) = '0' report "EFM bit set in ADEM"
+      severity failure;
+    assert (c_AMCAP(i) and c_AMCAP_ALLOWED) = c_AMCAP(i)
+      report "bit set in AMCAP for not supported AM"
+      severity failure;
+  end generate;
+  
   ------------------------------------------------------------------------------
   -- Metastability
   ------------------------------------------------------------------------------

@@ -136,10 +136,10 @@ package vme64x_pack is
       g_BEG_SN          : std_logic_vector(23 downto 0)   := x"000000";
       g_END_SN          : std_logic_vector(23 downto 0)   := x"000000";
       g_F0_ADEM         : std_logic_vector( 31 downto 0)  := x"ff000000";
-      g_F0_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_0000bb00";
+      g_F0_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_0000ee00";
       g_F0_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
       g_F1_ADEM         : std_logic_vector( 31 downto 0)  := x"fff80000";
-      g_F1_AMCAP        : std_logic_vector( 63 downto 0)  := x"bb000000_00000000";
+      g_F1_AMCAP        : std_logic_vector( 63 downto 0)  := x"ee000000_00000000";
       g_F1_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
       g_F2_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
       g_F2_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";

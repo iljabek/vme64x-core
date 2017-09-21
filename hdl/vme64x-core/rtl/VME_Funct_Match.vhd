@@ -73,15 +73,6 @@ architecture rtl of VME_Funct_Match is
   signal s_function      : std_logic_vector( 7 downto 0);
   signal s_ader_am_valid : std_logic_vector( 7 downto 0);
 
-  -- List of supported AM.
-  constant c_AMCAP_ALLOWED : std_logic_vector(63 downto 0) :=
-    (16#3d# to 16#3f# => '1', --  A24
-     16#39# to 16#3b# => '1',
-     16#2d# | 16#29#  => '1', --  A16
-     16#0d# to 16#0f# => '1', --  A32
-     16#09# to 16#0b# => '1',
-     others => '0');
-  
   ------------------------------------------------------------------------------
   -- Generate EFD lookup table
   ------------------------------------------------------------------------------
@@ -106,19 +97,6 @@ architecture rtl of VME_Funct_Match is
   constant c_EFD_LUT : t_efd_lut := f_gen_efd_lut;
 
 begin
-  --  Check for invalid bits in ADEM/AMCAP
-  gen_gchecks: for i in 7 downto 0 generate
-    assert g_ADEM(i)(c_ADEM_FAF) = '0' report "FAF bit set in ADEM"
-      severity error;
-    assert g_ADEM(i)(c_ADEM_DFS) = '0' report "DFS bit set in ADEM"
-      severity error;
-    assert g_ADEM(i)(c_ADEM_EFM) = '0' report "EFM bit set in ADEM"
-      severity error;
-    assert (g_AMCAP(i) and c_AMCAP_ALLOWED) = g_AMCAP(i)
-      report "bit set in AMCAP for not supported AM"
-      severity error;
-  end generate;
-  
   ------------------------------------------------------------------------------
   -- Address and AM comparators
   ------------------------------------------------------------------------------
