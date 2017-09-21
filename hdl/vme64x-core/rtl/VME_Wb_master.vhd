@@ -93,7 +93,7 @@ entity VME_Wb_master is
     rty_i           : in  std_logic;
     err_i           : in  std_logic;
     cyc_o           : out std_logic;
-    memReq_o        : out std_logic;
+    stb_o           : out std_logic;
     WBdata_o        : out std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
     wbData_i        : in  std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
     locAddr_o       : out std_logic_vector(g_WB_ADDR_WIDTH-1 downto 0);
@@ -105,33 +105,31 @@ end VME_Wb_master;
 
 architecture Behavioral of VME_Wb_master is
   signal s_AckWithError : std_logic;
-  signal s_cyc : std_logic;
 begin
   -- stb handler
   process (clk_i)
   begin
     if rising_edge(clk_i) then
-      if reset_i = '1' or (stall_i = '0' and s_cyc = '1') then
-        memReq_o <= '0';
-      elsif memReq_i = '1' and BERRcondition_i = '0' then
-        memReq_o <= '1';
+      if reset_i = '1' then
+        stb_o <= '0';
+        cyc_o <= '0';
+      else
+        if memReq_i = '1' and BERRcondition_i = '0' then
+          stb_o <= '1';
+          cyc_o <= '1';
+        else
+          --  One pulse for stb_o
+          stb_o <= '0';
+
+          --  But s_cyc is set for the whole cycle
+          if memAckWB_i = '1' then
+            cyc_o <= '0';
+          end if;
+        end if;
       end if;
     end if;
   end process;
-
-  -- cyc_o handler
-  process (clk_i)
-  begin
-    if rising_edge(clk_i) then
-      if reset_i = '1' or memAckWB_i = '1' then
-        s_cyc <= '0';
-      elsif memReq_i = '1' and BERRcondition_i = '0' then
-        s_cyc <= '1';
-      end if;
-    end if;
-  end process;
-  cyc_o <= s_cyc;
-
+  
   process (clk_i)
   begin
     if rising_edge(clk_i) then

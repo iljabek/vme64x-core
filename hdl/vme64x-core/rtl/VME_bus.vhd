@@ -136,11 +136,6 @@ architecture RTL of VME_bus is
 
   signal s_rw                       : std_logic;
 
-  -- External buffer signals
-  signal s_dtackOE                  : std_logic;
-  signal s_dataDir                  : std_logic;
-  signal s_addrDir                  : std_logic;
-
   -- Local data & address
   signal s_locDataIn                : std_logic_vector(63 downto 0);
   signal s_locDataOut               : std_logic_vector(63 downto 0);          -- Local data
@@ -215,7 +210,6 @@ architecture RTL of VME_bus is
 
   -- Main FSM signals
   signal s_mainFSMstate             : t_mainFSMstates;
-  signal s_mainDTACK                : std_logic;   -- DTACK driving
   signal s_memReq                   : std_logic;   -- Global memory request
   signal s_WBReq                    : std_logic;   -- WB memory request
   signal s_dataPhase                : std_logic;   -- for MBLT
@@ -270,12 +264,8 @@ begin
   --    L  |  L  | B to A                   L    |     L     |   B to Y
   --                                        H    |     L     |A to B, B to Y |
 
-  VME_DATA_DIR_o  <= s_dataDir;
   VME_DATA_OE_N_o <= '0'; -- Driven IFF DIR = 1
-  VME_ADDR_DIR_o  <= s_addrDir;
   VME_ADDR_OE_N_o <= '0'; -- Driven IFF DIR = 1
-  VME_DTACK_OE_o  <= s_dtackOE;
-  VME_DTACK_n_o <= s_mainDTACK;
 
   ------------------------------------------------------------------------------
   -- Access Mode Decoders
@@ -340,16 +330,16 @@ begin
         -- on rising edge of AS.
         s_memReq         <= '0';
         decode_start_o   <= '0';
-        s_dtackOE        <= '0';
-        s_mainDTACK      <= '1';
-        s_dataDir        <= '0';
-        s_addrDir        <= '0';
+        VME_DTACK_OE_o   <= '0';
+        VME_DTACK_n_o    <= '1';
+        VME_DATA_DIR_o   <= '0';
+        VME_ADDR_DIR_o   <= '0';
         s_dataPhase      <= '0';
         s_transferActive <= '0';
         s_retry          <= '0';
         s_BERR_out       <= '0';
-        s_mainFSMstate <= IDLE;
-        s_sel <= "0000";
+        s_mainFSMstate   <= IDLE;
+        s_sel            <= "0000";
 
         s_ADDRlatched    <= (others => '0');
         s_LWORDlatched_n <= '0';
@@ -364,10 +354,10 @@ begin
       else
         s_memReq         <= '0';
         decode_start_o   <= '0';
-        s_dtackOE        <= '0';
-        s_mainDTACK      <= '1';
-        s_dataDir        <= '0';
-        s_addrDir        <= '0';
+        VME_DTACK_OE_o   <= '0';
+        VME_DTACK_n_o    <= '1';
+        VME_DATA_DIR_o   <= '0';
+        VME_ADDR_DIR_o   <= '0';
         s_dataPhase      <= '0';
         s_transferActive <= '0';
         s_retry          <= '0';
@@ -420,8 +410,7 @@ begin
             end if;
 
           when DECODE_ACCESS =>
-            -- check if this slave board is addressed and if it is, check
-            -- the access mode
+            -- check if this slave board is addressed.
 
             if decode_done_i = '1' then
               if decode_sel_i = '1' and module_enable_i = '1' then
@@ -442,8 +431,8 @@ begin
 
           when WAIT_FOR_DS =>
             -- wait until DS /= "11"
-            s_dtackOE        <= '1';
-            s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
+            VME_DTACK_OE_o   <= '1';
+            VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
             s_dataPhase      <= s_dataPhase;
             s_transferActive <= '1';
 
@@ -457,9 +446,9 @@ begin
           when LATCH_DS =>
             -- this state is necessary indeed the VME master can assert the
             -- DS lines not at the same time
-            s_dtackOE        <= '1';
-            s_dataDir        <= VME_WRITE_n_i;
-            s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
+            VME_DTACK_OE_o   <= '1';
+            VME_DATA_DIR_o   <= VME_WRITE_n_i;
+            VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
             s_dataPhase      <= s_dataPhase;
             s_transferActive <= '1';
             if s_DS_latch_count = 0 then
@@ -484,9 +473,9 @@ begin
             end if;
 
           when CHECK_TRANSFER_TYPE =>
-            s_dtackOE        <= '1';
-            s_dataDir        <= VME_WRITE_n_i;
-            s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
+            VME_DTACK_OE_o   <= '1';
+            VME_DATA_DIR_o   <= VME_WRITE_n_i;
+            VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
             s_dataPhase      <= s_dataPhase;
             s_transferActive <= '1';
 
@@ -518,9 +507,9 @@ begin
           when MEMORY_REQ =>
             -- To request the memory CR/CSR or WB memory it is sufficient to
             -- generate a pulse on s_memReq signal
-            s_dtackOE        <= '1';
-            s_dataDir        <= VME_WRITE_n_i;
-            s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
+            VME_DTACK_OE_o   <= '1';
+            VME_DATA_DIR_o   <= VME_WRITE_n_i;
+            VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
             s_dataPhase      <= s_dataPhase;
             s_transferActive <= '1';
 
@@ -552,9 +541,9 @@ begin
             end if;
 
           when DATA_TO_BUS =>
-            s_dtackOE        <= '1';
-            s_dataDir        <= VME_WRITE_n_i;
-            s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
+            VME_DTACK_OE_o   <= '1';
+            VME_DATA_DIR_o   <= VME_WRITE_n_i;
+            VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
             s_dataPhase      <= s_dataPhase;
             s_transferActive <= '1';
             s_mainFSMstate   <= DTACK_LOW;
@@ -571,15 +560,15 @@ begin
             end if;
 
           when DTACK_LOW =>
-            s_dtackOE        <= '1';
-            s_dataDir        <= VME_WRITE_n_i;
-            s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
+            VME_DTACK_OE_o   <= '1';
+            VME_DATA_DIR_o   <= VME_WRITE_n_i;
+            VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
             s_dataPhase      <= s_dataPhase;
             s_transferActive <= '1';
 
             --  Set DTACK (or retry or berr)
             if s_BERRcondition = '0' and s_rty1 = '0' then
-              s_mainDTACK     <= '0';
+              VME_DTACK_n_o   <= '0';
             elsif s_BERRcondition = '0' and s_rty1 = '1' then
               s_retry         <= '1';
             else
@@ -587,7 +576,7 @@ begin
             end if;
 
             if VME_DS_n_i = "11" then
-              s_dataDir       <= '0';
+              VME_DATA_DIR_o     <= '0';
               case s_transferType is
                 when SINGLE =>
                   --  Cycle should be finished, but allow another access at
@@ -611,8 +600,8 @@ begin
             end if;
 
           when INCREMENT_ADDR =>
-            s_dtackOE        <= '1';
-            s_addrDir        <= (s_is_d64) and VME_WRITE_n_i;
+            VME_DTACK_OE_o   <= '1';
+            VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
             s_dataPhase      <= s_dataPhase;
             s_transferActive <= '1';
 
@@ -814,7 +803,7 @@ begin
       rty_i           => rty_i,
       err_i           => err_i,
       cyc_o           => cyc_o,
-      memReq_o        => stb_o,
+      stb_o           => stb_o,
       WBdata_o        => dat_o,
       wbData_i        => dat_i,
       locAddr_o       => adr_o,

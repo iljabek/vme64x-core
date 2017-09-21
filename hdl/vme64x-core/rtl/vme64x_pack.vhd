@@ -376,7 +376,7 @@ package vme64x_pack is
       err_o           : out std_logic;
       rty_o           : out std_logic;
       cyc_o           : out std_logic;
-      memReq_o        : out std_logic;
+      stb_o           : out std_logic;
       WBdata_o        : out std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
       locAddr_o       : out std_logic_vector(g_WB_ADDR_WIDTH-1 downto 0);
       WbSel_o         : out std_logic_vector(g_WB_DATA_WIDTH/8-1 downto 0);
