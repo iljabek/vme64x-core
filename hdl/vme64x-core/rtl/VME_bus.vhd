@@ -372,6 +372,9 @@ begin
             -- so if VME_IACK_n_i is asserted the FSM is in IDLE state.
             -- The VME_IACK_n_i signal is asserted by the Interrupt handler
             -- during all the Interrupt cycle.
+
+            -- VITA-1 Rule 2.11
+            -- Slaves MUST NOT respond to DTB cycles when IACK* is low.
             if VME_AS_n_i = '0' and VME_IACK_n_i = '1' then
               -- if AS falling edge --> start access
               s_mainFSMstate <= REFORMAT_ADDRESS;
@@ -447,6 +450,9 @@ begin
             -- this state is necessary indeed the VME master can assert the
             -- DS lines not at the same time
             VME_DTACK_OE_o   <= '1';
+            -- VITA-1 Rule 2.53a
+            -- During all read cycles [...], the responding slave MUST OT
+            -- drive the D[] lines until DSA* goes low.
             VME_DATA_DIR_o   <= VME_WRITE_n_i;
             VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
             s_dataPhase      <= s_dataPhase;
@@ -494,16 +500,35 @@ begin
               end case;
             end if;
 
-            if s_transferType = SINGLE or s_transferType = BLT then
-              s_mainFSMstate <= MEMORY_REQ;
-              s_memReq <= '1';
-            elsif s_transferType = MBLT and s_dataPhase = '0' then
-              s_mainFSMstate <= DTACK_LOW;
-            elsif s_transferType = MBLT and s_dataPhase = '1' then
-              s_mainFSMstate <= MEMORY_REQ;
-              s_memReq <= '1';
-            end if;
-
+            --  VITA-1 Rule 2.6
+            --  A Slave MUST NOT respond with a falling edge on DTACK* during
+            --  an unaligned transfer cycle, if it does not have UAT
+            --  capability.
+            case s_transferType is
+              when SINGLE | BLT =>
+                if s_LWORDlatched_n = '0' and s_ADDRlatched(1) = '1' then
+                  -- unaligned.
+                  s_mainFSMstate <= WAIT_END;
+                else
+                  s_mainFSMstate <= MEMORY_REQ;
+                  s_memReq <= '1';
+                end if;
+              when MBLT =>
+                if s_dataPhase = '0' then
+                  if s_ADDRlatched(2 downto 1) /= "00" then
+                    -- Unaligned
+                    s_mainFSMstate <= WAIT_END;
+                  else
+                    s_mainFSMstate <= DTACK_LOW;
+                  end if;
+                else
+                  s_mainFSMstate <= MEMORY_REQ;
+                  s_memReq <= '1';
+                end if;
+              when others =>
+                s_mainFSMstate <= WAIT_END;
+            end case;
+            
           when MEMORY_REQ =>
             -- To request the memory CR/CSR or WB memory it is sufficient to
             -- generate a pulse on s_memReq signal
@@ -548,6 +573,9 @@ begin
             s_transferActive <= '1';
             s_mainFSMstate   <= DTACK_LOW;
 
+            -- VITA-1 Rule 2.54a
+            -- During all read cycles, the responding Slave MUST NOT drive
+            -- DTACK* low before it drives D[].
             if s_transferType = MBLT then
               VME_ADDR_o    <= s_locDataOutSwap(63 downto 33);
               VME_LWORD_n_o <= s_locDataOutSwap(32);
@@ -575,12 +603,16 @@ begin
               s_BERR_out      <= '1';
             end if;
 
+            -- VITA-1 Rule 2.57
+            -- Once the responding Slave has driven DTACK* or BERR* low, it
+            -- MUST NOT release them or drive DTACK* high until it detects
+            -- both DS0* and DS1* high.
             if VME_DS_n_i = "11" then
               VME_DATA_DIR_o     <= '0';
               case s_transferType is
                 when SINGLE =>
                   --  Cycle should be finished, but allow another access at
-                  --  the same address.
+                  --  the same address (RMW).
                   s_mainFSMstate <= WAIT_FOR_DS;
                 when BLT =>
                   s_mainFSMstate <= INCREMENT_ADDR;
@@ -699,8 +731,7 @@ begin
       if rst_i = '1' then
         s_BERRcondition <= '0';
       elsif
-        ((s_transferType = error or s_wberr1 = '1') and s_transferActive = '1') or
-        (s_addressingType = AM_Error) or
+        (s_wberr1 = '1' and s_transferActive = '1') or
         (s_is_d64 = '1' and g_WB_DATA_WIDTH = 32)
       then
         s_BERRcondition <= '1';
