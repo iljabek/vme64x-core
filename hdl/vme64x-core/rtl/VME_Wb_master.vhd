@@ -80,7 +80,6 @@ entity VME_Wb_master is
     memReq_i        : in  std_logic;
     clk_i           : in  std_logic;
     reset_i         : in  std_logic;
-    BERRcondition_i : in  std_logic;
     sel_i           : in  std_logic_vector(3 downto 0);
     locDataInSwap_i : in  std_logic_vector(31 downto 0);
     locDataOut_o    : out std_logic_vector(31 downto 0);
@@ -97,7 +96,7 @@ entity VME_Wb_master is
     WBdata_o        : out std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
     wbData_i        : in  std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
     locAddr_o       : out std_logic_vector(g_WB_ADDR_WIDTH-1 downto 0);
-    memAckWB_i      : in  std_logic;
+    ack_i           : in  std_logic;
     WbSel_o         : out std_logic_vector(g_WB_DATA_WIDTH/8-1 downto 0);
     RW_o            : out std_logic
   );
@@ -114,7 +113,7 @@ begin
         stb_o <= '0';
         cyc_o <= '0';
       else
-        if memReq_i = '1' and BERRcondition_i = '0' then
+        if memReq_i = '1' then
           stb_o <= '1';
           cyc_o <= '1';
         else
@@ -122,7 +121,7 @@ begin
           stb_o <= '0';
 
           --  But s_cyc is set for the whole cycle
-          if memAckWB_i = '1' then
+          if ack_i = '1' or err_i = '1' then
             cyc_o <= '0';
           end if;
         end if;
@@ -134,7 +133,6 @@ begin
   begin
     if rising_edge(clk_i) then
       RW_o        <= RW_i;
-      s_AckWithError <= (memReq_i and BERRcondition_i);
     end if;
   end process;
 
@@ -166,10 +164,10 @@ begin
   process (clk_i)
   begin
     if rising_edge(clk_i) then
-      if memAckWB_i = '1' then
+      if ack_i = '1' then
         locDataOut_o <= wbData_i;
       end if;
-      memAckWb_o <= memAckWB_i or s_AckWithError or rty_i;
+      memAckWb_o <= ack_i or err_i or rty_i;
     end if;
   end process;
 end Behavioral;

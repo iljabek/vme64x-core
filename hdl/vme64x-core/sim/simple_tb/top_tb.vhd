@@ -203,13 +203,11 @@ architecture behaviour of top_tb is
   signal ADR_o           : std_logic_vector(g_WB_ADDR_WIDTH-1 downto 0);
   signal CYC_o           : std_logic;
   signal ERR_i           : std_logic;
-  signal RTY_i           : std_logic;
   signal SEL_o           : std_logic_vector(g_WB_DATA_WIDTH/8-1 downto 0);
   signal STB_o           : std_logic;
   signal ACK_i           : std_logic;
   signal WE_o            : std_logic;
   signal STALL_i         : std_logic;
-  signal endian_i        : std_logic_vector(2 downto 0)  := (others => '0');
   signal irq_level_i     : std_logic_vector(7 downto 0)  := (others => '0');
   signal irq_vector_i    : std_logic_vector(7 downto 0)  := (others => '0');
   signal user_csr_addr_o : std_logic_vector(18 downto 2);
@@ -271,13 +269,11 @@ begin
         ADR_o           => ADR_o,
         CYC_o           => CYC_o,
         ERR_i           => ERR_i,
-        RTY_i           => RTY_i,
         SEL_o           => SEL_o,
         STB_o           => STB_o,
         ACK_i           => ACK_i,
         WE_o            => WE_o,
         STALL_i         => STALL_i,
-        endian_i        => endian_i,
         irq_level_i     => irq_level_i,
         irq_vector_i    => irq_vector_i,
         user_csr_addr_o => user_csr_addr_o,
@@ -370,7 +366,6 @@ begin
     if rising_edge (clk_i) then
       if rst_n_o = '0' then
         ERR_i <= '0';
-        RTY_i <= '0';
         STALL_i <= '0'; --  ??
         ACK_i <= '0';
 

@@ -110,7 +110,6 @@ entity VME_bus is
     we_o            : out std_logic;
     cyc_o           : out std_logic;
     err_i           : in  std_logic;
-    rty_i           : in  std_logic;
     stall_i         : in  std_logic;
 
     -- Function decoder
@@ -126,23 +125,15 @@ entity VME_bus is
     cr_csr_data_i   : in  std_logic_vector( 7 downto 0);
     cr_csr_data_o   : out std_logic_vector( 7 downto 0);
     cr_csr_we_o     : out std_logic;
-    endian_i        : in  std_logic_vector(2 downto 0);
     module_enable_i : in  std_logic;
     bar_i           : in  std_logic_vector(4 downto 0)
   );
 end VME_bus;
 
 architecture RTL of VME_bus is
-
-  signal s_rw                       : std_logic;
-
-  -- Local data & address
+  -- Local data
   signal s_locDataIn                : std_logic_vector(63 downto 0);
-  signal s_locDataOut               : std_logic_vector(63 downto 0);          -- Local data
-  signal s_locAddr                  : std_logic_vector(31 downto 0);          -- Local address
-  signal s_locDataOutSwap           : std_logic_vector(63 downto 0);
-  signal s_locDataInSwap            : std_logic_vector(63 downto 0);
-  signal s_locDataOutWb             : std_logic_vector(63 downto 0);
+  signal s_locDataOut               : std_logic_vector(63 downto 0);
 
   -- VME latched signals
   signal s_ADDRlatched              : std_logic_vector(31 downto 1);
@@ -211,35 +202,17 @@ architecture RTL of VME_bus is
   -- Main FSM signals
   signal s_mainFSMstate             : t_mainFSMstates;
   signal s_memReq                   : std_logic;   -- Global memory request
-  signal s_WBReq                    : std_logic;   -- WB memory request
   signal s_dataPhase                : std_logic;   -- for MBLT
-  signal s_transferActive           : std_logic;   -- active VME transfer
-  signal s_retry                    : std_logic;   -- RETRY signal
 
   -- Access decode signals
   signal s_conf_sel                 : std_logic;   -- CR or CSR is addressed
   signal s_card_sel                 : std_logic;   -- WB memory is addressed
 
-  -- WishBone signals
-  signal s_sel                      : std_logic_vector(3 downto 0);  -- SEL WB
-
-  -- Error signals
-  signal s_BERRcondition            : std_logic;   -- Condition to set BERR
-  signal s_wberr1                   : std_logic;
-  signal s_rty1                     : std_logic;
-
   -- Initialization signals
   signal s_is_d64                   : std_logic;
 
-  signal s_BERR_out                 : std_logic;
-  signal s_sw_reset                 : std_logic;
-
   --  Set on the cycle to decode access (ADDR + AM)
-  signal s_AckWb                    : std_logic;
   signal s_err                      : std_logic;
-  signal s_rty                      : std_logic;
-
-  signal s_wbMaster_rst             : std_logic;
 
   -- Calculate the number of LATCH DS states necessary to match the timing
   -- rule 2.39 page 113 VMEbus specification ANSI/IEEE STD1014-1987.
@@ -248,14 +221,11 @@ architecture RTL of VME_bus is
     (20 + g_CLOCK_PERIOD - 1) / g_CLOCK_PERIOD;
 
   signal s_DS_latch_count           : unsigned (2 downto 0);
-
-  --  True if endianness converters are supported.
-  constant c_SWAPPER_EN : boolean := False;
 begin
   --  Consistency check.
   assert g_WB_DATA_WIDTH = 32 report "g_WB_DATA_WIDTH must be set to 32"
     severity failure;
-  
+
   -- These output signals are connected to the buffers on the board
   -- SN74VMEH22501A Function table:  (A is fpga, B is VME connector)
   --   OEn | DIR | OUTPUT                 OEAB   |   OEBYn   |   OUTPUT
@@ -330,24 +300,29 @@ begin
         -- on rising edge of AS.
         s_memReq         <= '0';
         decode_start_o   <= '0';
+
+        -- VME
         VME_DTACK_OE_o   <= '0';
         VME_DTACK_n_o    <= '1';
         VME_DATA_DIR_o   <= '0';
         VME_ADDR_DIR_o   <= '0';
+        VME_BERR_n_o     <= '1';
+        VME_ADDR_o    <= (others => '0');
+        VME_LWORD_n_o <= '1';
+        VME_DATA_o    <= (others => '0');
+        
         s_dataPhase      <= '0';
-        s_transferActive <= '0';
-        s_retry          <= '0';
-        s_BERR_out       <= '0';
         s_mainFSMstate   <= IDLE;
-        s_sel            <= "0000";
+
+        -- WB
+        sel_o            <= "0000";
+        cyc_o            <= '0';
+        stb_o            <= '0';
+        s_err            <= '0';
 
         s_ADDRlatched    <= (others => '0');
         s_LWORDlatched_n <= '0';
         s_AMlatched      <= (others => '0');
-
-        VME_ADDR_o    <= (others => '0');
-        VME_LWORD_n_o <= '1';
-        VME_DATA_o    <= (others => '0');
 
         s_card_sel <= '0';
         s_conf_sel <= '0';
@@ -359,9 +334,7 @@ begin
         VME_DATA_DIR_o   <= '0';
         VME_ADDR_DIR_o   <= '0';
         s_dataPhase      <= '0';
-        s_transferActive <= '0';
-        s_retry          <= '0';
-        s_BERR_out       <= '0';
+        VME_BERR_n_o     <= '1';
 
         s_DS_latch_count <= "000";
 
@@ -401,15 +374,27 @@ begin
                 null;  -- A32
             end case;
 
-            if s_ADDRlatched(23 downto 19) = bar_i
-              and s_AMlatched = c_AM_CR_CSR
+            --  VITA-1 Rule 2.6
+            --  A Slave MUST NOT respond with a falling edge on DTACK* during
+            --  an unaligned transfer cycle, if it does not have UAT
+            --  capability.
+            if ((s_transferType = SINGLE or s_transferType = BLT)
+                and s_LWORDlatched_n = '0' and s_ADDRlatched(1) = '1')
+              or (s_transferType = MBLT and s_ADDRlatched(2 downto 1) /= "00")
             then
-              -- conf_sel = '1' it means CR/CSR space addressed
-              s_conf_sel <= '1';
-              s_mainFSMstate <= WAIT_FOR_DS;
+              -- unaligned.
+              s_mainFSMstate <= WAIT_END;
             else
-              s_mainFSMstate <= DECODE_ACCESS;
-              decode_start_o  <= '1';
+              if s_ADDRlatched(23 downto 19) = bar_i
+                and s_AMlatched = c_AM_CR_CSR
+              then
+                -- conf_sel = '1' it means CR/CSR space addressed
+                s_conf_sel <= '1';
+                s_mainFSMstate <= WAIT_FOR_DS;
+              else
+                s_mainFSMstate <= DECODE_ACCESS;
+                decode_start_o  <= '1';
+              end if;
             end if;
 
           when DECODE_ACCESS =>
@@ -437,7 +422,6 @@ begin
             VME_DTACK_OE_o   <= '1';
             VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
             s_dataPhase      <= s_dataPhase;
-            s_transferActive <= '1';
 
             if VME_DS_n_i /= "11" then
               s_mainFSMstate <= LATCH_DS;
@@ -456,7 +440,6 @@ begin
             VME_DATA_DIR_o   <= VME_WRITE_n_i;
             VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
             s_dataPhase      <= s_dataPhase;
-            s_transferActive <= '1';
             if s_DS_latch_count = 0 then
               s_mainFSMstate <= CHECK_TRANSFER_TYPE;
 
@@ -483,52 +466,28 @@ begin
             VME_DATA_DIR_o   <= VME_WRITE_n_i;
             VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
             s_dataPhase      <= s_dataPhase;
-            s_transferActive <= '1';
 
             --  Translate DS+LWORD+ADDR to WB byte selects
             if s_LWORDlatched_n = '0' then
-              s_sel <= "1111";
+              sel_o <= "1111";
             else
-              s_sel <= "0000";
+              sel_o <= "0000";
               case s_ADDRlatched(1) is
                 when '0' =>
-                  s_sel (3 downto 2) <= not s_DSlatched;
+                  sel_o (3 downto 2) <= not s_DSlatched;
                 when '1' =>
-                  s_sel (1 downto 0) <= not s_DSlatched;
+                  sel_o (1 downto 0) <= not s_DSlatched;
                 when others =>
                   null;
               end case;
             end if;
 
-            --  VITA-1 Rule 2.6
-            --  A Slave MUST NOT respond with a falling edge on DTACK* during
-            --  an unaligned transfer cycle, if it does not have UAT
-            --  capability.
-            case s_transferType is
-              when SINGLE | BLT =>
-                if s_LWORDlatched_n = '0' and s_ADDRlatched(1) = '1' then
-                  -- unaligned.
-                  s_mainFSMstate <= WAIT_END;
-                else
-                  s_mainFSMstate <= MEMORY_REQ;
-                  s_memReq <= '1';
-                end if;
-              when MBLT =>
-                if s_dataPhase = '0' then
-                  if s_ADDRlatched(2 downto 1) /= "00" then
-                    -- Unaligned
-                    s_mainFSMstate <= WAIT_END;
-                  else
-                    s_mainFSMstate <= DTACK_LOW;
-                  end if;
-                else
-                  s_mainFSMstate <= MEMORY_REQ;
-                  s_memReq <= '1';
-                end if;
-              when others =>
-                s_mainFSMstate <= WAIT_END;
-            end case;
-            
+            s_mainFSMstate <= MEMORY_REQ;
+            s_memReq <= '1';
+            cyc_o <= s_card_sel;
+            stb_o <= s_card_sel;
+            s_err <= '0';
+
           when MEMORY_REQ =>
             -- To request the memory CR/CSR or WB memory it is sufficient to
             -- generate a pulse on s_memReq signal
@@ -536,24 +495,30 @@ begin
             VME_DATA_DIR_o   <= VME_WRITE_n_i;
             VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
             s_dataPhase      <= s_dataPhase;
-            s_transferActive <= '1';
 
-            if s_conf_sel = '1' or s_AckWb = '1' or s_err = '1' then
+            cyc_o <= s_card_sel;
+            stb_o <= s_card_sel and not stall_i;
+
+            if s_conf_sel = '1'
+              or (s_card_sel = '1' and (ack_i = '1' or err_i = '1'))
+            then
               -- WB ack
-              if VME_WRITE_n_i = '0' then
-                -- Write cycle
+              stb_o <= '0';
+              s_err <= s_card_sel and err_i;
+              if VME_WRITE_n_i = '0' or (s_card_sel and err_i) = '1' then
+                -- Write cycle (or BERR)
                 s_mainFSMstate <= DTACK_LOW;
               else
                 -- Read cycle
 
                 -- Mux (CS-CSR or WB)
-                s_locDataOut <= (others => '0');      
+                s_locDataOut <= (others => '0');
                 if s_card_sel = '1' then
                   if s_LWORDlatched_n = '1' and s_ADDRlatched(1) = '0' then
                     -- Word/byte access with A1 = 0
-                    s_locDataOut(15 downto 0) <= s_locDataOutWb(31 downto 16);
+                    s_locDataOut(15 downto 0) <= dat_i(31 downto 16);
                   else
-                    s_locDataOut <= s_locDataOutWb;
+                    s_locDataOut(31 downto 0) <= dat_i;
                   end if;
                 elsif s_conf_sel = '1' then
                   s_locDataOut(7 downto 0) <= cr_csr_data_i;
@@ -570,37 +535,29 @@ begin
             VME_DATA_DIR_o   <= VME_WRITE_n_i;
             VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
             s_dataPhase      <= s_dataPhase;
-            s_transferActive <= '1';
             s_mainFSMstate   <= DTACK_LOW;
 
             -- VITA-1 Rule 2.54a
             -- During all read cycles, the responding Slave MUST NOT drive
             -- DTACK* low before it drives D[].
             if s_transferType = MBLT then
-              VME_ADDR_o    <= s_locDataOutSwap(63 downto 33);
-              VME_LWORD_n_o <= s_locDataOutSwap(32);
+              VME_ADDR_o    <= s_locDataOut(63 downto 33);
+              VME_LWORD_n_o <= s_locDataOut(32);
             end if;
 
-            if s_addressingType = CR_CSR then
-              VME_DATA_o <= s_locDataOut(31 downto 0);
-            else
-              VME_DATA_o <= s_locDataOutSwap(31 downto 0);
-            end if;
+            VME_DATA_o <= s_locDataOut(31 downto 0);
 
           when DTACK_LOW =>
             VME_DTACK_OE_o   <= '1';
             VME_DATA_DIR_o   <= VME_WRITE_n_i;
             VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
             s_dataPhase      <= s_dataPhase;
-            s_transferActive <= '1';
 
             --  Set DTACK (or retry or berr)
-            if s_BERRcondition = '0' and s_rty1 = '0' then
-              VME_DTACK_n_o   <= '0';
-            elsif s_BERRcondition = '0' and s_rty1 = '1' then
-              s_retry         <= '1';
+            if s_err = '1' then
+              VME_BERR_n_o  <= '0';
             else
-              s_BERR_out      <= '1';
+              VME_DTACK_n_o <= '0';
             end if;
 
             -- VITA-1 Rule 2.57
@@ -608,7 +565,8 @@ begin
             -- MUST NOT release them or drive DTACK* high until it detects
             -- both DS0* and DS1* high.
             if VME_DS_n_i = "11" then
-              VME_DATA_DIR_o     <= '0';
+              VME_DATA_DIR_o  <= '0';
+              VME_BERR_n_o    <= '1';
               case s_transferType is
                 when SINGLE =>
                   --  Cycle should be finished, but allow another access at
@@ -635,7 +593,6 @@ begin
             VME_DTACK_OE_o   <= '1';
             VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
             s_dataPhase      <= s_dataPhase;
-            s_transferActive <= '1';
 
             if s_LWORDlatched_n = '0' then
               if s_transferType = MBLT then
@@ -670,197 +627,25 @@ begin
     end if;
   end process;
 
-  ------------------------------------------------------------------------------
-  -- Retry and Error Drivers
-  ------------------------------------------------------------------------------
-  -- s_rty is asserted by the WB application
-  -- s_retry is used during the 2e cycles.
-  -- 2.3.13 Retry Capability...vme64 ANSI/VITA 1-1994 (R2002):
-  -- Master supports retry capability, it terminates the bus cycle when it
-  -- detects RETRY* low without waiting for either DTACK* or BERR*.
-  -- In the case of a busy condition, if the Master does not support Retry
-  -- and does not terminate the cycle the slave waits and asserts DTACK* low
-  -- once the busy resource becomes available, if the Bus Timer does not
-  -- detect a time out condition before.
-  -- Please note that the VME_WB_Master component supports single write/read
-  -- pipelined cycles, so the WB Slave should drive the stall signal to '1' if
-  -- the resource is busy
-  p_RETRYdriver : process (clk_i)
-  begin
-    if rising_edge(clk_i) then
-      if s_retry = '1' then
-        VME_RETRY_n_o  <= '0';
-        VME_RETRY_OE_o <= '1';
-      else
-        VME_RETRY_n_o  <= '1';
-        VME_RETRY_OE_o <= '0';
-      end if;
-    end if;
-  end process;
+  -- Retry is not supported
+  VME_RETRY_n_o  <= '1';
+  VME_RETRY_OE_o <= '0';
 
-  -- BERR driver
-  -- The slave asserts the Error line during the Decode access phase when an
-  -- error condition is detected and the s_BERRcondition is asserted.
-  -- When the FSM is in the DTACK_LOW state one of the VME_DTACK and VME_BERR
-  -- lines is asserted.
-  -- The VME_BERR line can not be asserted by the slave at anytime, but only
-  -- during the DTACK_LOW state; this to avoid that one temporary error
-  -- condition during the decode access phase causes an undesired assertion of
-  -- VME_BERR line.
-  p_BERRdriver : process (clk_i)
-  begin
-    if rising_edge(clk_i) then
-      if (s_BERR_out = '1') then
-        VME_BERR_n_o <= '0';
-      else
-        VME_BERR_n_o <= '1';
-      end if;
-    end if;
-  end process;
-
-  -- This process detects an error condition and assert the s_BERRcondition
-  -- signal. A transfer cycle is terminated with assertion of this signal if
-  -- the VME64x slave does not recognize the data or addressing type used in
-  -- the transfer cycle, if a Master attempts to access in BLT mode with D08
-  -- or D16, if the master attempts to access in MBLT mode and the WB data bus
-  -- is 32 bits, or if the read only memory is addressed during a write only
-  -- cycle!
-  process (clk_i)
-  begin
-    if rising_edge(clk_i) then
-      if rst_i = '1' then
-        s_BERRcondition <= '0';
-      elsif
-        (s_wberr1 = '1' and s_transferActive = '1') or
-        (s_is_d64 = '1' and g_WB_DATA_WIDTH = 32)
-      then
-        s_BERRcondition <= '1';
-      else
-        s_BERRcondition <= '0';
-      end if;
-    end if;
-  end process;
-
-  -- wb err handler
-  process (clk_i)
-  begin
-    if rising_edge(clk_i) then
-      if VME_AS_n_i = '1' or rst_i = '1' then
-        s_wberr1 <= '0';
-      elsif s_err = '1' then
-        s_wberr1 <= '1';
-      end if;
-    end if;
-  end process;
-
-  -- wb retry handler
-  process (clk_i)
-  begin
-    if rising_edge(clk_i) then
-      if VME_AS_n_i = '1' or rst_i = '1' then
-        s_rty1 <= '0';
-      elsif s_rty = '1' then
-        s_rty1 <= '1';
-      end if;
-    end if;
-  end process;
-
-  ------------------------------------------------------------------------------
-  -- Address Handler Process
-  ------------------------------------------------------------------------------
-  -- This process generates the s_locAddr that is used during the access decode
-  -- process.
-  -- The s_locAddr is used in the VME_WB_master to address the WB memory
-  s_locAddr <= s_ADDRlatched & '0';
-
-  ------------------------------------------------------------------------------
-  -- Data Handler Process
-  ------------------------------------------------------------------------------
-
-  gen_swapper_ena: if c_SWAPPER_EN generate
-    -- Swap the data during read or write operation
-    -- sel= 000 --> No swap
-    -- sel= 001 --> Swap Byte                      eg: 01234567 become 10325476
-    -- sel= 010 --> Swap Word                      eg: 01234567 become 23016745
-    -- sel= 011 --> Swap Word+Swap Byte            eg: 01234567 become 32107654
-    -- sel= 100 --> Swap DWord+Swap Word+Swap Byte eg: 01234567 become 76543210
-    swapper_write : VME_swapper
-      port map (
-        d_i => s_locDataIn,
-        sel => endian_i,
-        d_o => s_locDataInSwap
-      );
-
-    swapper_read : VME_swapper
-      port map (
-        d_i => s_locDataOut,
-        sel => endian_i,
-        d_o => s_locDataOutSwap
-      );
-  end generate;
-
-  gen_swapper_dis: if not c_SWAPPER_EN generate
-    s_locDataInSwap <= s_locDataIn;
-    s_locDataOutSwap <= s_locDataOut;
-  end generate;
-
-  ------------------------------------------------------------------------------
   -- WB Master
-  ------------------------------------------------------------------------------
-  -- This component acts as WB master for single read/write PIPELINED mode.
-  -- The data and address lines are shifted inside this component.
-
-  s_wbMaster_rst <= rst_i;
-
-  Inst_Wb_master : VME_Wb_master
-    generic map (
-      g_WB_DATA_WIDTH => g_WB_DATA_WIDTH,
-      g_WB_ADDR_WIDTH => g_WB_ADDR_WIDTH
-    )
-    port map (
-      memReq_i        => s_WBReq,
-      clk_i           => clk_i,
-      reset_i         => s_wbMaster_rst,
-      BERRcondition_i => s_BERRcondition,
-      sel_i           => s_sel,
-      locDataInSwap_i => s_locDataInSwap (31 downto 0),
-      locDataOut_o    => s_locDataOutWb (31 downto 0),
-      rel_locAddr_i   => s_locAddr,
-      memAckWb_o      => s_AckWb,
-      err_o           => s_err,
-      rty_o           => s_rty,
-      RW_i            => VME_WRITE_n_i,
-      stall_i         => stall_i,
-      rty_i           => rty_i,
-      err_i           => err_i,
-      cyc_o           => cyc_o,
-      stb_o           => stb_o,
-      WBdata_o        => dat_o,
-      wbData_i        => dat_i,
-      locAddr_o       => adr_o,
-      memAckWB_i      => ack_i,
-      WbSel_o         => sel_o,
-      RW_o            => s_rw
-    );
-
-  we_o <= not s_rw;
-
-  s_WBReq <= s_card_sel and s_memReq;
+  adr_o <= "00" & s_ADDRlatched(31 downto 2);
+  we_o <= not VME_WRITE_n_i;
+  dat_o <= s_locDataIn(31 downto 0);
   
-  ------------------------------------------------------------------------------
   -- Function Decoder
-  ------------------------------------------------------------------------------
   addr_decoder_o <= s_ADDRlatched & '0';
   am_o           <= s_AMlatched;
 
-  ------------------------------------------------------------------------------
   -- CR/CSR In/Out
-  ------------------------------------------------------------------------------
   cr_csr_data_o <= s_locDataIn(7 downto 0);
   cr_csr_addr_o <= s_ADDRlatched(18 downto 2);
 
   cr_csr_we_o   <= '1' when s_memReq   = '1' and
                             s_conf_sel = '1' and
-                            s_RW       = '0'
+                            VME_WRITE_n_i = '0'
                             else '0';
 end RTL;

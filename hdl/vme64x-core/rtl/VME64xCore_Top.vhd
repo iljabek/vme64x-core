@@ -236,7 +236,6 @@ entity VME64xCore_Top is
     ADR_o   : out std_logic_vector(g_WB_ADDR_WIDTH-1 downto 0);
     CYC_o   : out std_logic;
     ERR_i   : in  std_logic;
-    RTY_i   : in  std_logic;
     SEL_o   : out std_logic_vector(g_WB_DATA_WIDTH/8-1 downto 0);
     STB_o   : out std_logic;
     ACK_i   : in  std_logic;
@@ -246,7 +245,6 @@ entity VME64xCore_Top is
     -- User CSR
     -- The following signals are used when g_USER_CSR_EXT = true
     -- otherwise they are connected to the internal user CSR.
-    endian_i        : in  std_logic_vector( 2 downto 0) := (others => '0');
     irq_level_i     : in  std_logic_vector( 7 downto 0) := (others => '0');
     irq_vector_i    : in  std_logic_vector( 7 downto 0) := (others => '0');
     user_csr_addr_o : out std_logic_vector(18 downto 2);
@@ -302,7 +300,6 @@ architecture RTL of VME64xCore_Top is
 
   signal s_irq_vector           : std_logic_vector( 7 downto 0);
   signal s_irq_level            : std_logic_vector( 7 downto 0);
-  signal s_endian               : std_logic_vector( 2 downto 0);
   signal s_user_csr_addr        : std_logic_vector(18 downto 2);
   signal s_user_csr_data_i      : std_logic_vector( 7 downto 0);
   signal s_user_csr_data_o      : std_logic_vector( 7 downto 0);
@@ -385,7 +382,7 @@ begin
   ------------------------------------------------------------------------------
   -- VME Bus
   ------------------------------------------------------------------------------
-  Inst_VME_bus : VME_bus
+  Inst_VME_bus : entity work.VME_bus
     generic map (
       g_CLOCK_PERIOD  => g_CLOCK_PERIOD,
       g_WB_DATA_WIDTH => g_WB_DATA_WIDTH,
@@ -427,7 +424,6 @@ begin
       we_o            => WE_o,
       cyc_o           => CYC_o,
       err_i           => ERR_i,
-      rty_i           => RTY_i,
       stall_i         => STALL_i,
 
       -- Function decoder
@@ -443,7 +439,6 @@ begin
       cr_csr_data_i   => s_cr_csr_data_o,
       cr_csr_data_o   => s_cr_csr_data_i,
       cr_csr_we_o     => s_cr_csr_we,
-      endian_i        => s_endian,
       module_enable_i => s_module_enable,
       bar_i           => s_bar
     );
@@ -455,7 +450,7 @@ begin
   VME_BERR_o <= not s_vme_berr_n; -- The VME_BERR is asserted when '1' because
                                   -- the buffers on the board invert the logic.
 
-  Inst_VME_Funct_Match : VME_Funct_Match
+  Inst_VME_Funct_Match : entity work.VME_Funct_Match
     generic map (
       g_ADEM      => c_ADEM,
       g_AMCAP     => c_AMCAP
@@ -504,7 +499,7 @@ begin
   ------------------------------------------------------------------------------
   --  Interrupter
   ------------------------------------------------------------------------------
-  Inst_VME_IRQ_Controller : VME_IRQ_Controller
+  Inst_VME_IRQ_Controller : entity work.VME_IRQ_Controller
     generic map (
       g_RETRY_TIMEOUT => 1000000/g_CLOCK_PERIOD     -- 1ms timeout
     )
@@ -529,7 +524,7 @@ begin
   ------------------------------------------------------------------------------
   -- CR/CSR space
   ------------------------------------------------------------------------------
-  Inst_VME_CR_CSR_Space : VME_CR_CSR_Space
+  Inst_VME_CR_CSR_Space : entity work.VME_CR_CSR_Space
     generic map (
       g_MANUFACTURER_ID  => g_MANUFACTURER_ID,
       g_BOARD_ID         => g_BOARD_ID,
@@ -578,7 +573,7 @@ begin
 
   -- User CSR space
   gen_int_user_csr : if g_USER_CSR_EXT = false generate
-    Inst_VME_User_CSR : VME_User_CSR
+    Inst_VME_User_CSR : entity work.VME_User_CSR
       generic map (
         g_WB_DATA_WIDTH => g_WB_DATA_WIDTH
       )
@@ -590,15 +585,11 @@ begin
         data_o       => s_user_csr_data_i,
         we_i         => s_user_csr_we,
         irq_vector_o => s_irq_vector,
-        irq_level_o  => s_irq_level,
-        endian_o     => s_endian,
-        time_i       => x"0000000000",
-        bytes_i      => x"0000"
+        irq_level_o  => s_irq_level
       );
   end generate;
   gen_ext_user_csr : if g_USER_CSR_EXT = true generate
     s_user_csr_data_i <= user_csr_data_i;
-    s_endian          <= endian_i;
     s_irq_vector      <= irq_vector_i;
     s_irq_level       <= irq_level_i;
   end generate;

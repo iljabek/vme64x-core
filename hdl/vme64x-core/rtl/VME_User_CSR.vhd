@@ -31,16 +31,6 @@
 --     IRQ_Vector --> 0x0002F  |--> For the VME_IRQ_Controller
 --     IRQ_level  --> 0x0002B _|
 --
---     Endian     --> 0x00023 ----> For the VME_swapper
---                            _
---     TIME0_ns   --> 0x0001F  |
---     TIME1_ns   --> 0x0001B  |
---     TIME2_ns   --> 0x00017  |
---     TIME3_ns   --> 0x00013  |--> To calculate the transfer rate
---     TIME4_ns   --> 0x0000F  |    (not currently implemented)
---     BYTES0     --> 0x0000B  |
---     BYTES1     --> 0x00007 _|
---
 --     WB32bits   --> 0x00003 ----> If bit 0 is '1' the WB data bus is 32b
 --
 -- dependencies:
@@ -82,10 +72,7 @@ entity VME_User_CSR is
     we_i                : in  std_logic;
 
     irq_vector_o        : out std_logic_vector( 7 downto 0);
-    irq_level_o         : out std_logic_vector( 7 downto 0);
-    endian_o            : out std_logic_vector( 2 downto 0);
-    bytes_i             : in  std_logic_vector(15 downto 0);
-    time_i              : in  std_logic_vector(39 downto 0)
+    irq_level_o         : out std_logic_vector( 7 downto 0)
   );
 end VME_User_CSR;
 
@@ -93,8 +80,6 @@ architecture rtl of VME_User_CSR is
 
   signal s_irq_vector   : std_logic_vector(7 downto 0);
   signal s_irq_level    : std_logic_vector(7 downto 0);
-  signal s_endian       : std_logic_vector(7 downto 0);
-  signal s_wb32bits     : std_logic_vector(7 downto 0);
 
   -- Value for unused memory locations
   constant c_UNUSED     : std_logic_vector(7 downto 0) := x"ff";
@@ -113,9 +98,6 @@ architecture rtl of VME_User_CSR is
   constant c_WB32BITS   : integer := 16#00003#/4;
 
 begin
-
-  s_wb32bits <= x"01" when g_WB_DATA_WIDTH = 32 else x"00";
-
   -- Write
   process (clk_i)
   begin
@@ -123,13 +105,11 @@ begin
       if rst_n_i = '0' then
         s_irq_vector <= x"00";
         s_irq_level  <= x"00";
-        s_endian     <= x"00";
       else
         if we_i = '1' then
           case to_integer(unsigned(addr_i)) is
             when c_IRQ_VECTOR => s_irq_vector <= data_i;
             when c_IRQ_LEVEL  => s_irq_level  <= data_i;
-            when c_ENDIAN     => s_endian     <= data_i;
             when others       => null;
           end case;
         end if;
@@ -139,7 +119,6 @@ begin
 
   irq_vector_o  <= s_irq_vector;
   irq_level_o   <= s_irq_level;
-  endian_o      <= s_endian(2 downto 0);
 
   -- Read
   process (clk_i)
@@ -151,15 +130,8 @@ begin
         case to_integer(unsigned(addr_i)) is
           when c_IRQ_VECTOR => data_o <= s_irq_vector;
           when c_IRQ_LEVEL  => data_o <= s_irq_level;
-          when c_ENDIAN     => data_o <= s_endian;
-          when c_TIME0_NS   => data_o <= time_i( 7 downto  0);
-          when c_TIME1_NS   => data_o <= time_i(15 downto  8);
-          when c_TIME2_NS   => data_o <= time_i(23 downto 16);
-          when c_TIME3_NS   => data_o <= time_i(31 downto 24);
-          when c_TIME4_NS   => data_o <= time_i(39 downto 32);
-          when c_BYTES0     => data_o <= bytes_i( 7 downto 0);
-          when c_BYTES1     => data_o <= bytes_i(15 downto 8);
-          when c_WB32BITS   => data_o <= s_wb32bits;
+          when c_ENDIAN     => data_o <= x"00";
+          when c_WB32BITS   => data_o <= x"01";
           when others       => data_o <= c_UNUSED;
         end case;
       end if;
