@@ -138,7 +138,7 @@ architecture RTL of VME_bus is
   -- VME latched signals
   signal s_ADDRlatched              : std_logic_vector(31 downto 1);
   signal s_LWORDlatched_n           : std_logic;
-  signal s_DSlatched                : std_logic_vector(1 downto 0);
+  signal s_DSlatched_n              : std_logic_vector(1 downto 0);
   signal s_AMlatched                : std_logic_vector(5 downto 0);
 
   type t_addressingType is (
@@ -208,10 +208,7 @@ architecture RTL of VME_bus is
   signal s_conf_sel                 : std_logic;   -- CR or CSR is addressed
   signal s_card_sel                 : std_logic;   -- WB memory is addressed
 
-  -- Initialization signals
   signal s_is_d64                   : std_logic;
-
-  --  Set on the cycle to decode access (ADDR + AM)
   signal s_err                      : std_logic;
 
   -- Calculate the number of LATCH DS states necessary to match the timing
@@ -444,7 +441,7 @@ begin
               s_mainFSMstate <= CHECK_TRANSFER_TYPE;
 
               -- Read DS (which is delayed to avoid metastability).
-              s_DSlatched    <= VME_DS_n_i;
+              s_DSlatched_n  <= VME_DS_n_i;
 
               -- Read DATA (which are stable)
               s_locDataIn(63 downto 33) <= VME_ADDR_i;
@@ -474,9 +471,9 @@ begin
               sel_o <= "0000";
               case s_ADDRlatched(1) is
                 when '0' =>
-                  sel_o (3 downto 2) <= not s_DSlatched;
+                  sel_o (3 downto 2) <= not s_DSlatched_n;
                 when '1' =>
-                  sel_o (1 downto 0) <= not s_DSlatched;
+                  sel_o (1 downto 0) <= not s_DSlatched_n;
                 when others =>
                   null;
               end case;
@@ -496,8 +493,8 @@ begin
             VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
             s_dataPhase      <= s_dataPhase;
 
-            cyc_o <= s_card_sel;
-            stb_o <= s_card_sel and not stall_i;
+            -- Assert STB if stall was asserted.
+            stb_o <= s_card_sel and stall_i;
 
             if s_conf_sel = '1'
               or (s_card_sel = '1' and (ack_i = '1' or err_i = '1'))
@@ -601,7 +598,7 @@ begin
                 addr_word_incr := 2;
               end if;
             else
-              if s_DSlatched (0) = '0' then
+              if s_DSlatched_n (0) = '0' then
                 -- Next word for D16 or D08(O)
                 addr_word_incr := 1;
               else
