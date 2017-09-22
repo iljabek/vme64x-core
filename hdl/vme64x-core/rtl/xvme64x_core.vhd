@@ -234,14 +234,12 @@ begin  -- wrapper
       ADR_o           => adr_out,
       CYC_o           => master_o.cyc,
       ERR_i           => master_i.err,
-      RTY_i           => master_i.rty,
       SEL_o           => open,
       STB_o           => master_o.stb,
       ACK_i           => master_i.ack,
       WE_o            => master_o.we,
       STALL_i         => master_i.stall,
 
-      endian_i        => endian_i,
       function_o      => function_o,
 
       user_csr_addr_o => user_csr_addr_o,
@@ -262,4 +260,6 @@ begin  -- wrapper
   master_o.adr <= adr_out(29 downto 0) & "00";
   dat_in       <= master_i.dat;
 
+  assert master_i.rty = '0' report "rty not supported";
+  assert endian_i = "000" report "endian_i not supported";
 end wrapper;
