@@ -201,7 +201,7 @@ architecture RTL of VME_bus is
 
   -- Main FSM signals
   signal s_mainFSMstate             : t_mainFSMstates;
-  signal s_memReq                   : std_logic;   -- Global memory request
+  signal s_conf_req                 : std_logic;   -- Global memory request
   signal s_dataPhase                : std_logic;   -- for MBLT
 
   -- Access decode signals
@@ -295,7 +295,7 @@ begin
         -- FSM resetted after power up,
         -- software reset, manually reset,
         -- on rising edge of AS.
-        s_memReq         <= '0';
+        s_conf_req       <= '0';
         decode_start_o   <= '0';
 
         -- VME
@@ -307,7 +307,7 @@ begin
         VME_ADDR_o    <= (others => '0');
         VME_LWORD_n_o <= '1';
         VME_DATA_o    <= (others => '0');
-        
+
         s_dataPhase      <= '0';
         s_mainFSMstate   <= IDLE;
 
@@ -324,7 +324,7 @@ begin
         s_card_sel <= '0';
         s_conf_sel <= '0';
       else
-        s_memReq         <= '0';
+        s_conf_req       <= '0';
         decode_start_o   <= '0';
         VME_DTACK_OE_o   <= '0';
         VME_DTACK_n_o    <= '1';
@@ -416,7 +416,6 @@ begin
 
           when WAIT_FOR_DS =>
             -- wait until DS /= "11"
-            VME_DTACK_OE_o   <= '1';
             VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
             s_dataPhase      <= s_dataPhase;
 
@@ -430,7 +429,7 @@ begin
           when LATCH_DS =>
             -- this state is necessary indeed the VME master can assert the
             -- DS lines not at the same time
-            VME_DTACK_OE_o   <= '1';
+
             -- VITA-1 Rule 2.53a
             -- During all read cycles [...], the responding slave MUST OT
             -- drive the D[] lines until DSA* goes low.
@@ -480,14 +479,14 @@ begin
             end if;
 
             s_mainFSMstate <= MEMORY_REQ;
-            s_memReq <= '1';
+            s_conf_req <= s_conf_sel;
             cyc_o <= s_card_sel;
             stb_o <= s_card_sel;
             s_err <= '0';
 
           when MEMORY_REQ =>
             -- To request the memory CR/CSR or WB memory it is sufficient to
-            -- generate a pulse on s_memReq signal
+            -- generate a pulse on s_conf_req signal
             VME_DTACK_OE_o   <= '1';
             VME_DATA_DIR_o   <= VME_WRITE_n_i;
             VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
@@ -564,6 +563,10 @@ begin
             if VME_DS_n_i = "11" then
               VME_DATA_DIR_o  <= '0';
               VME_BERR_n_o    <= '1';
+
+              -- Rescind DTACK.
+              VME_DTACK_n_o <= '1';
+
               case s_transferType is
                 when SINGLE =>
                   --  Cycle should be finished, but allow another access at
@@ -632,7 +635,7 @@ begin
   adr_o <= "00" & s_ADDRlatched(31 downto 2);
   we_o <= not VME_WRITE_n_i;
   dat_o <= s_locDataIn(31 downto 0);
-  
+
   -- Function Decoder
   addr_decoder_o <= s_ADDRlatched & '0';
   am_o           <= s_AMlatched;
@@ -641,8 +644,7 @@ begin
   cr_csr_data_o <= s_locDataIn(7 downto 0);
   cr_csr_addr_o <= s_ADDRlatched(18 downto 2);
 
-  cr_csr_we_o   <= '1' when s_memReq   = '1' and
-                            s_conf_sel = '1' and
+  cr_csr_we_o   <= '1' when s_conf_req = '1' and
                             VME_WRITE_n_i = '0'
                             else '0';
 end RTL;
