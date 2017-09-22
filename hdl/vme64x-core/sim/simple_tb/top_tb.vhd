@@ -1,5 +1,5 @@
 entity top_tb is
-  generic (scenario : natural range 0 to 3 := 1);
+  generic (scenario : natural range 0 to 5 := 1);
 end;
 
 library ieee;
@@ -223,6 +223,7 @@ architecture behaviour of top_tb is
   constant slave_ga : std_logic_vector (4 downto 0) := b"0_1101";
 
   signal bus_timer : std_logic;
+  signal end_tb : boolean := false;
 begin
   set_ga: block
   begin
@@ -292,6 +293,9 @@ begin
     wait for (g_CLOCK_PERIOD / 2) * 1 ns;
     clk_i <= '1';
     wait for (g_CLOCK_PERIOD / 2) * 1 ns;
+    if end_tb then
+      wait;
+    end if;
   end process;
 
   --  Bus timer.  See VME spec 2.3.3 Bus Timer
@@ -346,6 +350,10 @@ begin
   end process;
 
   --  WB slave: a simple sram
+  --  WBaddr   VMEaddr
+  --  0-0x3ff  0-0xfff  sram
+  --  0x2000   0x8000   counter
+  --  0x2001   0x8004   BERR
   wb_p : process (clk_i)
     constant sram_addr_wd : natural := 10;
     type sram_array is array (0 to 2**sram_addr_wd - 1)
@@ -366,12 +374,13 @@ begin
     if rising_edge (clk_i) then
       if rst_n_o = '0' then
         ERR_i <= '0';
-        STALL_i <= '0'; --  ??
+        STALL_i <= '0';
         ACK_i <= '0';
 
         int_cnt := 0;
       else
         ACK_i <= '0';
+        ERR_i <= '0';
 
         -- Interrupt timer
         irq_i <= '0';
@@ -385,20 +394,29 @@ begin
         if STB_o = '1' then
           ACK_i <= '1';
           idx := to_integer (unsigned (ADR_o (sram_addr_wd - 1 downto 0)));
-          if WE_o = '0' then
-            -- Read
-            if ADR_o (13) = '1' then
-              DAT_i <= std_logic_vector (to_unsigned (int_cnt, 32));
-            else
-              DAT_i <= sram (idx);
-            end if;
-          else
-            -- Write
-            if ADR_o (13) = '1' then
-              if sel_o (0) = '1' then
-                int_cnt := to_integer(unsigned(DAT_o(7 downto 0)));
+          
+          if ADR_o (13) = '1' then
+            if ADR_o (0) = '0' then
+              if WE_o = '0' then
+                -- Read counter
+                DAT_i <= std_logic_vector (to_unsigned (int_cnt, 32));
+              else
+                -- Write counter
+                if sel_o (0) = '1' then
+                  int_cnt := to_integer(unsigned(DAT_o(7 downto 0)));
+                end if;
               end if;
             else
+              --  BERR
+              ACK_i <= '0';
+              ERR_i <= '1';
+            end if;
+          else
+            if WE_o = '0' then
+              --  Read SRAM
+              DAT_i <= sram (idx);
+            else
+              -- Write SRAM
               for i in 3 downto 0 loop
                 if sel_o(i) = '1' then
                   sram(idx)(8*i + 7 downto 8*i) := DAT_o (8*i + 7 downto 8*i);
@@ -1093,13 +1111,47 @@ begin
                                x"87_65_43_21")
           report "incorrect BLT data 32 r/w" severity error;
 
-        --  TODO
+      when 4 =>
         --  A24 tests
         --  A24 with weird MSBs in address
+
+        -- Set ADER
+        write8_conf (x"7_ff73", x"00");
+        write8_conf (x"7_ff77", x"20");
+        write8_conf (x"7_ff7f", c_AM_A24_S & "00");
+
+        -- Enable card
+        write8_conf (x"7_fffb", b"0001_0000");
+
+        read32 (x"00_20_00_10", c_AM_A24_S, d32);
+        assert d32  = x"0000_0004"
+          report "incorrect read 32" severity error;
+
+        read32 (x"13_20_00_14", c_AM_A24_S, d32);
+        assert d32  = x"0000_0500"
+          report "incorrect read 32" severity error;
+
+      when 5 =>
+        -- Test err_i => BERR
+
+        -- Set ADER
+        write8_conf (x"7_ff73", x"00");
+        write8_conf (x"7_ff77", x"20");
+        write8_conf (x"7_ff7f", c_AM_A24_S & "00");
+
+        -- Enable card
+        write8_conf (x"7_fffb", b"0001_0000");
+
+        read32 (x"00_20_80_04", c_AM_A24_S, d32);
+        assert d32  = (31 downto 0 => 'X')
+          report "incorrect read 32" severity error;
+
+        --  TODO
     end case;
 
-    wait for 10 ns;
-    assert false report "end of simulation" severity failure;
+    wait for 4 * g_CLOCK_PERIOD * 1 ns;
+    end_tb <= true;
+    assert false report "end of simulation" severity note;
     wait;
   end process;
 end behaviour;
