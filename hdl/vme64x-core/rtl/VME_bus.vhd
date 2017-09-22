@@ -140,6 +140,7 @@ architecture RTL of VME_bus is
   signal s_LWORDlatched_n           : std_logic;
   signal s_DSlatched_n              : std_logic_vector(1 downto 0);
   signal s_AMlatched                : std_logic_vector(5 downto 0);
+  signal s_WRITElatched_n           : std_logic;
 
   type t_addressingType is (
     A24,
@@ -416,10 +417,9 @@ begin
 
           when WAIT_FOR_DS =>
             -- wait until DS /= "11"
-            VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
-            s_dataPhase      <= s_dataPhase;
 
             if VME_DS_n_i /= "11" then
+              s_WRITElatched_n <= VME_WRITE_n_i;
               s_mainFSMstate <= LATCH_DS;
               s_DS_latch_count <= to_unsigned (num_latchDS - 1, 3);
             else
@@ -433,8 +433,8 @@ begin
             -- VITA-1 Rule 2.53a
             -- During all read cycles [...], the responding slave MUST OT
             -- drive the D[] lines until DSA* goes low.
-            VME_DATA_DIR_o   <= VME_WRITE_n_i;
-            VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
+            VME_DATA_DIR_o   <= s_WRITElatched_n;
+            VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
             s_dataPhase      <= s_dataPhase;
             if s_DS_latch_count = 0 then
               s_mainFSMstate <= CHECK_TRANSFER_TYPE;
@@ -459,8 +459,8 @@ begin
 
           when CHECK_TRANSFER_TYPE =>
             VME_DTACK_OE_o   <= '1';
-            VME_DATA_DIR_o   <= VME_WRITE_n_i;
-            VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
+            VME_DATA_DIR_o   <= s_WRITElatched_n;
+            VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
             s_dataPhase      <= s_dataPhase;
 
             --  Translate DS+LWORD+ADDR to WB byte selects
@@ -488,8 +488,8 @@ begin
             -- To request the memory CR/CSR or WB memory it is sufficient to
             -- generate a pulse on s_conf_req signal
             VME_DTACK_OE_o   <= '1';
-            VME_DATA_DIR_o   <= VME_WRITE_n_i;
-            VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
+            VME_DATA_DIR_o   <= s_WRITElatched_n;
+            VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
             s_dataPhase      <= s_dataPhase;
 
             -- Assert STB if stall was asserted.
@@ -501,7 +501,7 @@ begin
               -- WB ack
               stb_o <= '0';
               s_err <= s_card_sel and err_i;
-              if VME_WRITE_n_i = '0' or (s_card_sel and err_i) = '1' then
+              if s_WRITElatched_n = '0' or (s_card_sel and err_i) = '1' then
                 -- Write cycle (or BERR)
                 s_mainFSMstate <= DTACK_LOW;
               else
@@ -528,8 +528,8 @@ begin
 
           when DATA_TO_BUS =>
             VME_DTACK_OE_o   <= '1';
-            VME_DATA_DIR_o   <= VME_WRITE_n_i;
-            VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
+            VME_DATA_DIR_o   <= s_WRITElatched_n;
+            VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
             s_dataPhase      <= s_dataPhase;
             s_mainFSMstate   <= DTACK_LOW;
 
@@ -545,8 +545,8 @@ begin
 
           when DTACK_LOW =>
             VME_DTACK_OE_o   <= '1';
-            VME_DATA_DIR_o   <= VME_WRITE_n_i;
-            VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
+            VME_DATA_DIR_o   <= s_WRITElatched_n;
+            VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
             s_dataPhase      <= s_dataPhase;
 
             --  Set DTACK (or retry or berr)
@@ -591,7 +591,7 @@ begin
 
           when INCREMENT_ADDR =>
             VME_DTACK_OE_o   <= '1';
-            VME_ADDR_DIR_o   <= (s_is_d64) and VME_WRITE_n_i;
+            VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
             s_dataPhase      <= s_dataPhase;
 
             if s_LWORDlatched_n = '0' then
@@ -633,7 +633,7 @@ begin
 
   -- WB Master
   adr_o <= "00" & s_ADDRlatched(31 downto 2);
-  we_o <= not VME_WRITE_n_i;
+  we_o <= not s_WRITElatched_n;
   dat_o <= s_locDataIn(31 downto 0);
 
   -- Function Decoder
@@ -645,6 +645,6 @@ begin
   cr_csr_addr_o <= s_ADDRlatched(18 downto 2);
 
   cr_csr_we_o   <= '1' when s_conf_req = '1' and
-                            VME_WRITE_n_i = '0'
+                            s_WRITElatched_n = '0'
                             else '0';
 end RTL;
