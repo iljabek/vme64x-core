@@ -191,6 +191,12 @@ architecture rtl of VME_CR_CSR_Space is
   constant c_USER_CSR_SIZE  : integer := f_size(g_BEG_USER_CSR, g_END_USER_CSR);
   constant c_USER_CSR_ENA   : boolean := c_USER_CSR_SIZE > 1;
 
+  -- ADER bits to be stored, in addition to the corresponding ADEM ones.
+  -- (ie AM + XAM).
+  constant c_ADER_MASK : std_logic_vector(31 downto 0) := x"0000_00fd";
+  -- Corresponding ADEM bits.
+  constant c_ADEM_MASK : std_logic_vector(31 downto 0) := x"ffff_ff00";
+  
   -- CRAM
   type t_cram is array (c_CRAM_SIZE-1 downto 0) of std_logic_vector(7 downto 0);
 
@@ -441,17 +447,24 @@ begin
   module_enable_o   <= s_reg_bit_reg(c_ENABLE_BIT);
   vme_sysfail_ena_o <= s_reg_bit_reg(c_SYSFAIL_EN_BIT);
   module_reset_o    <= s_reg_bit_reg(c_RESET_BIT);
-  ader_o            <= s_reg_ader;
+
+  gen_ader_o: for i in s_reg_ader'range generate
+    ader_o (i) <=
+      s_reg_ader (i) and ((g_ADEM(i) and c_ADEM_MASK) or c_ADER_MASK);
+  end generate;
 
   -- Read
   process (clk_i)
     procedure Get_ADER(Idx : natural range 0 to 7)
     is
       variable v_byte  : integer;
+      variable ader : std_logic_vector(31 downto 0);
     begin
       if g_ADEM(Idx) /= x"0000_0000" then
         v_byte  := 3 - to_integer(s_addr(3 downto 2));
-        s_csr_data <= s_reg_ader(Idx)(8*v_byte+7 downto 8*v_byte);
+        ader := s_reg_ader(Idx)
+                and ((g_ADEM(Idx) and c_ADEM_MASK) or c_ADER_MASK);
+        s_csr_data <= ader(8*v_byte+7 downto 8*v_byte);
       end if;
     end Get_ADER;
 
