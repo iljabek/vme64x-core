@@ -204,6 +204,7 @@ architecture RTL of VME_bus is
   signal s_mainFSMstate             : t_mainFSMstates;
   signal s_conf_req                 : std_logic;   -- Global memory request
   signal s_dataPhase                : std_logic;   -- for MBLT
+  signal s_MBLT_Data                : std_logic;   -- for MBLT: '1' in Addr
 
   -- Access decode signals
   signal s_conf_sel                 : std_logic;   -- CR or CSR is addressed
@@ -240,15 +241,7 @@ begin
   ------------------------------------------------------------------------------
   -- Type of data transfer decoder
   -- VME64 ANSI/VITA 1-1994...Table 2-2 "Signal levels during data transfers"
-  -- A2 is used to select the D64 type  (D64 --> MBLT and 2edge cycles)
-  -- VME DATA --> BIG ENDIAN
 
-
-  -- These 5 bits are not sufficient to descriminate the D32 and D64 data
-  -- transfer type; indeed the D32 access with A2 = '0' (eg 0x010)
-  -- fall within D64 access --> The data transfer type have to be evaluated
-  -- jointly with the address type.
-  --
   -- Bytes position on VMEbus:
   --
   -- A24-31 | A16-23 | A08-15 | A00-07 | D24-31 | D16-23 | D08-15 | D00-07
@@ -262,7 +255,7 @@ begin
   -- BYTE 0 | BYTE 1 | BYTE 2 | BYTE 3 | BYTE 4 | BYTE 5 | BYTE 6 | BYTE 7
 
   -- Address modifier decoder
-  -- Either the supervisor or user access modes are supported
+  -- Both the supervisor and the user access modes are supported
   with s_AMlatched select s_addressingType <=
     A24      when c_AM_A24_S_SUP | c_AM_A24_S,
     A24_BLT  when c_AM_A24_BLT | c_AM_A24_BLT_SUP,
@@ -310,6 +303,7 @@ begin
         VME_DATA_o    <= (others => '0');
 
         s_dataPhase      <= '0';
+        s_MBLT_Data      <= '0';
         s_mainFSMstate   <= IDLE;
 
         -- WB
@@ -331,7 +325,6 @@ begin
         VME_DTACK_n_o    <= '1';
         VME_DATA_DIR_o   <= '0';
         VME_ADDR_DIR_o   <= '0';
-        s_dataPhase      <= '0';
         VME_BERR_n_o     <= '1';
 
         s_DS_latch_count <= "000";
@@ -372,14 +365,15 @@ begin
                 null;  -- A32
             end case;
 
+            -- Address is not yet decoded.
+            s_card_sel <= '0';
+            s_conf_sel <= '0';
+
             --  VITA-1 Rule 2.6
             --  A Slave MUST NOT respond with a falling edge on DTACK* during
             --  an unaligned transfer cycle, if it does not have UAT
             --  capability.
-            if ((s_transferType = SINGLE or s_transferType = BLT)
-                and s_LWORDlatched_n = '0' and s_ADDRlatched(1) = '1')
-              or (s_transferType = MBLT and s_ADDRlatched(2 downto 1) /= "00")
-            then
+            if s_LWORDlatched_n = '0' and s_ADDRlatched(1) = '1' then
               -- unaligned.
               s_mainFSMstate <= WAIT_END;
             else
@@ -431,13 +425,28 @@ begin
             -- DS lines not at the same time
 
             -- VITA-1 Rule 2.53a
-            -- During all read cycles [...], the responding slave MUST OT
+            -- During all read cycles [...], the responding slave MUST NOT
             -- drive the D[] lines until DSA* goes low.
             VME_DATA_DIR_o   <= s_WRITElatched_n;
             VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
-            s_dataPhase      <= s_dataPhase;
+
+            if s_transferType = MBLT then
+              s_dataPhase <= '1';
+
+              -- Start with D[31..0] when writing, but D[63..32] when reading.
+              s_ADDRlatched(2) <= not s_WRITElatched_n;
+            else
+              s_dataPhase <= '0';
+            end if;
+
             if s_DS_latch_count = 0 then
-              s_mainFSMstate <= CHECK_TRANSFER_TYPE;
+              if s_transferType = MBLT and s_MBLT_Data = '0' then
+                -- MBLT: ack address.
+                -- (Data are also read but discarded).
+                s_mainFSMstate <= DTACK_LOW;
+              else
+                s_mainFSMstate <= CHECK_TRANSFER_TYPE;
+              end if;
 
               -- Read DS (which is delayed to avoid metastability).
               s_DSlatched_n  <= VME_DS_n_i;
@@ -445,6 +454,7 @@ begin
               -- Read DATA (which are stable)
               s_locDataIn(63 downto 33) <= VME_ADDR_i;
               s_locDataIn(32)           <= VME_LWORD_n_i;
+
               if s_LWORDlatched_n = '1' and s_ADDRlatched(1) = '0' then
                 -- Word/byte access with A1=0
                 s_locDataIn(31 downto 16)  <= VME_DATA_i(15 downto 0);
@@ -458,7 +468,6 @@ begin
             end if;
 
           when CHECK_TRANSFER_TYPE =>
-            VME_DTACK_OE_o   <= '1';
             VME_DATA_DIR_o   <= s_WRITElatched_n;
             VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
             s_dataPhase      <= s_dataPhase;
@@ -478,11 +487,20 @@ begin
               end case;
             end if;
 
-            s_mainFSMstate <= MEMORY_REQ;
-            s_conf_req <= s_conf_sel;
-            cyc_o <= s_card_sel;
-            stb_o <= s_card_sel;
-            s_err <= '0';
+            --  VITA-1 Rule 2.6
+            --  A Slave MUST NOT respond with a falling edge on DTACK* during
+            --  an unaligned transfer cycle, if it does not have UAT
+            --  capability.
+            if s_LWORDlatched_n = '0' and s_DSlatched_n /= "00" then
+              -- unaligned.
+              s_mainFSMstate <= WAIT_END;
+            else
+              s_mainFSMstate <= MEMORY_REQ;
+              s_conf_req <= s_conf_sel;
+              cyc_o <= s_card_sel;
+              stb_o <= s_card_sel;
+              s_err <= '0';
+            end if;
 
           when MEMORY_REQ =>
             -- To request the memory CR/CSR or WB memory it is sufficient to
@@ -490,7 +508,6 @@ begin
             VME_DTACK_OE_o   <= '1';
             VME_DATA_DIR_o   <= s_WRITElatched_n;
             VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
-            s_dataPhase      <= s_dataPhase;
 
             -- Assert STB if stall was asserted.
             stb_o <= s_card_sel and stall_i;
@@ -501,14 +518,28 @@ begin
               -- WB ack
               stb_o <= '0';
               s_err <= s_card_sel and err_i;
-              if s_WRITElatched_n = '0' or (s_card_sel and err_i) = '1' then
-                -- Write cycle (or BERR)
+              if (s_card_sel and err_i) = '1' then
+                -- Error
                 s_mainFSMstate <= DTACK_LOW;
+              elsif s_WRITElatched_n = '0' then
+                -- Write cycle.
+                if s_dataPhase = '1' then
+                  -- MBLT
+                  s_dataPhase <= '0';
+                  s_ADDRlatched(2) <= '0';
+
+                  s_locDataIn(31 downto 0) <= s_locDataIn(63 downto 32);
+
+                  s_mainFSMstate <= CHECK_TRANSFER_TYPE;
+                else
+                  s_mainFSMstate <= DTACK_LOW;
+                end if;
               else
                 -- Read cycle
 
                 -- Mux (CS-CSR or WB)
-                s_locDataOut <= (others => '0');
+                s_locDataOut(63 downto 32) <= s_locDataOut(31 downto 0);
+                s_locDataOut(31 downto 0) <= (others => '0');
                 if s_card_sel = '1' then
                   if s_LWORDlatched_n = '1' and s_ADDRlatched(1) = '0' then
                     -- Word/byte access with A1 = 0
@@ -516,11 +547,19 @@ begin
                   else
                     s_locDataOut(31 downto 0) <= dat_i;
                   end if;
-                elsif s_conf_sel = '1' then
+                else
                   s_locDataOut(7 downto 0) <= cr_csr_data_i;
                 end if;
 
-                s_mainFSMstate <= DATA_TO_BUS;
+                if s_dataPhase = '1' then
+                  -- MBLT
+                  s_dataPhase <= '0';
+                  s_ADDRlatched(2) <= '1';
+
+                  s_mainFSMstate <= CHECK_TRANSFER_TYPE;
+                else
+                  s_mainFSMstate <= DATA_TO_BUS;
+                end if;
               end if;
             else
               s_mainFSMstate <= MEMORY_REQ;
@@ -530,24 +569,20 @@ begin
             VME_DTACK_OE_o   <= '1';
             VME_DATA_DIR_o   <= s_WRITElatched_n;
             VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
-            s_dataPhase      <= s_dataPhase;
-            s_mainFSMstate   <= DTACK_LOW;
+
+            VME_ADDR_o    <= s_locDataOut(63 downto 33);
+            VME_LWORD_n_o <= s_locDataOut(32);
+            VME_DATA_o    <= s_locDataOut(31 downto 0);
 
             -- VITA-1 Rule 2.54a
             -- During all read cycles, the responding Slave MUST NOT drive
             -- DTACK* low before it drives D[].
-            if s_transferType = MBLT then
-              VME_ADDR_o    <= s_locDataOut(63 downto 33);
-              VME_LWORD_n_o <= s_locDataOut(32);
-            end if;
-
-            VME_DATA_o <= s_locDataOut(31 downto 0);
+            s_mainFSMstate   <= DTACK_LOW;
 
           when DTACK_LOW =>
             VME_DTACK_OE_o   <= '1';
             VME_DATA_DIR_o   <= s_WRITElatched_n;
             VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
-            s_dataPhase      <= s_dataPhase;
 
             --  Set DTACK (or retry or berr)
             if s_err = '1' then
@@ -566,25 +601,21 @@ begin
 
               -- Rescind DTACK.
               VME_DTACK_n_o <= '1';
-
-              case s_transferType is
-                when SINGLE =>
-                  --  Cycle should be finished, but allow another access at
-                  --  the same address (RMW).
+              
+              if s_transferType = SINGLE then
+                --  Cycle should be finished, but allow another access at
+                --  the same address (RMW).
+                s_mainFSMstate <= WAIT_FOR_DS;
+              else
+                if s_transferType = MBLT and s_MBLT_Data = '0' then
+                  -- MBLT: end of address phase.
                   s_mainFSMstate <= WAIT_FOR_DS;
-                when BLT =>
+                  s_MBLT_Data <= '1';
+                else
+                  -- Block
                   s_mainFSMstate <= INCREMENT_ADDR;
-                when MBLT =>
-                  if s_dataPhase = '1' then
-                    s_mainFSMstate <= INCREMENT_ADDR;
-                  else
-                    -- Address was got, now transfer data
-                    s_dataPhase <= '1';
-                    s_mainFSMstate <= WAIT_FOR_DS;
-                  end if;
-                when error =>
-                  null;
-              end case;
+                end if;
+              end if;
             else
               s_mainFSMstate <= DTACK_LOW;
             end if;
@@ -592,12 +623,13 @@ begin
           when INCREMENT_ADDR =>
             VME_DTACK_OE_o   <= '1';
             VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
-            s_dataPhase      <= s_dataPhase;
 
             if s_LWORDlatched_n = '0' then
               if s_transferType = MBLT then
+                -- 64 bit
                 addr_word_incr := 4;
               else
+                -- 32 bit
                 addr_word_incr := 2;
               end if;
             else

@@ -1,5 +1,5 @@
 entity top_tb is
-  generic (scenario : natural range 0 to 5 := 1);
+  generic (scenario : natural range 0 to 6 := 6);
 end;
 
 library ieee;
@@ -14,10 +14,12 @@ architecture behaviour of top_tb is
   subtype byte_t is std_logic_vector (7 downto 0);
   subtype word_t is std_logic_vector (15 downto 0);
   subtype lword_t is std_logic_vector (31 downto 0);
+  subtype qword_t is std_logic_vector (63 downto 0);
 
   type byte_array_t is array (natural range <>) of byte_t;
   type word_array_t is array (natural range <>) of word_t;
   type lword_array_t is array (natural range <>) of lword_t;
+  type qword_array_t is array (natural range <>) of qword_t;
 
   subtype vme_am_t is std_logic_vector (5 downto 0);
 
@@ -657,6 +659,38 @@ begin
       read_release;
     end read16_blt;
 
+    procedure read64_mblt (addr : std_logic_vector (31 downto 0);
+                           am : vme_am_t;
+                           variable data : out qword_array_t)
+    is
+      variable res : lword_t;
+    begin
+      VME_LWORD_n_i <= '0';
+      read_setup_addr (addr, am);
+      VME_DS_n_i <= "00";
+      read_wait_dtack;
+      read_blt_end_cycle;
+      
+      assert addr (2 downto 0) = "000"
+        report "unaligned read64_mblt" severity error;
+      for i in data'range loop
+        VME_DS_n_i <= "00";
+        read_wait_dtack;
+        if bus_timer = '0' then
+          data (i) := VME_ADDR_o & VME_LWORD_n_o & VME_DATA_o;
+        else
+          data (i) := (others => 'X');
+          VME_DS_n_i <= "11";
+          exit;
+        end if;
+        if i /= data'right then
+          read_blt_end_cycle;
+        end if;
+      end loop;
+
+      read_release;
+    end read64_mblt;
+
     procedure write_setup_addr (addr : std_logic_vector (31 downto 0);
                                 lword_n : std_logic;
                                 am : vme_am_t) is
@@ -739,7 +773,7 @@ begin
                            data : lword_array_t) is
     begin
       assert addr(1 downto 0) = "00"
-        report "unaligned write16" severity error;
+        report "unaligned write32" severity error;
 
       write_setup_addr (addr, '0', am);
 
@@ -752,6 +786,29 @@ begin
 
       VME_AS_n_i <= '1';
     end write32_blt;
+
+    procedure write64_mblt (addr : std_logic_vector (31 downto 0);
+                            am : vme_am_t;
+                            data : qword_array_t) is
+    begin
+      assert addr(2 downto 0) = "000"
+        report "unaligned write64" severity error;
+
+      write_setup_addr (addr, '0', am);
+      VME_DS_n_i <= "00";
+      write_wait_dtack_pulse;
+      
+      for i in data'range loop
+        VME_DS_n_i <= "00";
+        VME_DATA_i (31 downto 0) <= data (i)(31 downto 0);
+        VME_LWORD_n_i <= data (i)(32);
+        VME_ADDR_i <= data(i)(63 downto 33);
+        
+        write_wait_dtack_pulse;
+      end loop;
+
+      VME_AS_n_i <= '1';
+    end write64_mblt;
 
     procedure write8_conf (addr : cfg_addr_t;
                            data : byte_t)
@@ -939,8 +996,9 @@ begin
     variable d16 : word_t;
     variable d32 : lword_t;
 
-    variable v32 : lword_array_t (0 to 64);
-    variable v16 : word_array_t (0 to 64);
+    variable v64 : qword_array_t (0 to 16);
+    variable v32 : lword_array_t (0 to 16);
+    variable v16 : word_array_t (0 to 16);
   begin
     --  Each scenario starts with a reset.
     --  VME reset
@@ -1146,7 +1204,32 @@ begin
         assert d32  = (31 downto 0 => 'X')
           report "incorrect read 32" severity error;
 
-        --  TODO
+      when 6 =>
+        -- Test MBLT
+
+        -- Set ADER
+        write8_conf (x"7_ff63", x"64");
+        write8_conf (x"7_ff6f", c_AM_A32_MBLT & "00");
+
+        -- Enable card
+        write8_conf (x"7_fffb", b"0001_0000");
+
+        read64_mblt (x"64_00_00_10", c_AM_A32_MBLT, v64 (0 to 1));
+        assert v64 (0) = x"0000_0004_0000_0500"
+          and  v64 (1) = x"0006_0000_0700_0000"
+          report "incorrect MBLT data 64" severity error;
+
+        v64 (0 to 3) := (x"00_11_22_33_44_55_66_77",
+                         x"88_99_aa_bb_cc_dd_ee_ff",
+                         x"01_23_45_67_89_ab_cd_ef",
+                         x"fe_dc_ba_98_76_54_32_10");
+        write64_mblt (x"64_00_01_00", c_AM_A32_MBLT, v64 (0 to 3));
+        read64_mblt (x"64_00_01_00", c_AM_A32_MBLT, v64 (0 to 3));
+        assert v64 (0 to 3) = (x"00_11_22_33_44_55_66_77",
+                               x"88_99_aa_bb_cc_dd_ee_ff",
+                               x"01_23_45_67_89_ab_cd_ef",
+                               x"fe_dc_ba_98_76_54_32_10")
+          report "incorrect MBLT data 64 r/w" severity error;
     end case;
 
     wait for 4 * g_CLOCK_PERIOD * 1 ns;
