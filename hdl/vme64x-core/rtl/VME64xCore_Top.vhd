@@ -195,7 +195,7 @@ entity VME64xCore_Top is
   port (
     clk_i           : in  std_logic;
     rst_n_i         : in  std_logic;
-    rst_n_o         : out std_logic;
+    rst_n_o         : out std_logic; -- To wishbone
 
     -- VME
     VME_AS_n_i      : in  std_logic;

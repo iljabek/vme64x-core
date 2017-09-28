@@ -3,13 +3,12 @@ VME64x Core specifications
 
 This core implements a VME64x slave - WB master bridge. It provides a complete
 and user extendable CR/CSR space, and forward to a wishbone slave VME
-transfers.
+transfers.  On the WB side, the addresses are rebased from 0.
 
 Features
 --------
 
 * interrupts: 1 with timeout
-* endianness: disabled by default
 * A disable ADEM (set to 0) results in an unimplemented ADER, to reduce gate
   usage.
 * CSR Reset bit is handled as a pulse (will reset on the next write).
@@ -25,6 +24,7 @@ Changes
 * No retry
 * No endianess convertion
 * WB data bus is 32 bit
+* Internal component declarations removed.
 * Port function_o to be removed.
 
 VME interface
@@ -76,9 +76,16 @@ WB interface (datasheet)
 Generics
 --------
 
+The generics define values for many CR registers, and the clock period (needed
+to follow the VME timing specifications).  See generic declarations for
+details.
+
 Ports
 -----
 
+In addition to reset and clock, the ports are used for VME and WB signals,
+to connect a user defined CSR or CR memory, interrupts from the WB slave,
+VME irq level and vector.  See port declaration for details.
 
 TODO:
 -----
