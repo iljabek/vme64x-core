@@ -193,3 +193,19 @@ VITAL-1 rules
 4.1: Backplace
 4.50: Followed (slave can generate interrupt)
 4.2 Followed
+
+
+Perf
+----
+
+A24 SCT DMA 0x3d
+Read Rate: 10.270429 MB/sec
+Write Rate: 10.765994 MB/sec
+
+A24 BLT DMA
+Read  Rate: 8.782308 MB/sec
+Write Rate: 9.176580 MB/sec
+
+A24 MBLT DMA
+Read  Rate: 15.769639 MB/sec
+Write Rate: 17.178069 MB/sec

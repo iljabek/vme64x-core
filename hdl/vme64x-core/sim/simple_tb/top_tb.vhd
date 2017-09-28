@@ -1,5 +1,5 @@
 entity top_tb is
-  generic (scenario : natural range 0 to 6 := 6);
+  generic (scenario : natural range 0 to 6 := 1);
 end;
 
 library ieee;
