@@ -153,6 +153,7 @@ architecture RTL of VME_bus is
   -- first one can be placed in the IOBs.
   signal s_vme_addr_reg             : std_logic_vector(31 downto 1);
   signal s_vme_data_reg             : std_logic_vector(31 downto 0);
+  signal s_vme_lword_n_reg          : std_logic;
 
   type t_addressingType is (
     A24,
@@ -332,7 +333,6 @@ begin
         s_err            <= '0';
 
         s_ADDRlatched    <= (others => '0');
-        s_LWORDlatched_n <= '0';
         s_AMlatched      <= (others => '0');
 
         s_vme_addr_reg   <= (others => '0');
@@ -388,6 +388,8 @@ begin
               when others =>
                 null;  -- A32
             end case;
+
+            s_vme_lword_n_reg <= s_LWORDlatched_n;
 
             -- Address is not yet decoded.
             s_card_sel <= '0';
@@ -499,7 +501,7 @@ begin
 
               -- Read DATA (which are stable)
               s_locDataIn(63 downto 33) <= VME_ADDR_i;
-              s_locDataIn(32)           <= VME_LWORD_n_i;
+              s_LWORDlatched_n          <= VME_LWORD_n_i;
               s_vme_data_reg            <= VME_DATA_i;
             else
               s_mainFSMstate   <= LATCH_DS;
@@ -511,14 +513,15 @@ begin
             VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
             s_dataPhase      <= s_dataPhase;
 
+            s_locDataIn(32)          <= s_LWORDlatched_n;
             s_locDataIn(31 downto 0) <= s_vme_data_reg;
-            if s_LWORDlatched_n = '1' and s_vme_addr_reg(1) = '0' then
+            if s_vme_lword_n_reg = '1' and s_vme_addr_reg(1) = '0' then
                 -- Word/byte access with A1=0
                 s_locDataIn(31 downto 16)  <= s_vme_data_reg(15 downto 0);
             end if;
 
             --  Translate DS+LWORD+ADDR to WB byte selects
-            if s_LWORDlatched_n = '0' then
+            if s_vme_lword_n_reg = '0' then
               sel_o <= "1111";
             else
               sel_o <= "0000";
@@ -536,7 +539,7 @@ begin
             --  A Slave MUST NOT respond with a falling edge on DTACK* during
             --  an unaligned transfer cycle, if it does not have UAT
             --  capability.
-            if s_LWORDlatched_n = '0' and s_DSlatched_n /= "00" then
+            if s_vme_lword_n_reg = '0' and s_DSlatched_n /= "00" then
               -- unaligned.
               s_mainFSMstate <= WAIT_END;
             else
@@ -588,7 +591,7 @@ begin
                 s_locDataOut(63 downto 32) <= s_locDataOut(31 downto 0);
                 s_locDataOut(31 downto 0) <= (others => '0');
                 if s_card_sel = '1' then
-                  if s_LWORDlatched_n = '1' and s_vme_addr_reg(1) = '0' then
+                  if s_vme_lword_n_reg = '1' and s_vme_addr_reg(1) = '0' then
                     -- Word/byte access with A1 = 0
                     s_locDataOut(15 downto 0) <= dat_i(31 downto 16);
                   else
@@ -678,7 +681,7 @@ begin
             VME_DTACK_OE_o   <= '1';
             VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
 
-            if s_LWORDlatched_n = '0' then
+            if s_vme_lword_n_reg = '0' then
               if s_transferType = MBLT then
                 -- 64 bit
                 addr_word_incr := 4;
