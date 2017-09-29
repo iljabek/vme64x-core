@@ -134,74 +134,28 @@ entity VME_IRQ_Controller is
   port (
     clk_i           : in  std_logic;
     reset_n_i       : in  std_logic;
-    VME_IACKIN_n_i  : in  std_logic;
-    VME_AS_n_i      : in  std_logic;
-    VME_DS_n_i      : in  std_logic_vector (1 downto 0);
-    VME_ADDR_123_i  : in  std_logic_vector (2 downto 0);
-    INT_Level_i     : in  std_logic_vector (7 downto 0);
-    INT_Vector_i    : in  std_logic_vector (7 downto 0);
+    INT_Level_i     : in  std_logic_vector (2 downto 0);
     INT_Req_i       : in  std_logic;
-    VME_IRQ_n_o     : out std_logic_vector (6 downto 0);
-    VME_IACKOUT_n_o : out std_logic;
-    VME_DTACK_n_o   : out std_logic;
-    VME_DTACK_OE_o  : out std_logic;
-    VME_DATA_o      : out std_logic_vector (31 downto 0);
-    VME_DATA_DIR_o  : out std_logic
+    irq_pending_o   : out std_logic;
+    irq_ack_i       : in  std_logic;
+    VME_IRQ_n_o     : out std_logic_vector (7 downto 1)
   );
 end VME_IRQ_Controller;
 
 architecture Behavioral of VME_IRQ_Controller is
 
-  function f_select_irq_line (level : std_logic_vector) return std_logic_vector is
-  begin
-    case level(7 downto 0) is
-      when x"01"  => return "1111110";
-      when x"02"  => return "1111101";
-      when x"03"  => return "1111011";
-      when x"04"  => return "1110111";
-      when x"05"  => return "1101111";
-      when x"06"  => return "1011111";
-      when x"07"  => return "0111111";
-      when others => return "1111111";
-    end case;
-  end f_select_irq_Line;
-
-  -- Input signals
-
   type t_retry_state is (WAIT_IRQ, WAIT_RETRY);
-  type t_main_state  is (IDLE, IRQ, WAIT_AS, WAIT_DS, CHECK, DATA_OUT, DTACK,
-                         IACKOUT1, IACKOUT2, SCHEDULE_IRQ);
 
-  signal as_n_d0          : std_logic;
-  signal as_rising_p,
-         as_falling_p     : std_logic;
-  signal vme_addr_latched : std_logic_vector(2 downto 0);
-  signal state            : t_main_state;
   signal retry_state      : t_retry_state;
   signal retry_count      : unsigned(23 downto 0);
   signal retry_mask       : std_logic;
-
+  signal s_irq_pending    : std_logic;
 begin
+  irq_pending_o <= s_irq_pending;
 
-  -- Input sampling and edge detection
-  p_detect_as_edges : process (clk_i)
-  begin
-    if rising_edge(clk_i) then
-      as_n_d0      <= VME_AS_n_i;
-      as_rising_p  <= not as_n_d0 and VME_AS_n_i;
-      as_falling_p <= as_n_d0 and not VME_AS_n_i;
-    end if;
-  end process;
-
-  process (clk_i)
-  begin
-    if rising_edge(clk_i) then
-      if as_falling_p = '1' then
-        vme_addr_latched <= VME_ADDR_123_i;
-      end if;
-    end if;
-  end process;
-
+  -- Interrupts are automatically masked for g_RETRY_TIMEOUT (ie 1 ms) once
+  -- they are acknowledge by the interrupt handler until they are deasserted
+  -- by the interrupter.
   p_retry_fsm : process (clk_i)
   begin
     if rising_edge(clk_i) then
@@ -211,7 +165,7 @@ begin
       else
         case retry_state is
           when WAIT_IRQ =>
-            if (state = IRQ and INT_Req_i = '1') then
+            if s_irq_pending = '1' and INT_Req_i = '1' then
               retry_state <= WAIT_RETRY;
               retry_count <= (others => '0');
               retry_mask  <= '0';
@@ -220,15 +174,14 @@ begin
             end if;
 
           when WAIT_RETRY =>
-            if (INT_Req_i = '0') then
+            if INT_Req_i = '0' then
               retry_state <= WAIT_IRQ;
             else
               retry_count <= retry_count + 1;
-              if (retry_count = g_RETRY_TIMEOUT) then
+              if retry_count = g_RETRY_TIMEOUT then
                 retry_state <= WAIT_IRQ;
               end if;
             end if;
-
         end case;
       end if;
     end if;
@@ -238,100 +191,22 @@ begin
   begin
     if rising_edge(clk_i) then
       if reset_n_i = '0' then
-        state           <= IDLE;
-        VME_IACKOUT_n_o <= '1';
-        VME_DATA_DIR_o  <= '0';
-        VME_DTACK_n_o   <= '1';
-        VME_DTACK_OE_o  <= '0';
+        VME_IRQ_n_o     <= (others => '1');
+        s_irq_pending   <= '0';
       else
-        case state is
-          when IDLE =>
-            VME_IACKOUT_n_o <= '1';
-            VME_DATA_DIR_o  <= '0';
-            VME_DTACK_n_o   <= '1';
-            VME_DTACK_OE_o  <= '0';
-            VME_IRQ_n_o     <= (others => '1');
+        if s_irq_pending = '0' then
+          VME_IRQ_n_o     <= (others => '1');
 
-            if INT_Req_i = '1' and retry_mask = '1' then
-              if VME_IACKIN_n_i /= '0' then
-                -- FIXME: what if INT_Level_i is 0 (irq won't be visible and
-                -- thus never acked) ?
-                state       <= IRQ;
-                VME_IRQ_n_o <= f_select_irq_line(INT_Level_i);
-              else
-                -- IACK in progress, wait until idle
-                state <= SCHEDULE_IRQ;
-              end if;
-              -- Just forward IACK to the next card in the daisy chain.
-            elsif VME_IACKIN_n_i = '0' and VME_DS_n_i /= "11" then
-              VME_IACKOUT_n_o <= '0';
-              state           <= IACKOUT2;
-            end if;
-
-          when SCHEDULE_IRQ =>
-            if (VME_IACKIN_n_i /= '0') then
-              VME_IRQ_n_o <= f_select_irq_line(INT_Level_i);
-              state       <= IRQ;
-            end if;
-
-          when IRQ =>
-            if VME_IACKIN_n_i = '0' then
-              -- Each interrupter who is driving an interrupt request line
-              -- low waits for a falling edge on IACKIN input -->
-              -- the IRQ_Controller have to detect a falling edge on the IACKIN.
-              state <= WAIT_AS;
-            end if;
-
-          when WAIT_AS =>
-            if VME_AS_n_i = '0' then
-              state <= WAIT_DS;
-            end if;
-
-          when WAIT_DS =>
-            if VME_DS_n_i /= "11" then
-              state <= CHECK;
-            end if;
-
-          when CHECK =>
-            if vme_addr_latched = INT_Level_i(2 downto 0) then
-              state           <= DATA_OUT;   -- The interrupter send the vector
-              VME_DATA_DIR_o  <= '1';
-              VME_DTACK_OE_o  <= '1';
-              VME_DTACK_n_o   <= '1';
-            else
-              state           <= IACKOUT1;  -- The interrupter must pass a
-                                            -- falling edge on the IACK output
-              VME_IACKOUT_n_o <= '0';
-            end if;
-
-          when IACKOUT1 =>
-            if as_rising_p = '1' then
-              VME_IACKOUT_n_o <= '1';
-              state           <= IRQ;
-            end if;
-
-          when IACKOUT2 =>
-            if VME_AS_n_i = '1' then
-              VME_IACKOUT_n_o <= '1';
-              state           <= IDLE;
-            end if;
-
-          when DATA_OUT =>
-            VME_DTACK_n_o     <= '0';
-            VME_IRQ_n_o       <= (others => '1');
-            state             <= DTACK;
-
-          when DTACK =>
-            if as_rising_p = '1' then
-              VME_DTACK_OE_o <= '0';
-              VME_DATA_DIR_o <= '0';
-              state          <= IDLE;
-            end if;
-        end case;
+          if INT_Req_i = '1' and retry_mask = '1' and INT_Level_i /= "000" then
+            s_irq_pending <= '1';
+            VME_IRQ_n_o (to_integer(unsigned(INT_Level_i))) <= '0';
+          end if;
+        else
+          if irq_ack_i = '1' then
+            s_irq_pending  <= '0';
+          end if;
+        end if;
       end if;
     end if;
   end process;
-
-  VME_DATA_o <= x"000000" & INT_Vector_i;
-
 end Behavioral;

@@ -140,7 +140,7 @@ package xvme64x_core_pkg is
       VME_ADDR_b_o    : out std_logic_vector(31 downto 1);
       VME_DATA_b_i    : in  std_logic_vector(31 downto 0);
       VME_DATA_b_o    : out std_logic_vector(31 downto 0);
-      VME_IRQ_n_o     : out std_logic_vector(6 downto 0);
+      VME_IRQ_n_o     : out std_logic_vector( 7 downto 1);
       VME_IACKIN_n_i  : in  std_logic;
       VME_IACK_n_i    : in  std_logic;
       VME_IACKOUT_n_o : out std_logic;

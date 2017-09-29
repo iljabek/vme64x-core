@@ -840,6 +840,7 @@ begin
         end if;
       end loop;
       VME_IACK_n_i <= '0';
+      VME_WRITE_n_i <= '1';
       wait for 35 ns;
       VME_AS_n_i <= '0';
       if not (VME_DTACK_OE_o = '0' and VME_BERR_o = '0') then

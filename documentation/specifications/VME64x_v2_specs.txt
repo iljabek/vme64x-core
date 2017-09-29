@@ -8,7 +8,9 @@ transfers.  On the WB side, the addresses are rebased from 0.
 Features
 --------
 
-* interrupts: 1 with timeout
+* interrupts: 1 with automasking. Once acknowledge by the handler, interrupts
+  are masked for 1ms or until deasserted by the slave. The intent is to
+  prevent interrupt bursts.
 * A disable ADEM (set to 0) results in an unimplemented ADER, to reduce gate
   usage.
 * CSR Reset bit is handled as a pulse (will reset on the next write).

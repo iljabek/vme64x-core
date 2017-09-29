@@ -72,14 +72,14 @@ entity VME_User_CSR is
     we_i                : in  std_logic;
 
     irq_vector_o        : out std_logic_vector( 7 downto 0);
-    irq_level_o         : out std_logic_vector( 7 downto 0)
+    irq_level_o         : out std_logic_vector( 2 downto 0)
   );
 end VME_User_CSR;
 
 architecture rtl of VME_User_CSR is
 
   signal s_irq_vector   : std_logic_vector(7 downto 0);
-  signal s_irq_level    : std_logic_vector(7 downto 0);
+  signal s_irq_level    : std_logic_vector(2 downto 0);
 
   -- Value for unused memory locations
   constant c_UNUSED     : std_logic_vector(7 downto 0) := x"ff";
@@ -104,12 +104,12 @@ begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         s_irq_vector <= x"00";
-        s_irq_level  <= x"00";
+        s_irq_level  <= "000";
       else
         if we_i = '1' then
           case to_integer(unsigned(addr_i)) is
             when c_IRQ_VECTOR => s_irq_vector <= data_i;
-            when c_IRQ_LEVEL  => s_irq_level  <= data_i;
+            when c_IRQ_LEVEL  => s_irq_level  <= data_i(2 downto 0);
             when others       => null;
           end case;
         end if;
@@ -129,7 +129,7 @@ begin
       else
         case to_integer(unsigned(addr_i)) is
           when c_IRQ_VECTOR => data_o <= s_irq_vector;
-          when c_IRQ_LEVEL  => data_o <= s_irq_level;
+          when c_IRQ_LEVEL  => data_o <= "00000" & s_irq_level;
           when c_ENDIAN     => data_o <= x"00";
           when c_WB32BITS   => data_o <= x"01";
           when others       => data_o <= c_UNUSED;

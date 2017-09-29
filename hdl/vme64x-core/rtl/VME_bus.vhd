@@ -97,9 +97,10 @@ entity VME_bus is
     VME_DATA_DIR_o  : out std_logic;
     VME_DATA_OE_N_o : out std_logic;
     VME_AM_i        : in  std_logic_vector(5 downto 0);
-    VME_IACK_n_i    : in  std_logic;  -- USE VME_IACK_n_i and NOT VME_IACKIN_n_i
-                                      -- because VME_IACKIN_n_i is delayed the
-                                      -- more you are away from Slots 0
+    VME_IACKIN_n_i  : in  std_logic;
+    VME_IACK_n_i    : in  std_logic;
+    VME_IACKOUT_n_o : out std_logic;
+
     -- WB signals
     stb_o           : out std_logic;
     ack_i           : in  std_logic;
@@ -126,7 +127,13 @@ entity VME_bus is
     cr_csr_data_o   : out std_logic_vector( 7 downto 0);
     cr_csr_we_o     : out std_logic;
     module_enable_i : in  std_logic;
-    bar_i           : in  std_logic_vector(4 downto 0)
+    bar_i           : in  std_logic_vector( 4 downto 0);
+
+    -- Interrupts
+    INT_Level_i     : in  std_logic_vector( 2 downto 0);
+    INT_Vector_i    : in  std_logic_vector( 7 downto 0);
+    irq_pending_i   : in  std_logic;
+    irq_ack_o       : out std_logic
   );
 end VME_bus;
 
@@ -193,8 +200,14 @@ architecture RTL of VME_bus is
     -- Assert DTACK
     DTACK_LOW,
 
-    --  Increment address for block transfers
+    -- Increment address for block transfers
     INCREMENT_ADDR,
+
+    -- Check if IACK is for this slave
+    IRQ_CHECK,
+
+    -- Pass IACKIN to IACKOUT
+    IRQ_PASS,
 
     --  Wait until AS is deasserted
     WAIT_END
@@ -209,6 +222,7 @@ architecture RTL of VME_bus is
   -- Access decode signals
   signal s_conf_sel                 : std_logic;   -- CR or CSR is addressed
   signal s_card_sel                 : std_logic;   -- WB memory is addressed
+  signal s_irq_sel                  : std_logic;   -- IACK transaction
 
   signal s_is_d64                   : std_logic;
   signal s_err                      : std_logic;
@@ -298,10 +312,10 @@ begin
         VME_DATA_DIR_o   <= '0';
         VME_ADDR_DIR_o   <= '0';
         VME_BERR_n_o     <= '1';
-        VME_ADDR_o    <= (others => '0');
-        VME_LWORD_n_o <= '1';
-        VME_DATA_o    <= (others => '0');
-
+        VME_ADDR_o       <= (others => '0');
+        VME_LWORD_n_o    <= '1';
+        VME_DATA_o       <= (others => '0');
+        VME_IACKOUT_n_o  <= '1';
         s_dataPhase      <= '0';
         s_MBLT_Data      <= '0';
         s_mainFSMstate   <= IDLE;
@@ -318,6 +332,8 @@ begin
 
         s_card_sel <= '0';
         s_conf_sel <= '0';
+        s_irq_sel  <= '0';
+        irq_ack_o  <= '0';
       else
         s_conf_req       <= '0';
         decode_start_o   <= '0';
@@ -326,25 +342,27 @@ begin
         VME_DATA_DIR_o   <= '0';
         VME_ADDR_DIR_o   <= '0';
         VME_BERR_n_o     <= '1';
+        VME_IACKOUT_n_o  <= '1';
+        irq_ack_o        <= '0';
 
         case s_mainFSMstate is
 
           when IDLE =>
-            -- During the Interrupt ack cycle the Slave can't be accessed
-            -- so if VME_IACK_n_i is asserted the FSM is in IDLE state.
-            -- The VME_IACK_n_i signal is asserted by the Interrupt handler
-            -- during all the Interrupt cycle.
-
-            -- VITA-1 Rule 2.11
-            -- Slaves MUST NOT respond to DTB cycles when IACK* is low.
-            if VME_AS_n_i = '0' and VME_IACK_n_i = '1' then
-              -- if AS falling edge --> start access
-              s_mainFSMstate <= REFORMAT_ADDRESS;
-
+            if VME_AS_n_i = '0' then
               -- Store ADDR, AM and LWORD
               s_ADDRlatched    <= VME_ADDR_i;
               s_LWORDlatched_n <= VME_LWORD_n_i;
               s_AMlatched      <= VME_AM_i;
+
+              if VME_IACK_n_i = '1' then
+                -- if AS falling edge --> start access
+
+                -- VITA-1 Rule 2.11
+                -- Slaves MUST NOT respond to DTB cycles when IACK* is low.
+                s_mainFSMstate <= REFORMAT_ADDRESS;
+              else
+                s_mainFSMstate <= IRQ_CHECK;
+              end if;
 
             else
               s_mainFSMstate <= IDLE;
@@ -366,6 +384,7 @@ begin
             -- Address is not yet decoded.
             s_card_sel <= '0';
             s_conf_sel <= '0';
+            s_irq_sel <= '0';
 
             --  DS latch counter
             s_DS_latch_count <= to_unsigned (num_latchDS, 3);
@@ -428,6 +447,8 @@ begin
             -- Note: before entering this state, s_DS_latch_count must be set.
 
             if VME_DS_n_i /= "11" then
+              -- VITAL-1 Table 4-1
+              -- For interrupts ack, the handler MUST NOT drive WRITE* low
               s_WRITElatched_n <= VME_WRITE_n_i;
               s_DS_latch_count <= s_DS_latch_count - 1;
               s_mainFSMstate <= LATCH_DS;
@@ -455,7 +476,9 @@ begin
             end if;
 
             if s_DS_latch_count = 0 then
-              if s_transferType = MBLT and s_MBLT_Data = '0' then
+              if s_irq_sel = '1' then
+                s_mainFSMstate <= DATA_TO_BUS;
+              elsif s_transferType = MBLT and s_MBLT_Data = '0' then
                 -- MBLT: ack address.
                 -- (Data are also read but discarded).
                 s_mainFSMstate <= DTACK_LOW;
@@ -600,7 +623,7 @@ begin
             VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
 
             --  Set DTACK (or retry or berr)
-            if s_err = '1' then
+            if s_card_sel = '1' and s_err = '1' then
               VME_BERR_n_o  <= '0';
             else
               VME_DTACK_n_o <= '0';
@@ -620,7 +643,9 @@ begin
               --  DS latch counter
               s_DS_latch_count <= to_unsigned (num_latchDS, 3);
 
-              if s_transferType = SINGLE then
+              if s_irq_sel = '1' then
+                s_mainFSMstate <= WAIT_END;
+              elsif s_transferType = SINGLE then
                 --  Cycle should be finished, but allow another access at
                 --  the same address (RMW).
                 s_mainFSMstate <= WAIT_FOR_DS;
@@ -664,6 +689,32 @@ begin
             s_ADDRlatched (11 downto 1) <= std_logic_vector
               (unsigned(s_ADDRlatched (11 downto 1)) + addr_word_incr);
             s_mainFSMstate   <= WAIT_FOR_DS;
+
+          when IRQ_CHECK =>
+            if VME_IACKIN_n_i = '0' then
+              if s_ADDRlatched(3 downto 1) = INT_Level_i
+                and irq_pending_i = '1'
+              then
+                -- That's for us
+                s_locDataOut <= (others => '0');
+                s_locDataOut (7 downto 0) <= INT_Vector_i;
+                s_irq_sel <= '1';
+                irq_ack_o <= '1';
+
+                s_mainFSMstate <= WAIT_FOR_DS;
+              else
+                -- Pass
+                VME_IACKOUT_n_o <= '0';
+                s_mainFSMstate <= IRQ_PASS;
+              end if;
+            else
+              s_mainFSMstate <= IRQ_CHECK;
+            end if;
+
+          when IRQ_PASS =>
+            -- Will stay here until AS is released.
+            VME_IACKOUT_n_o <= '0';
+            s_mainFSMstate <= IRQ_PASS;
 
           when WAIT_END =>
             -- Will stay here until AS is released.

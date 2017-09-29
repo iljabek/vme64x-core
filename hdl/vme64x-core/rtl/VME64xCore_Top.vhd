@@ -217,7 +217,7 @@ entity VME64xCore_Top is
     VME_ADDR_o      : out std_logic_vector(31 downto 1);
     VME_DATA_i      : in  std_logic_vector(31 downto 0);
     VME_DATA_o      : out std_logic_vector(31 downto 0);
-    VME_IRQ_o       : out std_logic_vector(6 downto 0);   -- the same as []*
+    VME_IRQ_o       : out std_logic_vector( 7 downto 1);   -- the same as []*
     VME_IACKIN_n_i  : in  std_logic;
     VME_IACK_n_i    : in  std_logic;
     VME_IACKOUT_n_o : out std_logic;
@@ -277,15 +277,9 @@ architecture RTL of VME64xCore_Top is
   signal s_reset                : std_logic;
   signal s_reset_n              : std_logic;
 
-  signal s_VME_DATA_IRQ         : std_logic_vector(31 downto 0);
-  signal s_VME_DATA_VMEbus      : std_logic_vector(31 downto 0);
-  signal s_VME_DTACK_VMEbus     : std_logic;
-  signal s_VME_DTACK_IRQ        : std_logic;
-  signal s_VME_DTACK_OE_VMEbus  : std_logic;
-  signal s_VME_DTACK_OE_IRQ     : std_logic;
-  signal s_VME_DATA_DIR_VMEbus  : std_logic;
-  signal s_VME_DATA_DIR_IRQ     : std_logic;
-  signal s_VME_IRQ_n_o          : std_logic_vector( 6 downto 0);
+  signal s_VME_IRQ_n_o          : std_logic_vector( 7 downto 1);
+  signal s_irq_ack              : std_logic;
+  signal s_irq_pending          : std_logic;
 
   -- CR/CSR
   signal s_cr_csr_addr          : std_logic_vector(18 downto 2);
@@ -299,7 +293,7 @@ architecture RTL of VME64xCore_Top is
   signal s_vme_berr_n           : std_logic;
 
   signal s_irq_vector           : std_logic_vector( 7 downto 0);
-  signal s_irq_level            : std_logic_vector( 7 downto 0);
+  signal s_irq_level            : std_logic_vector( 2 downto 0);
   signal s_user_csr_addr        : std_logic_vector(18 downto 2);
   signal s_user_csr_data_i      : std_logic_vector( 7 downto 0);
   signal s_user_csr_data_o      : std_logic_vector( 7 downto 0);
@@ -400,19 +394,21 @@ begin
       VME_RETRY_OE_o  => VME_RETRY_OE_o,
       VME_WRITE_n_i   => s_VME_WRITE_n(2),
       VME_DS_n_i      => s_VME_DS_n(5 downto 4),
-      VME_DTACK_n_o   => s_VME_DTACK_VMEbus,
-      VME_DTACK_OE_o  => s_VME_DTACK_OE_VMEbus,
+      VME_DTACK_n_o   => VME_DTACK_n_o,
+      VME_DTACK_OE_o  => VME_DTACK_OE_o,
       VME_BERR_n_o    => s_vme_berr_n,
       VME_ADDR_i      => VME_ADDR_i,
       VME_ADDR_o      => VME_ADDR_o,
       VME_ADDR_DIR_o  => VME_ADDR_DIR_o,
       VME_ADDR_OE_N_o => VME_ADDR_OE_N_o,
       VME_DATA_i      => VME_DATA_i,
-      VME_DATA_o      => s_VME_DATA_VMEbus,
-      VME_DATA_DIR_o  => s_VME_DATA_DIR_VMEbus,
+      VME_DATA_o      => VME_DATA_o,
+      VME_DATA_DIR_o  => VME_DATA_DIR_o,
       VME_DATA_OE_N_o => VME_DATA_OE_N_o,
       VME_AM_i        => VME_AM_i,
       VME_IACK_n_i    => s_VME_IACK_n(2),
+      VME_IACKIN_n_i  => s_VME_IACKIN_n(2),
+      VME_IACKOUT_n_o => VME_IACKOUT_n_o,
 
       -- WB signals
       stb_o           => STB_o,
@@ -440,7 +436,12 @@ begin
       cr_csr_data_o   => s_cr_csr_data_i,
       cr_csr_we_o     => s_cr_csr_we,
       module_enable_i => s_module_enable,
-      bar_i           => s_bar
+      bar_i           => s_bar,
+
+      INT_Level_i     => s_irq_level,
+      INT_Vector_i    => s_irq_vector,
+      irq_pending_i   => s_irq_pending,
+      irq_ack_o       => s_irq_ack
     );
 
   s_reset    <= (not rst_n_i) or (not s_VME_RST_n(2));
@@ -476,25 +477,7 @@ begin
   -- Output
   ------------------------------------------------------------------------------
   VME_IRQ_o  <= not s_VME_IRQ_n_o;  -- The buffers will invert again the logic level
-  irq_ack_o  <= s_VME_DTACK_IRQ;
-
-  -- Multiplexer added on the output signal used by either VMEbus.vhd and the
-  -- IRQ_controller.vhd
-  VME_DATA_o     <= s_VME_DATA_VMEbus
-                    when s_VME_IACK_n(2) = '1'
-                    else s_VME_DATA_IRQ;
-
-  VME_DTACK_n_o  <= s_VME_DTACK_VMEbus and s_VME_DTACK_IRQ;
-                    --when s_VME_IACK_n(2) = '1'
-                    --else s_VME_DTACK_IRQ;
-
-  VME_DTACK_OE_o <= s_VME_DTACK_OE_VMEbus or s_VME_DTACK_OE_IRQ;
-                    --when s_VME_IACK_n(2) = '1'
-                    --else s_VME_DTACK_OE_IRQ;
-
-  VME_DATA_DIR_o <= s_VME_DATA_DIR_VMEbus
-                    when s_VME_IACK_n(2) = '1'
-                    else s_VME_DATA_DIR_IRQ;
+  irq_ack_o  <= s_irq_ack;
 
   ------------------------------------------------------------------------------
   --  Interrupter
@@ -506,19 +489,11 @@ begin
     port map (
       clk_i           => clk_i,
       reset_n_i       => s_reset_n,                 -- asserted when low
-      VME_IACKIN_n_i  => s_VME_IACKIN_n(2),
-      VME_AS_n_i      => s_VME_AS_n(2),
-      VME_DS_n_i      => s_VME_DS_n(5 downto 4),
-      VME_ADDR_123_i  => VME_ADDR_i(3 downto 1),
       INT_Level_i     => s_irq_level,
-      INT_Vector_i    => s_irq_vector,
       INT_Req_i       => irq_i,
-      VME_IRQ_n_o     => s_VME_IRQ_n_o,
-      VME_IACKOUT_n_o => VME_IACKOUT_n_o,
-      VME_DTACK_n_o   => s_VME_DTACK_IRQ,
-      VME_DTACK_OE_o  => s_VME_DTACK_OE_IRQ,
-      VME_DATA_o      => s_VME_DATA_IRQ,
-      VME_DATA_DIR_o  => s_VME_DATA_DIR_IRQ
+      irq_pending_o   => s_irq_pending,
+      irq_ack_i       => s_irq_ack,
+      VME_IRQ_n_o     => s_VME_IRQ_n_o
     );
 
   ------------------------------------------------------------------------------
@@ -591,7 +566,7 @@ begin
   gen_ext_user_csr : if g_USER_CSR_EXT = true generate
     s_user_csr_data_i <= user_csr_data_i;
     s_irq_vector      <= irq_vector_i;
-    s_irq_level       <= irq_level_i;
+    s_irq_level       <= irq_level_i(2 downto 0);
   end generate;
 
   user_csr_addr_o <= s_user_csr_addr;
