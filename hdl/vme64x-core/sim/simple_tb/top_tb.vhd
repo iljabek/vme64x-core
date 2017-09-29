@@ -1259,6 +1259,8 @@ begin
         read_release;
         assert d16 = x"8765" report "bad read16 with delayed DS"
           severity error;
+
+        --  TODO: check IACK propagation.
     end case;
 
     wait for 4 * g_CLOCK_PERIOD * 1 ns;

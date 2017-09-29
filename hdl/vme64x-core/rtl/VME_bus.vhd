@@ -149,6 +149,9 @@ architecture RTL of VME_bus is
   signal s_AMlatched                : std_logic_vector(5 downto 0);
   signal s_WRITElatched_n           : std_logic;
 
+  -- Address from the VME bus
+  signal s_vme_addr_reg             : std_logic_vector(31 downto 1);
+
   type t_addressingType is (
     A24,
     A24_BLT,
@@ -330,6 +333,8 @@ begin
         s_LWORDlatched_n <= '0';
         s_AMlatched      <= (others => '0');
 
+        s_vme_addr_reg   <= (others => '0');
+        
         s_card_sel <= '0';
         s_conf_sel <= '0';
         s_irq_sel  <= '0';
@@ -372,11 +377,12 @@ begin
             -- Reformat address according to the mode (A16, A24, A32)
             -- FIXME: not needed if ADEM are correctly reduced to not compare
             -- MSBs of A16 or A24 addresses.
+            s_vme_addr_reg <= s_ADDRlatched;
             case s_addressingType is
               when A16 =>
-                s_ADDRlatched (31 downto 16) <= (others => '0');  -- A16
+                s_vme_addr_reg (31 downto 16) <= (others => '0');  -- A16
               when A24 | A24_BLT | A24_MBLT =>
-                s_ADDRlatched (31 downto 24) <= (others => '0');  -- A24
+                s_vme_addr_reg (31 downto 24) <= (others => '0');  -- A24
               when others =>
                 null;  -- A32
             end case;
@@ -425,7 +431,7 @@ begin
                 -- card_sel = '1' it means WB application addressed
                 s_card_sel <= '1';
                 -- Keep only the local part of the address
-                s_ADDRlatched <= addr_decoder_i (31 downto 1);
+                s_vme_addr_reg <= addr_decoder_i (31 downto 1);
 
                 if VME_DS_n_i = "11" then
                   s_mainFSMstate <= WAIT_FOR_DS;
@@ -470,7 +476,7 @@ begin
               s_dataPhase <= '1';
 
               -- Start with D[31..0] when writing, but D[63..32] when reading.
-              s_ADDRlatched(2) <= not s_WRITElatched_n;
+              s_vme_addr_reg(2) <= not s_WRITElatched_n;
             else
               s_dataPhase <= '0';
             end if;
@@ -493,7 +499,7 @@ begin
               s_locDataIn(63 downto 33) <= VME_ADDR_i;
               s_locDataIn(32)           <= VME_LWORD_n_i;
 
-              if s_LWORDlatched_n = '1' and s_ADDRlatched(1) = '0' then
+              if s_LWORDlatched_n = '1' and s_vme_addr_reg(1) = '0' then
                 -- Word/byte access with A1=0
                 s_locDataIn(31 downto 16)  <= VME_DATA_i(15 downto 0);
                 s_locDataIn(15 downto 0) <= VME_DATA_i(15 downto 0);
@@ -515,7 +521,7 @@ begin
               sel_o <= "1111";
             else
               sel_o <= "0000";
-              case s_ADDRlatched(1) is
+              case s_vme_addr_reg(1) is
                 when '0' =>
                   sel_o (3 downto 2) <= not s_DSlatched_n;
                 when '1' =>
@@ -564,7 +570,7 @@ begin
                 if s_dataPhase = '1' then
                   -- MBLT
                   s_dataPhase <= '0';
-                  s_ADDRlatched(2) <= '0';
+                  s_vme_addr_reg(2) <= '0';
 
                   s_locDataIn(31 downto 0) <= s_locDataIn(63 downto 32);
 
@@ -579,7 +585,7 @@ begin
                 s_locDataOut(63 downto 32) <= s_locDataOut(31 downto 0);
                 s_locDataOut(31 downto 0) <= (others => '0');
                 if s_card_sel = '1' then
-                  if s_LWORDlatched_n = '1' and s_ADDRlatched(1) = '0' then
+                  if s_LWORDlatched_n = '1' and s_vme_addr_reg(1) = '0' then
                     -- Word/byte access with A1 = 0
                     s_locDataOut(15 downto 0) <= dat_i(31 downto 16);
                   else
@@ -592,7 +598,7 @@ begin
                 if s_dataPhase = '1' then
                   -- MBLT
                   s_dataPhase <= '0';
-                  s_ADDRlatched(2) <= '1';
+                  s_vme_addr_reg(2) <= '1';
 
                   s_mainFSMstate <= CHECK_TRANSFER_TYPE;
                 else
@@ -686,8 +692,8 @@ begin
             -- Only increment within the window, don't check the limit.
             -- BLT  --> limit = 256 bytes  (rule 2.12a ANSI/VITA 1-1994)
             -- MBLT --> limit = 2048 bytes (rule 2.78  ANSI/VITA 1-1994)
-            s_ADDRlatched (11 downto 1) <= std_logic_vector
-              (unsigned(s_ADDRlatched (11 downto 1)) + addr_word_incr);
+            s_vme_addr_reg (11 downto 1) <= std_logic_vector
+              (unsigned(s_vme_addr_reg (11 downto 1)) + addr_word_incr);
             s_mainFSMstate   <= WAIT_FOR_DS;
 
           when IRQ_CHECK =>
@@ -733,17 +739,17 @@ begin
   VME_RETRY_OE_o <= '0';
 
   -- WB Master
-  adr_o <= "00" & s_ADDRlatched(31 downto 2);
+  adr_o <= "00" & s_vme_addr_reg(31 downto 2);
   we_o <= not s_WRITElatched_n;
   dat_o <= s_locDataIn(31 downto 0);
 
   -- Function Decoder
-  addr_decoder_o <= s_ADDRlatched & '0';
+  addr_decoder_o <= s_vme_addr_reg & '0';
   am_o           <= s_AMlatched;
 
   -- CR/CSR In/Out
   cr_csr_data_o <= s_locDataIn(7 downto 0);
-  cr_csr_addr_o <= s_ADDRlatched(18 downto 2);
+  cr_csr_addr_o <= s_vme_addr_reg(18 downto 2);
 
   cr_csr_we_o   <= '1' when s_conf_req = '1' and
                             s_WRITElatched_n = '0'
