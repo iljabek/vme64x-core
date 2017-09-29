@@ -149,8 +149,10 @@ architecture RTL of VME_bus is
   signal s_AMlatched                : std_logic_vector(5 downto 0);
   signal s_WRITElatched_n           : std_logic;
 
-  -- Address from the VME bus
+  -- Address and data from the VME bus.  There are two registers so that the
+  -- first one can be placed in the IOBs.
   signal s_vme_addr_reg             : std_logic_vector(31 downto 1);
+  signal s_vme_data_reg             : std_logic_vector(31 downto 0);
 
   type t_addressingType is (
     A24,
@@ -498,14 +500,7 @@ begin
               -- Read DATA (which are stable)
               s_locDataIn(63 downto 33) <= VME_ADDR_i;
               s_locDataIn(32)           <= VME_LWORD_n_i;
-
-              if s_LWORDlatched_n = '1' and s_vme_addr_reg(1) = '0' then
-                -- Word/byte access with A1=0
-                s_locDataIn(31 downto 16)  <= VME_DATA_i(15 downto 0);
-                s_locDataIn(15 downto 0) <= VME_DATA_i(15 downto 0);
-              else
-                s_locDataIn(31 downto 0)  <= VME_DATA_i;
-              end if;
+              s_vme_data_reg            <= VME_DATA_i;
             else
               s_mainFSMstate   <= LATCH_DS;
               s_DS_latch_count <= s_DS_latch_count - 1;
@@ -515,6 +510,12 @@ begin
             VME_DATA_DIR_o   <= s_WRITElatched_n;
             VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
             s_dataPhase      <= s_dataPhase;
+
+            s_locDataIn(31 downto 0) <= s_vme_data_reg;
+            if s_LWORDlatched_n = '1' and s_vme_addr_reg(1) = '0' then
+                -- Word/byte access with A1=0
+                s_locDataIn(31 downto 16)  <= s_vme_data_reg(15 downto 0);
+            end if;
 
             --  Translate DS+LWORD+ADDR to WB byte selects
             if s_LWORDlatched_n = '0' then
@@ -574,7 +575,9 @@ begin
 
                   s_locDataIn(31 downto 0) <= s_locDataIn(63 downto 32);
 
-                  s_mainFSMstate <= CHECK_TRANSFER_TYPE;
+                  stb_o <= s_card_sel;
+
+                  s_mainFSMstate <= MEMORY_REQ;
                 else
                   s_mainFSMstate <= DTACK_LOW;
                 end if;
@@ -600,7 +603,9 @@ begin
                   s_dataPhase <= '0';
                   s_vme_addr_reg(2) <= '1';
 
-                  s_mainFSMstate <= CHECK_TRANSFER_TYPE;
+                  stb_o <= s_card_sel;
+
+                  s_mainFSMstate <= MEMORY_REQ;
                 else
                   s_mainFSMstate <= DATA_TO_BUS;
                 end if;
