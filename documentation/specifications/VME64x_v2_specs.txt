@@ -92,7 +92,6 @@ TODO:
 
 * Stick DFSR and XAM to 0
 * Put FF in IOB for all VME lines
-* Make decoding and DS in parallel
 
 
 VITAL-1 rules

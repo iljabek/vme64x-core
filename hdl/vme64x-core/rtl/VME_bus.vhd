@@ -327,8 +327,6 @@ begin
         VME_ADDR_DIR_o   <= '0';
         VME_BERR_n_o     <= '1';
 
-        s_DS_latch_count <= "000";
-
         case s_mainFSMstate is
 
           when IDLE =>
@@ -369,6 +367,9 @@ begin
             s_card_sel <= '0';
             s_conf_sel <= '0';
 
+            --  DS latch counter
+            s_DS_latch_count <= to_unsigned (num_latchDS, 3);
+
             --  VITA-1 Rule 2.6
             --  A Slave MUST NOT respond with a falling edge on DTACK* during
             --  an unaligned transfer cycle, if it does not have UAT
@@ -392,13 +393,26 @@ begin
           when DECODE_ACCESS =>
             -- check if this slave board is addressed.
 
+            --  Wait for DS in parallel.
+            if VME_DS_n_i /= "11" then
+              s_WRITElatched_n <= VME_WRITE_n_i;
+              if s_DS_latch_count /= 0 then
+                s_DS_latch_count <= s_DS_latch_count - 1;
+              end if;
+            end if;
+
             if decode_done_i = '1' then
               if decode_sel_i = '1' and module_enable_i = '1' then
                 -- card_sel = '1' it means WB application addressed
                 s_card_sel <= '1';
-                s_mainFSMstate <= WAIT_FOR_DS;
                 -- Keep only the local part of the address
                 s_ADDRlatched <= addr_decoder_i (31 downto 1);
+
+                if VME_DS_n_i = "11" then
+                  s_mainFSMstate <= WAIT_FOR_DS;
+                else
+                  s_mainFSMstate <= LATCH_DS;
+                end if;
               else
                 -- another board will answer; wait here the rising edge on
                 -- VME_AS_i (done by top if).
@@ -411,11 +425,12 @@ begin
 
           when WAIT_FOR_DS =>
             -- wait until DS /= "11"
+            -- Note: before entering this state, s_DS_latch_count must be set.
 
             if VME_DS_n_i /= "11" then
               s_WRITElatched_n <= VME_WRITE_n_i;
+              s_DS_latch_count <= s_DS_latch_count - 1;
               s_mainFSMstate <= LATCH_DS;
-              s_DS_latch_count <= to_unsigned (num_latchDS - 1, 3);
             else
               s_mainFSMstate <= WAIT_FOR_DS;
             end if;
@@ -601,7 +616,10 @@ begin
 
               -- Rescind DTACK.
               VME_DTACK_n_o <= '1';
-              
+
+              --  DS latch counter
+              s_DS_latch_count <= to_unsigned (num_latchDS, 3);
+
               if s_transferType = SINGLE then
                 --  Cycle should be finished, but allow another access at
                 --  the same address (RMW).

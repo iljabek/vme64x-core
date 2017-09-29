@@ -1,5 +1,5 @@
 entity top_tb is
-  generic (scenario : natural range 0 to 6 := 1);
+  generic (scenario : natural range 0 to 7 := 7);
 end;
 
 library ieee;
@@ -1230,6 +1230,34 @@ begin
                                x"01_23_45_67_89_ab_cd_ef",
                                x"fe_dc_ba_98_76_54_32_10")
           report "incorrect MBLT data 64 r/w" severity error;
+
+      when 7 =>
+        --  Delayed DS
+
+        -- Set ADER
+        write8_conf (x"7_ff63", x"67");
+        write8_conf (x"7_ff6f", c_AM_A32 & "00");
+
+        -- Enable card
+        write8_conf (x"7_fffb", b"0001_0000");
+
+        -- Read 16 at 0x0100
+        VME_LWORD_n_i <= '1';
+        read_setup_addr (x"67_00_01_00", c_AM_A32);
+
+        wait for 50 ns;
+        VME_DS_n_i <= "0X";
+        wait for 20 ns; --  Constraint 13.
+        VME_DS_n_i <= "00";
+        read_wait_dtack;
+        if bus_timer = '0' then
+          d16 := VME_DATA_o (15 downto 0);
+        else
+          d16 := (others => 'X');
+        end if;
+        read_release;
+        assert d16 = x"8765" report "bad read16 with delayed DS"
+          severity error;
     end case;
 
     wait for 4 * g_CLOCK_PERIOD * 1 ns;
