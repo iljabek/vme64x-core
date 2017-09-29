@@ -197,9 +197,23 @@ begin
         if s_irq_pending = '0' then
           VME_IRQ_n_o     <= (others => '1');
 
-          if INT_Req_i = '1' and retry_mask = '1' and INT_Level_i /= "000" then
+          if INT_Req_i = '1' and retry_mask = '1' then
             s_irq_pending <= '1';
-            VME_IRQ_n_o (to_integer(unsigned(INT_Level_i))) <= '0';
+
+            -- Explicit decoding
+            case INT_Level_i is
+              when "001" =>  VME_IRQ_n_o <= "1111110";
+              when "010" =>  VME_IRQ_n_o <= "1111101";
+              when "011" =>  VME_IRQ_n_o <= "1111011";
+              when "100" =>  VME_IRQ_n_o <= "1110111";
+              when "101" =>  VME_IRQ_n_o <= "1101111";
+              when "110" =>  VME_IRQ_n_o <= "1011111";
+              when "111" =>  VME_IRQ_n_o <= "0111111";
+              when others =>
+                --  Incorrect value for INT_Level_i, ignore it.
+                VME_IRQ_n_o <= "1111111";
+                s_irq_pending <= '0';
+            end case;
           end if;
         else
           if irq_ack_i = '1' then
