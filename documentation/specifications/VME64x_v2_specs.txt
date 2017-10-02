@@ -28,7 +28,6 @@ Changes
 * WB data bus is 32 bit
 * Internal component declarations removed.
 * Number of sync registers (for async inputs) is configurable. Default is 2.
-* Port function_o to be removed.
 
 VME interface
 -------------

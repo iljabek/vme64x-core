@@ -256,9 +256,6 @@ entity VME64xCore_Top is
     user_cr_addr_o  : out std_logic_vector(18 downto 2);
     user_cr_data_i  : in  std_logic_vector( 7 downto 0) := (others => '0');
 
-    -- Functions
-    function_o      : out std_logic_vector( 3 downto 0);
-
     -- IRQ Generator
     irq_ack_o : out std_logic;    -- when the IRQ controller acknowledges the
                                   -- Interrupt cycle it sends a pulse to the
@@ -305,7 +302,6 @@ architecture RTL of VME64xCore_Top is
   signal s_decode_start         : std_logic;
   signal s_decode_done          : std_logic;
   signal s_decode_sel           : std_logic;
-  signal s_function             : std_logic_vector( 2 downto 0);
   signal s_am                   : std_logic_vector( 5 downto 0);
 
   -- Oversampled input signals
@@ -473,12 +469,8 @@ begin
       am_i           => s_am,
       ader_i         => s_ader,
       decode_sel_o   => s_decode_sel,
-      decode_done_o  => s_decode_done,
-      function_o     => s_function
+      decode_done_o  => s_decode_done
     );
-
-  function_o (2 downto 0) <= s_function;
-  function_o (3) <= '0'; --  FIXME: purpose of that bit ?
 
   ------------------------------------------------------------------------------
   -- Output

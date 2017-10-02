@@ -54,12 +54,10 @@ entity VME_Funct_Match is
 
     ader_i         : in  t_ader_array(0 to 7);
 
-    -- Set when a function is selected (ie function_o is valid).
+    -- Set when a function is selected.
     decode_sel_o   : out std_logic;
     -- Set when sel_o is valid (decoding is done).
-    decode_done_o  : out std_logic;
-    -- Selected function.
-    function_o     : out std_logic_vector( 2 downto 0)
+    decode_done_o  : out std_logic
   );
 end VME_Funct_Match;
 
@@ -72,30 +70,6 @@ architecture rtl of VME_Funct_Match is
   -- Selected function
   signal s_function      : std_logic_vector( 7 downto 0);
   signal s_ader_am_valid : std_logic_vector( 7 downto 0);
-
-  ------------------------------------------------------------------------------
-  -- Generate EFD lookup table
-  ------------------------------------------------------------------------------
-  type t_efd_lut is array (0 to 7) of std_logic_vector(2 downto 0);
-
-  function f_gen_efd_lut return t_efd_lut is
-    variable lut : t_efd_lut;
-  begin
-    lut(0) := "000";
-    for i in 1 to 7 loop
-      if g_ADEM(i-1)(c_ADEM_EFD) = '1' then
-        lut(i) := lut(i - 1);
-      else
-        lut(i) := std_logic_vector(to_unsigned(i, 3));
-      end if;
-    end loop;
-    return lut;
-  end function;
-
-  -- Map from function defined by address to real function. Handle extra
-  -- decoders.
-  constant c_EFD_LUT : t_efd_lut := f_gen_efd_lut;
-
 begin
   ------------------------------------------------------------------------------
   -- Address and AM comparators
@@ -145,7 +119,6 @@ begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' or s_decode_start_1 = '0' then
         addr_o <= (others => '0');
-        function_o <= (others => '0');
         decode_done_o <= '0';
         decode_sel_o <= '0';
       else
@@ -153,7 +126,6 @@ begin
         decode_done_o <= '1';
         
         if s_function_sel_valid = '1' then
-          function_o <= c_EFD_LUT(s_function_sel);
           mask := (others => '0');
           mask(c_ADEM_M) := g_adem(s_function_sel)(c_ADEM_M);
           addr_o <= addr_i and not mask;

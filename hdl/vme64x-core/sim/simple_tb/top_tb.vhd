@@ -1,5 +1,5 @@
 entity top_tb is
-  generic (scenario : natural range 0 to 7 := 7);
+  generic (scenario : natural range 0 to 7 := 6);
 end;
 
 library ieee;
@@ -218,7 +218,6 @@ architecture behaviour of top_tb is
   signal user_csr_we_o   : std_logic;
   signal user_cr_addr_o  : std_logic_vector(18 downto 2);
   signal user_cr_data_i  : std_logic_vector( 7 downto 0)  := (others => '0');
-  signal function_o      : std_logic_vector( 3 downto 0);
   signal irq_ack_o       : std_logic;
   signal irq_i           : std_logic;
 
@@ -285,7 +284,6 @@ begin
         user_csr_we_o   => user_csr_we_o,
         user_cr_addr_o  => user_cr_addr_o,
         user_cr_data_i  => user_cr_data_i,
-        function_o      => function_o,
         irq_ack_o       => irq_ack_o,
         irq_i           => irq_i);
 

@@ -207,7 +207,6 @@ package vme64x_pack is
       user_csr_we_o   : out std_logic;
       user_cr_addr_o  : out std_logic_vector(18 downto 2);
       user_cr_data_i  : in  std_logic_vector( 7 downto 0) := (others => '0');
-      function_o      : out std_logic_vector( 3 downto 0);
       irq_ack_o       : out std_logic;
       irq_i           : in  std_logic
     );
