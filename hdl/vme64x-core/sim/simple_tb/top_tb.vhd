@@ -1,5 +1,36 @@
+--------------------------------------------------------------------------------
+-- CERN (BE-CO-HT)
+-- VME64x Core test bench
+-- http://www.ohwr.org/projects/vme64x-core
+--------------------------------------------------------------------------------
+--
+-- unit name:     top_tb
+--
+-- author:        Tristan Gingold <tristan.gingold@cern.ch>
+--
+-- description:
+--
+--   Implement a VME master and test various scenarios. Set the g_SCENARIO
+--   generic to select the test. See descriptions in the file.
+--
+--
+-- dependencies:
+--
+--------------------------------------------------------------------------------
+-- GNU LESSER GENERAL PUBLIC LICENSE
+--------------------------------------------------------------------------------
+-- This source file is free software; you can redistribute it and/or modify it
+-- under the terms of the GNU Lesser General Public License as published by the
+-- Free Software Foundation; either version 2.1 of the License, or (at your
+-- option) any later version. This source is distributed in the hope that it
+-- will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+-- of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+-- See the GNU Lesser General Public License for more details. You should have
+-- received a copy of the GNU Lesser General Public License along with this
+-- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html
+
 entity top_tb is
-  generic (scenario : natural range 0 to 7 := 6);
+  generic (g_SCENARIO : natural range 0 to 7 := 6);
 end;
 
 library ieee;
@@ -1016,7 +1047,7 @@ begin
       wait until rising_edge (clk_i);
     end loop;
 
-    case scenario is
+    case g_SCENARIO is
       when 0 =>
         --  Disp CR/CSR
         
