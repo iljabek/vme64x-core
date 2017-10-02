@@ -356,18 +356,19 @@ begin
 
           when IDLE =>
             if VME_AS_n_i = '0' then
+              -- if AS falling edge --> start access
+
               -- Store ADDR, AM and LWORD
               s_ADDRlatched    <= VME_ADDR_i;
               s_LWORDlatched_n <= VME_LWORD_n_i;
               s_AMlatched      <= VME_AM_i;
 
               if VME_IACK_n_i = '1' then
-                -- if AS falling edge --> start access
-
                 -- VITA-1 Rule 2.11
                 -- Slaves MUST NOT respond to DTB cycles when IACK* is low.
                 s_mainFSMstate <= REFORMAT_ADDRESS;
               else
+                -- IACK cycle.
                 s_mainFSMstate <= IRQ_CHECK;
               end if;
 
@@ -434,7 +435,7 @@ begin
               if decode_sel_i = '1' and module_enable_i = '1' then
                 -- card_sel = '1' it means WB application addressed
                 s_card_sel <= '1';
-                -- Keep only the local part of the address
+                -- Keep only the local part of the address.
                 s_vme_addr_reg <= addr_decoder_i (31 downto 1);
 
                 if VME_DS_n_i = "11" then
@@ -443,7 +444,7 @@ begin
                   s_mainFSMstate <= LATCH_DS;
                 end if;
               else
-                -- another board will answer; wait here the rising edge on
+                -- Another board will answer; wait here the rising edge on
                 -- VME_AS_i (done by top if).
                 s_mainFSMstate <= WAIT_END;
               end if;
@@ -467,8 +468,8 @@ begin
             end if;
 
           when LATCH_DS =>
-            -- this state is necessary indeed the VME master can assert the
-            -- DS lines not at the same time
+            -- This state is necessary indeed the VME master can assert the
+            -- DS lines not at the same time.
 
             -- VITA-1 Rule 2.53a
             -- During all read cycles [...], the responding slave MUST NOT
@@ -545,6 +546,8 @@ begin
             else
               s_mainFSMstate <= MEMORY_REQ;
               s_conf_req <= s_conf_sel;
+
+              -- Start WB cycle.
               cyc_o <= s_card_sel;
               stb_o <= s_card_sel;
               s_err <= '0';
