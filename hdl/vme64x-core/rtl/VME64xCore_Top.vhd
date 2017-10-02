@@ -309,12 +309,13 @@ architecture RTL of VME64xCore_Top is
   signal s_am                   : std_logic_vector( 5 downto 0);
 
   -- Oversampled input signals
-  signal s_VME_RST_n            : std_logic_vector(2 downto 0);
-  signal s_VME_AS_n             : std_logic_vector(2 downto 0);
-  signal s_VME_WRITE_n          : std_logic_vector(2 downto 0);
-  signal s_VME_DS_n             : std_logic_vector(5 downto 0);
-  signal s_VME_IACK_n           : std_logic_vector(2 downto 0);
-  signal s_VME_IACKIN_n         : std_logic_vector(2 downto 0);
+  constant nbr_stages : natural := 2; -- Number of stages for synchronizers
+  signal s_VME_RST_n            : std_logic_vector(nbr_stages - 1 downto 0);
+  signal s_VME_AS_n             : std_logic_vector(nbr_stages - 1 downto 0);
+  signal s_VME_WRITE_n          : std_logic_vector(nbr_stages - 1 downto 0);
+  signal s_VME_DS_n             : std_logic_vector(2 * nbr_stages - 1 downto 0);
+  signal s_VME_IACK_n           : std_logic_vector(nbr_stages - 1 downto 0);
+  signal s_VME_IACKIN_n         : std_logic_vector(nbr_stages - 1 downto 0);
 
   -- CR/CSR parameter arrays
   -- ADEM array has an extra index (-1) to simplify looping while checking the
@@ -364,12 +365,18 @@ begin
   process (clk_i)
   begin
     if rising_edge(clk_i) then
-      s_VME_RST_n    <= s_VME_RST_n(1 downto 0)    & VME_RST_n_i;
-      s_VME_AS_n     <= s_VME_AS_n(1 downto 0)     & VME_AS_n_i;
-      s_VME_WRITE_n  <= s_VME_WRITE_n(1 downto 0)  & VME_WRITE_n_i;
-      s_VME_DS_n     <= s_VME_DS_n(3 downto 0)     & VME_DS_n_i;
-      s_VME_IACK_n   <= s_VME_IACK_n(1 downto 0)   & VME_IACK_n_i;
-      s_VME_IACKIN_n <= s_VME_IACKIN_n(1 downto 0) & VME_IACKIN_n_i;
+      s_VME_RST_n    <=     VME_RST_n_i
+                        & s_VME_RST_n(nbr_stages - 1 downto 1);
+      s_VME_AS_n     <=     VME_AS_n_i
+                        & s_VME_AS_n(nbr_stages - 1 downto 1);
+      s_VME_WRITE_n  <=     VME_WRITE_n_i
+                        & s_VME_WRITE_n(nbr_stages - 1 downto 1);
+      s_VME_DS_n     <=     VME_DS_n_i
+                        & s_VME_DS_n(2 * nbr_stages - 1 downto 2);
+      s_VME_IACK_n   <=     VME_IACK_n_i
+                        & s_VME_IACK_n(nbr_stages - 1 downto 1);
+      s_VME_IACKIN_n <=     VME_IACKIN_n_i
+                        & s_VME_IACKIN_n(nbr_stages - 1 downto 1);
     end if;
   end process;
 
@@ -387,13 +394,13 @@ begin
       rst_i           => s_reset,
 
       -- VME
-      VME_AS_n_i      => s_VME_AS_n(2),
+      VME_AS_n_i      => s_VME_AS_n(0),
       VME_LWORD_n_o   => VME_LWORD_n_o,
       VME_LWORD_n_i   => VME_LWORD_n_i,
       VME_RETRY_n_o   => VME_RETRY_n_o,
       VME_RETRY_OE_o  => VME_RETRY_OE_o,
-      VME_WRITE_n_i   => s_VME_WRITE_n(2),
-      VME_DS_n_i      => s_VME_DS_n(5 downto 4),
+      VME_WRITE_n_i   => s_VME_WRITE_n(0),
+      VME_DS_n_i      => s_VME_DS_n(1 downto 0),
       VME_DTACK_n_o   => VME_DTACK_n_o,
       VME_DTACK_OE_o  => VME_DTACK_OE_o,
       VME_BERR_n_o    => s_vme_berr_n,
@@ -406,8 +413,8 @@ begin
       VME_DATA_DIR_o  => VME_DATA_DIR_o,
       VME_DATA_OE_N_o => VME_DATA_OE_N_o,
       VME_AM_i        => VME_AM_i,
-      VME_IACK_n_i    => s_VME_IACK_n(2),
-      VME_IACKIN_n_i  => s_VME_IACKIN_n(2),
+      VME_IACK_n_i    => s_VME_IACK_n(0),
+      VME_IACKIN_n_i  => s_VME_IACKIN_n(0),
       VME_IACKOUT_n_o => VME_IACKOUT_n_o,
 
       -- WB signals
@@ -444,7 +451,7 @@ begin
       irq_ack_o       => s_irq_ack
     );
 
-  s_reset    <= (not rst_n_i) or (not s_VME_RST_n(2));
+  s_reset    <= (not rst_n_i) or (not s_VME_RST_n(0));
   s_reset_n  <= not s_reset;
   rst_n_o    <= not (s_reset or s_module_reset);
 

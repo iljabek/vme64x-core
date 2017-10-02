@@ -10,7 +10,7 @@ Features
 
 * interrupts: 1 with automasking. Once acknowledge by the handler, interrupts
   are masked for 1ms or until deasserted by the slave. The intent is to
-  prevent interrupt bursts.
+  prevent interrupt bursts and to retrigger interrupts if not handled.
 * A disable ADEM (set to 0) results in an unimplemented ADER, to reduce gate
   usage.
 * CSR Reset bit is handled as a pulse (will reset on the next write).
@@ -27,6 +27,7 @@ Changes
 * No endianess convertion
 * WB data bus is 32 bit
 * Internal component declarations removed.
+* Number of sync registers (for async inputs) is configurable. Default is 2.
 * Port function_o to be removed.
 
 VME interface
