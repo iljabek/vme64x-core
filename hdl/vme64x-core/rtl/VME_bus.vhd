@@ -154,6 +154,7 @@ architecture RTL of VME_bus is
   signal s_vme_addr_reg             : std_logic_vector(31 downto 1);
   signal s_vme_data_reg             : std_logic_vector(31 downto 0);
   signal s_vme_lword_n_reg          : std_logic;
+  signal s_vme_addr_dir             : std_logic;
 
   type t_addressingType is (
     A24,
@@ -230,7 +231,6 @@ architecture RTL of VME_bus is
   signal s_card_sel                 : std_logic;   -- WB memory is addressed
   signal s_irq_sel                  : std_logic;   -- IACK transaction
 
-  signal s_is_d64                   : std_logic;
   signal s_err                      : std_logic;
 
   -- Calculate the number of LATCH DS states necessary to match the timing
@@ -294,10 +294,6 @@ begin
     MBLT   when A24_MBLT | A32_MBLT,
     error  when others;
 
-  -- Used to drive the VME_ADDR_DIR_o
-  s_is_d64 <= '1' when s_transferType = MBLT else '0';
-
-
   ------------------------------------------------------------------------------
   -- MAIN FSM
   ------------------------------------------------------------------------------
@@ -336,7 +332,8 @@ begin
         s_AMlatched      <= (others => '0');
 
         s_vme_addr_reg   <= (others => '0');
-        
+        s_vme_addr_dir   <= '0';
+
         s_card_sel <= '0';
         s_conf_sel <= '0';
         s_irq_sel  <= '0';
@@ -475,7 +472,7 @@ begin
             -- During all read cycles [...], the responding slave MUST NOT
             -- drive the D[] lines until DSA* goes low.
             VME_DATA_DIR_o   <= s_WRITElatched_n;
-            VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
+            VME_ADDR_DIR_o   <= '0';
 
             if s_transferType = MBLT then
               s_dataPhase <= '1';
@@ -511,8 +508,15 @@ begin
 
           when CHECK_TRANSFER_TYPE =>
             VME_DATA_DIR_o   <= s_WRITElatched_n;
-            VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
+            VME_ADDR_DIR_o   <= '0';
             s_dataPhase      <= s_dataPhase;
+
+            --  VME_ADDR is an output during MBLT *read* data transfer.
+            if s_transferType = MBLT and s_WRITElatched_n = '1' then
+              s_vme_addr_dir  <= '1';
+            else
+              s_vme_addr_dir  <= '0';
+            end if;
 
             s_locDataIn(32)          <= s_LWORDlatched_n;
             s_locDataIn(31 downto 0) <= s_vme_data_reg;
@@ -558,7 +562,7 @@ begin
             -- generate a pulse on s_conf_req signal
             VME_DTACK_OE_o   <= '1';
             VME_DATA_DIR_o   <= s_WRITElatched_n;
-            VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
+            VME_ADDR_DIR_o   <= s_vme_addr_dir;
 
             -- Assert STB if stall was asserted.
             stb_o <= s_card_sel and stall_i;
@@ -623,7 +627,7 @@ begin
           when DATA_TO_BUS =>
             VME_DTACK_OE_o   <= '1';
             VME_DATA_DIR_o   <= s_WRITElatched_n;
-            VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
+            VME_ADDR_DIR_o   <= s_vme_addr_dir;
 
             VME_ADDR_o    <= s_locDataOut(63 downto 33);
             VME_LWORD_n_o <= s_locDataOut(32);
@@ -637,7 +641,7 @@ begin
           when DTACK_LOW =>
             VME_DTACK_OE_o   <= '1';
             VME_DATA_DIR_o   <= s_WRITElatched_n;
-            VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
+            VME_ADDR_DIR_o   <= s_vme_addr_dir;
 
             --  Set DTACK (or retry or berr)
             if s_card_sel = '1' and s_err = '1' then
@@ -682,7 +686,7 @@ begin
 
           when INCREMENT_ADDR =>
             VME_DTACK_OE_o   <= '1';
-            VME_ADDR_DIR_o   <= (s_is_d64) and s_WRITElatched_n;
+            VME_ADDR_DIR_o   <= s_vme_addr_dir;
 
             if s_vme_lword_n_reg = '0' then
               if s_transferType = MBLT then
