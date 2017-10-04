@@ -127,7 +127,7 @@ begin
         
         if s_function_sel_valid = '1' then
           mask := (others => '0');
-          mask(c_ADEM_M) := g_adem(s_function_sel)(c_ADEM_M);
+          mask(c_ADEM_M) := g_ADEM(s_function_sel)(c_ADEM_M);
           addr_o <= addr_i and not mask;
           decode_sel_o <= '1';
         else

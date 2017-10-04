@@ -335,14 +335,14 @@ begin
   process (clk_i)
     -- Write to ADER bytes, if implemented. Take advantage of VITAL-1-1 Rule
     -- 10.19
-    procedure set_ADER (Idx : natural range 0 to 7) is
+    procedure Set_ADER (Idx : natural range 0 to 7) is
       variable v_byte  : integer;
     begin
       if g_ADEM (Idx) /= x"0000_0000" then
         v_byte  := 3 - to_integer(s_addr(3 downto 2));
         s_reg_ader(Idx)(8*v_byte+7 downto 8*v_byte) <= data_i;
       end if;
-    end set_ADER;
+    end Set_ADER;
 
     variable csr_idx   : unsigned(7 downto 4);
     variable csr_boff : unsigned(3 downto 2);
