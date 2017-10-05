@@ -37,10 +37,10 @@ use work.vme64x_pack.all;
 
 entity xvme64x_core is
   generic (
-    g_CLOCK_PERIOD    : integer                         := c_CLOCK_PERIOD;
-    g_WB_DATA_WIDTH   : integer                         := c_wishbone_data_width;
-    g_WB_ADDR_WIDTH   : integer                         := c_wishbone_address_width;
-    g_USER_CSR_EXT    : boolean                         := false;
+    g_CLOCK_PERIOD    : integer                    := c_CLOCK_PERIOD;
+    g_WB_DATA_WIDTH   : integer                    := c_wishbone_data_width;
+    g_WB_ADDR_WIDTH   : integer                    := c_wishbone_address_width;
+    g_USER_CSR_EXT    : boolean                    := false;
 
     -- CR/CSR
     g_MANUFACTURER_ID : std_logic_vector(23 downto 0)   := c_CERN_ID;

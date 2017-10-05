@@ -196,7 +196,7 @@ architecture rtl of VME_CR_CSR_Space is
   constant c_ADER_MASK : std_logic_vector(31 downto 0) := x"0000_00fd";
   -- Corresponding ADEM bits.
   constant c_ADEM_MASK : std_logic_vector(31 downto 0) := x"ffff_ff00";
-  
+
   -- CRAM
   type t_cram is array (c_CRAM_SIZE-1 downto 0) of std_logic_vector(7 downto 0);
 
@@ -366,7 +366,7 @@ begin
           --  behaviour to be compatible with the driver.  The reset bit will
           --  be cleared at the next CSR write access.
           s_reg_bit_reg(c_RESET_BIT) <= '0';
-        
+
           csr_idx := s_addr(7 downto 4);
           csr_boff := s_addr(3 downto 2);
           case csr_idx is

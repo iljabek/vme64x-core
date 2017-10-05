@@ -142,7 +142,7 @@ package vme64x_pack is
       g_END_USER_CSR    : std_logic_vector(23 downto 0)   := x"07ff5f";
       g_BEG_SN          : std_logic_vector(23 downto 0)   := x"000000";
       g_END_SN          : std_logic_vector(23 downto 0)   := x"000000";
-      
+
       g_F0_ADEM   : std_logic_vector( 31 downto 0)  := x"ff000000";
       g_F0_AMCAP  : std_logic_vector( 63 downto 0)  := x"00000000_0000ff00";
       g_F0_DAWPR  : std_logic_vector(  7 downto 0)  := x"84";

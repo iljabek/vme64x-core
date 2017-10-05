@@ -66,7 +66,7 @@ architecture rtl of VME_Funct_Match is
   signal s_function_sel : natural range 0 to 7;
   signal s_function_sel_valid : std_logic;
   signal s_decode_start_1 : std_logic;
-  
+
   -- Selected function
   signal s_function      : std_logic_vector( 7 downto 0);
   signal s_ader_am_valid : std_logic_vector( 7 downto 0);
@@ -94,7 +94,7 @@ begin
       s_function_sel <= 0;
       s_function_sel_valid <= '0';
       s_decode_start_1 <= '0';
-      
+
       if rst_n_i = '0' then
         null;
       elsif decode_start_i = '1' then
@@ -124,7 +124,7 @@ begin
       else
         -- s_decode_start_1 is set.
         decode_done_o <= '1';
-        
+
         if s_function_sel_valid = '1' then
           mask := (others => '0');
           mask(c_ADEM_M) := g_ADEM(s_function_sel)(c_ADEM_M);

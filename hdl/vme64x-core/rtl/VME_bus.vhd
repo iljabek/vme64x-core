@@ -483,7 +483,7 @@ begin
               s_dataPhase <= '0';
             end if;
 
-            if s_DS_latch_count = 0 then
+            if s_DS_latch_count = 0 or s_transferType = MBLT then
               if s_irq_sel = '1' then
                 s_mainFSMstate <= DATA_TO_BUS;
               elsif s_transferType = MBLT and s_MBLT_Data = '0' then

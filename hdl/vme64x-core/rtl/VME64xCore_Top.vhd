@@ -350,7 +350,7 @@ begin
       report "bit set in AMCAP for not supported AM"
       severity failure;
   end generate;
-  
+
   ------------------------------------------------------------------------------
   -- Metastability
   ------------------------------------------------------------------------------
