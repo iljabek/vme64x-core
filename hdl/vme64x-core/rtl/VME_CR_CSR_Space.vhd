@@ -207,16 +207,17 @@ architecture rtl of VME_CR_CSR_Space is
   signal s_cram_we          : std_logic;
 
   -- Addresses
-  constant c_BEG_CR         : unsigned(18 downto 2) := to_unsigned(16#00000#/4, 17);
-  constant c_END_CR         : unsigned(18 downto 2) := to_unsigned(16#00fff#/4, 17);
-  constant c_BEG_CSR        : unsigned(18 downto 2) := to_unsigned(16#7ff60#/4, 17);
-  constant c_END_CSR        : unsigned(18 downto 2) := to_unsigned(16#7ffff#/4, 17);
-  constant c_BEG_USER_CR    : unsigned(18 downto 2) := unsigned(g_BEG_USER_CR(18 downto 2));
-  constant c_END_USER_CR    : unsigned(18 downto 2) := unsigned(g_END_USER_CR(18 downto 2));
-  constant c_BEG_USER_CSR   : unsigned(18 downto 2) := unsigned(g_BEG_USER_CSR(18 downto 2));
-  constant c_END_USER_CSR   : unsigned(18 downto 2) := unsigned(g_END_USER_CSR(18 downto 2));
-  constant c_BEG_CRAM       : unsigned(18 downto 2) := unsigned(g_BEG_CRAM(18 downto 2));
-  constant c_END_CRAM       : unsigned(18 downto 2) := unsigned(g_END_CRAM(18 downto 2));
+  subtype crcsr_addr is unsigned(18 downto 2);
+  constant c_BEG_CR       : crcsr_addr := to_unsigned(16#00000#/4, 17);
+  constant c_END_CR       : crcsr_addr := to_unsigned(16#00fff#/4, 17);
+  constant c_BEG_CSR      : crcsr_addr := to_unsigned(16#7ff60#/4, 17);
+  constant c_END_CSR      : crcsr_addr := to_unsigned(16#7ffff#/4, 17);
+  constant c_BEG_USER_CR  : crcsr_addr := unsigned(g_BEG_USER_CR(18 downto 2));
+  constant c_END_USER_CR  : crcsr_addr := unsigned(g_END_USER_CR(18 downto 2));
+  constant c_BEG_USER_CSR : crcsr_addr := unsigned(g_BEG_USER_CSR(18 downto 2));
+  constant c_END_USER_CSR : crcsr_addr := unsigned(g_END_USER_CSR(18 downto 2));
+  constant c_BEG_CRAM     : crcsr_addr := unsigned(g_BEG_CRAM(18 downto 2));
+  constant c_END_CRAM     : crcsr_addr := unsigned(g_END_CRAM(18 downto 2));
 
   constant c_BAR_REG        : integer := 16#7ffff#/4;
   constant c_BIT_SET_REG    : integer := 16#7fffb#/4;
@@ -258,33 +259,33 @@ architecture rtl of VME_CR_CSR_Space is
     variable cr  : t_cr_array(0 to 511) := (others => x"00");
     variable crc : unsigned(7 downto 0)  := x"00";
   begin
-    cr(16#001# to 16#003#)  := (x"00", x"03", x"ff");             -- Length of CR (excluding checksum)
-    cr(16#004#)             := x"81";                             -- CR data access width
-    cr(16#005#)             := x"81";                             -- CSR data access width
-    cr(16#006#)             := x"02";                             -- CR/CSR space specification ID
-    cr(16#007#)             := x"43";                             -- ASCII "C"
-    cr(16#008#)             := x"52";                             -- ASCII "R"
-    cr(16#009# to 16#00b#)  := f_cr_vec(g_MANUFACTURER_ID);       -- Manufacturer ID
-    cr(16#00c# to 16#00f#)  := f_cr_vec(g_BOARD_ID);              -- Board ID
-    cr(16#010# to 16#013#)  := f_cr_vec(g_REVISION_ID);           -- Revision ID
-    cr(16#014# to 16#016#)  := f_cr_vec(g_ASCII_PTR);             -- Pointer to an ASCII string
-    cr(16#01f#)             := g_PROGRAM_ID;                      -- Program ID
-    cr(16#020# to 16#022#)  := f_cr_vec(g_BEG_USER_CR);           -- Beg user CR
-    cr(16#023# to 16#025#)  := f_cr_vec(g_END_USER_CR);           -- End user CR
-    cr(16#026# to 16#028#)  := f_cr_vec(g_BEG_CRAM);              -- Beg CRAM
-    cr(16#029# to 16#02b#)  := f_cr_vec(g_END_CRAM);              -- End CRAM
-    cr(16#02c# to 16#02e#)  := f_cr_vec(g_BEG_USER_CSR);          -- Beg user CSR
-    cr(16#02f# to 16#031#)  := f_cr_vec(g_END_USER_CSR);          -- End user CSR
-    cr(16#032# to 16#034#)  := f_cr_vec(g_BEG_SN);                -- Beg serial number
-    cr(16#035# to 16#037#)  := f_cr_vec(g_END_SN);                -- End serial number
-    cr(16#038#)             := x"04";                             -- Slave characteristics parameter
-    cr(16#039#)             := x"00";                             -- User-defined slave char. param.
-    cr(16#03d#)             := x"0e";                             -- Interrupter capabilities
-    cr(16#03f#)             := x"81";                             -- CRAM data access width
+    cr(16#001# to 16#003#)  := (x"00", x"03", x"ff");       -- Length of CR
+    cr(16#004#)             := x"81";                       -- CR DAW
+    cr(16#005#)             := x"81";                       -- CSR DAW
+    cr(16#006#)             := x"02";                       -- CR/CSR spec id
+    cr(16#007#)             := x"43";                       -- ASCII "C"
+    cr(16#008#)             := x"52";                       -- ASCII "R"
+    cr(16#009# to 16#00b#)  := f_cr_vec(g_MANUFACTURER_ID); -- Manufacturer ID
+    cr(16#00c# to 16#00f#)  := f_cr_vec(g_BOARD_ID);        -- Board ID
+    cr(16#010# to 16#013#)  := f_cr_vec(g_REVISION_ID);     -- Revision ID
+    cr(16#014# to 16#016#)  := f_cr_vec(g_ASCII_PTR);       -- String ptr
+    cr(16#01f#)             := g_PROGRAM_ID;                -- Program ID
+    cr(16#020# to 16#022#)  := f_cr_vec(g_BEG_USER_CR);     -- Beg user CR
+    cr(16#023# to 16#025#)  := f_cr_vec(g_END_USER_CR);     -- End user CR
+    cr(16#026# to 16#028#)  := f_cr_vec(g_BEG_CRAM);        -- Beg CRAM
+    cr(16#029# to 16#02b#)  := f_cr_vec(g_END_CRAM);        -- End CRAM
+    cr(16#02c# to 16#02e#)  := f_cr_vec(g_BEG_USER_CSR);    -- Beg user CSR
+    cr(16#02f# to 16#031#)  := f_cr_vec(g_END_USER_CSR);    -- End user CSR
+    cr(16#032# to 16#034#)  := f_cr_vec(g_BEG_SN);          -- Beg serial number
+    cr(16#035# to 16#037#)  := f_cr_vec(g_END_SN);          -- End serial number
+    cr(16#038#)             := x"04";                       -- Slave param
+    cr(16#039#)             := x"00";                       -- User-defined
+    cr(16#03d#)             := x"0e";                       -- Interrupt cap
+    cr(16#03f#)             := x"81";                       -- CRAM DAW
     for i in 0 to 7 loop
-      cr(16#040#+i)                    := g_DAWPR(i);             -- Function X DAWPR
-      cr(16#048#+i*8  to 16#04f#+i*8)  := f_cr_vec(g_AMCAP(i));   -- Function X AMCAP
-      cr(16#188#+i*4  to 16#18b#+i*4)  := f_cr_vec(g_ADEM(i));    -- Function X ADEM
+      cr(16#040#+i)                    := g_DAWPR(i);             -- DAWPR
+      cr(16#048#+i*8  to 16#04f#+i*8)  := f_cr_vec(g_AMCAP(i));   -- AMCAP
+      cr(16#188#+i*4  to 16#18b#+i*4)  := f_cr_vec(g_ADEM(i));    -- ADEM
     end loop;
     for i in cr'range loop
       crc := crc + unsigned(cr(i));

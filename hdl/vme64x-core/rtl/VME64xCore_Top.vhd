@@ -475,7 +475,7 @@ begin
   ------------------------------------------------------------------------------
   -- Output
   ------------------------------------------------------------------------------
-  VME_IRQ_o  <= not s_VME_IRQ_n_o;  -- The buffers will invert again the logic level
+  VME_IRQ_o  <= not s_VME_IRQ_n_o;  -- The buffers will invert again the signal
   irq_ack_o  <= s_irq_ack;
 
   ------------------------------------------------------------------------------

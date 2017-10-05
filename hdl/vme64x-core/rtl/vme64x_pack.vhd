@@ -71,46 +71,53 @@ package vme64x_pack is
   -- AM table.
   -- References:
   -- Table 2-3 "Address Modifier Codes" pages 21/22 VME64std ANSI/VITA 1-1994
-  -- Table 2.4 "Extended Address Modifier Code" page 12 2eSST ANSI/VITA 1.5-2003(R2009)
-  constant c_AM_A24_S_SUP     : std_logic_vector(5 downto 0) := "111101";    -- 0x3d
-  constant c_AM_A24_S         : std_logic_vector(5 downto 0) := "111001";    -- 0x39
-  constant c_AM_A24_BLT       : std_logic_vector(5 downto 0) := "111011";    -- 0x3b
-  constant c_AM_A24_BLT_SUP   : std_logic_vector(5 downto 0) := "111111";    -- 0x3f
-  constant c_AM_A24_MBLT      : std_logic_vector(5 downto 0) := "111000";    -- 0x38
-  constant c_AM_A24_MBLT_SUP  : std_logic_vector(5 downto 0) := "111100";    -- 0x3c
-  constant c_AM_A24_LCK       : std_logic_vector(5 downto 0) := "110010";    -- 0x32
-  constant c_AM_CR_CSR        : std_logic_vector(5 downto 0) := "101111";    -- 0x2f
-  constant c_AM_A16           : std_logic_vector(5 downto 0) := "101001";    -- 0x29
-  constant c_AM_A16_SUP       : std_logic_vector(5 downto 0) := "101101";    -- 0x2d
-  constant c_AM_A16_LCK       : std_logic_vector(5 downto 0) := "101100";    -- 0x2c
-  constant c_AM_A32           : std_logic_vector(5 downto 0) := "001001";    -- 0x09
-  constant c_AM_A32_SUP       : std_logic_vector(5 downto 0) := "001101";    -- 0x0d
-  constant c_AM_A32_BLT       : std_logic_vector(5 downto 0) := "001011";    -- 0x0b
-  constant c_AM_A32_BLT_SUP   : std_logic_vector(5 downto 0) := "001111";    -- 0x0f
-  constant c_AM_A32_MBLT      : std_logic_vector(5 downto 0) := "001000";    -- 0x08
-  constant c_AM_A32_MBLT_SUP  : std_logic_vector(5 downto 0) := "001100";    -- 0x0c
-  constant c_AM_A32_LCK       : std_logic_vector(5 downto 0) := "000101";    -- 0x05
-  constant c_AM_A64           : std_logic_vector(5 downto 0) := "000001";    -- 0x01
-  constant c_AM_A64_BLT       : std_logic_vector(5 downto 0) := "000011";    -- 0x03
-  constant c_AM_A64_MBLT      : std_logic_vector(5 downto 0) := "000000";    -- 0x00
-  constant c_AM_A64_LCK       : std_logic_vector(5 downto 0) := "000100";    -- 0x04
-  constant c_AM_2EVME_6U      : std_logic_vector(5 downto 0) := "100000";    -- 0x20
-  constant c_AM_2EVME_3U      : std_logic_vector(5 downto 0) := "100001";    -- 0x21
+  -- Table 2.4 "Extended Address Modifier Code" page 12 2eSST
+  --  ANSI/VITA 1.5-2003(R2009)
+  subtype am_vec_type is std_logic_vector(5 downto 0);
+  constant c_AM_A24_S_SUP     : am_vec_type := "111101";  -- 0x3d
+  constant c_AM_A24_S         : am_vec_type := "111001";  -- 0x39
+  constant c_AM_A24_BLT       : am_vec_type := "111011";  -- 0x3b
+  constant c_AM_A24_BLT_SUP   : am_vec_type := "111111";  -- 0x3f
+  constant c_AM_A24_MBLT      : am_vec_type := "111000";  -- 0x38
+  constant c_AM_A24_MBLT_SUP  : am_vec_type := "111100";  -- 0x3c
+  constant c_AM_A24_LCK       : am_vec_type := "110010";  -- 0x32
+  constant c_AM_CR_CSR        : am_vec_type := "101111";  -- 0x2f
+  constant c_AM_A16           : am_vec_type := "101001";  -- 0x29
+  constant c_AM_A16_SUP       : am_vec_type := "101101";  -- 0x2d
+  constant c_AM_A16_LCK       : am_vec_type := "101100";  -- 0x2c
+  constant c_AM_A32           : am_vec_type := "001001";  -- 0x09
+  constant c_AM_A32_SUP       : am_vec_type := "001101";  -- 0x0d
+  constant c_AM_A32_BLT       : am_vec_type := "001011";  -- 0x0b
+  constant c_AM_A32_BLT_SUP   : am_vec_type := "001111";  -- 0x0f
+  constant c_AM_A32_MBLT      : am_vec_type := "001000";  -- 0x08
+  constant c_AM_A32_MBLT_SUP  : am_vec_type := "001100";  -- 0x0c
+  constant c_AM_A32_LCK       : am_vec_type := "000101";  -- 0x05
+  constant c_AM_A64           : am_vec_type := "000001";  -- 0x01
+  constant c_AM_A64_BLT       : am_vec_type := "000011";  -- 0x03
+  constant c_AM_A64_MBLT      : am_vec_type := "000000";  -- 0x00
+  constant c_AM_A64_LCK       : am_vec_type := "000100";  -- 0x04
+  constant c_AM_2EVME_6U      : am_vec_type := "100000";  -- 0x20
+  constant c_AM_2EVME_3U      : am_vec_type := "100001";  -- 0x21
 
-  constant c_AM_A32_2EVME     : std_logic_vector(7 downto 0) := "00000001";  -- 0x01
-  constant c_AM_A64_2EVME     : std_logic_vector(7 downto 0) := "00000010";  -- 0x02
-  constant c_AM_A32_2ESST     : std_logic_vector(7 downto 0) := "00010001";  -- 0x11
-  constant c_AM_A64_2ESST     : std_logic_vector(7 downto 0) := "00010010";  -- 0x12
+  subtype xam_vec_type is std_logic_vector(7 downto 0);
+  constant c_AM_A32_2EVME     : xam_vec_type := "00000001";  -- 0x01
+  constant c_AM_A64_2EVME     : xam_vec_type := "00000010";  -- 0x02
+  constant c_AM_A32_2ESST     : xam_vec_type := "00010001";  -- 0x11
+  constant c_AM_A64_2ESST     : xam_vec_type := "00010010";  -- 0x12
 
   ------------------------------------------------------------------------------
   -- Types
   ------------------------------------------------------------------------------
 
   -- CR/CSR parameter arrays
-  type t_adem_array   is array (integer range <>) of std_logic_vector( 31 downto 0);
-  type t_ader_array   is array (integer range <>) of std_logic_vector( 31 downto 0);
-  type t_amcap_array  is array (integer range <>) of std_logic_vector( 63 downto 0);
-  type t_dawpr_array  is array (integer range <>) of std_logic_vector(  7 downto 0);
+  type t_adem_array   is
+    array (integer range <>) of std_logic_vector( 31 downto 0);
+  type t_ader_array   is
+    array (integer range <>) of std_logic_vector( 31 downto 0);
+  type t_amcap_array  is
+    array (integer range <>) of std_logic_vector( 63 downto 0);
+  type t_dawpr_array  is
+    array (integer range <>) of std_logic_vector(  7 downto 0);
 
   ------------------------------------------------------------------------------
   -- Components
@@ -135,30 +142,31 @@ package vme64x_pack is
       g_END_USER_CSR    : std_logic_vector(23 downto 0)   := x"07ff5f";
       g_BEG_SN          : std_logic_vector(23 downto 0)   := x"000000";
       g_END_SN          : std_logic_vector(23 downto 0)   := x"000000";
-      g_F0_ADEM         : std_logic_vector( 31 downto 0)  := x"ff000000";
-      g_F0_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_0000ff00";
-      g_F0_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
-      g_F1_ADEM         : std_logic_vector( 31 downto 0)  := x"fff80000";
-      g_F1_AMCAP        : std_logic_vector( 63 downto 0)  := x"ff000000_00000000";
-      g_F1_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
-      g_F2_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
-      g_F2_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_F2_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
-      g_F3_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
-      g_F3_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_F3_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
-      g_F4_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
-      g_F4_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_F4_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
-      g_F5_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
-      g_F5_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_F5_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
-      g_F6_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
-      g_F6_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_F6_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
-      g_F7_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
-      g_F7_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_F7_DAWPR        : std_logic_vector(  7 downto 0)  := x"84"
+      
+      g_F0_ADEM   : std_logic_vector( 31 downto 0)  := x"ff000000";
+      g_F0_AMCAP  : std_logic_vector( 63 downto 0)  := x"00000000_0000ff00";
+      g_F0_DAWPR  : std_logic_vector(  7 downto 0)  := x"84";
+      g_F1_ADEM   : std_logic_vector( 31 downto 0)  := x"fff80000";
+      g_F1_AMCAP  : std_logic_vector( 63 downto 0)  := x"ff000000_00000000";
+      g_F1_DAWPR  : std_logic_vector(  7 downto 0)  := x"84";
+      g_F2_ADEM   : std_logic_vector( 31 downto 0)  := x"00000000";
+      g_F2_AMCAP  : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+      g_F2_DAWPR  : std_logic_vector(  7 downto 0)  := x"84";
+      g_F3_ADEM   : std_logic_vector( 31 downto 0)  := x"00000000";
+      g_F3_AMCAP  : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+      g_F3_DAWPR  : std_logic_vector(  7 downto 0)  := x"84";
+      g_F4_ADEM   : std_logic_vector( 31 downto 0)  := x"00000000";
+      g_F4_AMCAP  : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+      g_F4_DAWPR  : std_logic_vector(  7 downto 0)  := x"84";
+      g_F5_ADEM   : std_logic_vector( 31 downto 0)  := x"00000000";
+      g_F5_AMCAP  : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+      g_F5_DAWPR  : std_logic_vector(  7 downto 0)  := x"84";
+      g_F6_ADEM   : std_logic_vector( 31 downto 0)  := x"00000000";
+      g_F6_AMCAP  : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+      g_F6_DAWPR  : std_logic_vector(  7 downto 0)  := x"84";
+      g_F7_ADEM   : std_logic_vector( 31 downto 0)  := x"00000000";
+      g_F7_AMCAP  : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
+      g_F7_DAWPR  : std_logic_vector(  7 downto 0)  := x"84"
     );
     port (
       clk_i           : in  std_logic;
