@@ -128,7 +128,7 @@ architecture behaviour of top_tb is
     end case;
   end Disp_DAWPR;
 
-  function Image_AM (am : natural range 0 to 63) return String is
+  function Image_AM (am : natural range 0 to 63) return string is
   begin
     case am is
       when 16#3f# => return "A24S-BLT";
@@ -236,7 +236,7 @@ architecture behaviour of top_tb is
   signal ADR_o           : std_logic_vector(g_WB_ADDR_WIDTH-1 downto 0);
   signal CYC_o           : std_logic;
   signal ERR_i           : std_logic;
-  signal SEL_o           : std_logic_vector(g_WB_DATA_WIDTH/8-1 downto 0);
+  signal SEL_o           : std_logic_vector(g_WB_DATA_WIDTH / 8 - 1 downto 0);
   signal STB_o           : std_logic;
   signal ACK_i           : std_logic;
   signal WE_o            : std_logic;
@@ -425,7 +425,7 @@ begin
         if STB_o = '1' then
           ACK_i <= '1';
           idx := to_integer (unsigned (ADR_o (sram_addr_wd - 1 downto 0)));
-          
+
           if ADR_o (13) = '1' then
             if ADR_o (0) = '0' then
               if WE_o = '0' then
@@ -433,7 +433,7 @@ begin
                 DAT_i <= std_logic_vector (to_unsigned (int_cnt, 32));
               else
                 -- Write counter
-                if sel_o (0) = '1' then
+                if SEL_o (0) = '1' then
                   int_cnt := to_integer(unsigned(DAT_o(7 downto 0)));
                 end if;
               end if;
@@ -449,7 +449,7 @@ begin
             else
               -- Write SRAM
               for i in 3 downto 0 loop
-                if sel_o(i) = '1' then
+                if SEL_o(i) = '1' then
                   sram(idx)(8*i + 7 downto 8*i) := DAT_o (8*i + 7 downto 8*i);
                 end if;
               end loop;
@@ -463,7 +463,7 @@ begin
   VME_IACKIN_n_i <= VME_IACK_n_i;
 
   tb: process
-    constant c_log : boolean := False;
+    constant c_log : boolean := false;
 
     -- Convert a CR/CSR address to the VME address: insert GA.
     -- The ADDR is on 20 bits (so the x"" notation can be used), but as
@@ -540,7 +540,7 @@ begin
       read_release;
 
       if c_log then
-        write (output," => 0x" & hex(res) & LF);
+        write (output, " => 0x" & hex(res) & LF);
       end if;
     end read8;
 
@@ -571,7 +571,7 @@ begin
       read_release;
 
       if c_log then
-        write (output," => 0x" & hex(res) & LF);
+        write (output, " => 0x" & hex(res) & LF);
       end if;
     end read16;
 
@@ -602,7 +602,7 @@ begin
       read_release;
 
       if c_log then
-        write (output," => 0x" & hex(res) & LF);
+        write (output, " => 0x" & hex(res) & LF);
       end if;
     end read32;
 
@@ -699,7 +699,7 @@ begin
       VME_DS_n_i <= "00";
       read_wait_dtack;
       read_blt_end_cycle;
-      
+
       assert addr (2 downto 0) = "000"
         report "unaligned read64_mblt" severity error;
       for i in data'range loop
@@ -826,13 +826,13 @@ begin
       write_setup_addr (addr, '0', am);
       VME_DS_n_i <= "00";
       write_wait_dtack_pulse;
-      
+
       for i in data'range loop
         VME_DS_n_i <= "00";
         VME_DATA_i (31 downto 0) <= data (i)(31 downto 0);
         VME_LWORD_n_i <= data (i)(32);
         VME_ADDR_i <= data(i)(63 downto 33);
-        
+
         write_wait_dtack_pulse;
       end loop;
 
@@ -842,14 +842,14 @@ begin
     procedure write8_conf (addr : cfg_addr_t;
                            data : byte_t)
     is
-      variable l : line;
+      variable li : line;
     begin
       if c_log then
-        write (l, string'("write8_conf at 0x"));
-        hwrite (l, addr);
-        write (l, string'(" <= "));
-        hwrite (l, data);
-        writeline (output, l);
+        write (li, string'("write8_conf at 0x"));
+        hwrite (li, addr);
+        write (li, string'(" <= "));
+        hwrite (li, data);
+        writeline (output, li);
       end if;
 
       write8(to_vme_cfg_addr (addr), c_AM_CR_CSR, data);
@@ -1050,7 +1050,7 @@ begin
     case g_SCENARIO is
       when 0 =>
         --  Disp CR/CSR
-        
+
         --  Read CSR
         read8_conf (x"7_FFFF", d8);
         assert d8 = slave_ga & "000"
@@ -1066,7 +1066,7 @@ begin
 
       when 1 =>
         --  WB data access
-        
+
         --  Check ADER is 0
         read8_conf (x"7_ff63", d8);
         assert d8 = x"00" report "bad initial ADER0 value" severity error;
