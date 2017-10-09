@@ -202,7 +202,7 @@ package vme64x_pack is
       ADR_o           : out std_logic_vector(g_WB_ADDR_WIDTH-1 downto 0);
       CYC_o           : out std_logic;
       ERR_i           : in  std_logic;
-      SEL_o           : out std_logic_vector(g_WB_DATA_WIDTH/8-1 downto 0);
+      SEL_o           : out std_logic_vector(g_WB_DATA_WIDTH / 8 - 1 downto 0);
       STB_o           : out std_logic;
       ACK_i           : in  std_logic;
       WE_o            : out std_logic;

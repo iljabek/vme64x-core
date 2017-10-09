@@ -236,7 +236,7 @@ entity VME64xCore_Top is
     ADR_o   : out std_logic_vector(g_WB_ADDR_WIDTH-1 downto 0);
     CYC_o   : out std_logic;
     ERR_i   : in  std_logic;
-    SEL_o   : out std_logic_vector(g_WB_DATA_WIDTH/8-1 downto 0);
+    SEL_o   : out std_logic_vector(g_WB_DATA_WIDTH / 8 - 1 downto 0);
     STB_o   : out std_logic;
     ACK_i   : in  std_logic;
     WE_o    : out std_logic;
@@ -361,18 +361,18 @@ begin
   process (clk_i)
   begin
     if rising_edge(clk_i) then
-      s_VME_RST_n    <=     VME_RST_n_i
-                        & s_VME_RST_n(nbr_stages - 1 downto 1);
-      s_VME_AS_n     <=     VME_AS_n_i
-                        & s_VME_AS_n(nbr_stages - 1 downto 1);
-      s_VME_WRITE_n  <=     VME_WRITE_n_i
-                        & s_VME_WRITE_n(nbr_stages - 1 downto 1);
-      s_VME_DS_n     <=     VME_DS_n_i
-                        & s_VME_DS_n(2 * nbr_stages - 1 downto 2);
-      s_VME_IACK_n   <=     VME_IACK_n_i
-                        & s_VME_IACK_n(nbr_stages - 1 downto 1);
-      s_VME_IACKIN_n <=     VME_IACKIN_n_i
-                        & s_VME_IACKIN_n(nbr_stages - 1 downto 1);
+      s_VME_RST_n    <= VME_RST_n_i
+                    & s_VME_RST_n(nbr_stages - 1 downto 1);
+      s_VME_AS_n     <= VME_AS_n_i
+                    & s_VME_AS_n(nbr_stages - 1 downto 1);
+      s_VME_WRITE_n  <= VME_WRITE_n_i
+                    & s_VME_WRITE_n(nbr_stages - 1 downto 1);
+      s_VME_DS_n     <= VME_DS_n_i
+                    & s_VME_DS_n(2 * nbr_stages - 1 downto 2);
+      s_VME_IACK_n   <= VME_IACK_n_i
+                    & s_VME_IACK_n(nbr_stages - 1 downto 1);
+      s_VME_IACKIN_n <= VME_IACKIN_n_i
+                    & s_VME_IACKIN_n(nbr_stages - 1 downto 1);
     end if;
   end process;
 
@@ -483,7 +483,7 @@ begin
   ------------------------------------------------------------------------------
   Inst_VME_IRQ_Controller : entity work.VME_IRQ_Controller
     generic map (
-      g_RETRY_TIMEOUT => 1000000/g_CLOCK_PERIOD     -- 1ms timeout
+      g_RETRY_TIMEOUT => 1000000 / g_CLOCK_PERIOD   -- 1ms timeout
     )
     port map (
       clk_i           => clk_i,

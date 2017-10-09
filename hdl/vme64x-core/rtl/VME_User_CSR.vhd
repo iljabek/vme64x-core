@@ -85,17 +85,17 @@ architecture rtl of VME_User_CSR is
   constant c_UNUSED     : std_logic_vector(7 downto 0) := x"ff";
 
   -- Addresses
-  constant c_IRQ_VECTOR : integer := 16#0002f#/4;
-  constant c_IRQ_LEVEL  : integer := 16#0002b#/4;
-  constant c_ENDIAN     : integer := 16#00023#/4;
-  constant c_TIME0_NS   : integer := 16#0001f#/4;
-  constant c_TIME1_NS   : integer := 16#0001b#/4;
-  constant c_TIME2_NS   : integer := 16#00017#/4;
-  constant c_TIME3_NS   : integer := 16#00013#/4;
-  constant c_TIME4_NS   : integer := 16#0000f#/4;
-  constant c_BYTES0     : integer := 16#0000b#/4;
-  constant c_BYTES1     : integer := 16#00007#/4;
-  constant c_WB32BITS   : integer := 16#00003#/4;
+  constant c_IRQ_VECTOR : integer := 16#0002f# / 4;
+  constant c_IRQ_LEVEL  : integer := 16#0002b# / 4;
+  constant c_ENDIAN     : integer := 16#00023# / 4;
+  constant c_TIME0_NS   : integer := 16#0001f# / 4;
+  constant c_TIME1_NS   : integer := 16#0001b# / 4;
+  constant c_TIME2_NS   : integer := 16#00017# / 4;
+  constant c_TIME3_NS   : integer := 16#00013# / 4;
+  constant c_TIME4_NS   : integer := 16#0000f# / 4;
+  constant c_BYTES0     : integer := 16#0000b# / 4;
+  constant c_BYTES1     : integer := 16#00007# / 4;
+  constant c_WB32BITS   : integer := 16#00003# / 4;
 
 begin
   -- Write

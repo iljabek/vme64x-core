@@ -208,10 +208,10 @@ architecture rtl of VME_CR_CSR_Space is
 
   -- Addresses
   subtype crcsr_addr is unsigned(18 downto 2);
-  constant c_BEG_CR       : crcsr_addr := to_unsigned(16#00000#/4, 17);
-  constant c_END_CR       : crcsr_addr := to_unsigned(16#00fff#/4, 17);
-  constant c_BEG_CSR      : crcsr_addr := to_unsigned(16#7ff60#/4, 17);
-  constant c_END_CSR      : crcsr_addr := to_unsigned(16#7ffff#/4, 17);
+  constant c_BEG_CR       : crcsr_addr := to_unsigned(16#00000# / 4, 17);
+  constant c_END_CR       : crcsr_addr := to_unsigned(16#00fff# / 4, 17);
+  constant c_BEG_CSR      : crcsr_addr := to_unsigned(16#7ff60# / 4, 17);
+  constant c_END_CSR      : crcsr_addr := to_unsigned(16#7ffff# / 4, 17);
   constant c_BEG_USER_CR  : crcsr_addr := unsigned(g_BEG_USER_CR(18 downto 2));
   constant c_END_USER_CR  : crcsr_addr := unsigned(g_END_USER_CR(18 downto 2));
   constant c_BEG_USER_CSR : crcsr_addr := unsigned(g_BEG_USER_CSR(18 downto 2));
@@ -219,14 +219,14 @@ architecture rtl of VME_CR_CSR_Space is
   constant c_BEG_CRAM     : crcsr_addr := unsigned(g_BEG_CRAM(18 downto 2));
   constant c_END_CRAM     : crcsr_addr := unsigned(g_END_CRAM(18 downto 2));
 
-  constant c_BAR_REG        : integer := 16#7ffff#/4;
-  constant c_BIT_SET_REG    : integer := 16#7fffb#/4;
-  constant c_BIT_CLR_REG    : integer := 16#7fff7#/4;
-  constant c_CRAM_OWNER_REG : integer := 16#7fff3#/4;
-  constant c_USR_SET_REG    : integer := 16#7ffef#/4;
-  constant c_USR_CLR_REG    : integer := 16#7ffeb#/4;
-  constant c_ADER_REG_END   : integer := 16#7ffdf#/4;
-  constant c_ADER_REG_BEG   : integer := 16#7ff63#/4;
+  constant c_BAR_REG        : integer := 16#7ffff# / 4;
+  constant c_BIT_SET_REG    : integer := 16#7fffb# / 4;
+  constant c_BIT_CLR_REG    : integer := 16#7fff7# / 4;
+  constant c_CRAM_OWNER_REG : integer := 16#7fff3# / 4;
+  constant c_USR_SET_REG    : integer := 16#7ffef# / 4;
+  constant c_USR_CLR_REG    : integer := 16#7ffeb# / 4;
+  constant c_ADER_REG_END   : integer := 16#7ffdf# / 4;
+  constant c_ADER_REG_BEG   : integer := 16#7ff63# / 4;
 
   -- Indexes in bit set/clr register
   constant c_RESET_BIT      : integer := 7;
@@ -246,10 +246,10 @@ architecture rtl of VME_CR_CSR_Space is
 
   -- Function to generate a CR sub-array from a std_logic_vector
   function f_cr_vec (v : std_logic_vector) return t_cr_array is
-    variable a : t_cr_array(0 to v'length/8-1);
+    variable a : t_cr_array(0 to v'length / 8 - 1);
   begin
     for i in 0 to a'length-1 loop
-      a(i) := v(v'length-(i*8)-1 downto v'length-(i*8)-8);
+      a(i) := v(v'length - (i*8) - 1 downto v'length - (i*8) - 8);
     end loop;
     return a;
   end function;
@@ -283,9 +283,9 @@ architecture rtl of VME_CR_CSR_Space is
     cr(16#03d#)             := x"0e";                       -- Interrupt cap
     cr(16#03f#)             := x"81";                       -- CRAM DAW
     for i in 0 to 7 loop
-      cr(16#040#+i)                    := g_DAWPR(i);             -- DAWPR
-      cr(16#048#+i*8  to 16#04f#+i*8)  := f_cr_vec(g_AMCAP(i));   -- AMCAP
-      cr(16#188#+i*4  to 16#18b#+i*4)  := f_cr_vec(g_ADEM(i));    -- ADEM
+      cr(16#040# + i)                     := g_DAWPR(i);             -- DAWPR
+      cr(16#048# + i*8  to 16#04f# + i*8) := f_cr_vec(g_AMCAP(i));   -- AMCAP
+      cr(16#188# + i*4  to 16#18b# + i*4) := f_cr_vec(g_ADEM(i));    -- ADEM
     end loop;
     for i in cr'range loop
       crc := crc + unsigned(cr(i));
@@ -341,7 +341,7 @@ begin
     begin
       if g_ADEM (Idx) /= x"0000_0000" then
         v_byte  := 3 - to_integer(s_addr(3 downto 2));
-        s_reg_ader(Idx)(8*v_byte+7 downto 8*v_byte) <= data_i;
+        s_reg_ader(Idx)(8*v_byte + 7 downto 8*v_byte) <= data_i;
       end if;
     end Set_ADER;
 
@@ -465,7 +465,7 @@ begin
         v_byte  := 3 - to_integer(s_addr(3 downto 2));
         ader := s_reg_ader(Idx)
                 and ((g_ADEM(Idx) and c_ADEM_MASK) or c_ADER_MASK);
-        s_csr_data <= ader(8*v_byte+7 downto 8*v_byte);
+        s_csr_data <= ader(8*v_byte + 7 downto 8*v_byte);
       end if;
     end Get_ADER;
 
