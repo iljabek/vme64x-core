@@ -220,7 +220,3 @@ package vme64x_pack is
     );
   end component;
 end vme64x_pack;
-
-package body vme64x_pack is
-
-end vme64x_pack;

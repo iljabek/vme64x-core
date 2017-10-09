@@ -167,7 +167,3 @@ package xvme64x_core_pkg is
   end component xvme64x_core;
 
 end xvme64x_core_pkg;
-
-package body xvme64x_core_pkg is
-
-end xvme64x_core_pkg;
