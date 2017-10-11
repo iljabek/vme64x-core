@@ -165,14 +165,14 @@ architecture RTL of VME_bus is
     A32,
     A32_BLT,
     A32_MBLT,
-    AM_Error
+    AM_ERROR
   );
 
   type t_transferType is (
     SINGLE,
     BLT,
     MBLT,
-    error
+    TFR_ERROR
   );
 
   -- Addressing type (depending on VME_AM_i)
@@ -285,14 +285,14 @@ begin
     A32      when c_AM_A32 | c_AM_A32_SUP,
     A32_BLT  when c_AM_A32_BLT | c_AM_A32_BLT_SUP,
     A32_MBLT when c_AM_A32_MBLT | c_AM_A32_MBLT_SUP,
-    AM_Error when others;
+    AM_ERROR when others;
 
   -- Transfer type decoder
   with s_addressingType select s_transferType <=
-    SINGLE when A24 | CR_CSR | A16 | A32,
-    BLT    when A24_BLT | A32_BLT,
-    MBLT   when A24_MBLT | A32_MBLT,
-    error  when others;
+    SINGLE    when A24 | CR_CSR | A16 | A32,
+    BLT       when A24_BLT | A32_BLT,
+    MBLT      when A24_MBLT | A32_MBLT,
+    TFR_ERROR when others;
 
   ------------------------------------------------------------------------------
   -- MAIN FSM
