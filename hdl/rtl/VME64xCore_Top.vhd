@@ -567,9 +567,6 @@ begin
   -- User CSR space
   gen_int_user_csr : if g_USER_CSR_EXT = false generate
     Inst_VME_User_CSR : entity work.VME_User_CSR
-      generic map (
-        g_WB_DATA_WIDTH => g_WB_DATA_WIDTH
-      )
       port map (
         clk_i        => clk_i,
         rst_n_i      => s_reset_n,

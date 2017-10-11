@@ -159,6 +159,7 @@ begin  -- wrapper
       g_CLOCK_PERIOD    => g_CLOCK_PERIOD,
       g_WB_DATA_WIDTH   => g_WB_DATA_WIDTH,
       g_WB_ADDR_WIDTH   => g_WB_ADDR_WIDTH,
+      g_USER_CSR_EXT    => g_USER_CSR_EXT,
       g_MANUFACTURER_ID => g_MANUFACTURER_ID,
       g_BOARD_ID        => g_BOARD_ID,
       g_REVISION_ID     => g_REVISION_ID,

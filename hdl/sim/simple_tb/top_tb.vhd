@@ -47,7 +47,6 @@ architecture behaviour of top_tb is
   subtype lword_t is std_logic_vector (31 downto 0);
   subtype qword_t is std_logic_vector (63 downto 0);
 
-  type byte_array_t is array (natural range <>) of byte_t;
   type word_array_t is array (natural range <>) of word_t;
   type lword_array_t is array (natural range <>) of lword_t;
   type qword_array_t is array (natural range <>) of qword_t;
@@ -637,9 +636,7 @@ begin
 
     procedure read32_blt (addr : std_logic_vector (31 downto 0);
                           am : vme_am_t;
-                          variable data : out lword_array_t)
-    is
-      variable res : lword_t;
+                          variable data : out lword_array_t) is
     begin
       VME_LWORD_n_i <= '0';
       read_setup_addr (addr, am);
@@ -664,9 +661,7 @@ begin
 
     procedure read16_blt (addr : std_logic_vector (31 downto 0);
                           am : vme_am_t;
-                          variable data : out word_array_t)
-    is
-      variable res : lword_t;
+                          variable data : out word_array_t) is
     begin
       VME_LWORD_n_i <= '1';
       read_setup_addr (addr, am);
@@ -690,9 +685,7 @@ begin
 
     procedure read64_mblt (addr : std_logic_vector (31 downto 0);
                            am : vme_am_t;
-                           variable data : out qword_array_t)
-    is
-      variable res : lword_t;
+                           variable data : out qword_array_t) is
     begin
       VME_LWORD_n_i <= '0';
       read_setup_addr (addr, am);

@@ -219,15 +219,6 @@ architecture rtl of VME_CR_CSR_Space is
   constant c_BEG_CRAM     : crcsr_addr := unsigned(g_BEG_CRAM(18 downto 2));
   constant c_END_CRAM     : crcsr_addr := unsigned(g_END_CRAM(18 downto 2));
 
-  constant c_BAR_REG        : integer := 16#7ffff# / 4;
-  constant c_BIT_SET_REG    : integer := 16#7fffb# / 4;
-  constant c_BIT_CLR_REG    : integer := 16#7fff7# / 4;
-  constant c_CRAM_OWNER_REG : integer := 16#7fff3# / 4;
-  constant c_USR_SET_REG    : integer := 16#7ffef# / 4;
-  constant c_USR_CLR_REG    : integer := 16#7ffeb# / 4;
-  constant c_ADER_REG_END   : integer := 16#7ffdf# / 4;
-  constant c_ADER_REG_BEG   : integer := 16#7ff63# / 4;
-
   -- Indexes in bit set/clr register
   constant c_RESET_BIT      : integer := 7;
   constant c_SYSFAIL_EN_BIT : integer := 6;
@@ -471,9 +462,6 @@ begin
 
     variable csr_idx   : unsigned(7 downto 4);
     variable csr_boff : unsigned(3 downto 2);
-    variable v_addr  : unsigned(18 downto 2);
-    variable v_index : integer;
-    variable v_byte  : integer;
   begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
