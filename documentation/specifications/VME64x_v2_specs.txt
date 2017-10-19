@@ -27,7 +27,7 @@ Changes
 * No endianess convertion
 * WB data bus is 32 bit
 * Internal component declarations removed.
-* Number of sync registers (for async inputs) is configurable. Default is 2.
+* Async inputs registered with gc_sync_register.
 
 VME interface
 -------------
