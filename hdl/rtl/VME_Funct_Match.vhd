@@ -89,7 +89,8 @@ begin
   ------------------------------------------------------------------------------
   -- Function priority encoder
   ------------------------------------------------------------------------------
-  process (clk_i) begin
+  process (clk_i)
+  begin
     if rising_edge(clk_i) then
       s_function_sel <= 0;
       s_function_sel_valid <= '0';

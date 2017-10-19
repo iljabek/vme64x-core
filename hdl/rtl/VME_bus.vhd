@@ -521,8 +521,8 @@ begin
             s_locDataIn(32)          <= s_LWORDlatched_n;
             s_locDataIn(31 downto 0) <= s_vme_data_reg;
             if s_vme_lword_n_reg = '1' and s_vme_addr_reg(1) = '0' then
-                -- Word/byte access with A1=0
-                s_locDataIn(31 downto 16)  <= s_vme_data_reg(15 downto 0);
+              -- Word/byte access with A1=0
+              s_locDataIn(31 downto 16)  <= s_vme_data_reg(15 downto 0);
             end if;
 
             --  Translate DS+LWORD+ADDR to WB byte selects

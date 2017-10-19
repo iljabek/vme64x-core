@@ -535,7 +535,8 @@ begin
     s_cram_waddr  <= s_addr - c_BEG_CRAM;
     s_cram_data   <= s_cram(to_integer(s_cram_raddr) mod c_CRAM_SIZE);
 
-    process (clk_i) begin
+    process (clk_i)
+    begin
       if rising_edge(clk_i) then
         if s_cram_we = '1' then
           s_cram(to_integer(s_cram_waddr)) <= data_i;
@@ -592,8 +593,8 @@ begin
     s_csr_access,      s_csr_data,
     s_cram_access,     s_cram_data,
     s_user_cr_access,  user_cr_data_i,
-    s_user_csr_access, user_csr_data_i
-  ) begin
+    s_user_csr_access, user_csr_data_i)
+  begin
     if s_cr_access = '1' then
       data_o <= s_cr_data;
     elsif s_csr_access = '1' then
