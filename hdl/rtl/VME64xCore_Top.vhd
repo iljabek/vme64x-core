@@ -115,6 +115,12 @@ entity VME64xCore_Top is
     g_WB_ADDR_WIDTH   : integer   := c_ADDR_WIDTH;    -- WB addr width: <= 32
     g_USER_CSR_EXT    : boolean   := false;           -- Use external user CSR
 
+    -- Consider AM field of ADER to decode addresses. This is what the VME64x
+    -- standard says. However, for compatibility with previous implementations
+    -- (or to reduce resources), it is possible for a decoder to allow all AM
+    -- declared in the AMCAP.
+    g_DECODE_AM       : boolean   := true;
+
     -- Manufacturer ID: IEEE OUID
     --                  e.g. CERN is 0x080030
     g_MANUFACTURER_ID : std_logic_vector(23 downto 0)   := c_CERN_ID;
@@ -402,7 +408,8 @@ begin
     generic map (
       g_CLOCK_PERIOD  => g_CLOCK_PERIOD,
       g_WB_DATA_WIDTH => g_WB_DATA_WIDTH,
-      g_WB_ADDR_WIDTH => g_WB_ADDR_WIDTH
+      g_WB_ADDR_WIDTH => g_WB_ADDR_WIDTH,
+      g_DECODE_AM     => g_DECODE_AM
     )
     port map (
       clk_i           => clk_i,
@@ -476,7 +483,8 @@ begin
   Inst_VME_Funct_Match : entity work.VME_Funct_Match
     generic map (
       g_ADEM      => c_ADEM,
-      g_AMCAP     => c_AMCAP
+      g_AMCAP     => c_AMCAP,
+      g_DECODE_AM => g_DECODE_AM
     )
     port map (
       clk_i          => clk_i,

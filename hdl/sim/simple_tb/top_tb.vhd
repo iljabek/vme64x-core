@@ -30,7 +30,7 @@
 -- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html
 
 entity top_tb is
-  generic (g_SCENARIO : natural range 0 to 7 := 6);
+  generic (g_SCENARIO : natural range 0 to 9 := 6);
 end;
 
 library ieee;
@@ -263,10 +263,11 @@ begin
                      xor slave_ga (1) xor slave_ga (0));
   end block;
 
-  vme64xcore: VME64xCore_Top
+  vme64xcore: entity work.VME64xCore_Top
     generic map (g_CLOCK_PERIOD => g_CLOCK_PERIOD,
                  g_WB_DATA_WIDTH => g_WB_DATA_WIDTH,
-                 g_WB_ADDR_WIDTH => g_WB_ADDR_WIDTH)
+                 g_WB_ADDR_WIDTH => g_WB_ADDR_WIDTH,
+                 g_DECODE_AM => (g_SCENARIO /= 9))
     port map (
         clk_i           => clk_i,
         rst_n_i         => rst_n_i,
@@ -1281,6 +1282,35 @@ begin
         read_release;
         assert d16 = x"8765" report "bad read16 with delayed DS"
           severity error;
+
+      when 8 | 9 =>
+        --  Check AM decoders (8: DECODE_AM = true, 9: DECODE_AM = false)
+
+        -- Set ADER
+        write8_conf (x"7_ff63", x"56");
+        write8_conf (x"7_ff6f", c_AM_A32 & "00");
+        read8_conf  (x"7_ff63", d8);
+        assert d8 = x"56" report "bad ADER0 value" severity error;
+
+        -- Enable card
+        write8_conf (x"7_fffb", b"0001_0000");
+
+        --  WB read
+        read8 (x"56_00_00_00", c_AM_A32, d8);
+        assert d8 = x"00" report "bad read at 000" severity error;
+
+        -- Try to read with a wrong AM.
+        read8 (x"56_00_00_00", c_AM_A32_SUP, d8);
+        if g_SCENARIO = 8 then
+          assert d8 = "XXXXXXXX" report "unexpected reply" severity error;
+        else
+          assert d8 = x"00"
+            report "bad read at 000 (no AM decode)" severity error;
+        end if;
+
+        --  However, the A24 decoder is not enabled.
+        read8 (x"56_00_00_00", c_AM_A24_S, d8);
+        assert d8 = "XXXXXXXX" report "unexpected reply" severity error;
 
         --  TODO: check IACK propagation.
     end case;

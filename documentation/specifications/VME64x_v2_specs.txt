@@ -15,6 +15,10 @@ Features
   usage.
 * CSR Reset bit is handled as a pulse (will reset on the next write).
   This doesn't follow the standard, but is needed for software compatibility.
+* When g_DECODE_AM is set to false (non-default), the decoders will use
+  AMCAP (instead of the ADER.AM field) to check AM. So a decoder will trigger
+  for all its AMCAP bit. This is for compatibility with previous versions of
+  the core.
 * DTACK/BERR are supposed to be released at most 30ns once DS is released.
   The design needs 4 clocks to release them, which means the min frequency
   is supposed to 133Mhz
@@ -88,12 +92,6 @@ Ports
 In addition to reset and clock, the ports are used for VME and WB signals,
 to connect a user defined CSR or CR memory, interrupts from the WB slave,
 VME irq level and vector.  See port declaration for details.
-
-TODO:
------
-
-* Stick DFSR and XAM to 0
-* Put FF in IOB for all VME lines
 
 
 VITAL-1 rules

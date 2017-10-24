@@ -39,7 +39,8 @@ use work.vme64x_pack.all;
 entity VME_Funct_Match is
   generic (
     g_ADEM      : t_adem_array(0 to 7);
-    g_AMCAP     : t_amcap_array(0 to 7)
+    g_AMCAP     : t_amcap_array(0 to 7);
+    g_DECODE_AM : boolean
   );
   port (
     clk_i          : in  std_logic;
@@ -79,7 +80,8 @@ begin
     s_function(i) <=
       '1' when (((addr_i(c_ADEM_M) and g_ADEM(i)(c_ADEM_M))
                  = ader_i(i)(c_ADEM_M))
-                and (am_i = ader_i(i)(c_ADER_AM)))
+                and ((am_i = ader_i(i)(c_ADER_AM))
+                     or not g_DECODE_AM))
       else '0';
     -- True if the AM part of ADER is enabled by AMCAP
     s_ader_am_valid(i) <=

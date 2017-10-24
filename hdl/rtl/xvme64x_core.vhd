@@ -40,6 +40,7 @@ entity xvme64x_core is
     g_CLOCK_PERIOD    : integer                    := c_CLOCK_PERIOD;
     g_WB_DATA_WIDTH   : integer                    := c_wishbone_data_width;
     g_WB_ADDR_WIDTH   : integer                    := c_wishbone_address_width;
+    g_DECODE_AM       : boolean                    := true;
     g_USER_CSR_EXT    : boolean                    := false;
 
     -- CR/CSR
@@ -159,6 +160,7 @@ begin  -- wrapper
       g_CLOCK_PERIOD    => g_CLOCK_PERIOD,
       g_WB_DATA_WIDTH   => g_WB_DATA_WIDTH,
       g_WB_ADDR_WIDTH   => g_WB_ADDR_WIDTH,
+      g_DECODE_AM       => g_DECODE_AM,
       g_USER_CSR_EXT    => g_USER_CSR_EXT,
       g_MANUFACTURER_ID => g_MANUFACTURER_ID,
       g_BOARD_ID        => g_BOARD_ID,
