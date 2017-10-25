@@ -214,7 +214,6 @@ begin  -- wrapper
       VME_BERR_o      => VME_BERR_o,
       VME_DTACK_n_o   => VME_DTACK_n_o,
       VME_RETRY_n_o   => VME_RETRY_n_o,
-      VME_RETRY_OE_o  => VME_RETRY_OE_o,
       VME_LWORD_n_i   => VME_LWORD_n_b_i,
       VME_LWORD_n_o   => VME_LWORD_n_b_o,
       VME_ADDR_i      => VME_ADDR_b_i,
@@ -230,6 +229,7 @@ begin  -- wrapper
       VME_DATA_OE_N_o => VME_DATA_OE_N_o,
       VME_ADDR_DIR_o  => VME_ADDR_DIR_o,
       VME_ADDR_OE_N_o => VME_ADDR_OE_N_o,
+      VME_RETRY_OE_o  => VME_RETRY_OE_o,
 
       DAT_i           => dat_in,
       DAT_o           => dat_out,
@@ -242,6 +242,8 @@ begin  -- wrapper
       WE_o            => master_o.we,
       STALL_i         => master_i.stall,
 
+      irq_level_i     => irq_level_i,
+      irq_vector_i    => irq_vector_i,
       user_csr_addr_o => user_csr_addr_o,
       user_csr_data_i => user_csr_data_i,
       user_csr_data_o => user_csr_data_o,
@@ -249,10 +251,8 @@ begin  -- wrapper
       user_cr_addr_o  => user_cr_addr_o,
       user_cr_data_i  => user_cr_data_i,
 
-      irq_i           => irq_i,
       irq_ack_o       => irq_ack_o,
-      irq_vector_i    => irq_vector_i,
-      irq_level_i     => irq_level_i
+      irq_i           => irq_i
     );
 
   master_o.dat <= dat_out(31 downto 0);

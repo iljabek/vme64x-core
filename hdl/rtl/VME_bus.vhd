@@ -71,8 +71,7 @@ entity VME_bus is
   generic (
     g_CLOCK_PERIOD  : integer;
     g_WB_DATA_WIDTH : integer;
-    g_WB_ADDR_WIDTH : integer;
-    g_DECODE_AM     : boolean
+    g_WB_ADDR_WIDTH : integer
   );
   port (
     clk_i           : in  std_logic;

@@ -408,8 +408,7 @@ begin
     generic map (
       g_CLOCK_PERIOD  => g_CLOCK_PERIOD,
       g_WB_DATA_WIDTH => g_WB_DATA_WIDTH,
-      g_WB_ADDR_WIDTH => g_WB_ADDR_WIDTH,
-      g_DECODE_AM     => g_DECODE_AM
+      g_WB_ADDR_WIDTH => g_WB_ADDR_WIDTH
     )
     port map (
       clk_i           => clk_i,
@@ -435,8 +434,8 @@ begin
       VME_DATA_DIR_o  => VME_DATA_DIR_o,
       VME_DATA_OE_N_o => VME_DATA_OE_N_o,
       VME_AM_i        => VME_AM_i,
-      VME_IACK_n_i    => s_VME_IACK_n,
       VME_IACKIN_n_i  => s_VME_IACKIN_n,
+      VME_IACK_n_i    => s_VME_IACK_n,
       VME_IACKOUT_n_o => VME_IACKOUT_n_o,
 
       -- WB signals
