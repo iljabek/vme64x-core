@@ -4,7 +4,7 @@ set -e
 for i in 1 2 3 4 5 6 7 8 9; do
   echo
   echo "Scenario $i"
-  vsim -gg_scenario=$i -c -do "run 5us; quit" top_tb | tee sim.log
+  vsim -quiet -gg_scenario=$i -c -do "set NumericStdNoWarnings 1; run 5us; quit" top_tb | tee sim.log
   # check log
   if grep -F '# ** ' sim.log | grep -E -v 'Note|Warning'; then
     echo "Simulation failed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
