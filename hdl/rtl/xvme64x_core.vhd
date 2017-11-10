@@ -38,8 +38,8 @@ use work.vme64x_pack.all;
 entity xvme64x_core is
   generic (
     g_CLOCK_PERIOD    : integer                    := c_CLOCK_PERIOD;
-    g_WB_DATA_WIDTH   : integer                    := c_wishbone_data_width;
-    g_WB_ADDR_WIDTH   : integer                    := c_wishbone_address_width;
+    g_WB_DATA_WIDTH   : integer                    := c_DATA_WIDTH;
+    g_WB_ADDR_WIDTH   : integer                    := c_ADDR_WIDTH;
     g_DECODE_AM       : boolean                    := true;
     g_USER_CSR_EXT    : boolean                    := false;
 
