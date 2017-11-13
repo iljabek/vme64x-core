@@ -40,19 +40,20 @@
 --   The base address is setted by the Geographical lines.
 --   The base address can't be setted by hand with the switches on the board.
 --   If the core is used in an old VME system without GA lines, the core should
---   be provided of a logic that detects if GA = "11111" and if it is the base
---   address of the module should be derived from the switches on the board.
+--   be provided with a logic that detects if GA = "11111" and if it is the base
+--   address of the module, this logic should derive the GA from the switches on
+--   the board.
 --   All the VMEbus's asynchronous signals must be sampled 2 or 3 times to avoid
 --   metastability problem.
 --   All the output signals on the WB bus are registered.
 --   The Input signals from the WB bus aren't registered indeed the WB is a
 --   synchronous protocol and some registers in the WB side will introduce a
 --   delay that make impossible reproduce the WB PIPELINED protocol.
---   The WB Slave application must work at the same frequency of this vme64x
+--   The WB Slave application must work with the same frequency as this vme64x
 --   core.
---   The main component is the VME_bus on the left of the block diagram. Inside
---   this component you can find the main finite state machine that coordinates
---   all the synchronisms.
+--   The main component of this core is the VME_bus on the left in the block 
+--   diagram. Inside this component you can find the main finite state machine 
+--   that coordinates all the synchronisms.
 --   The WB protocol is more faster than the VME protocol so to make independent
 --   the two protocols a FIFO memory can be introduced.
 --   The FIFO is necessary only during 2eSST access mode.
@@ -71,7 +72,7 @@
 --   interrupt request on the VMEbus. This component acts also during the
 --   Interrupt acknowledge cycle, sending the status/ID to the Interrupt
 --   handler.
---   Inside each component is possible to read a more detailed description.
+--   Inside each component, a detailed description is provided.
 --   Access modes supported:
 --   http://www.ohwr.org/projects/vme64x-core/repository/changes/trunk/
 --          documentation/user_guides/VME_access_modes.pdf
