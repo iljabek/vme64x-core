@@ -19,7 +19,7 @@
 --      --> request of a service.
 --      The Interrupt priority is specificated by the Master writing the
 --      INT_Level register in the CR/CSR space
---   3) The Interrupter Controller wait for the falling edge on the VME_IACKIN
+--   3) The Interrupter Controller waits for the falling edge on the VME_IACKIN
 --      line.
 --   4) When detects VME_IACKIN_n_i = '0' and the Interrupt Handler initiates
 --      the Interrupt cycle by asserting AS,the Interrupt Controller check if it
@@ -30,7 +30,7 @@
 --      during the interrupt acknowledge cycle should be equal or greater than
 --      the size the it can respond with, and it shall receive a falling edge on
 --      its IACKIN*.
---   5) If it is the responding interrupter should send the source/ID on the
+--   5) If it is the responding interrupter, it should send the source/ID on the
 --      VME_DATA lines (in our case the source/ID is the INT_Vector that the
 --      Master can write in the corresponding register in the CR/CSR space) and
 --      it terminates the interrupt cycle with an acknowledge before releasing
@@ -39,7 +39,7 @@
 --
 --   All the output signals are registered
 --
---   To implement the 5 phases before mentioned the follow FSM has been
+--   To implement the above-mentioned 5 phases, the following FSM has been
 --   implemented:
 --       __________
 --   |--| IACKOUT2 |<-|
@@ -91,9 +91,9 @@
 --       _______________________________________________________/\_________
 --
 --  To respect the time constraint indicated with the number 35 fig. 55 pag. 183
---  in the "VMEbus Specification" ANSI/IEEE STD1014-1987, is necessary to
---  generate the VME_AS1_n_i signal which is the AS signal not sampled, and
---  assign this signal to the s_IACKOUT signal when the fsm is in the IACKOUTx
+--  in the "VMEbus Specification" ANSI/IEEE STD1014-1987, it is necessary to
+--  generate the VME_AS1_n_i signal which is the AS signal that is not sampled,
+--  and assign this signal to the s_IACKOUT signal when the fsm is in the IACKOUTx
 --  state.
 --
 --  The LWORD* input is not used now, since this is a D08(O) Interrupter (see
@@ -153,7 +153,7 @@ architecture Behavioral of VME_IRQ_Controller is
 begin
   irq_pending_o <= s_irq_pending;
 
-  -- Interrupts are automatically masked for g_RETRY_TIMEOUT (ie 1 ms) once
+  -- Interrupts are automatically masked for g_RETRY_TIMEOUT (i.e. 1 ms) once
   -- they are acknowledge by the interrupt handler until they are deasserted
   -- by the interrupter.
   p_retry_fsm : process (clk_i)
