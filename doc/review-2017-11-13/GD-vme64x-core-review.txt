@@ -19,6 +19,10 @@
 ------------------------
 --  vme64x_pack.vhd   --
 ------------------------
+- line 44:
+  rename c_CLOCK_PERIOD to something like c_default_CLK_PERIOD
+  because as far as I've seen in the code, that's what it is, a default clk
+  period value assigned to g_CLOCK_PERIOD if user does not overwrite it.
 - line 55:
   c_ADEM_M is a type not a constant, rename it to t_ADEM_M
 - cleanup, remove types that are not used e.g. c_ADER_C_XAM or c_ADER_C_AM
@@ -26,12 +30,21 @@
 ------------------------
 -- VME64xCore_Top.vhd --
 ------------------------
+- if g_WB_DATA_WIDTH must be 32-bit, then don't make it a generic, just use
+  everywhere c_DATA_WIDTH declared in the package
+- the same for g_WB_ADDR_WIDTH (see also comment for VME_bus.vhd)
 - prefix Wishbone ports with "wb_"
+- if you make VME_bus.vhd with reset active low, then you don't need s_reset
+  signal anymore (see also comment in VME_bus.vhd).
+
 
 ------------------------
 --    VME_bus.vhd     --
 ------------------------
 - prefix Wishbone ports with "wb_"
+- either fix adr_o handling or remove g_WB_ADDR_WIDTH because setting anything
+  else than 32-bit to g_WB_ADDR_WIDTH will result in synthesis/simulation error
+- why reset is active high (rst_i) and not active low like in all other modules?
 - constant num_latchDS misses "c_" prefix
 - line 431: 3 nested if-s. How about simplifying to:
   if decode_done_i = '1' and decode_sel_i = '1' and module_enable_i = '1'then
@@ -74,3 +87,9 @@
 - line 170:
   very very tiny thing, retry_count can be cleared always when we're in
   WAIT_IRQ (not only inside the _if_). This simplifies an already simple fsm.
+
+----------------------------
+--       simulation       --
+----------------------------
+- general-cores submodule in wrong location. Move it from hdl/sim to
+  ip_cores/general-cores like we have for all the other repos.
