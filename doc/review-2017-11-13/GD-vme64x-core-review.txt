@@ -1,0 +1,76 @@
+- top VME64x core entity is called "VME64xCore_Top" while
+  svec/hdl/top/vmecore_test/ instantiates vme64xcore_top. Make it the same (all
+  lower-case?) for easier grepping.
+- check comments in all the files, some of them are not complete or out of date
+- shall we have some reference design in the VME64x core repo? With necessary
+  constraints for the clock and putting registers in IOBs (like vme_irq_n_o in
+  svec vmecore_test)
+- vme64x_pack.vhd -> we usually call these things *_pkg.vhd
+- from files headers remove _last changes_ and _TODO_ sections, anyway, they are
+  empty.
+- i'd prefer to have signals without "s_" prefix, but this is part of a larger
+  coding style discussion.
+  In this design most of the signals are with "s_" prefix, but some are also
+  without (e.g. in VME_IRQ_Controller.vhd)
+- how about using t_vme64x_in and t_vme64x_out types inside the design to make
+  the core more compact and having only an std_logic wrapper for simulations?
+- vme64x_pack.vhd and xvme64x_core_pkg.vhd should be merged into one package
+
+------------------------
+--  vme64x_pack.vhd   --
+------------------------
+- line 55:
+  c_ADEM_M is a type not a constant, rename it to t_ADEM_M
+- cleanup, remove types that are not used e.g. c_ADER_C_XAM or c_ADER_C_AM
+
+------------------------
+-- VME64xCore_Top.vhd --
+------------------------
+- prefix Wishbone ports with "wb_"
+
+------------------------
+--    VME_bus.vhd     --
+------------------------
+- prefix Wishbone ports with "wb_"
+- constant num_latchDS misses "c_" prefix
+- line 431: 3 nested if-s. How about simplifying to:
+  if decode_done_i = '1' and decode_sel_i = '1' and module_enable_i = '1'then
+    (...)
+  elsif decode_done_i = '1' then
+    s_mainFSMstate <= WAIT_END;
+  else
+    s_mainFSMstate <= DECODE_ACCESS;
+  end if;
+- line 461:
+  should you check if s_DS_latch_count >0 before decrementing it by 1?
+  if for whatever reason you stay longer in DECODE_ACCESS waiting for
+  decode_done_i='1' you might end up going to WAIT_FOR_DS when your counter is
+  already 0, then after your decrement your counter rolls over
+  
+--------------------------
+-- VME_CR_CSR_Space.vhd --
+--------------------------
+- line 323:
+  can use xor_reduce(vme_ga_i) from std_logic_misc instead of manually xoring
+  all the bits
+
+--------------------------
+-- VME_Funct_Match.vhd  --
+--------------------------
+- line 94:
+  That's a weird way of describing registers in the process (at least to me).
+  Instead of clearing the registers at every risinge_edge, and having null in
+  rst_n_i='0', please clear the registers when rst_n_i ='0' and add another
+  "else" if you want to clear them every time decode_start_i='0'.
+- line 133:
+  What's this construction??:
+  mask(c_ADEM_M) := g_ADEM(s_function_sel)(c_ADEM_M); 
+  where c_ADEM_M is a subtype is integer range 31 downto  8;
+
+----------------------------
+-- VME_IRQ_Controller.vhd --
+----------------------------
+- reset_n_i, we always name it rst_n_i
+- line 170:
+  very very tiny thing, retry_count can be cleared always when we're in
+  WAIT_IRQ (not only inside the _if_). This simplifies an already simple fsm.
