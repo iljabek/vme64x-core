@@ -1,0 +1,20 @@
+VME64x Core
+===========
+
+Running the testbench
+---------------------
+
+After having cloned the repository, simply do:
+
+git submodule init
+git submodule update
+cd hdl/testbench/simple_tb/modelsim
+hdlmake
+make
+sh run_all.sh
+
+This is an automatic testbench with a yes/no status.
+It runs the testbench several times with a different scenario value.
+The last line should be: OK!
+
+Tested with ModelSim SE-64 10.2a on linux.

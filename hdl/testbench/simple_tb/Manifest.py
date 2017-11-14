@@ -3,6 +3,5 @@ files = [
 ]
 
 modules = {
-    "local": [ "../../rtl" ],
-    "git": "git://ohwr.org/hdl-core-lib/general-cores.git",
+    "local": [ "../../rtl", "../../ip_cores/general-cores" ],
 }
