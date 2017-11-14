@@ -25,7 +25,7 @@ about simulatin will come first):
      folder is out-of-date.
      I see several improvements that are spread among several points below.
 
-     OK: let's follow this convention.
+     Done: let's follow this convention, with a README.
 0.2. I would recommend to follow our folder convention (which used to be on
      ohwr.org and which is now gone, probably due to migration, so I copy+paste
      it at the end of this file). Using this convention would require the
@@ -33,10 +33,10 @@ about simulatin will come first):
      a) change /documents to /doc
      Done.
      b) change hdl/sim to hdl/testbench
-     OK.
+     Done.
      c) keep vme64x_bfm in hdl/sim/vme64x_bfm if this is a
         model of the vme64x (I do not know because it is undocumented)
-     OK.
+     Done.
 0.3. the arrangement of simple_tb is confusing: first I thought that the folder
      "modelsim" contains some modelsim-specific stuff. Again, how should I know
      if there is no description/documentation/README. I'd recommend to do one
@@ -44,7 +44,7 @@ about simulatin will come first):
      a) move content from hdl/sim/simple_tb/modelsim/ to hdl/sim/simple_tb
         (preferred if there are no plans to add simulation for other tools)
      b) add README explaining this structure
-     Add a README.
+     Done: Add a README.
 0.4. hdl/sim/simple_tb/modelsim/run_all.sh is not working [committed fix]
      OK.
 0.5. It would be extremely useful to have some waveforms when running simulation.
@@ -55,7 +55,7 @@ about simulatin will come first):
      signals. Ideally, the documentation provided to the user would match the
      waveform so that when a developer runs the simulation, he can easily map
      the output to the documentation.
-     OK with b).
+     Done: your run.do file was cherry-picked.
 0.6. Add general-cores as submodule in /hdl/ip_cores [committed]
      even if vme64x is never used standalone and general-cores are used in this
      project only when running simulation, I would still include it as submodule
@@ -64,9 +64,9 @@ about simulatin will come first):
         know which ip_cores and which version he/she needs
      b) to make the simulation easier to to run
      c) it seems to be a general policy
-     OK.
+     Done.
 0.7. README in  the main directory is completely out of date !
-     OK.
+     Done.
 0.8. /documention folder:
      - the notes from the 2012 review should stay,
      Still in the repo.
