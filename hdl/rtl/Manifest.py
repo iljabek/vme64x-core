@@ -1,9 +1,9 @@
-files = [ "xvme64x_core.vhd",
+files = [ "vme64x_core.vhd",
+          "vme64x_pkg.vhd",
+          "vme_bus.vhd",
+          "vme_cr_csr_space.vhd",
+          "vme_funct_match.vhd",
+          "vme_irq_controller.vhd",
+          "vme_user_csr.vhd",
           "xvme64x_core_pkg.vhd",
-          "VME64xCore_Top.vhd",
-          "vme64x_pack.vhd",
-          "VME_bus.vhd",
-          "VME_CR_CSR_Space.vhd",
-          "VME_User_CSR.vhd",
-          "VME_Funct_Match.vhd",
-          "VME_IRQ_Controller.vhd"]
+          "xvme64x_core.vhd"]
