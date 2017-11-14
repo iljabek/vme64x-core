@@ -4,7 +4,7 @@
 -- http://www.ohwr.org/projects/vme64x-core
 --------------------------------------------------------------------------------
 --
--- unit name:     VME_IRQ_Controller (VME_IRQ_Controller.vhd)
+-- unit name:     vme_irq_controller
 --
 -- author:        Pablo Alvarez Sanchez <pablo.alvarez.sanchez@cern.ch>
 --                Davide Pedretti       <davide.pedretti@cern.ch>
@@ -125,9 +125,9 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.vme64x_pack.all;
+use work.vme64x_pkg.all;
 
-entity VME_IRQ_Controller is
+entity vme_irq_controller is
   generic (
     g_RETRY_TIMEOUT : integer range 1024 to 16777215
   );
@@ -140,9 +140,9 @@ entity VME_IRQ_Controller is
     irq_ack_i       : in  std_logic;
     VME_IRQ_n_o     : out std_logic_vector (7 downto 1)
   );
-end VME_IRQ_Controller;
+end vme_irq_controller;
 
-architecture Behavioral of VME_IRQ_Controller is
+architecture rtl of vme_irq_controller is
 
   type t_retry_state is (WAIT_IRQ, WAIT_RETRY);
 
@@ -223,4 +223,4 @@ begin
       end if;
     end if;
   end process;
-end Behavioral;
+end rtl;

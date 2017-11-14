@@ -65,9 +65,9 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.vme64x_pack.all;
+use work.vme64x_pkg.all;
 
-entity VME_bus is
+entity vme_bus is
   generic (
     g_CLOCK_PERIOD  : integer;
     g_WB_DATA_WIDTH : integer;
@@ -135,9 +135,9 @@ entity VME_bus is
     irq_pending_i   : in  std_logic;
     irq_ack_o       : out std_logic
   );
-end VME_bus;
+end vme_bus;
 
-architecture RTL of VME_bus is
+architecture rtl of vme_bus is
   -- Local data
   signal s_locDataIn                : std_logic_vector(63 downto 0);
   signal s_locDataOut               : std_logic_vector(63 downto 0);
@@ -769,4 +769,4 @@ begin
   cr_csr_we_o   <= '1' when s_conf_req = '1' and
                             s_WRITElatched_n = '0'
                             else '0';
-end RTL;
+end rtl;

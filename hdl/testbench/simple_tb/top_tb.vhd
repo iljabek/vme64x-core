@@ -34,11 +34,11 @@ entity top_tb is
 end;
 
 library ieee;
-use std.textio.all;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_textio.all;
-use work.vme64x_pack.all;
+use work.vme64x_pkg.all;
+use std.textio.all;
 
 architecture behaviour of top_tb is
   subtype cfg_addr_t is std_logic_vector (19 downto 0);
@@ -263,7 +263,7 @@ begin
                      xor slave_ga (1) xor slave_ga (0));
   end block;
 
-  vme64xcore: entity work.VME64xCore_Top
+  vme64xcore: entity work.vme64x_core
     generic map (g_CLOCK_PERIOD => g_CLOCK_PERIOD,
                  g_WB_DATA_WIDTH => g_WB_DATA_WIDTH,
                  g_WB_ADDR_WIDTH => g_WB_ADDR_WIDTH,

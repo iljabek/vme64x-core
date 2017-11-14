@@ -4,7 +4,7 @@
 -- http://www.ohwr.org/projects/vme64x-core
 --------------------------------------------------------------------------------
 --
--- unit name:     VME64xCore_Top (VME64xCore_Top.vhd)
+-- unit name:     vme64x_core
 --
 -- author:        Pablo Alvarez Sanchez <pablo.alvarez.sanchez@cern.ch>
 --                Davide Pedretti       <davide.pedretti@cern.ch>
@@ -16,7 +16,7 @@
 --
 --   The main blocks:
 --
---      ______________________VME64xCore_Top_____________________
+--      _______________________vme64x_core_______________________
 --     |      ________________   ________   ___________________  |
 --     |___  |                | |        | |                   | |
 --     |   | |    VME Bus     | | Funct  | |                   | |
@@ -51,8 +51,8 @@
 --   delay that make impossible reproduce the WB PIPELINED protocol.
 --   The WB Slave application must work with the same frequency as this vme64x
 --   core.
---   The main component of this core is the VME_bus on the left in the block 
---   diagram. Inside this component you can find the main finite state machine 
+--   The main component of this core is the VME_bus on the left in the block
+--   diagram. Inside this component you can find the main finite state machine
 --   that coordinates all the synchronisms.
 --   The WB protocol is more faster than the VME protocol so to make independent
 --   the two protocols a FIFO memory can be introduced.
@@ -107,9 +107,9 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.vme64x_pack.all;
+use work.vme64x_pkg.all;
 
-entity VME64xCore_Top is
+entity vme64x_core is
   generic (
     g_CLOCK_PERIOD    : integer   := c_CLOCK_PERIOD;  -- Clock period (ns)
     g_WB_DATA_WIDTH   : integer   := c_DATA_WIDTH;    -- WB data width: = 32
@@ -274,9 +274,9 @@ entity VME64xCore_Top is
                                   -- lines.
   );
 
-end VME64xCore_Top;
+end vme64x_core;
 
-architecture RTL of VME64xCore_Top is
+architecture rtl of vme64x_core is
 
   signal s_reset                : std_logic;
   signal s_reset_n              : std_logic;
@@ -405,7 +405,7 @@ begin
   ------------------------------------------------------------------------------
   -- VME Bus
   ------------------------------------------------------------------------------
-  Inst_VME_bus : entity work.VME_bus
+  inst_vme_bus : entity work.vme_bus
     generic map (
       g_CLOCK_PERIOD  => g_CLOCK_PERIOD,
       g_WB_DATA_WIDTH => g_WB_DATA_WIDTH,
@@ -480,7 +480,7 @@ begin
   VME_BERR_o <= not s_vme_berr_n; -- The VME_BERR is asserted when '1' because
                                   -- the buffers on the board invert the logic.
 
-  Inst_VME_Funct_Match : entity work.VME_Funct_Match
+  inst_vme_funct_match : entity work.vme_funct_match
     generic map (
       g_ADEM      => c_ADEM,
       g_AMCAP     => c_AMCAP,
@@ -508,7 +508,7 @@ begin
   ------------------------------------------------------------------------------
   --  Interrupter
   ------------------------------------------------------------------------------
-  Inst_VME_IRQ_Controller : entity work.VME_IRQ_Controller
+  inst_vme_irq_controller : entity work.vme_irq_controller
     generic map (
       g_RETRY_TIMEOUT => 1000000 / g_CLOCK_PERIOD   -- 1ms timeout
     )
@@ -525,7 +525,7 @@ begin
   ------------------------------------------------------------------------------
   -- CR/CSR space
   ------------------------------------------------------------------------------
-  Inst_VME_CR_CSR_Space : entity work.VME_CR_CSR_Space
+  inst_vme_cr_csr_space : entity work.vme_cr_csr_space
     generic map (
       g_MANUFACTURER_ID  => g_MANUFACTURER_ID,
       g_BOARD_ID         => g_BOARD_ID,
@@ -574,7 +574,7 @@ begin
 
   -- User CSR space
   gen_int_user_csr : if g_USER_CSR_EXT = false generate
-    Inst_VME_User_CSR : entity work.VME_User_CSR
+    inst_vme_user_csr : entity work.vme_user_csr
       port map (
         clk_i        => clk_i,
         rst_n_i      => s_reset_n,
@@ -596,4 +596,4 @@ begin
   user_csr_data_o <= s_user_csr_data_o;
   user_csr_we_o   <= s_user_csr_we;
 
-end RTL;
+end rtl;

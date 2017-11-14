@@ -4,7 +4,7 @@
 -- http://www.ohwr.org/projects/vme64x-core
 --------------------------------------------------------------------------------
 --
--- unit name:     VME_CR_CSR_Space (VME_CR_CSR_Space.vhd)
+-- unit name:     vme_cr_csr_space
 --
 -- author:        Pablo Alvarez Sanchez <pablo.alvarez.sanchez@cern.ch>
 --                Davide Pedretti       <davide.pedretti@cern.ch>
@@ -105,9 +105,9 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.vme64x_pack.all;
+use work.vme64x_pkg.all;
 
-entity VME_CR_CSR_Space is
+entity vme_cr_csr_space is
   generic (
     g_MANUFACTURER_ID : std_logic_vector(23 downto 0);
     g_BOARD_ID        : std_logic_vector(31 downto 0);
@@ -153,9 +153,9 @@ entity VME_CR_CSR_Space is
 
     ader_o              : out t_ader_array(0 to 7)
   );
-end VME_CR_CSR_Space;
+end vme_cr_csr_space;
 
-architecture rtl of VME_CR_CSR_Space is
+architecture rtl of vme_cr_csr_space is
 
   signal s_addr             : unsigned(18 downto 2);
   signal s_ga_parity        : std_logic;

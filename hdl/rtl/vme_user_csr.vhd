@@ -4,7 +4,7 @@
 -- http://www.ohwr.org/projects/vme64x-core
 --------------------------------------------------------------------------------
 --
--- unit name:     VME_User_CSR (VME_User_CSR.vhd)
+-- unit name:     vme_user_csr
 --
 -- author:        Pablo Alvarez Sanchez <pablo.alvarez.sanchez@cern.ch>
 --                Davide Pedretti       <davide.pedretti@cern.ch>
@@ -15,7 +15,7 @@
 --   reserved area of the defined CSR in previous versions of this core.
 --
 --   To achieve the previous memory map layout, it is necessary to set the
---   following generics on the VME64xCore_Top:
+--   following generics on the vme64x_core:
 --
 --     g_BEG_USER_CSR => x"07ff33",
 --     g_END_USER_CSR => x"07ff5f",
@@ -56,9 +56,9 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.vme64x_pack.all;
+use work.vme64x_pkg.all;
 
-entity VME_User_CSR is
+entity vme_user_csr is
   port (
     clk_i               : in  std_logic;
     rst_n_i             : in  std_logic;

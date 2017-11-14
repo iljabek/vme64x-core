@@ -33,7 +33,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use work.wishbone_pkg.all;
-use work.vme64x_pack.all;
+use work.vme64x_pkg.all;
 
 entity xvme64x_core is
   generic (
@@ -155,7 +155,7 @@ architecture wrapper of xvme64x_core is
 
 begin  -- wrapper
 
-  U_Wrapped_VME : VME64xCore_Top
+  U_Wrapped_VME : vme64x_core
     generic map (
       g_CLOCK_PERIOD    => g_CLOCK_PERIOD,
       g_WB_DATA_WIDTH   => g_WB_DATA_WIDTH,

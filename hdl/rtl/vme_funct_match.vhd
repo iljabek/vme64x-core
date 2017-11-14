@@ -4,7 +4,7 @@
 -- http://www.ohwr.org/projects/vme64x-core
 --------------------------------------------------------------------------------
 --
--- unit name:     VME_Funct_Match (VME_Funct_Match.vhd)
+-- unit name:     vme_funct_match
 --
 -- author:        Pablo Alvarez Sanchez <pablo.alvarez.sanchez@cern.ch>
 --                Davide Pedretti       <davide.pedretti@cern.ch>
@@ -34,9 +34,9 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.vme64x_pack.all;
+use work.vme64x_pkg.all;
 
-entity VME_Funct_Match is
+entity vme_funct_match is
   generic (
     g_ADEM      : t_adem_array(0 to 7);
     g_AMCAP     : t_amcap_array(0 to 7);
@@ -60,9 +60,9 @@ entity VME_Funct_Match is
     -- Set when sel_o is valid (decoding is done).
     decode_done_o  : out std_logic
   );
-end VME_Funct_Match;
+end vme_funct_match;
 
-architecture rtl of VME_Funct_Match is
+architecture rtl of vme_funct_match is
   -- Function index and ADEM from priority encoder
   signal s_function_sel : natural range 0 to 7;
   signal s_function_sel_valid : std_logic;

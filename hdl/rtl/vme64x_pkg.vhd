@@ -4,7 +4,7 @@
 -- http://www.ohwr.org/projects/vme64x-core
 --------------------------------------------------------------------------------
 --
--- unit name:     vme64x_pack (vme64x_pack.vhd)
+-- unit name:     vme64x_pkg
 --
 -- author:        Pablo Alvarez Sanchez <pablo.alvarez.sanchez@cern.ch>
 --                Davide Pedretti       <davide.pedretti@cern.ch>
@@ -35,7 +35,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-package vme64x_pack is
+package vme64x_pkg is
 
   ------------------------------------------------------------------------------
   -- Constants
@@ -123,7 +123,7 @@ package vme64x_pack is
   -- Components
   ------------------------------------------------------------------------------
 
-  component VME64xCore_Top
+  component vme64x_core
     generic (
       g_CLOCK_PERIOD    : integer                         := c_CLOCK_PERIOD;
       g_WB_DATA_WIDTH   : integer                         := c_DATA_WIDTH;
@@ -220,4 +220,4 @@ package vme64x_pack is
       irq_i           : in  std_logic
     );
   end component;
-end vme64x_pack;
+end vme64x_pkg;
