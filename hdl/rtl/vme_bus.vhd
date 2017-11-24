@@ -69,9 +69,7 @@ use work.vme64x_pkg.all;
 
 entity vme_bus is
   generic (
-    g_CLOCK_PERIOD  : integer;
-    g_WB_DATA_WIDTH : integer;
-    g_WB_ADDR_WIDTH : integer
+    g_CLOCK_PERIOD  : integer
   );
   port (
     clk_i           : in  std_logic;
@@ -104,9 +102,9 @@ entity vme_bus is
     -- WB signals
     stb_o           : out std_logic;
     ack_i           : in  std_logic;
-    dat_o           : out std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
-    dat_i           : in  std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
-    adr_o           : out std_logic_vector(g_WB_ADDR_WIDTH-1 downto 0);
+    dat_o           : out std_logic_vector(31 downto 0);
+    dat_i           : in  std_logic_vector(31 downto 0);
+    adr_o           : out std_logic_vector(31 downto 0);
     sel_o           : out std_logic_vector(3 downto 0);
     we_o            : out std_logic;
     cyc_o           : out std_logic;
@@ -241,10 +239,6 @@ architecture rtl of vme_bus is
 
   signal s_DS_latch_count           : unsigned (2 downto 0);
 begin
-  --  Consistency check.
-  assert g_WB_DATA_WIDTH = 32 report "g_WB_DATA_WIDTH must be set to 32"
-    severity failure;
-
   -- These output signals are connected to the buffers on the board
   -- SN74VMEH22501A Function table:  (A is fpga, B is VME connector)
   --   OEn | DIR | OUTPUT                 OEAB   |   OEBYn   |   OUTPUT

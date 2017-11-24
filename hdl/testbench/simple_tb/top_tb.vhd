@@ -197,10 +197,6 @@ architecture behaviour of top_tb is
   --  Clock
   constant g_CLOCK_PERIOD : natural := 10;  -- in ns
 
-  --  WB widths
-  constant g_WB_DATA_WIDTH   : integer   := 32;
-  constant g_WB_ADDR_WIDTH   : integer   := 32;
-
   --  VME core
   signal clk_i           : std_logic;
   signal rst_n_i         : std_logic;
@@ -211,7 +207,7 @@ architecture behaviour of top_tb is
   signal VME_AM_i        : std_logic_vector(5 downto 0);
   signal VME_DS_n_i      : std_logic_vector(1 downto 0);
   signal VME_GA_i        : std_logic_vector(5 downto 0);
-  signal VME_BERR_o      : std_logic;
+  signal VME_BERR_n_o    : std_logic;
   signal VME_DTACK_n_o   : std_logic;
   signal VME_RETRY_n_o   : std_logic;
   signal VME_LWORD_n_i   : std_logic;
@@ -220,7 +216,7 @@ architecture behaviour of top_tb is
   signal VME_ADDR_o      : std_logic_vector(31 downto 1);
   signal VME_DATA_i      : std_logic_vector(31 downto 0);
   signal VME_DATA_o      : std_logic_vector(31 downto 0);
-  signal VME_IRQ_o       : std_logic_vector(6 downto 0);
+  signal VME_IRQ_n_o     : std_logic_vector(6 downto 0);
   signal VME_IACKIN_n_i  : std_logic;
   signal VME_IACK_n_i    : std_logic;
   signal VME_IACKOUT_n_o : std_logic;
@@ -230,16 +226,17 @@ architecture behaviour of top_tb is
   signal VME_ADDR_DIR_o  : std_logic;
   signal VME_ADDR_OE_N_o : std_logic;
   signal VME_RETRY_OE_o  : std_logic;
-  signal DAT_i           : std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
-  signal DAT_o           : std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
-  signal ADR_o           : std_logic_vector(g_WB_ADDR_WIDTH-1 downto 0);
+  signal DAT_i           : std_logic_vector(31 downto 0);
+  signal DAT_o           : std_logic_vector(31 downto 0);
+  signal ADR_o           : std_logic_vector(31 downto 0);
   signal CYC_o           : std_logic;
   signal ERR_i           : std_logic;
-  signal SEL_o           : std_logic_vector(g_WB_DATA_WIDTH / 8 - 1 downto 0);
+  signal SEL_o           : std_logic_vector(3 downto 0);
   signal STB_o           : std_logic;
   signal ACK_i           : std_logic;
   signal WE_o            : std_logic;
   signal STALL_i         : std_logic;
+  signal rty_i           : std_logic := '0';
   signal irq_level_i     : std_logic_vector(7 downto 0)  := (others => '0');
   signal irq_vector_i    : std_logic_vector(7 downto 0)  := (others => '0');
   signal user_csr_addr_o : std_logic_vector(18 downto 2);
@@ -265,9 +262,49 @@ begin
 
   vme64xcore: entity work.vme64x_core
     generic map (g_CLOCK_PERIOD => g_CLOCK_PERIOD,
-                 g_WB_DATA_WIDTH => g_WB_DATA_WIDTH,
-                 g_WB_ADDR_WIDTH => g_WB_ADDR_WIDTH,
-                 g_DECODE_AM => (g_SCENARIO /= 9))
+                 g_DECODE_AM => (g_SCENARIO /= 9),
+                 g_USER_CSR_EXT   => false,
+
+                 g_MANUFACTURER_ID => c_CERN_ID,
+                 g_BOARD_ID        => c_SVEC_ID,
+                 g_REVISION_ID     => c_SVEC_REVISION_ID,
+                 g_PROGRAM_ID      => c_PROGRAM_ID,
+
+                 g_ASCII_PTR     => x"000000",
+                 g_BEG_USER_CR   => x"000000",
+                 g_END_USER_CR   => x"000000",
+                 g_BEG_CRAM      => x"000000",
+                 g_END_CRAM      => x"000000",
+                 g_BEG_USER_CSR  => x"07ff33",
+                 g_END_USER_CSR  => x"07ff5f",
+                 g_BEG_SN        => x"000000",
+                 g_END_SN        => x"000000",
+
+                 g_NBR_DECODERS    => 2,
+                 g_decoder_0_adem  => x"ff000000",
+                 g_decoder_0_amcap => x"00000000_0000bb00",
+                 g_decoder_0_dawpr => x"84",
+                 g_decoder_1_adem  => x"fff80000",
+                 g_decoder_1_amcap => x"bb000000_00000000",
+                 g_decoder_1_dawpr => x"84",
+                 g_decoder_2_adem  => x"00000000",
+                 g_decoder_2_amcap => x"00000000_00000000",
+                 g_decoder_2_dawpr => x"84",
+                 g_decoder_3_adem  => x"00000000",
+                 g_decoder_3_amcap => x"00000000_00000000",
+                 g_decoder_3_dawpr => x"84",
+                 g_decoder_4_adem  => x"00000000",
+                 g_decoder_4_amcap => x"00000000_00000000",
+                 g_decoder_4_dawpr => x"84",
+                 g_decoder_5_adem  => x"00000000",
+                 g_decoder_5_amcap => x"00000000_00000000",
+                 g_decoder_5_dawpr => x"84",
+                 g_decoder_6_adem  => x"00000000",
+                 g_decoder_6_amcap => x"00000000_00000000",
+                 g_decoder_6_dawpr => x"84",
+                 g_decoder_7_adem  => x"00000000",
+                 g_decoder_7_amcap => x"00000000_00000000",
+                 g_decoder_7_dawpr => x"84")
     port map (
         clk_i           => clk_i,
         rst_n_i         => rst_n_i,
@@ -278,7 +315,7 @@ begin
         VME_AM_i        => VME_AM_i,
         VME_DS_n_i      => VME_DS_n_i,
         VME_GA_i        => VME_GA_i,
-        VME_BERR_o      => VME_BERR_o,
+        VME_BERR_n_o    => VME_BERR_n_o,
         VME_DTACK_n_o   => VME_DTACK_n_o,
         VME_RETRY_n_o   => VME_RETRY_n_o,
         VME_LWORD_n_i   => VME_LWORD_n_i,
@@ -287,7 +324,7 @@ begin
         VME_ADDR_o      => VME_ADDR_o,
         VME_DATA_i      => VME_DATA_i,
         VME_DATA_o      => VME_DATA_o,
-        VME_IRQ_o       => VME_IRQ_o,
+        VME_IRQ_n_o     => VME_IRQ_n_o,
         VME_IACKIN_n_i  => VME_IACKIN_n_i,
         VME_IACK_n_i    => VME_IACK_n_i,
         VME_IACKOUT_n_o => VME_IACKOUT_n_o,
@@ -297,16 +334,18 @@ begin
         VME_ADDR_DIR_o  => VME_ADDR_DIR_o,
         VME_ADDR_OE_N_o => VME_ADDR_OE_N_o,
         VME_RETRY_OE_o  => VME_RETRY_OE_o,
-        DAT_i           => DAT_i,
-        DAT_o           => DAT_o,
-        ADR_o           => ADR_o,
-        CYC_o           => CYC_o,
-        ERR_i           => ERR_i,
-        SEL_o           => SEL_o,
-        STB_o           => STB_o,
-        ACK_i           => ACK_i,
-        WE_o            => WE_o,
-        STALL_i         => STALL_i,
+        wb_DAT_i        => DAT_i,
+        wb_DAT_o        => DAT_o,
+        wb_ADR_o        => ADR_o,
+        wb_CYC_o        => CYC_o,
+        wb_ERR_i        => ERR_i,
+        wb_SEL_o        => SEL_o,
+        wb_STB_o        => STB_o,
+        wb_ACK_i        => ACK_i,
+        wb_WE_o         => WE_o,
+        wb_STALL_i      => STALL_i,
+        wb_rty_i        => rty_i,
+        wb_int_i        => irq_i,
         irq_level_i     => irq_level_i,
         irq_vector_i    => irq_vector_i,
         user_csr_addr_o => user_csr_addr_o,
@@ -315,8 +354,7 @@ begin
         user_csr_we_o   => user_csr_we_o,
         user_cr_addr_o  => user_cr_addr_o,
         user_cr_data_i  => user_cr_data_i,
-        irq_ack_o       => irq_ack_o,
-        irq_i           => irq_i);
+        irq_ack_o       => irq_ack_o);
 
   clk_gen: process
   begin
@@ -484,8 +522,8 @@ begin
       wait for 35 ns;
       VME_AS_n_i <= '0';
       VME_WRITE_n_i <= '1';
-      if not (VME_DTACK_OE_o = '0' and VME_BERR_o = '0') then
-        wait until VME_DTACK_OE_o = '0' and VME_BERR_o = '0';
+      if not (VME_DTACK_OE_o = '0' and VME_BERR_n_o = '1') then
+        wait until VME_DTACK_OE_o = '0' and VME_BERR_n_o = '1';
       end if;
     end read_setup_addr;
 
@@ -632,7 +670,7 @@ begin
     begin
       VME_DS_n_i <= "11";
       wait until (VME_DTACK_OE_o = '0' or VME_DTACK_n_o = '1')
-        and VME_BERR_o = '0';
+        and VME_BERR_n_o = '1';
     end read_blt_end_cycle;
 
     procedure read32_blt (addr : std_logic_vector (31 downto 0);
@@ -718,8 +756,8 @@ begin
                                 lword_n : std_logic;
                                 am : vme_am_t) is
     begin
-      if not (VME_DTACK_OE_o = '0' and VME_BERR_o = '0') then
-        wait until VME_DTACK_OE_o = '0' and VME_BERR_o = '0';
+      if not (VME_DTACK_OE_o = '0' and VME_BERR_n_o = '1') then
+        wait until VME_DTACK_OE_o = '0' and VME_BERR_n_o = '1';
       end if;
       VME_ADDR_i <= addr(31 downto 1);
       VME_AM_i <= am;
@@ -851,13 +889,13 @@ begin
 
     procedure ack_int (vec : out byte_t) is
     begin
-      if VME_IRQ_o = "0000000" then
+      if VME_IRQ_n_o = "1111111" then
         vec := (others => 'X');
         return;
       end if;
 
       for i in 6 downto 0 loop
-        if VME_IRQ_o (i) = '1' then
+        if VME_IRQ_n_o (i) = '0' then
           VME_ADDR_i (3 downto 1) <= std_logic_vector (to_unsigned (i + 1, 3));
           exit;
         end if;
@@ -866,8 +904,8 @@ begin
       VME_WRITE_n_i <= '1';
       wait for 35 ns;
       VME_AS_n_i <= '0';
-      if not (VME_DTACK_OE_o = '0' and VME_BERR_o = '0') then
-        wait until VME_DTACK_OE_o = '0' and VME_BERR_o = '0';
+      if not (VME_DTACK_OE_o = '0' and VME_BERR_n_o = '1') then
+        wait until VME_DTACK_OE_o = '0' and VME_BERR_n_o = '1';
       end if;
 
       VME_DS_n_i <= "10";
@@ -1127,27 +1165,27 @@ begin
 
         write8 (x"67_00_80_03", c_AM_A32, x"02");
         wait for 2 * g_CLOCK_PERIOD * 1 ns;
-        assert VME_IRQ_o = "0000100" report "IRQ incorrectly reported"
+        assert VME_IRQ_n_o = "1111011" report "IRQ incorrectly reported"
           severity error;
 
         ack_int (d8);
         assert d8 = x"00" report "incorrect vector" severity error;
-        assert VME_IRQ_o = "0000000" report "IRQ not disabled after ack"
+        assert VME_IRQ_n_o = "1111111" report "IRQ not disabled after ack"
           severity error;
 
         -- Set IRQ vector
         write8_conf (x"7_ff5f", x"a3");
 
         write8 (x"67_00_80_03", c_AM_A32, x"20");
-        assert VME_IRQ_o = "0000000" report "IRQ not expected"
+        assert VME_IRQ_n_o = "1111111" report "IRQ not expected"
           severity error;
         wait for 32 * g_CLOCK_PERIOD * 1 ns;
-        assert VME_IRQ_o = "0000100" report "IRQ incorrectly reported"
+        assert VME_IRQ_n_o = "1111011" report "IRQ incorrectly reported"
           severity error;
 
         ack_int (d8);
         assert d8 = x"a3" report "incorrect vector" severity error;
-        assert VME_IRQ_o = "0000000" report "IRQ not disabled after ack"
+        assert VME_IRQ_n_o = "1111111" report "IRQ not disabled after ack"
           severity error;
 
       when 3 =>

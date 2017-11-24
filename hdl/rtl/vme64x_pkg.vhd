@@ -128,7 +128,6 @@ package vme64x_pkg is
     am       : std_logic_vector(5 downto 0);
     ds_n     : std_logic_vector(1 downto 0);
     ga       : std_logic_vector(5 downto 0);
-    bbsy_n   : std_logic;
     lword_n  : std_logic;
     data     : std_logic_vector(31 downto 0);
     addr     : std_logic_vector(31 downto 1);
@@ -149,7 +148,7 @@ package vme64x_pkg is
     addr_oe_n : std_logic;
     retry_n   : std_logic;
     retry_oe  : std_logic;
-    berr      : std_logic;
+    berr_n    : std_logic;
     irq_n     : std_logic_vector(6 downto 0);
   end record;
 
@@ -180,14 +179,43 @@ package vme64x_pkg is
   ------------------------------------------------------------------------------
   component xvme64x_core
     generic (
-      g_CLOCK_PERIOD    : integer                  := -1;
-      g_DECODE_AM       : boolean                  := true;
-      g_USER_CSR_EXT    : boolean                  := false;
+      -- Clock period (ns).  Used for DS synchronization.
+      g_CLOCK_PERIOD    : integer := -1;
+
+      -- Consider AM field of ADER to decode addresses. This is what the VME64x
+      -- standard says. However, for compatibility with previous implementations
+      -- (or to reduce resources), it is possible for a decoder to allow all AM
+      -- declared in the AMCAP.
+      g_DECODE_AM       : boolean := true;
+
+      -- Use external user CSR
+      g_USER_CSR_EXT    : boolean := false;
+
+      -- Manufacturer ID: IEEE OUID
+      --                  e.g. CERN is 0x080030
       g_MANUFACTURER_ID : std_logic_vector(23 downto 0);
+
+      -- Board ID: Per manufacturer, each board shall have an unique ID
+      --           e.g. SVEC = 408 (CERN IDs: http://cern.ch/boardid)
       g_BOARD_ID        : std_logic_vector(31 downto 0);
+
+      -- Revision ID: user defined revision code
       g_REVISION_ID     : std_logic_vector(31 downto 0);
-      g_PROGRAM_ID      : std_logic_vector(7 downto 0)   := c_PROGRAM_ID;
+
+      -- Program ID: Defined per VME64:
+      --               0x00      = Not used
+      --               0x01      = No program, ID ROM only
+      --               0x02-0x4F = Manufacturer defined
+      --               0x50-0x7F = User defined
+      --               0x80-0xEF = Reserved for future use
+      --               0xF0-0xFE = Reserved for Boot Firmware (P1275)
+      --               0xFF      = Not to be used
+      g_PROGRAM_ID      : std_logic_vector( 7 downto 0);
+
+      -- Pointer to a user defined ASCII string.
       g_ASCII_PTR       : std_logic_vector(23 downto 0)  := x"000000";
+
+      -- User CR/CSR, CRAM & serial number pointers
       g_BEG_USER_CR     : std_logic_vector(23 downto 0)  := x"000000";
       g_END_USER_CR     : std_logic_vector(23 downto 0)  := x"000000";
       g_BEG_CRAM        : std_logic_vector(23 downto 0)  := x"000000";
@@ -197,126 +225,41 @@ package vme64x_pkg is
       g_BEG_SN          : std_logic_vector(23 downto 0)  := x"000000";
       g_END_SN          : std_logic_vector(23 downto 0)  := x"000000";
 
-      g_nbr_decoders    : natural range 1 to 8           := 2;
-      g_address_decoder : t_vme64x_decoder_arr := c_vme64x_decoders_default);
+      -- Number of function decoder implemented and decoder parameters.
+      g_NBR_DECODERS    : natural range 1 to 8 := 2;
+      g_DECODER         : t_vme64x_decoder_arr := c_vme64x_decoders_default);
     port (
+      -- Main clock and reset.
       clk_i           : in  std_logic;
       rst_n_i         : in  std_logic;
+
+      -- Reset for wishbone core.
       rst_n_o         : out std_logic;
 
+      -- VME slave interface.
       vme_i           : in t_vme64x_in;
-      vme_o           : in t_vme64x_out;
+      vme_o           : out t_vme64x_out;
 
-      wb_o            : out t_wishbone_master_out;
+      -- Wishbone interface.
       wb_i            : in  t_wishbone_master_in;
+      wb_o            : out t_wishbone_master_out;
 
-      irq_i           : in  std_logic;
+      -- When the IRQ controller acknowledges the Interrupt cycle it sends a
+      -- pulse to the IRQ Generator.
       irq_ack_o       : out std_logic;
+
+      -- User CSR
+      -- The following signals are used when g_USER_CSR_EXT = true
+      -- otherwise they are connected to the internal user CSR.
       irq_level_i     : in  std_logic_vector( 7 downto 0) := (others => '0');
       irq_vector_i    : in  std_logic_vector( 7 downto 0) := (others => '0');
-      endian_i        : in  std_logic_vector( 2 downto 0) := (others => '0');
       user_csr_addr_o : out std_logic_vector(18 downto 2);
       user_csr_data_i : in  std_logic_vector( 7 downto 0) := (others => '0');
       user_csr_data_o : out std_logic_vector( 7 downto 0);
       user_csr_we_o   : out std_logic;
+
+      -- User CR
       user_cr_addr_o  : out std_logic_vector(18 downto 2);
-      user_cr_data_i  : in  std_logic_vector( 7 downto 0) := (others => '0')
-    );
+      user_cr_data_i  : in  std_logic_vector( 7 downto 0) := (others => '0'));
   end component xvme64x_core;
-
-  component vme64x_core
-    generic (
-      g_CLOCK_PERIOD    : integer                         := -1;
-      g_DECODE_AM       : boolean                         := true;
-      g_USER_CSR_EXT    : boolean                         := false;
-      g_MANUFACTURER_ID : std_logic_vector(23 downto 0);
-      g_BOARD_ID        : std_logic_vector(31 downto 0);
-      g_REVISION_ID     : std_logic_vector(31 downto 0);
-      g_PROGRAM_ID      : std_logic_vector( 7 downto 0)   := c_PROGRAM_ID;
-      g_ASCII_PTR       : std_logic_vector(23 downto 0)   := x"000000";
-      g_BEG_USER_CR     : std_logic_vector(23 downto 0)   := x"000000";
-      g_END_USER_CR     : std_logic_vector(23 downto 0)   := x"000000";
-      g_BEG_CRAM        : std_logic_vector(23 downto 0)   := x"000000";
-      g_END_CRAM        : std_logic_vector(23 downto 0)   := x"000000";
-      g_BEG_USER_CSR    : std_logic_vector(23 downto 0)   := x"07ff33";
-      g_END_USER_CSR    : std_logic_vector(23 downto 0)   := x"07ff5f";
-      g_BEG_SN          : std_logic_vector(23 downto 0)   := x"000000";
-      g_END_SN          : std_logic_vector(23 downto 0)   := x"000000";
-
-      g_F0_ADEM   : std_logic_vector(31 downto 0)  := x"ff000000";
-      g_F0_AMCAP  : std_logic_vector(63 downto 0)  := x"00000000_0000ff00";
-      g_F0_DAWPR  : std_logic_vector( 7 downto 0)  := x"84";
-      g_F1_ADEM   : std_logic_vector(31 downto 0)  := x"fff80000";
-      g_F1_AMCAP  : std_logic_vector(63 downto 0)  := x"ff000000_00000000";
-      g_F1_DAWPR  : std_logic_vector( 7 downto 0)  := x"84";
-      g_F2_ADEM   : std_logic_vector(31 downto 0)  := x"00000000";
-      g_F2_AMCAP  : std_logic_vector(63 downto 0)  := x"00000000_00000000";
-      g_F2_DAWPR  : std_logic_vector( 7 downto 0)  := x"84";
-      g_F3_ADEM   : std_logic_vector(31 downto 0)  := x"00000000";
-      g_F3_AMCAP  : std_logic_vector(63 downto 0)  := x"00000000_00000000";
-      g_F3_DAWPR  : std_logic_vector( 7 downto 0)  := x"84";
-      g_F4_ADEM   : std_logic_vector(31 downto 0)  := x"00000000";
-      g_F4_AMCAP  : std_logic_vector(63 downto 0)  := x"00000000_00000000";
-      g_F4_DAWPR  : std_logic_vector( 7 downto 0)  := x"84";
-      g_F5_ADEM   : std_logic_vector(31 downto 0)  := x"00000000";
-      g_F5_AMCAP  : std_logic_vector(63 downto 0)  := x"00000000_00000000";
-      g_F5_DAWPR  : std_logic_vector( 7 downto 0)  := x"84";
-      g_F6_ADEM   : std_logic_vector(31 downto 0)  := x"00000000";
-      g_F6_AMCAP  : std_logic_vector(63 downto 0)  := x"00000000_00000000";
-      g_F6_DAWPR  : std_logic_vector( 7 downto 0)  := x"84";
-      g_F7_ADEM   : std_logic_vector(31 downto 0)  := x"00000000";
-      g_F7_AMCAP  : std_logic_vector(63 downto 0)  := x"00000000_00000000";
-      g_F7_DAWPR  : std_logic_vector( 7 downto 0)  := x"84"
-    );
-    port (
-      clk_i           : in  std_logic;
-      rst_n_i         : in  std_logic;
-      rst_n_o         : out std_logic;
-      VME_AS_n_i      : in  std_logic;
-      VME_RST_n_i     : in  std_logic;
-      VME_WRITE_n_i   : in  std_logic;
-      VME_AM_i        : in  std_logic_vector(5 downto 0);
-      VME_DS_n_i      : in  std_logic_vector(1 downto 0);
-      VME_GA_i        : in  std_logic_vector(5 downto 0);
-      VME_BERR_o      : out std_logic;
-      VME_DTACK_n_o   : out std_logic;
-      VME_RETRY_n_o   : out std_logic;
-      VME_LWORD_n_i   : in  std_logic;
-      VME_LWORD_n_o   : out std_logic;
-      VME_ADDR_i      : in  std_logic_vector(31 downto 1);
-      VME_ADDR_o      : out std_logic_vector(31 downto 1);
-      VME_DATA_i      : in  std_logic_vector(31 downto 0);
-      VME_DATA_o      : out std_logic_vector(31 downto 0);
-      VME_IRQ_o       : out std_logic_vector( 7 downto 1);
-      VME_IACKIN_n_i  : in  std_logic;
-      VME_IACK_n_i    : in  std_logic;
-      VME_IACKOUT_n_o : out std_logic;
-      VME_DTACK_OE_o  : out std_logic;
-      VME_DATA_DIR_o  : out std_logic;
-      VME_DATA_OE_N_o : out std_logic;
-      VME_ADDR_DIR_o  : out std_logic;
-      VME_ADDR_OE_N_o : out std_logic;
-      VME_RETRY_OE_o  : out std_logic;
-      DAT_i           : in  std_logic_vector(31 downto 0);
-      DAT_o           : out std_logic_vector(31 downto 0);
-      ADR_o           : out std_logic_vector(31 downto 0);
-      CYC_o           : out std_logic;
-      ERR_i           : in  std_logic;
-      SEL_o           : out std_logic_vector(3 downto 0);
-      STB_o           : out std_logic;
-      ACK_i           : in  std_logic;
-      WE_o            : out std_logic;
-      STALL_i         : in  std_logic;
-      irq_level_i     : in  std_logic_vector( 7 downto 0) := (others => '0');
-      irq_vector_i    : in  std_logic_vector( 7 downto 0) := (others => '0');
-      user_csr_addr_o : out std_logic_vector(18 downto 2);
-      user_csr_data_i : in  std_logic_vector( 7 downto 0) := (others => '0');
-      user_csr_data_o : out std_logic_vector( 7 downto 0);
-      user_csr_we_o   : out std_logic;
-      user_cr_addr_o  : out std_logic_vector(18 downto 2);
-      user_cr_data_i  : in  std_logic_vector( 7 downto 0) := (others => '0');
-      irq_ack_o       : out std_logic;
-      irq_i           : in  std_logic
-    );
-  end component;
 end vme64x_pkg;

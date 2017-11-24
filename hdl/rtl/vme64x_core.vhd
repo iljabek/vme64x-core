@@ -1,599 +1,203 @@
---------------------------------------------------------------------------------
--- CERN (BE-CO-HT)
--- VME64x Core
--- http://www.ohwr.org/projects/vme64x-core
---------------------------------------------------------------------------------
---
--- unit name:     vme64x_core
---
--- author:        Pablo Alvarez Sanchez <pablo.alvarez.sanchez@cern.ch>
---                Davide Pedretti       <davide.pedretti@cern.ch>
---
--- description:
---
---   This core implements an interface to transfer data between the VMEbus and
---   the WBbus. This core is a Slave in the VME side and Master in the WB side.
---
---   The main blocks:
---
---      _______________________vme64x_core_______________________
---     |      ________________   ________   ___________________  |
---     |___  |                | |        | |                   | |
---     |   | |    VME Bus     | | Funct  | |                   | |
---     |   | |                | | Match  | |  VME to WB FIFO   | |
---     | S | |       |        | |        | | (not implemented) | |
---   V | A | |  VME  |   WB   | |________| |                   | | W
---   M | M | | slave | master |  ________  |                   | | B
---   E | P | |       |        | |        | |                   | |
---     | L | |       |        | | CR/CSR | |                   | | B
---   B | I | |       |        | | Space  | |___________________| | U
---   U | N | |                | |________|  ___________________  | S
---   S | G | |                |  ________  |                   | |
---     |   | |                | |        | |  IRQ Controller   | |
---     |___| |                | |  User  | |                   | |
---     |     |                | |  CSR   | |                   | |
---     |     |________________| |________| |___________________| |
---     |_________________________________________________________|
---
---   This core complies with the VME64x specifications and allows "plug and
---   play" configuration of VME crates.
---   The base address is setted by the Geographical lines.
---   The base address can't be setted by hand with the switches on the board.
---   If the core is used in an old VME system without GA lines, the core should
---   be provided with a logic that detects if GA = "11111" and if it is the base
---   address of the module, this logic should derive the GA from the switches on
---   the board.
---   All the VMEbus's asynchronous signals must be sampled 2 or 3 times to avoid
---   metastability problem.
---   All the output signals on the WB bus are registered.
---   The Input signals from the WB bus aren't registered indeed the WB is a
---   synchronous protocol and some registers in the WB side will introduce a
---   delay that make impossible reproduce the WB PIPELINED protocol.
---   The WB Slave application must work with the same frequency as this vme64x
---   core.
---   The main component of this core is the VME_bus on the left in the block
---   diagram. Inside this component you can find the main finite state machine
---   that coordinates all the synchronisms.
---   The WB protocol is more faster than the VME protocol so to make independent
---   the two protocols a FIFO memory can be introduced.
---   The FIFO is necessary only during 2eSST access mode.
---   During the block transfer without FIFO the VME_bus accesses directly the Wb
---   bus in Single pipelined read/write mode. If this is the only Wb master this
---   solution is better than the solution with FIFO.
---   In this base version of the core the FIFO is not implemented indeed the 2e
---   access modes aren't supported yet.
---   A Configuration ROM/Control Status Register (CR/CSR) address space has been
---   introduced. The CR/CSR space can be accessed with the data transfer type
---   D08_3, D16_23, D32.
---   To access the CR/CSR space: AM = 0x2f --> this is A24 addressing type,
---   SINGLE transfer type. Base Address = Slot Number.
---   This interface is provided with an Interrupter. The IRQ Controller receives
---   from the Application (WB bus) an interrupt request and transfers this
---   interrupt request on the VMEbus. This component acts also during the
---   Interrupt acknowledge cycle, sending the status/ID to the Interrupt
---   handler.
---   Inside each component, a detailed description is provided.
---   Access modes supported:
---   http://www.ohwr.org/projects/vme64x-core/repository/changes/trunk/
---          documentation/user_guides/VME_access_modes.pdf
---
--- standards:
---
---   * VMEbus             ANSI/IEEE Std 1014-1987
---   * VME64              ANSI/VITA 1-1994
---   * VME64x Extensions  ANSI/VITA 1.1-1997
---   * VME 2eSST          ANSI/VITA 1.5-2003
---
--- dependencies:
---
---------------------------------------------------------------------------------
--- GNU LESSER GENERAL PUBLIC LICENSE
---------------------------------------------------------------------------------
--- This source file is free software; you can redistribute it and/or modify it
--- under the terms of the GNU Lesser General Public License as published by the
--- Free Software Foundation; either version 2.1 of the License, or (at your
--- option) any later version. This source is distributed in the hope that it
--- will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
--- of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
--- See the GNU Lesser General Public License for more details. You should have
--- received a copy of the GNU Lesser General Public License along with this
--- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html
---------------------------------------------------------------------------------
--- last changes: see log.
---------------------------------------------------------------------------------
--- TODO: -
---------------------------------------------------------------------------------
+----------------------------------------------------------------
+-- This file was automatically generated by vhdl-unwrap for 
+-- entity xvme64x_core.
+-- DO NOT EDIT.
+----------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
+use work.wishbone_pkg.all;
 use work.vme64x_pkg.all;
 
 entity vme64x_core is
   generic (
-    g_CLOCK_PERIOD    : integer   := c_CLOCK_PERIOD;  -- Clock period (ns)
-    g_WB_DATA_WIDTH   : integer   := c_DATA_WIDTH;    -- WB data width: = 32
-    g_WB_ADDR_WIDTH   : integer   := c_ADDR_WIDTH;    -- WB addr width: <= 32
-    g_USER_CSR_EXT    : boolean   := false;           -- Use external user CSR
-
-    -- Consider AM field of ADER to decode addresses. This is what the VME64x
-    -- standard says. However, for compatibility with previous implementations
-    -- (or to reduce resources), it is possible for a decoder to allow all AM
-    -- declared in the AMCAP.
-    g_DECODE_AM       : boolean   := true;
-
-    -- Manufacturer ID: IEEE OUID
-    --                  e.g. CERN is 0x080030
-    g_MANUFACTURER_ID : std_logic_vector(23 downto 0)   := c_CERN_ID;
-
-    -- Board ID: Per manufacturer, each board shall have an unique ID
-    --           e.g. SVEC = 408 (CERN IDs: http://cern.ch/boardid)
-    g_BOARD_ID        : std_logic_vector(31 downto 0)   := c_SVEC_ID;
-
-    -- Revision ID: user defined revision code
-    g_REVISION_ID     : std_logic_vector(31 downto 0)   := c_REVISION_ID;
-
-    -- Program ID: Defined per AV1:
-    --               0x00      = Not used
-    --               0x01      = No program, ID ROM only
-    --               0x02-0x4F = Manufacturer defined
-    --               0x50-0x7F = User defined
-    --               0x80-0xEF = Reserved for future use
-    --               0xF0-0xFE = Reserved for Boot Firmware (P1275)
-    --               0xFF      = Not to be used
-    g_PROGRAM_ID      : std_logic_vector(7 downto 0)    := c_PROGRAM_ID;
-
-    -- Pointer to a user defined ASCII string
-    g_ASCII_PTR       : std_logic_vector(23 downto 0)   := x"000000";
-
-    -- User CR/CSR, CRAM & serial number pointers
-    g_BEG_USER_CR     : std_logic_vector(23 downto 0)   := x"000000";
-    g_END_USER_CR     : std_logic_vector(23 downto 0)   := x"000000";
-
-    g_BEG_CRAM        : std_logic_vector(23 downto 0)   := x"000000"; -- 0x1003
-    g_END_CRAM        : std_logic_vector(23 downto 0)   := x"000000"; -- 0x13ff
-
-    g_BEG_USER_CSR    : std_logic_vector(23 downto 0)   := x"07ff33";
-    g_END_USER_CSR    : std_logic_vector(23 downto 0)   := x"07ff5f";
-
-    g_BEG_SN          : std_logic_vector(23 downto 0)   := x"000000";
-    g_END_SN          : std_logic_vector(23 downto 0)   := x"000000";
-
-    -- Function 0
-    g_F0_ADEM         : std_logic_vector( 31 downto 0)  := x"ff000000";
-    g_F0_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_0000ff00";
-    g_F0_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
-
-    -- Function 1
-    g_F1_ADEM         : std_logic_vector( 31 downto 0)  := x"fff80000";
-    g_F1_AMCAP        : std_logic_vector( 63 downto 0)  := x"ff000000_00000000";
-    g_F1_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
-
-    -- Function 2
-    g_F2_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
-    g_F2_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_F2_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
-
-    -- Function 3
-    g_F3_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
-    g_F3_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_F3_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
-
-    -- Function 4
-    g_F4_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
-    g_F4_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_F4_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
-
-    -- Function 5
-    g_F5_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
-    g_F5_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_F5_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
-
-    -- Function 6
-    g_F6_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
-    g_F6_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_F6_DAWPR        : std_logic_vector(  7 downto 0)  := x"84";
-
-    -- Function 7
-    g_F7_ADEM         : std_logic_vector( 31 downto 0)  := x"00000000";
-    g_F7_AMCAP        : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-    g_F7_DAWPR        : std_logic_vector(  7 downto 0)  := x"84"
-  );
+    g_clock_period    : integer;
+    g_decode_am       : boolean;
+    g_user_csr_ext    : boolean;
+    g_manufacturer_id : std_logic_vector(23 downto 0);
+    g_board_id        : std_logic_vector(31 downto 0);
+    g_revision_id     : std_logic_vector(31 downto 0);
+    g_program_id      : std_logic_vector(7 downto 0);
+    g_ascii_ptr       : std_logic_vector(23 downto 0);
+    g_beg_user_cr     : std_logic_vector(23 downto 0);
+    g_end_user_cr     : std_logic_vector(23 downto 0);
+    g_beg_cram        : std_logic_vector(23 downto 0);
+    g_end_cram        : std_logic_vector(23 downto 0);
+    g_beg_user_csr    : std_logic_vector(23 downto 0);
+    g_end_user_csr    : std_logic_vector(23 downto 0);
+    g_beg_sn          : std_logic_vector(23 downto 0);
+    g_end_sn          : std_logic_vector(23 downto 0);
+    g_nbr_decoders    : natural range 1 to 8;
+    g_decoder_0_adem  : std_logic_vector(31 downto 0);
+    g_decoder_0_amcap : std_logic_vector(63 downto 0);
+    g_decoder_0_dawpr : std_logic_vector(7 downto 0);
+    g_decoder_1_adem  : std_logic_vector(31 downto 0);
+    g_decoder_1_amcap : std_logic_vector(63 downto 0);
+    g_decoder_1_dawpr : std_logic_vector(7 downto 0);
+    g_decoder_2_adem  : std_logic_vector(31 downto 0);
+    g_decoder_2_amcap : std_logic_vector(63 downto 0);
+    g_decoder_2_dawpr : std_logic_vector(7 downto 0);
+    g_decoder_3_adem  : std_logic_vector(31 downto 0);
+    g_decoder_3_amcap : std_logic_vector(63 downto 0);
+    g_decoder_3_dawpr : std_logic_vector(7 downto 0);
+    g_decoder_4_adem  : std_logic_vector(31 downto 0);
+    g_decoder_4_amcap : std_logic_vector(63 downto 0);
+    g_decoder_4_dawpr : std_logic_vector(7 downto 0);
+    g_decoder_5_adem  : std_logic_vector(31 downto 0);
+    g_decoder_5_amcap : std_logic_vector(63 downto 0);
+    g_decoder_5_dawpr : std_logic_vector(7 downto 0);
+    g_decoder_6_adem  : std_logic_vector(31 downto 0);
+    g_decoder_6_amcap : std_logic_vector(63 downto 0);
+    g_decoder_6_dawpr : std_logic_vector(7 downto 0);
+    g_decoder_7_adem  : std_logic_vector(31 downto 0);
+    g_decoder_7_amcap : std_logic_vector(63 downto 0);
+    g_decoder_7_dawpr : std_logic_vector(7 downto 0));
   port (
-    clk_i           : in  std_logic;
-    rst_n_i         : in  std_logic;
-    rst_n_o         : out std_logic; -- To wishbone
-
-    -- VME
-    VME_AS_n_i      : in  std_logic;
-    VME_RST_n_i     : in  std_logic;  -- asserted when '0'
-    VME_WRITE_n_i   : in  std_logic;
-    VME_AM_i        : in  std_logic_vector(5 downto 0);
-    VME_DS_n_i      : in  std_logic_vector(1 downto 0);
-    VME_GA_i        : in  std_logic_vector(5 downto 0);
-    VME_BERR_o      : out std_logic;  -- [In the VME standard this line is
-                                      -- asserted when low. Here is asserted
-                                      -- when high indeed the logic will be
-                                      -- inverted again in the VME transceivers
-                                      -- on the board]*.
-    VME_DTACK_n_o   : out std_logic;
-    VME_RETRY_n_o   : out std_logic;
-    VME_LWORD_n_i   : in  std_logic;
-    VME_LWORD_n_o   : out std_logic;
-    VME_ADDR_i      : in  std_logic_vector(31 downto 1);
-    VME_ADDR_o      : out std_logic_vector(31 downto 1);
-    VME_DATA_i      : in  std_logic_vector(31 downto 0);
-    VME_DATA_o      : out std_logic_vector(31 downto 0);
-    VME_IRQ_o       : out std_logic_vector( 7 downto 1);   -- the same as []*
-    VME_IACKIN_n_i  : in  std_logic;
-    VME_IACK_n_i    : in  std_logic;
-    VME_IACKOUT_n_o : out std_logic;
-
-    -- VME buffers
-    VME_DTACK_OE_o  : out std_logic;
-    VME_DATA_DIR_o  : out std_logic;
-    VME_DATA_OE_N_o : out std_logic;
-    VME_ADDR_DIR_o  : out std_logic;
-    VME_ADDR_OE_N_o : out std_logic;
-    VME_RETRY_OE_o  : out std_logic;
-
-    -- WishBone
-    DAT_i   : in  std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
-    DAT_o   : out std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
-    ADR_o   : out std_logic_vector(g_WB_ADDR_WIDTH-1 downto 0);
-    CYC_o   : out std_logic;
-    ERR_i   : in  std_logic;
-    SEL_o   : out std_logic_vector(g_WB_DATA_WIDTH / 8 - 1 downto 0);
-    STB_o   : out std_logic;
-    ACK_i   : in  std_logic;
-    WE_o    : out std_logic;
-    STALL_i : in  std_logic;
-
-    -- User CSR
-    -- The following signals are used when g_USER_CSR_EXT = true
-    -- otherwise they are connected to the internal user CSR.
-    irq_level_i     : in  std_logic_vector( 7 downto 0) := (others => '0');
-    irq_vector_i    : in  std_logic_vector( 7 downto 0) := (others => '0');
+    clk_i           : std_logic;
+    rst_n_i         : std_logic;
+    rst_n_o         : out std_logic;
+    vme_as_n_i      : std_logic;
+    vme_rst_n_i     : std_logic;
+    vme_write_n_i   : std_logic;
+    vme_am_i        : std_logic_vector(5 downto 0);
+    vme_ds_n_i      : std_logic_vector(1 downto 0);
+    vme_ga_i        : std_logic_vector(5 downto 0);
+    vme_lword_n_i   : std_logic;
+    vme_data_i      : std_logic_vector(31 downto 0);
+    vme_addr_i      : std_logic_vector(31 downto 1);
+    vme_iack_n_i    : std_logic;
+    vme_iackin_n_i  : std_logic;
+    vme_iackout_n_o : out std_logic;
+    vme_dtack_n_o   : out std_logic;
+    vme_dtack_oe_o  : out std_logic;
+    vme_lword_n_o   : out std_logic;
+    vme_data_o      : out std_logic_vector(31 downto 0);
+    vme_data_dir_o  : out std_logic;
+    vme_data_oe_n_o : out std_logic;
+    vme_addr_o      : out std_logic_vector(31 downto 1);
+    vme_addr_dir_o  : out std_logic;
+    vme_addr_oe_n_o : out std_logic;
+    vme_retry_n_o   : out std_logic;
+    vme_retry_oe_o  : out std_logic;
+    vme_berr_n_o    : out std_logic;
+    vme_irq_n_o     : out std_logic_vector(6 downto 0);
+    wb_ack_i        : std_logic;
+    wb_err_i        : std_logic;
+    wb_rty_i        : std_logic;
+    wb_stall_i      : std_logic;
+    wb_int_i        : std_logic;
+    wb_dat_i        : t_wishbone_data;
+    wb_cyc_o        : out std_logic;
+    wb_stb_o        : out std_logic;
+    wb_adr_o        : out t_wishbone_address;
+    wb_sel_o        : out t_wishbone_byte_select;
+    wb_we_o         : out std_logic;
+    wb_dat_o        : out t_wishbone_data;
+    irq_ack_o       : out std_logic;
+    irq_level_i     : std_logic_vector(7 downto 0);
+    irq_vector_i    : std_logic_vector(7 downto 0);
     user_csr_addr_o : out std_logic_vector(18 downto 2);
-    user_csr_data_i : in  std_logic_vector( 7 downto 0) := (others => '0');
-    user_csr_data_o : out std_logic_vector( 7 downto 0);
+    user_csr_data_i : std_logic_vector(7 downto 0);
+    user_csr_data_o : out std_logic_vector(7 downto 0);
     user_csr_we_o   : out std_logic;
-
-    -- User CR
     user_cr_addr_o  : out std_logic_vector(18 downto 2);
-    user_cr_data_i  : in  std_logic_vector( 7 downto 0) := (others => '0');
-
-    -- IRQ Generator
-    irq_ack_o : out std_logic;    -- when the IRQ controller acknowledges the
-                                  -- Interrupt cycle it sends a pulse to the
-                                  -- IRQ Generator
-
-    irq_i     : in  std_logic     -- Interrupt request; the IRQ Generator/your
-                                  -- Wb application sends a pulse to the IRQ
-                                  -- Controller which asserts one of the IRQ
-                                  -- lines.
-  );
-
+    user_cr_data_i  : std_logic_vector(7 downto 0));
 end vme64x_core;
 
-architecture rtl of vme64x_core is
-
-  signal s_reset                : std_logic;
-  signal s_reset_n              : std_logic;
-
-  signal s_VME_IRQ_n_o          : std_logic_vector( 7 downto 1);
-  signal s_irq_ack              : std_logic;
-  signal s_irq_pending          : std_logic;
-
-  -- CR/CSR
-  signal s_cr_csr_addr          : std_logic_vector(18 downto 2);
-  signal s_cr_csr_data_o        : std_logic_vector( 7 downto 0);
-  signal s_cr_csr_data_i        : std_logic_vector( 7 downto 0);
-  signal s_cr_csr_we            : std_logic;
-  signal s_ader                 : t_ader_array(0 to 7);
-  signal s_module_reset         : std_logic;
-  signal s_module_enable        : std_logic;
-  signal s_bar                  : std_logic_vector( 4 downto 0);
-  signal s_vme_berr_n           : std_logic;
-
-  signal s_irq_vector           : std_logic_vector( 7 downto 0);
-  signal s_irq_level            : std_logic_vector( 2 downto 0);
-  signal s_user_csr_addr        : std_logic_vector(18 downto 2);
-  signal s_user_csr_data_i      : std_logic_vector( 7 downto 0);
-  signal s_user_csr_data_o      : std_logic_vector( 7 downto 0);
-  signal s_user_csr_we          : std_logic;
-
-  -- Function decoders
-  signal s_addr_decoder_i       : std_logic_vector(31 downto 0);
-  signal s_addr_decoder_o       : std_logic_vector(31 downto 0);
-  signal s_decode_start         : std_logic;
-  signal s_decode_done          : std_logic;
-  signal s_decode_sel           : std_logic;
-  signal s_am                   : std_logic_vector( 5 downto 0);
-
-  -- Oversampled input signals
-  signal s_VME_RST_n            : std_logic;
-  signal s_VME_AS_n             : std_logic;
-  signal s_VME_WRITE_n          : std_logic;
-  signal s_VME_DS_n             : std_logic_vector(1 downto 0);
-  signal s_VME_IACK_n           : std_logic;
-  signal s_VME_IACKIN_n         : std_logic;
-
-  -- CR/CSR parameter arrays
-  -- ADEM array has an extra index (-1) to simplify looping while checking the
-  -- EFM bit of the previous function.
-  constant c_ADEM : t_adem_array(0 to 7) := (
-    g_F0_ADEM, g_F1_ADEM, g_F2_ADEM, g_F3_ADEM,
-    g_F4_ADEM, g_F5_ADEM, g_F6_ADEM, g_F7_ADEM
-  );
-  constant c_AMCAP : t_amcap_array(0 to 7) := (
-    g_F0_AMCAP, g_F1_AMCAP, g_F2_AMCAP, g_F3_AMCAP,
-    g_F4_AMCAP, g_F5_AMCAP, g_F6_AMCAP, g_F7_AMCAP
-  );
-  constant c_DAWPR : t_dawpr_array(0 to 7) := (
-    g_F0_DAWPR, g_F1_DAWPR, g_F2_DAWPR, g_F3_DAWPR,
-    g_F4_DAWPR, g_F5_DAWPR, g_F6_DAWPR, g_F7_DAWPR
-  );
-
-  -- List of supported AM.
-  constant c_AMCAP_ALLOWED : std_logic_vector(63 downto 0) :=
-    (16#3c# to 16#3f# => '1', --  A24
-     16#38# to 16#3b# => '1',
-     16#2d# | 16#29#  => '1', --  A16
-     16#0c# to 16#0f# => '1', --  A32
-     16#08# to 16#0b# => '1',
-     others => '0');
+architecture unwrap of vme64x_core is
 begin
-  --  Check for invalid bits in ADEM/AMCAP
-  gen_gchecks: for i in 7 downto 0 generate
-    assert c_ADEM(i)(c_ADEM_FAF) = '0' report "FAF bit set in ADEM"
-      severity failure;
-    assert c_ADEM(i)(c_ADEM_DFS) = '0' report "DFS bit set in ADEM"
-      severity failure;
-    assert c_ADEM(i)(c_ADEM_EFM) = '0' report "EFM bit set in ADEM"
-      severity failure;
-    assert (c_AMCAP(i) and c_AMCAP_ALLOWED) = c_AMCAP(i)
-      report "bit set in AMCAP for not supported AM"
-      severity failure;
-  end generate;
-
-  ------------------------------------------------------------------------------
-  -- Metastability
-  ------------------------------------------------------------------------------
-  -- Input oversampling: oversampling the input data is
-  -- necessary to avoid metastability problems, but of course the transfer rate
-  -- will be slow down a little.
-  -- NOTE: the reset value is '0', which means that all signals are active
-  -- at reset. But not for a long time and so is s_VME_RST_n.
-  inst_vme_rst_resync: entity work.gc_sync_register
-    generic map (g_width => 1)
-    port map (clk_i => clk_i,
-              rst_n_a_i => rst_n_i,
-              d_i(0) => VME_RST_n_i,
-              q_o(0) => s_VME_RST_n);
-  inst_vme_as_resync: entity work.gc_sync_register
-    generic map (g_width => 1)
-    port map (clk_i => clk_i,
-              rst_n_a_i => rst_n_i,
-              d_i(0) => VME_AS_n_i,
-              q_o(0) => s_VME_AS_n);
-  inst_vme_write_resync: entity work.gc_sync_register
-    generic map (g_width => 1)
-    port map (clk_i => clk_i,
-              rst_n_a_i => rst_n_i,
-              d_i(0) => VME_WRITE_n_i,
-              q_o(0) => s_VME_WRITE_n);
-  inst_vme_ds_resync: entity work.gc_sync_register
-    generic map (g_width => 2)
-    port map (clk_i => clk_i,
-              rst_n_a_i => rst_n_i,
-              d_i => VME_DS_n_i,
-              q_o => s_VME_DS_n);
-  inst_vme_iack_resync: entity work.gc_sync_register
-    generic map (g_width => 1)
-    port map (clk_i => clk_i,
-              rst_n_a_i => rst_n_i,
-              d_i(0) => VME_IACK_n_i,
-              q_o(0) => s_VME_IACK_n);
-  inst_vme_iackin_resync: entity work.gc_sync_register
-    generic map (g_width => 1)
-    port map (clk_i => clk_i,
-              rst_n_a_i => rst_n_i,
-              d_i(0) => VME_IACKIN_n_i,
-              q_o(0) => s_VME_IACKIN_n);
-
-  ------------------------------------------------------------------------------
-  -- VME Bus
-  ------------------------------------------------------------------------------
-  inst_vme_bus : entity work.vme_bus
+  inst : entity work.xvme64x_core
     generic map (
-      g_CLOCK_PERIOD  => g_CLOCK_PERIOD,
-      g_WB_DATA_WIDTH => g_WB_DATA_WIDTH,
-      g_WB_ADDR_WIDTH => g_WB_ADDR_WIDTH
-    )
+      g_clock_period     => g_clock_period,
+      g_decode_am        => g_decode_am,
+      g_user_csr_ext     => g_user_csr_ext,
+      g_manufacturer_id  => g_manufacturer_id,
+      g_board_id         => g_board_id,
+      g_revision_id      => g_revision_id,
+      g_program_id       => g_program_id,
+      g_ascii_ptr        => g_ascii_ptr,
+      g_beg_user_cr      => g_beg_user_cr,
+      g_end_user_cr      => g_end_user_cr,
+      g_beg_cram         => g_beg_cram,
+      g_end_cram         => g_end_cram,
+      g_beg_user_csr     => g_beg_user_csr,
+      g_end_user_csr     => g_end_user_csr,
+      g_beg_sn           => g_beg_sn,
+      g_end_sn           => g_end_sn,
+      g_nbr_decoders     => g_nbr_decoders,
+      g_decoder(0).adem  => g_decoder_0_adem,
+      g_decoder(0).amcap => g_decoder_0_amcap,
+      g_decoder(0).dawpr => g_decoder_0_dawpr,
+      g_decoder(1).adem  => g_decoder_1_adem,
+      g_decoder(1).amcap => g_decoder_1_amcap,
+      g_decoder(1).dawpr => g_decoder_1_dawpr,
+      g_decoder(2).adem  => g_decoder_2_adem,
+      g_decoder(2).amcap => g_decoder_2_amcap,
+      g_decoder(2).dawpr => g_decoder_2_dawpr,
+      g_decoder(3).adem  => g_decoder_3_adem,
+      g_decoder(3).amcap => g_decoder_3_amcap,
+      g_decoder(3).dawpr => g_decoder_3_dawpr,
+      g_decoder(4).adem  => g_decoder_4_adem,
+      g_decoder(4).amcap => g_decoder_4_amcap,
+      g_decoder(4).dawpr => g_decoder_4_dawpr,
+      g_decoder(5).adem  => g_decoder_5_adem,
+      g_decoder(5).amcap => g_decoder_5_amcap,
+      g_decoder(5).dawpr => g_decoder_5_dawpr,
+      g_decoder(6).adem  => g_decoder_6_adem,
+      g_decoder(6).amcap => g_decoder_6_amcap,
+      g_decoder(6).dawpr => g_decoder_6_dawpr,
+      g_decoder(7).adem  => g_decoder_7_adem,
+      g_decoder(7).amcap => g_decoder_7_amcap,
+      g_decoder(7).dawpr => g_decoder_7_dawpr)
     port map (
       clk_i           => clk_i,
-      rst_i           => s_reset,
+      rst_n_i         => rst_n_i,
+      rst_n_o         => rst_n_o,
+      vme_i.as_n      => vme_as_n_i,
+      vme_i.rst_n     => vme_rst_n_i,
+      vme_i.write_n   => vme_write_n_i,
+      vme_i.am        => vme_am_i,
+      vme_i.ds_n      => vme_ds_n_i,
+      vme_i.ga        => vme_ga_i,
+      vme_i.lword_n   => vme_lword_n_i,
+      vme_i.data      => vme_data_i,
+      vme_i.addr      => vme_addr_i,
+      vme_i.iack_n    => vme_iack_n_i,
+      vme_i.iackin_n  => vme_iackin_n_i,
+      vme_o.iackout_n => vme_iackout_n_o,
+      vme_o.dtack_n   => vme_dtack_n_o,
+      vme_o.dtack_oe  => vme_dtack_oe_o,
+      vme_o.lword_n   => vme_lword_n_o,
+      vme_o.data      => vme_data_o,
+      vme_o.data_dir  => vme_data_dir_o,
+      vme_o.data_oe_n => vme_data_oe_n_o,
+      vme_o.addr      => vme_addr_o,
+      vme_o.addr_dir  => vme_addr_dir_o,
+      vme_o.addr_oe_n => vme_addr_oe_n_o,
+      vme_o.retry_n   => vme_retry_n_o,
+      vme_o.retry_oe  => vme_retry_oe_o,
+      vme_o.berr_n    => vme_berr_n_o,
+      vme_o.irq_n     => vme_irq_n_o,
+      wb_i.ack        => wb_ack_i,
+      wb_i.err        => wb_err_i,
+      wb_i.rty        => wb_rty_i,
+      wb_i.stall      => wb_stall_i,
+      wb_i.int        => wb_int_i,
+      wb_i.dat        => wb_dat_i,
+      wb_o.cyc        => wb_cyc_o,
+      wb_o.stb        => wb_stb_o,
+      wb_o.adr        => wb_adr_o,
+      wb_o.sel        => wb_sel_o,
+      wb_o.we         => wb_we_o,
+      wb_o.dat        => wb_dat_o,
+      irq_ack_o       => irq_ack_o,
+      irq_level_i     => irq_level_i,
+      irq_vector_i    => irq_vector_i,
+      user_csr_addr_o => user_csr_addr_o,
+      user_csr_data_i => user_csr_data_i,
+      user_csr_data_o => user_csr_data_o,
+      user_csr_we_o   => user_csr_we_o,
+      user_cr_addr_o  => user_cr_addr_o,
+      user_cr_data_i  => user_cr_data_i);
+end unwrap;
 
-      -- VME
-      VME_AS_n_i      => s_VME_AS_n,
-      VME_LWORD_n_o   => VME_LWORD_n_o,
-      VME_LWORD_n_i   => VME_LWORD_n_i,
-      VME_RETRY_n_o   => VME_RETRY_n_o,
-      VME_RETRY_OE_o  => VME_RETRY_OE_o,
-      VME_WRITE_n_i   => s_VME_WRITE_n,
-      VME_DS_n_i      => s_VME_DS_n,
-      VME_DTACK_n_o   => VME_DTACK_n_o,
-      VME_DTACK_OE_o  => VME_DTACK_OE_o,
-      VME_BERR_n_o    => s_vme_berr_n,
-      VME_ADDR_i      => VME_ADDR_i,
-      VME_ADDR_o      => VME_ADDR_o,
-      VME_ADDR_DIR_o  => VME_ADDR_DIR_o,
-      VME_ADDR_OE_N_o => VME_ADDR_OE_N_o,
-      VME_DATA_i      => VME_DATA_i,
-      VME_DATA_o      => VME_DATA_o,
-      VME_DATA_DIR_o  => VME_DATA_DIR_o,
-      VME_DATA_OE_N_o => VME_DATA_OE_N_o,
-      VME_AM_i        => VME_AM_i,
-      VME_IACKIN_n_i  => s_VME_IACKIN_n,
-      VME_IACK_n_i    => s_VME_IACK_n,
-      VME_IACKOUT_n_o => VME_IACKOUT_n_o,
-
-      -- WB signals
-      stb_o           => STB_o,
-      ack_i           => ACK_i,
-      dat_o           => DAT_o,
-      dat_i           => DAT_i,
-      adr_o           => ADR_o,
-      sel_o           => SEL_o,
-      we_o            => WE_o,
-      cyc_o           => CYC_o,
-      err_i           => ERR_i,
-      stall_i         => STALL_i,
-
-      -- Function decoder
-      addr_decoder_i  => s_addr_decoder_o,
-      addr_decoder_o  => s_addr_decoder_i,
-      decode_start_o  => s_decode_start,
-      decode_done_i   => s_decode_done,
-      am_o            => s_am,
-      decode_sel_i    => s_decode_sel,
-
-      -- CR/CSR signals
-      cr_csr_addr_o   => s_cr_csr_addr,
-      cr_csr_data_i   => s_cr_csr_data_o,
-      cr_csr_data_o   => s_cr_csr_data_i,
-      cr_csr_we_o     => s_cr_csr_we,
-      module_enable_i => s_module_enable,
-      bar_i           => s_bar,
-
-      INT_Level_i     => s_irq_level,
-      INT_Vector_i    => s_irq_vector,
-      irq_pending_i   => s_irq_pending,
-      irq_ack_o       => s_irq_ack
-    );
-
-  s_reset    <= (not rst_n_i) or (not s_VME_RST_n);
-  s_reset_n  <= not s_reset;
-  rst_n_o    <= not (s_reset or s_module_reset);
-
-  VME_BERR_o <= not s_vme_berr_n; -- The VME_BERR is asserted when '1' because
-                                  -- the buffers on the board invert the logic.
-
-  inst_vme_funct_match : entity work.vme_funct_match
-    generic map (
-      g_ADEM      => c_ADEM,
-      g_AMCAP     => c_AMCAP,
-      g_DECODE_AM => g_DECODE_AM
-    )
-    port map (
-      clk_i          => clk_i,
-      rst_n_i        => s_reset_n,
-
-      addr_i         => s_addr_decoder_i,
-      addr_o         => s_addr_decoder_o,
-      decode_start_i => s_decode_start,
-      am_i           => s_am,
-      ader_i         => s_ader,
-      decode_sel_o   => s_decode_sel,
-      decode_done_o  => s_decode_done
-    );
-
-  ------------------------------------------------------------------------------
-  -- Output
-  ------------------------------------------------------------------------------
-  VME_IRQ_o  <= not s_VME_IRQ_n_o;  -- The buffers will invert again the signal
-  irq_ack_o  <= s_irq_ack;
-
-  ------------------------------------------------------------------------------
-  --  Interrupter
-  ------------------------------------------------------------------------------
-  inst_vme_irq_controller : entity work.vme_irq_controller
-    generic map (
-      g_RETRY_TIMEOUT => 1000000 / g_CLOCK_PERIOD   -- 1ms timeout
-    )
-    port map (
-      clk_i           => clk_i,
-      reset_n_i       => s_reset_n,                 -- asserted when low
-      INT_Level_i     => s_irq_level,
-      INT_Req_i       => irq_i,
-      irq_pending_o   => s_irq_pending,
-      irq_ack_i       => s_irq_ack,
-      VME_IRQ_n_o     => s_VME_IRQ_n_o
-    );
-
-  ------------------------------------------------------------------------------
-  -- CR/CSR space
-  ------------------------------------------------------------------------------
-  inst_vme_cr_csr_space : entity work.vme_cr_csr_space
-    generic map (
-      g_MANUFACTURER_ID  => g_MANUFACTURER_ID,
-      g_BOARD_ID         => g_BOARD_ID,
-      g_REVISION_ID      => g_REVISION_ID,
-      g_PROGRAM_ID       => g_PROGRAM_ID,
-      g_ASCII_PTR        => g_ASCII_PTR,
-      g_BEG_USER_CR      => g_BEG_USER_CR,
-      g_END_USER_CR      => g_END_USER_CR,
-      g_BEG_CRAM         => g_BEG_CRAM,
-      g_END_CRAM         => g_END_CRAM,
-      g_BEG_USER_CSR     => g_BEG_USER_CSR,
-      g_END_USER_CSR     => g_END_USER_CSR,
-      g_BEG_SN           => g_BEG_SN,
-      g_END_SN           => g_END_SN,
-      g_ADEM             => c_ADEM,
-      g_AMCAP            => c_AMCAP,
-      g_DAWPR            => c_DAWPR
-    )
-    port map (
-      clk_i               => clk_i,
-      rst_n_i             => s_reset_n,
-
-      vme_ga_i            => VME_GA_i,
-      vme_berr_n_i        => s_vme_berr_n,
-      bar_o               => s_bar,
-      vme_sysfail_i       => '0',
-      vme_sysfail_ena_o   => open,
-      module_enable_o     => s_module_enable,
-      module_reset_o      => s_module_reset,
-
-      addr_i              => s_cr_csr_addr,
-      data_i              => s_cr_csr_data_i,
-      data_o              => s_cr_csr_data_o,
-      we_i                => s_cr_csr_we,
-
-      user_csr_addr_o     => s_user_csr_addr,
-      user_csr_data_i     => s_user_csr_data_i,
-      user_csr_data_o     => s_user_csr_data_o,
-      user_csr_we_o       => s_user_csr_we,
-
-      user_cr_addr_o      => user_cr_addr_o,
-      user_cr_data_i      => user_cr_data_i,
-
-      ader_o              => s_ader
-    );
-
-  -- User CSR space
-  gen_int_user_csr : if g_USER_CSR_EXT = false generate
-    inst_vme_user_csr : entity work.vme_user_csr
-      port map (
-        clk_i        => clk_i,
-        rst_n_i      => s_reset_n,
-        addr_i       => s_user_csr_addr,
-        data_i       => s_user_csr_data_o,
-        data_o       => s_user_csr_data_i,
-        we_i         => s_user_csr_we,
-        irq_vector_o => s_irq_vector,
-        irq_level_o  => s_irq_level
-      );
-  end generate;
-  gen_ext_user_csr : if g_USER_CSR_EXT = true generate
-    s_user_csr_data_i <= user_csr_data_i;
-    s_irq_vector      <= irq_vector_i;
-    s_irq_level       <= irq_level_i(2 downto 0);
-  end generate;
-
-  user_csr_addr_o <= s_user_csr_addr;
-  user_csr_data_o <= s_user_csr_data_o;
-  user_csr_we_o   <= s_user_csr_we;
-
-end rtl;
