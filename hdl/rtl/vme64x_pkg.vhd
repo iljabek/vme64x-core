@@ -35,6 +35,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+use work.wishbone_pkg.all;
+
 package vme64x_pkg is
 
   ------------------------------------------------------------------------------
@@ -119,9 +121,108 @@ package vme64x_pkg is
   type t_dawpr_array  is
     array (integer range <>) of std_logic_vector(  7 downto 0);
 
+  type t_vme64x_in is record
+    as_n     : std_logic;
+    rst_n    : std_logic;
+    write_n  : std_logic;
+    am       : std_logic_vector(5 downto 0);
+    ds_n     : std_logic_vector(1 downto 0);
+    ga       : std_logic_vector(5 downto 0);
+    bbsy_n   : std_logic;
+    lword_n  : std_logic;
+    data     : std_logic_vector(31 downto 0);
+    addr     : std_logic_vector(31 downto 1);
+    iack_n   : std_logic;
+    iackin_n : std_logic;
+  end record;
+
+  type t_vme64x_out is record
+    iackout_n : std_logic;
+    dtack_n   : std_logic;
+    dtack_oe  : std_logic;
+    lword_n   : std_logic;
+    data      : std_logic_vector(31 downto 0);
+    data_dir  : std_logic;
+    data_oe_n : std_logic;
+    addr      : std_logic_vector(31 downto 1);
+    addr_dir  : std_logic;
+    addr_oe_n : std_logic;
+    retry_n   : std_logic;
+    retry_oe  : std_logic;
+    berr      : std_logic;
+    irq_n     : std_logic_vector(6 downto 0);
+  end record;
+
+  type t_vme64x_decoder is record
+    adem       : std_logic_vector(31 downto 0);
+    amcap      : std_logic_vector(63 downto 0);
+    dawpr      : std_logic_vector( 7 downto 0);
+  end record;
+
+  constant c_vme64x_decoder_disabled : t_vme64x_decoder := (
+    adem  => x"00000000",
+    amcap => x"00000000_00000000",
+    dawpr => x"84");
+
+  type t_vme64x_decoder_arr is array(0 to 7) of t_vme64x_decoder;
+
+  constant c_vme64x_decoders_default : t_vme64x_decoder_arr := (
+    0 => (adem  => x"ff000000",
+          amcap => x"00000000_0000bb00",
+          dawpr => x"84"),
+    1 => (adem  => x"fff80000",
+          amcap => x"bb000000_00000000",
+          dawpr => x"84"),
+    others => c_vme64x_decoder_disabled);
+
   ------------------------------------------------------------------------------
-  -- Components
+  -- Components declaration
   ------------------------------------------------------------------------------
+  component xvme64x_core
+    generic (
+      g_CLOCK_PERIOD    : integer                  := -1;
+      g_DECODE_AM       : boolean                  := true;
+      g_USER_CSR_EXT    : boolean                  := false;
+      g_MANUFACTURER_ID : std_logic_vector(23 downto 0);
+      g_BOARD_ID        : std_logic_vector(31 downto 0);
+      g_REVISION_ID     : std_logic_vector(31 downto 0);
+      g_PROGRAM_ID      : std_logic_vector(7 downto 0)   := c_PROGRAM_ID;
+      g_ASCII_PTR       : std_logic_vector(23 downto 0)  := x"000000";
+      g_BEG_USER_CR     : std_logic_vector(23 downto 0)  := x"000000";
+      g_END_USER_CR     : std_logic_vector(23 downto 0)  := x"000000";
+      g_BEG_CRAM        : std_logic_vector(23 downto 0)  := x"000000";
+      g_END_CRAM        : std_logic_vector(23 downto 0)  := x"000000";
+      g_BEG_USER_CSR    : std_logic_vector(23 downto 0)  := x"07ff33";
+      g_END_USER_CSR    : std_logic_vector(23 downto 0)  := x"07ff5f";
+      g_BEG_SN          : std_logic_vector(23 downto 0)  := x"000000";
+      g_END_SN          : std_logic_vector(23 downto 0)  := x"000000";
+
+      g_nbr_decoders    : natural range 1 to 8           := 2;
+      g_address_decoder : t_vme64x_decoder_arr := c_vme64x_decoders_default);
+    port (
+      clk_i           : in  std_logic;
+      rst_n_i         : in  std_logic;
+      rst_n_o         : out std_logic;
+
+      vme_i           : in t_vme64x_in;
+      vme_o           : in t_vme64x_out;
+
+      wb_o            : out t_wishbone_master_out;
+      wb_i            : in  t_wishbone_master_in;
+
+      irq_i           : in  std_logic;
+      irq_ack_o       : out std_logic;
+      irq_level_i     : in  std_logic_vector( 7 downto 0) := (others => '0');
+      irq_vector_i    : in  std_logic_vector( 7 downto 0) := (others => '0');
+      endian_i        : in  std_logic_vector( 2 downto 0) := (others => '0');
+      user_csr_addr_o : out std_logic_vector(18 downto 2);
+      user_csr_data_i : in  std_logic_vector( 7 downto 0) := (others => '0');
+      user_csr_data_o : out std_logic_vector( 7 downto 0);
+      user_csr_we_o   : out std_logic;
+      user_cr_addr_o  : out std_logic_vector(18 downto 2);
+      user_cr_data_i  : in  std_logic_vector( 7 downto 0) := (others => '0')
+    );
+  end component xvme64x_core;
 
   component vme64x_core
     generic (

@@ -5,5 +5,4 @@ files = [ "vme64x_core.vhd",
           "vme_funct_match.vhd",
           "vme_irq_controller.vhd",
           "vme_user_csr.vhd",
-          "xvme64x_core_pkg.vhd",
           "xvme64x_core.vhd"]
