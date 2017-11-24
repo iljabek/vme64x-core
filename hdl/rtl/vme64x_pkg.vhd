@@ -43,14 +43,14 @@ package vme64x_pkg is
   -- Constants
   ------------------------------------------------------------------------------
 
-  constant c_CLOCK_PERIOD     : integer := 10;  -- Clock period (ns)
-  constant c_DATA_WIDTH       : integer := 32;  -- WB data width: must be 32
-  constant c_ADDR_WIDTH       : integer := 32;  -- WB addr width: 32.
-
-  -- Default boards IDs
-  constant c_SVEC_ID          : std_logic_vector(31 downto 0) := x"00000198";
+  -- Manufactuer IDs.
   constant c_CERN_ID          : std_logic_vector(23 downto 0) := x"080030";
-  constant c_REVISION_ID      : std_logic_vector(31 downto 0) := x"00000001";
+
+  -- Boards IDs / Revision IDs.
+  -- For SVEC:
+  constant c_SVEC_ID          : std_logic_vector(31 downto 0) := x"00000198";
+  constant c_SVEC_REVISION_ID : std_logic_vector(31 downto 0) := x"00000001";
+
   constant c_PROGRAM_ID       : std_logic_vector( 7 downto 0) := x"5a";
 
   -- Bits in ADEM/ADER registers
@@ -226,15 +226,13 @@ package vme64x_pkg is
 
   component vme64x_core
     generic (
-      g_CLOCK_PERIOD    : integer                         := c_CLOCK_PERIOD;
-      g_WB_DATA_WIDTH   : integer                         := c_DATA_WIDTH;
-      g_WB_ADDR_WIDTH   : integer                         := c_ADDR_WIDTH;
+      g_CLOCK_PERIOD    : integer                         := -1;
       g_DECODE_AM       : boolean                         := true;
       g_USER_CSR_EXT    : boolean                         := false;
-      g_MANUFACTURER_ID : std_logic_vector(23 downto 0)   := c_CERN_ID;
-      g_BOARD_ID        : std_logic_vector(31 downto 0)   := c_SVEC_ID;
-      g_REVISION_ID     : std_logic_vector(31 downto 0)   := c_REVISION_ID;
-      g_PROGRAM_ID      : std_logic_vector(7 downto 0)    := c_PROGRAM_ID;
+      g_MANUFACTURER_ID : std_logic_vector(23 downto 0);
+      g_BOARD_ID        : std_logic_vector(31 downto 0);
+      g_REVISION_ID     : std_logic_vector(31 downto 0);
+      g_PROGRAM_ID      : std_logic_vector( 7 downto 0)   := c_PROGRAM_ID;
       g_ASCII_PTR       : std_logic_vector(23 downto 0)   := x"000000";
       g_BEG_USER_CR     : std_logic_vector(23 downto 0)   := x"000000";
       g_END_USER_CR     : std_logic_vector(23 downto 0)   := x"000000";
@@ -245,30 +243,30 @@ package vme64x_pkg is
       g_BEG_SN          : std_logic_vector(23 downto 0)   := x"000000";
       g_END_SN          : std_logic_vector(23 downto 0)   := x"000000";
 
-      g_F0_ADEM   : std_logic_vector( 31 downto 0)  := x"ff000000";
-      g_F0_AMCAP  : std_logic_vector( 63 downto 0)  := x"00000000_0000ff00";
-      g_F0_DAWPR  : std_logic_vector(  7 downto 0)  := x"84";
-      g_F1_ADEM   : std_logic_vector( 31 downto 0)  := x"fff80000";
-      g_F1_AMCAP  : std_logic_vector( 63 downto 0)  := x"ff000000_00000000";
-      g_F1_DAWPR  : std_logic_vector(  7 downto 0)  := x"84";
-      g_F2_ADEM   : std_logic_vector( 31 downto 0)  := x"00000000";
-      g_F2_AMCAP  : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_F2_DAWPR  : std_logic_vector(  7 downto 0)  := x"84";
-      g_F3_ADEM   : std_logic_vector( 31 downto 0)  := x"00000000";
-      g_F3_AMCAP  : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_F3_DAWPR  : std_logic_vector(  7 downto 0)  := x"84";
-      g_F4_ADEM   : std_logic_vector( 31 downto 0)  := x"00000000";
-      g_F4_AMCAP  : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_F4_DAWPR  : std_logic_vector(  7 downto 0)  := x"84";
-      g_F5_ADEM   : std_logic_vector( 31 downto 0)  := x"00000000";
-      g_F5_AMCAP  : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_F5_DAWPR  : std_logic_vector(  7 downto 0)  := x"84";
-      g_F6_ADEM   : std_logic_vector( 31 downto 0)  := x"00000000";
-      g_F6_AMCAP  : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_F6_DAWPR  : std_logic_vector(  7 downto 0)  := x"84";
-      g_F7_ADEM   : std_logic_vector( 31 downto 0)  := x"00000000";
-      g_F7_AMCAP  : std_logic_vector( 63 downto 0)  := x"00000000_00000000";
-      g_F7_DAWPR  : std_logic_vector(  7 downto 0)  := x"84"
+      g_F0_ADEM   : std_logic_vector(31 downto 0)  := x"ff000000";
+      g_F0_AMCAP  : std_logic_vector(63 downto 0)  := x"00000000_0000ff00";
+      g_F0_DAWPR  : std_logic_vector( 7 downto 0)  := x"84";
+      g_F1_ADEM   : std_logic_vector(31 downto 0)  := x"fff80000";
+      g_F1_AMCAP  : std_logic_vector(63 downto 0)  := x"ff000000_00000000";
+      g_F1_DAWPR  : std_logic_vector( 7 downto 0)  := x"84";
+      g_F2_ADEM   : std_logic_vector(31 downto 0)  := x"00000000";
+      g_F2_AMCAP  : std_logic_vector(63 downto 0)  := x"00000000_00000000";
+      g_F2_DAWPR  : std_logic_vector( 7 downto 0)  := x"84";
+      g_F3_ADEM   : std_logic_vector(31 downto 0)  := x"00000000";
+      g_F3_AMCAP  : std_logic_vector(63 downto 0)  := x"00000000_00000000";
+      g_F3_DAWPR  : std_logic_vector( 7 downto 0)  := x"84";
+      g_F4_ADEM   : std_logic_vector(31 downto 0)  := x"00000000";
+      g_F4_AMCAP  : std_logic_vector(63 downto 0)  := x"00000000_00000000";
+      g_F4_DAWPR  : std_logic_vector( 7 downto 0)  := x"84";
+      g_F5_ADEM   : std_logic_vector(31 downto 0)  := x"00000000";
+      g_F5_AMCAP  : std_logic_vector(63 downto 0)  := x"00000000_00000000";
+      g_F5_DAWPR  : std_logic_vector( 7 downto 0)  := x"84";
+      g_F6_ADEM   : std_logic_vector(31 downto 0)  := x"00000000";
+      g_F6_AMCAP  : std_logic_vector(63 downto 0)  := x"00000000_00000000";
+      g_F6_DAWPR  : std_logic_vector( 7 downto 0)  := x"84";
+      g_F7_ADEM   : std_logic_vector(31 downto 0)  := x"00000000";
+      g_F7_AMCAP  : std_logic_vector(63 downto 0)  := x"00000000_00000000";
+      g_F7_DAWPR  : std_logic_vector( 7 downto 0)  := x"84"
     );
     port (
       clk_i           : in  std_logic;
@@ -299,12 +297,12 @@ package vme64x_pkg is
       VME_ADDR_DIR_o  : out std_logic;
       VME_ADDR_OE_N_o : out std_logic;
       VME_RETRY_OE_o  : out std_logic;
-      DAT_i           : in  std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
-      DAT_o           : out std_logic_vector(g_WB_DATA_WIDTH-1 downto 0);
-      ADR_o           : out std_logic_vector(g_WB_ADDR_WIDTH-1 downto 0);
+      DAT_i           : in  std_logic_vector(31 downto 0);
+      DAT_o           : out std_logic_vector(31 downto 0);
+      ADR_o           : out std_logic_vector(31 downto 0);
       CYC_o           : out std_logic;
       ERR_i           : in  std_logic;
-      SEL_o           : out std_logic_vector(g_WB_DATA_WIDTH / 8 - 1 downto 0);
+      SEL_o           : out std_logic_vector(3 downto 0);
       STB_o           : out std_logic;
       ACK_i           : in  std_logic;
       WE_o            : out std_logic;
