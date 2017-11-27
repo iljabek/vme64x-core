@@ -149,7 +149,7 @@ entity vme_cr_csr_space is
     user_cr_addr_o      : out std_logic_vector(18 downto 2);
     user_cr_data_i      : in  std_logic_vector( 7 downto 0);
 
-    ader_o              : out t_ader_array(0 to 7)
+    ader_o              : out t_ader_array
   );
 end vme_cr_csr_space;
 
@@ -161,7 +161,10 @@ architecture rtl of vme_cr_csr_space is
   signal s_reg_bit_reg      : std_logic_vector(7 downto 0);
   signal s_reg_cram_owner   : std_logic_vector(7 downto 0);
   signal s_reg_usr_bit_reg  : std_logic_vector(7 downto 0);
-  signal s_reg_ader         : t_ader_array(0 to 7);
+
+  -- It is expected to have unconnected bits in this register, since they
+  -- are and'ed with ADEM bits (so some are always 0).
+  signal s_reg_ader         : t_ader_array(ader_o'range);
 
   -- CR/CSR
   signal s_cr_access        : std_logic;
@@ -325,12 +328,12 @@ begin
   process (clk_i)
     -- Write to ADER bytes, if implemented. Take advantage of VITAL-1-1 Rule
     -- 10.19
-    procedure Set_ADER (Idx : natural range 0 to 7) is
+    procedure Set_ADER (idx : natural range 0 to 7) is
       variable v_byte  : integer;
     begin
-      if g_ADEM (Idx) /= x"0000_0000" then
+      if idx <= ader_o'high then
         v_byte  := 3 - to_integer(s_addr(3 downto 2));
-        s_reg_ader(Idx)(8*v_byte + 7 downto 8*v_byte) <= data_i;
+        s_reg_ader(idx)(8*v_byte + 7 downto 8*v_byte) <= data_i;
       end if;
     end Set_ADER;
 
@@ -442,15 +445,15 @@ begin
 
   -- Read
   process (clk_i)
-    procedure Get_ADER(Idx : natural range 0 to 7)
+    procedure Get_ADER(idx : natural range 0 to 7)
     is
       variable v_byte  : integer;
       variable ader : std_logic_vector(31 downto 0);
     begin
-      if g_ADEM(Idx) /= x"0000_0000" then
+      if idx <= ader_o'high then
         v_byte  := 3 - to_integer(s_addr(3 downto 2));
-        ader := s_reg_ader(Idx)
-                and ((g_ADEM(Idx) and c_ADEM_MASK) or c_ADER_MASK);
+        ader := s_reg_ader(idx)
+                and ((g_ADEM(idx) and c_ADEM_MASK) or c_ADER_MASK);
         s_csr_data <= ader(8*v_byte + 7 downto 8*v_byte);
       end if;
     end Get_ADER;

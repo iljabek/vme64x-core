@@ -195,6 +195,23 @@ end xvme64x_core;
 
 architecture rtl of xvme64x_core is
 
+  -- Compute the index of the last function decoder used.  Assume sequential
+  -- use of decoders (ie decoders 0 to N - 1 are used, and decoders N to 7
+  -- are not used; holes are supported but not efficiently).
+  function compute_last_ader (decoder : t_vme64x_decoder_arr)
+    return t_vme_func_index is
+  begin
+    for i in decoder'reverse_range loop
+      if decoder(i).adem /= x"0000_0000" then
+        return i;
+      end if;
+    end loop;
+    assert false report "no ADEM defined" severity failure;
+    return 0;
+  end compute_last_ader;
+
+  constant c_last_ader          : natural := compute_last_ader (g_DECODER);
+
   signal s_reset_n              : std_logic;
 
   signal s_VME_IRQ_n_o          : std_logic_vector( 7 downto 1);
@@ -206,7 +223,7 @@ architecture rtl of xvme64x_core is
   signal s_cr_csr_data_o        : std_logic_vector( 7 downto 0);
   signal s_cr_csr_data_i        : std_logic_vector( 7 downto 0);
   signal s_cr_csr_we            : std_logic;
-  signal s_ader                 : t_ader_array(0 to 7);
+  signal s_ader                 : t_ader_array(0 to c_last_ader);
   signal s_module_reset         : std_logic;
   signal s_module_enable        : std_logic;
   signal s_bar                  : std_logic_vector( 4 downto 0);

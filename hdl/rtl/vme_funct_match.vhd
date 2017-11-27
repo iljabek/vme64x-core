@@ -53,7 +53,7 @@ entity vme_funct_match is
     decode_start_i : in  std_logic;
     am_i           : in  std_logic_vector( 5 downto 0);
 
-    ader_i         : in  t_ader_array(0 to 7);
+    ader_i         : in  t_ader_array;
 
     -- Set when a function is selected.
     decode_sel_o   : out std_logic;
@@ -64,18 +64,18 @@ end vme_funct_match;
 
 architecture rtl of vme_funct_match is
   -- Function index and ADEM from priority encoder
-  signal s_function_sel : natural range 0 to 7;
+  signal s_function_sel : natural range ader_i'range;
   signal s_function_sel_valid : std_logic;
   signal s_decode_start_1 : std_logic;
 
   -- Selected function
-  signal s_function      : std_logic_vector( 7 downto 0);
-  signal s_ader_am_valid : std_logic_vector( 7 downto 0);
+  signal s_function      : std_logic_vector(ader_i'range);
+  signal s_ader_am_valid : std_logic_vector(ader_i'range);
 begin
   ------------------------------------------------------------------------------
   -- Address and AM comparators
   ------------------------------------------------------------------------------
-  gen_match_loop : for i in 0 to 7 generate
+  gen_match_loop : for i in ader_i'range generate
     -- True in case of match
     s_function(i) <=
       '1' when (((addr_i(t_ADEM_M) and g_ADEM(i)(t_ADEM_M))
@@ -100,7 +100,7 @@ begin
         s_function_sel_valid <= '0';
       else
         s_decode_start_1 <= '1';
-        for i in 0 to 7 loop
+        for i in ader_i'range loop
           if s_function(i) = '1' then
             s_function_sel <= i;
             s_function_sel_valid <= s_ader_am_valid(i);
