@@ -107,7 +107,7 @@
 -- VME_IRQ_Controller.vhd --
 ----------------------------
 - reset_n_i, we always name it rst_n_i
-  OK.
+  Done.
 - line 170:
   very very tiny thing, retry_count can be cleared always when we're in
   WAIT_IRQ (not only inside the _if_). This simplifies an already simple fsm.
