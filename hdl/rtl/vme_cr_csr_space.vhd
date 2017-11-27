@@ -133,8 +133,6 @@ entity vme_cr_csr_space is
     vme_ga_i            : in  std_logic_vector(5 downto 0);
     vme_berr_n_i        : in  std_logic;
     bar_o               : out std_logic_vector(4 downto 0);
-    vme_sysfail_i       : in  std_logic;
-    vme_sysfail_ena_o   : out std_logic;
     module_enable_o     : out std_logic;
     module_reset_o      : out std_logic;
 
@@ -428,16 +426,13 @@ begin
           s_reg_bit_reg(c_BERR_BIT) <= '1';
         end if;
 
-        if vme_sysfail_i = '1' then
-          s_reg_bit_reg(c_FAILED_BIT) <= '1';
-        end if;
+        -- Could handle sysfail (if it was supported).
       end if;
     end if;
   end process;
 
   bar_o             <= s_reg_bar(7 downto 3);
   module_enable_o   <= s_reg_bit_reg(c_ENABLE_BIT);
-  vme_sysfail_ena_o <= s_reg_bit_reg(c_SYSFAIL_EN_BIT);
   module_reset_o    <= s_reg_bit_reg(c_RESET_BIT);
 
   gen_ader_o: for i in s_reg_ader'range generate

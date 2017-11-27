@@ -468,8 +468,6 @@ begin
       vme_ga_i            => vme_i.ga,
       vme_berr_n_i        => s_vme_berr_n,
       bar_o               => s_bar,
-      vme_sysfail_i       => '0',
-      vme_sysfail_ena_o   => open,
       module_enable_o     => s_module_enable,
       module_reset_o      => s_module_reset,
 
