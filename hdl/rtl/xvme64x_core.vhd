@@ -109,7 +109,8 @@ use work.vme64x_pkg.all;
 
 entity xvme64x_core is
   generic (
-    -- Clock period (ns).  Used for DS synchronization.
+    -- Clock period (ns). Used for DS synchronization. The default value
+    -- will genrate an assertion failure.
     g_CLOCK_PERIOD    : integer := -1;
 
     -- Consider AM field of ADER to decode addresses. This is what the VME64x

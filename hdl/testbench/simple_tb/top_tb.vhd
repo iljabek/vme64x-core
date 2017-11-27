@@ -268,7 +268,7 @@ begin
                  g_MANUFACTURER_ID => c_CERN_ID,
                  g_BOARD_ID        => c_SVEC_ID,
                  g_REVISION_ID     => c_SVEC_REVISION_ID,
-                 g_PROGRAM_ID      => c_PROGRAM_ID,
+                 g_PROGRAM_ID      => c_SVEC_PROGRAM_ID,
 
                  g_ASCII_PTR     => x"000000",
                  g_BEG_USER_CR   => x"000000",

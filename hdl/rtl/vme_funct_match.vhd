@@ -78,14 +78,14 @@ begin
   gen_match_loop : for i in 0 to 7 generate
     -- True in case of match
     s_function(i) <=
-      '1' when (((addr_i(c_ADEM_M) and g_ADEM(i)(c_ADEM_M))
-                 = ader_i(i)(c_ADEM_M))
-                and ((am_i = ader_i(i)(c_ADER_AM))
+      '1' when (((addr_i(t_ADEM_M) and g_ADEM(i)(t_ADEM_M))
+                 = ader_i(i)(t_ADEM_M))
+                and ((am_i = ader_i(i)(t_ADER_AM))
                      or not g_DECODE_AM))
       else '0';
     -- True if the AM part of ADER is enabled by AMCAP
     s_ader_am_valid(i) <=
-      g_AMCAP(i)(to_integer(unsigned(ader_i(i)(c_ADER_AM))));
+      g_AMCAP(i)(to_integer(unsigned(ader_i(i)(t_ADER_AM))));
   end generate;
 
   ------------------------------------------------------------------------------
@@ -130,7 +130,7 @@ begin
 
         if s_function_sel_valid = '1' then
           mask := (others => '0');
-          mask(c_ADEM_M) := g_ADEM(s_function_sel)(c_ADEM_M);
+          mask(t_ADEM_M) := g_ADEM(s_function_sel)(t_ADEM_M);
           addr_o <= addr_i and not mask;
           decode_sel_o <= '1';
         else

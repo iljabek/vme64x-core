@@ -20,7 +20,7 @@
   'Detail'.
 - how about using t_vme64x_in and t_vme64x_out types inside the design to make
   the core more compact and having only an std_logic wrapper for simulations?
-  Good convention to be adopted.
+  Done. Good convention to be adopted.
 - vme64x_pack.vhd and xvme64x_core_pkg.vhd should be merged into one package
   Done.
 
@@ -34,9 +34,9 @@
   Done. Default removed.
 - line 55:
   c_ADEM_M is a type not a constant, rename it to t_ADEM_M
-  Add a comment.
+  Done.
 - cleanup, remove types that are not used e.g. c_ADER_C_XAM or c_ADER_C_AM
-  Add a comment as unused.
+  Done. Commented as unused.
 
 ------------------------
 -- VME64xCore_Top.vhd --

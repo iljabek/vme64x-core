@@ -51,22 +51,25 @@ package vme64x_pkg is
   constant c_SVEC_ID          : std_logic_vector(31 downto 0) := x"00000198";
   constant c_SVEC_REVISION_ID : std_logic_vector(31 downto 0) := x"00000001";
 
-  constant c_PROGRAM_ID       : std_logic_vector( 7 downto 0) := x"5a";
+  -- Default Program ID value for SVEC.
+  constant c_SVEC_PROGRAM_ID  : std_logic_vector( 7 downto 0) := x"5a";
 
   -- Bits in ADEM/ADER registers
-  subtype  c_ADEM_M           is integer range 31 downto  8;
+  subtype  t_ADEM_M           is integer range 31 downto  8;
   constant c_ADEM_M_PAD       : std_logic_vector(7 downto 0) := (others => '0');
   constant c_ADEM_FAF         : integer := 3;
   constant c_ADEM_DFS         : integer := 2;
   constant c_ADEM_EFD         : integer := 1;
   constant c_ADEM_EFM         : integer := 0;
 
-  subtype  c_ADER_C_XAM       is integer range 31 downto 10;
+  -- Although the XAM registers are not used, these declarations are still
+  -- present for completness.
+  subtype  t_ADER_C_XAM       is integer range 31 downto 10;
   constant c_ADER_C_XAM_PAD   : std_logic_vector(9 downto 0) := (others => '0');
-  subtype  c_ADER_C_AM        is integer range 31 downto  8;
+  subtype  t_ADER_C_AM        is integer range 31 downto  8;
   constant c_ADER_C_AM_PAD    : std_logic_vector(7 downto 0) := (others => '0');
-  subtype  c_ADER_AM          is integer range  7 downto  2;
-  subtype  c_ADER_XAM         is integer range  9 downto  2;
+  subtype  t_ADER_AM          is integer range  7 downto  2;
+  subtype  t_ADER_XAM         is integer range  9 downto  2;
   constant c_ADER_DFSR        : integer := 1;
   constant c_ADER_XAM_MODE    : integer := 0;
 
@@ -75,51 +78,52 @@ package vme64x_pkg is
   -- Table 2-3 "Address Modifier Codes" pages 21/22 VME64std ANSI/VITA 1-1994
   -- Table 2.4 "Extended Address Modifier Code" page 12 2eSST
   --  ANSI/VITA 1.5-2003(R2009)
-  subtype am_vec_type is std_logic_vector(5 downto 0);
-  constant c_AM_A24_S_SUP     : am_vec_type := "111101";  -- 0x3d
-  constant c_AM_A24_S         : am_vec_type := "111001";  -- 0x39
-  constant c_AM_A24_BLT       : am_vec_type := "111011";  -- 0x3b
-  constant c_AM_A24_BLT_SUP   : am_vec_type := "111111";  -- 0x3f
-  constant c_AM_A24_MBLT      : am_vec_type := "111000";  -- 0x38
-  constant c_AM_A24_MBLT_SUP  : am_vec_type := "111100";  -- 0x3c
-  constant c_AM_A24_LCK       : am_vec_type := "110010";  -- 0x32
-  constant c_AM_CR_CSR        : am_vec_type := "101111";  -- 0x2f
-  constant c_AM_A16           : am_vec_type := "101001";  -- 0x29
-  constant c_AM_A16_SUP       : am_vec_type := "101101";  -- 0x2d
-  constant c_AM_A16_LCK       : am_vec_type := "101100";  -- 0x2c
-  constant c_AM_A32           : am_vec_type := "001001";  -- 0x09
-  constant c_AM_A32_SUP       : am_vec_type := "001101";  -- 0x0d
-  constant c_AM_A32_BLT       : am_vec_type := "001011";  -- 0x0b
-  constant c_AM_A32_BLT_SUP   : am_vec_type := "001111";  -- 0x0f
-  constant c_AM_A32_MBLT      : am_vec_type := "001000";  -- 0x08
-  constant c_AM_A32_MBLT_SUP  : am_vec_type := "001100";  -- 0x0c
-  constant c_AM_A32_LCK       : am_vec_type := "000101";  -- 0x05
-  constant c_AM_A64           : am_vec_type := "000001";  -- 0x01
-  constant c_AM_A64_BLT       : am_vec_type := "000011";  -- 0x03
-  constant c_AM_A64_MBLT      : am_vec_type := "000000";  -- 0x00
-  constant c_AM_A64_LCK       : am_vec_type := "000100";  -- 0x04
-  constant c_AM_2EVME_6U      : am_vec_type := "100000";  -- 0x20
-  constant c_AM_2EVME_3U      : am_vec_type := "100001";  -- 0x21
+  subtype t_am_vec is std_logic_vector(5 downto 0);
+  constant c_AM_A24_S_SUP     : t_am_vec := "111101";  -- 0x3d
+  constant c_AM_A24_S         : t_am_vec := "111001";  -- 0x39
+  constant c_AM_A24_BLT       : t_am_vec := "111011";  -- 0x3b
+  constant c_AM_A24_BLT_SUP   : t_am_vec := "111111";  -- 0x3f
+  constant c_AM_A24_MBLT      : t_am_vec := "111000";  -- 0x38
+  constant c_AM_A24_MBLT_SUP  : t_am_vec := "111100";  -- 0x3c
+  constant c_AM_A24_LCK       : t_am_vec := "110010";  -- 0x32
+  constant c_AM_CR_CSR        : t_am_vec := "101111";  -- 0x2f
+  constant c_AM_A16           : t_am_vec := "101001";  -- 0x29
+  constant c_AM_A16_SUP       : t_am_vec := "101101";  -- 0x2d
+  constant c_AM_A16_LCK       : t_am_vec := "101100";  -- 0x2c
+  constant c_AM_A32           : t_am_vec := "001001";  -- 0x09
+  constant c_AM_A32_SUP       : t_am_vec := "001101";  -- 0x0d
+  constant c_AM_A32_BLT       : t_am_vec := "001011";  -- 0x0b
+  constant c_AM_A32_BLT_SUP   : t_am_vec := "001111";  -- 0x0f
+  constant c_AM_A32_MBLT      : t_am_vec := "001000";  -- 0x08
+  constant c_AM_A32_MBLT_SUP  : t_am_vec := "001100";  -- 0x0c
+  constant c_AM_A32_LCK       : t_am_vec := "000101";  -- 0x05
+  constant c_AM_A64           : t_am_vec := "000001";  -- 0x01
+  constant c_AM_A64_BLT       : t_am_vec := "000011";  -- 0x03
+  constant c_AM_A64_MBLT      : t_am_vec := "000000";  -- 0x00
+  constant c_AM_A64_LCK       : t_am_vec := "000100";  -- 0x04
+  constant c_AM_2EVME_6U      : t_am_vec := "100000";  -- 0x20
+  constant c_AM_2EVME_3U      : t_am_vec := "100001";  -- 0x21
 
-  subtype xam_vec_type is std_logic_vector(7 downto 0);
-  constant c_AM_A32_2EVME     : xam_vec_type := "00000001";  -- 0x01
-  constant c_AM_A64_2EVME     : xam_vec_type := "00000010";  -- 0x02
-  constant c_AM_A32_2ESST     : xam_vec_type := "00010001";  -- 0x11
-  constant c_AM_A64_2ESST     : xam_vec_type := "00010010";  -- 0x12
+  --  Not used, but for completness.
+  subtype t_xam_vec is std_logic_vector(7 downto 0);
+  constant c_AM_A32_2EVME     : t_xam_vec := "00000001";  -- 0x01
+  constant c_AM_A64_2EVME     : t_xam_vec := "00000010";  -- 0x02
+  constant c_AM_A32_2ESST     : t_xam_vec := "00010001";  -- 0x11
+  constant c_AM_A64_2ESST     : t_xam_vec := "00010010";  -- 0x12
 
   ------------------------------------------------------------------------------
   -- Types
   ------------------------------------------------------------------------------
 
   -- CR/CSR parameter arrays
-  type t_adem_array   is
-    array (integer range <>) of std_logic_vector( 31 downto 0);
-  type t_ader_array   is
-    array (integer range <>) of std_logic_vector( 31 downto 0);
-  type t_amcap_array  is
-    array (integer range <>) of std_logic_vector( 63 downto 0);
-  type t_dawpr_array  is
-    array (integer range <>) of std_logic_vector(  7 downto 0);
+  type t_adem_array  is
+    array (integer range <>) of std_logic_vector(31 downto 0);
+  type t_ader_array  is
+    array (integer range <>) of std_logic_vector(31 downto 0);
+  type t_amcap_array is
+    array (integer range <>) of std_logic_vector(63 downto 0);
+  type t_dawpr_array is
+    array (integer range <>) of std_logic_vector( 7 downto 0);
 
   type t_vme64x_in is record
     as_n     : std_logic;
@@ -152,12 +156,14 @@ package vme64x_pkg is
     irq_n     : std_logic_vector(6 downto 0);
   end record;
 
+  -- For generics: per decoder values.
   type t_vme64x_decoder is record
     adem       : std_logic_vector(31 downto 0);
     amcap      : std_logic_vector(63 downto 0);
     dawpr      : std_logic_vector( 7 downto 0);
   end record;
 
+  -- Value to disable a decoder.
   constant c_vme64x_decoder_disabled : t_vme64x_decoder := (
     adem  => x"00000000",
     amcap => x"00000000_00000000",
@@ -177,45 +183,20 @@ package vme64x_pkg is
   ------------------------------------------------------------------------------
   -- Components declaration
   ------------------------------------------------------------------------------
+
+  --  Refer to the entity declaration (xvme64x_core.vhd) for comments.
   component xvme64x_core
     generic (
-      -- Clock period (ns).  Used for DS synchronization.
       g_CLOCK_PERIOD    : integer := -1;
-
-      -- Consider AM field of ADER to decode addresses. This is what the VME64x
-      -- standard says. However, for compatibility with previous implementations
-      -- (or to reduce resources), it is possible for a decoder to allow all AM
-      -- declared in the AMCAP.
       g_DECODE_AM       : boolean := true;
-
-      -- Use external user CSR
       g_USER_CSR_EXT    : boolean := false;
 
-      -- Manufacturer ID: IEEE OUID
-      --                  e.g. CERN is 0x080030
       g_MANUFACTURER_ID : std_logic_vector(23 downto 0);
-
-      -- Board ID: Per manufacturer, each board shall have an unique ID
-      --           e.g. SVEC = 408 (CERN IDs: http://cern.ch/boardid)
       g_BOARD_ID        : std_logic_vector(31 downto 0);
-
-      -- Revision ID: user defined revision code
       g_REVISION_ID     : std_logic_vector(31 downto 0);
-
-      -- Program ID: Defined per VME64:
-      --               0x00      = Not used
-      --               0x01      = No program, ID ROM only
-      --               0x02-0x4F = Manufacturer defined
-      --               0x50-0x7F = User defined
-      --               0x80-0xEF = Reserved for future use
-      --               0xF0-0xFE = Reserved for Boot Firmware (P1275)
-      --               0xFF      = Not to be used
       g_PROGRAM_ID      : std_logic_vector( 7 downto 0);
 
-      -- Pointer to a user defined ASCII string.
       g_ASCII_PTR       : std_logic_vector(23 downto 0)  := x"000000";
-
-      -- User CR/CSR, CRAM & serial number pointers
       g_BEG_USER_CR     : std_logic_vector(23 downto 0)  := x"000000";
       g_END_USER_CR     : std_logic_vector(23 downto 0)  := x"000000";
       g_BEG_CRAM        : std_logic_vector(23 downto 0)  := x"000000";
@@ -225,32 +206,22 @@ package vme64x_pkg is
       g_BEG_SN          : std_logic_vector(23 downto 0)  := x"000000";
       g_END_SN          : std_logic_vector(23 downto 0)  := x"000000";
 
-      -- Number of function decoder implemented and decoder parameters.
       g_NBR_DECODERS    : natural range 1 to 8 := 2;
       g_DECODER         : t_vme64x_decoder_arr := c_vme64x_decoders_default);
     port (
-      -- Main clock and reset.
       clk_i           : in  std_logic;
       rst_n_i         : in  std_logic;
 
-      -- Reset for wishbone core.
       rst_n_o         : out std_logic;
 
-      -- VME slave interface.
       vme_i           : in t_vme64x_in;
       vme_o           : out t_vme64x_out;
 
-      -- Wishbone interface.
       wb_i            : in  t_wishbone_master_in;
       wb_o            : out t_wishbone_master_out;
 
-      -- When the IRQ controller acknowledges the Interrupt cycle it sends a
-      -- pulse to the IRQ Generator.
       irq_ack_o       : out std_logic;
 
-      -- User CSR
-      -- The following signals are used when g_USER_CSR_EXT = true
-      -- otherwise they are connected to the internal user CSR.
       irq_level_i     : in  std_logic_vector( 7 downto 0) := (others => '0');
       irq_vector_i    : in  std_logic_vector( 7 downto 0) := (others => '0');
       user_csr_addr_o : out std_logic_vector(18 downto 2);
@@ -258,7 +229,6 @@ package vme64x_pkg is
       user_csr_data_o : out std_logic_vector( 7 downto 0);
       user_csr_we_o   : out std_logic;
 
-      -- User CR
       user_cr_addr_o  : out std_logic_vector(18 downto 2);
       user_cr_data_i  : in  std_logic_vector( 7 downto 0) := (others => '0'));
   end component xvme64x_core;
