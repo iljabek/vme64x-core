@@ -96,7 +96,7 @@
   Instead of clearing the registers at every risinge_edge, and having null in
   rst_n_i='0', please clear the registers when rst_n_i ='0' and add another
   "else" if you want to clear them every time decode_start_i='0'.
-  OK.
+  Done.
 - line 133:
   What's this construction??:
   mask(c_ADEM_M) := g_ADEM(s_function_sel)(c_ADEM_M);

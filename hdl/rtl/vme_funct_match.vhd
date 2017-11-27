@@ -94,12 +94,10 @@ begin
   process (clk_i)
   begin
     if rising_edge(clk_i) then
-      s_function_sel <= 0;
-      s_function_sel_valid <= '0';
-      s_decode_start_1 <= '0';
-
       if rst_n_i = '0' then
-        null;
+        s_decode_start_1 <= '0';
+        s_function_sel <= 0;
+        s_function_sel_valid <= '0';
       elsif decode_start_i = '1' then
         s_decode_start_1 <= '1';
         for i in 0 to 7 loop
@@ -109,6 +107,10 @@ begin
             exit;
           end if;
         end loop;
+      else
+        s_decode_start_1 <= '0';
+        s_function_sel <= 0;
+        s_function_sel_valid <= '0';
       end if;
     end if;
   end process;
