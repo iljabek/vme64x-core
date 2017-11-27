@@ -234,7 +234,7 @@ architecture rtl of vme_bus is
   -- Calculate the number of LATCH DS states necessary to match the timing
   -- rule 2.39 page 113 VMEbus specification ANSI/IEEE STD1014-1987.
   -- (max skew for the slave is 20 ns)
-  constant num_latchDS              : natural range 1 to 8 :=
+  constant c_num_latchDS            : natural range 1 to 8 :=
     (20 + g_CLOCK_PERIOD - 1) / g_CLOCK_PERIOD;
 
   signal s_DS_latch_count           : unsigned (2 downto 0);
@@ -389,7 +389,7 @@ begin
             s_irq_sel <= '0';
 
             --  DS latch counter
-            s_DS_latch_count <= to_unsigned (num_latchDS, 3);
+            s_DS_latch_count <= to_unsigned (c_num_latchDS, 3);
 
             --  VITA-1 Rule 2.6
             --  A Slave MUST NOT respond with a falling edge on DTACK* during
@@ -656,7 +656,7 @@ begin
               VME_DTACK_n_o <= '1';
 
               --  DS latch counter
-              s_DS_latch_count <= to_unsigned (num_latchDS, 3);
+              s_DS_latch_count <= to_unsigned (c_num_latchDS, 3);
 
               if s_irq_sel = '1' then
                 s_mainFSMstate <= WAIT_END;

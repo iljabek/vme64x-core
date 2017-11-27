@@ -63,7 +63,7 @@
 - why reset is active high (rst_i) and not active low like in all other modules?
   Done.
 - constant num_latchDS misses "c_" prefix
-  OK.
+  Done.
 - line 431: 3 nested if-s. How about simplifying to:
   if decode_done_i = '1' and decode_sel_i = '1' and module_enable_i = '1'then
     (...)
