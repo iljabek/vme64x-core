@@ -100,16 +100,16 @@ entity vme_bus is
     VME_IACKOUT_n_o : out std_logic;
 
     -- WB signals
-    stb_o           : out std_logic;
-    ack_i           : in  std_logic;
-    dat_o           : out std_logic_vector(31 downto 0);
-    dat_i           : in  std_logic_vector(31 downto 0);
-    adr_o           : out std_logic_vector(31 downto 0);
-    sel_o           : out std_logic_vector(3 downto 0);
-    we_o            : out std_logic;
-    cyc_o           : out std_logic;
-    err_i           : in  std_logic;
-    stall_i         : in  std_logic;
+    wb_stb_o        : out std_logic;
+    wb_ack_i        : in  std_logic;
+    wb_dat_o        : out std_logic_vector(31 downto 0);
+    wb_dat_i        : in  std_logic_vector(31 downto 0);
+    wb_adr_o        : out std_logic_vector(31 downto 0);
+    wb_sel_o        : out std_logic_vector(3 downto 0);
+    wb_we_o         : out std_logic;
+    wb_cyc_o        : out std_logic;
+    wb_err_i        : in  std_logic;
+    wb_stall_i      : in  std_logic;
 
     -- Function decoder
     addr_decoder_i  : in  std_logic_vector(31 downto 0);
@@ -317,9 +317,9 @@ begin
         s_mainFSMstate   <= IDLE;
 
         -- WB
-        sel_o            <= "0000";
-        cyc_o            <= '0';
-        stb_o            <= '0';
+        wb_sel_o            <= "0000";
+        wb_cyc_o            <= '0';
+        wb_stb_o            <= '0';
         s_err            <= '0';
 
         s_ADDRlatched    <= (others => '0');
@@ -521,14 +521,14 @@ begin
 
             --  Translate DS+LWORD+ADDR to WB byte selects
             if s_vme_lword_n_reg = '0' then
-              sel_o <= "1111";
+              wb_sel_o <= "1111";
             else
-              sel_o <= "0000";
+              wb_sel_o <= "0000";
               case s_vme_addr_reg(1) is
                 when '0' =>
-                  sel_o (3 downto 2) <= not s_DSlatched_n;
+                  wb_sel_o (3 downto 2) <= not s_DSlatched_n;
                 when '1' =>
-                  sel_o (1 downto 0) <= not s_DSlatched_n;
+                  wb_sel_o (1 downto 0) <= not s_DSlatched_n;
                 when others =>
                   null;
               end case;
@@ -546,8 +546,8 @@ begin
               s_conf_req <= s_conf_sel;
 
               -- Start WB cycle.
-              cyc_o <= s_card_sel;
-              stb_o <= s_card_sel;
+              wb_cyc_o <= s_card_sel;
+              wb_stb_o <= s_card_sel;
               s_err <= '0';
             end if;
 
@@ -559,15 +559,15 @@ begin
             VME_ADDR_DIR_o   <= s_vme_addr_dir;
 
             -- Assert STB if stall was asserted.
-            stb_o <= s_card_sel and stall_i;
+            wb_stb_o <= s_card_sel and wb_stall_i;
 
             if s_conf_sel = '1'
-              or (s_card_sel = '1' and (ack_i = '1' or err_i = '1'))
+              or (s_card_sel = '1' and (wb_ack_i = '1' or wb_err_i = '1'))
             then
               -- WB ack
-              stb_o <= '0';
-              s_err <= s_card_sel and err_i;
-              if (s_card_sel and err_i) = '1' then
+              wb_stb_o <= '0';
+              s_err <= s_card_sel and wb_err_i;
+              if (s_card_sel and wb_err_i) = '1' then
                 -- Error
                 s_mainFSMstate <= DTACK_LOW;
               elsif s_WRITElatched_n = '0' then
@@ -579,7 +579,7 @@ begin
 
                   s_locDataIn(31 downto 0) <= s_locDataIn(63 downto 32);
 
-                  stb_o <= s_card_sel;
+                  wb_stb_o <= s_card_sel;
 
                   s_mainFSMstate <= MEMORY_REQ;
                 else
@@ -594,9 +594,9 @@ begin
                 if s_card_sel = '1' then
                   if s_vme_lword_n_reg = '1' and s_vme_addr_reg(1) = '0' then
                     -- Word/byte access with A1 = 0
-                    s_locDataOut(15 downto 0) <= dat_i(31 downto 16);
+                    s_locDataOut(15 downto 0) <= wb_dat_i(31 downto 16);
                   else
-                    s_locDataOut(31 downto 0) <= dat_i;
+                    s_locDataOut(31 downto 0) <= wb_dat_i;
                   end if;
                 else
                   s_locDataOut(7 downto 0) <= cr_csr_data_i;
@@ -607,7 +607,7 @@ begin
                   s_dataPhase <= '0';
                   s_vme_addr_reg(2) <= '1';
 
-                  stb_o <= s_card_sel;
+                  wb_stb_o <= s_card_sel;
 
                   s_mainFSMstate <= MEMORY_REQ;
                 else
@@ -748,19 +748,18 @@ begin
   VME_RETRY_OE_o <= '0';
 
   -- WB Master
-  adr_o <= "00" & s_vme_addr_reg(31 downto 2);
-  we_o <= not s_WRITElatched_n;
-  dat_o <= s_locDataIn(31 downto 0);
+  wb_adr_o <= "00" & s_vme_addr_reg(31 downto 2);
+  wb_we_o <= not s_WRITElatched_n;
+  wb_dat_o <= s_locDataIn(31 downto 0);
 
   -- Function Decoder
   addr_decoder_o <= s_vme_addr_reg & '0';
   am_o           <= s_AMlatched;
 
   -- CR/CSR In/Out
-  cr_csr_data_o <= s_locDataIn(7 downto 0);
-  cr_csr_addr_o <= s_vme_addr_reg(18 downto 2);
-
-  cr_csr_we_o   <= '1' when s_conf_req = '1' and
-                            s_WRITElatched_n = '0'
-                            else '0';
+  cr_csr_data_o  <= s_locDataIn(7 downto 0);
+  cr_csr_addr_o  <= s_vme_addr_reg(18 downto 2);
+  cr_csr_we_o    <= '1' when s_conf_req = '1' and
+                             s_WRITElatched_n = '0'
+                             else '0';
 end rtl;

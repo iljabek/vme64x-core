@@ -56,7 +56,7 @@
 --    VME_bus.vhd     --
 ------------------------
 - prefix Wishbone ports with "wb_"
-  OK.
+  Done.
 - either fix adr_o handling or remove g_WB_ADDR_WIDTH because setting anything
   else than 32-bit to g_WB_ADDR_WIDTH will result in synthesis/simulation error
   Done.

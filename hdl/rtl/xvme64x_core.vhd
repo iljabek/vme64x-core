@@ -359,16 +359,16 @@ begin
       VME_IACKOUT_n_o => vme_o.iackout_n,
 
       -- WB signals
-      stb_o           => wb_o.stb,
-      ack_i           => wb_i.ack,
-      dat_o           => wb_o.dat,
-      dat_i           => wb_i.dat,
-      adr_o           => wb_o.adr,
-      sel_o           => wb_o.sel,
-      we_o            => wb_o.we,
-      cyc_o           => wb_o.cyc,
-      err_i           => wb_i.err,
-      stall_i         => wb_i.stall,
+      wb_stb_o        => wb_o.stb,
+      wb_ack_i        => wb_i.ack,
+      wb_dat_o        => wb_o.dat,
+      wb_dat_i        => wb_i.dat,
+      wb_adr_o        => wb_o.adr,
+      wb_sel_o        => wb_o.sel,
+      wb_we_o         => wb_o.we,
+      wb_cyc_o        => wb_o.cyc,
+      wb_err_i        => wb_i.err,
+      wb_stall_i      => wb_i.stall,
 
       -- Function decoder
       addr_decoder_i  => s_addr_decoder_o,
