@@ -112,8 +112,8 @@ entity vme_bus is
     wb_stall_i      : in  std_logic;
 
     -- Function decoder
-    addr_decoder_i  : in  std_logic_vector(31 downto 0);
-    addr_decoder_o  : out std_logic_vector(31 downto 0);
+    addr_decoder_i  : in  std_logic_vector(31 downto 1);
+    addr_decoder_o  : out std_logic_vector(31 downto 1);
     decode_start_o  : out std_logic;
     decode_done_i   : in std_logic;
     am_o            : out std_logic_vector( 5 downto 0);
@@ -427,7 +427,7 @@ begin
                 -- card_sel = '1' it means WB application addressed
                 s_card_sel <= '1';
                 -- Keep only the local part of the address.
-                s_vme_addr_reg <= addr_decoder_i (31 downto 1);
+                s_vme_addr_reg <= addr_decoder_i;
 
                 if VME_DS_n_i = "11" then
                   s_mainFSMstate <= WAIT_FOR_DS;
@@ -755,7 +755,7 @@ begin
   wb_dat_o <= s_locDataIn(31 downto 0);
 
   -- Function Decoder
-  addr_decoder_o <= s_vme_addr_reg & '0';
+  addr_decoder_o <= s_vme_addr_reg;
   am_o           <= s_AMlatched;
 
   -- CR/CSR In/Out

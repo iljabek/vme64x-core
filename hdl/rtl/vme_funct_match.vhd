@@ -47,9 +47,9 @@ entity vme_funct_match is
     rst_n_i        : in  std_logic;
 
     -- Input address (to be decoded).
-    addr_i         : in  std_logic_vector(31 downto 0);
+    addr_i         : in  std_logic_vector(31 downto 1);
     -- Sub-address of the function (the part not masked by adem).
-    addr_o         : out std_logic_vector(31 downto 0);
+    addr_o         : out std_logic_vector(31 downto 1);
     decode_start_i : in  std_logic;
     am_i           : in  std_logic_vector( 5 downto 0);
 
@@ -115,7 +115,7 @@ begin
   -- Address output latch
   ------------------------------------------------------------------------------
   process (clk_i) is
-    variable mask : std_logic_vector(31 downto 0);
+    variable mask : std_logic_vector(31 downto 1);
   begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' or s_decode_start_1 = '0' then

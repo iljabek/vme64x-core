@@ -237,8 +237,8 @@ architecture rtl of xvme64x_core is
   signal s_user_csr_we          : std_logic;
 
   -- Function decoders
-  signal s_addr_decoder_i       : std_logic_vector(31 downto 0);
-  signal s_addr_decoder_o       : std_logic_vector(31 downto 0);
+  signal s_addr_decoder_i       : std_logic_vector(31 downto 1);
+  signal s_addr_decoder_o       : std_logic_vector(31 downto 1);
   signal s_decode_start         : std_logic;
   signal s_decode_done          : std_logic;
   signal s_decode_sel           : std_logic;

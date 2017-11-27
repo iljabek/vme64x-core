@@ -28,7 +28,7 @@
 ** VME64xCore_top.vhd
 - Add generic/constant for number of supported functions and use it to limit size of ader/adem
   arrays etc, in order to reduce number of warnings in ISE (from ~450 to ~50)
-  Ok.
+  Done.
 - gc_sync_register: does it even make sense? Slide #95 of NASA radiation tolerant design presentation:
   https://indico.cern.ch/event/663761/contributions/2710422/attachments/1537821/2410163/Berg_SynchronousDesign_2017.pdf
   No problem, discussion about width postponed.
