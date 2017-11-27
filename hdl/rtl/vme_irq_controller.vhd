@@ -136,7 +136,10 @@ entity vme_irq_controller is
     rst_n_i         : in  std_logic;
     INT_Level_i     : in  std_logic_vector (2 downto 0);
     INT_Req_i       : in  std_logic;
+
+    -- Set when an irq is pending (not yet acknowledged).
     irq_pending_o   : out std_logic;
+
     irq_ack_i       : in  std_logic;
     VME_IRQ_n_o     : out std_logic_vector (7 downto 1)
   );
@@ -187,7 +190,7 @@ begin
     end if;
   end process;
 
-  p_main_fsm : process (clk_i)
+  p_main : process (clk_i)
   begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
