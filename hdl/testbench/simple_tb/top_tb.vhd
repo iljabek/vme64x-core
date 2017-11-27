@@ -282,10 +282,10 @@ begin
 
                  g_NBR_DECODERS    => 2,
                  g_decoder_0_adem  => x"ff000000",
-                 g_decoder_0_amcap => x"00000000_0000bb00",
+                 g_decoder_0_amcap => x"00000000_0000ff00",
                  g_decoder_0_dawpr => x"84",
                  g_decoder_1_adem  => x"fff80000",
-                 g_decoder_1_amcap => x"bb000000_00000000",
+                 g_decoder_1_amcap => x"ff000000_00000000",
                  g_decoder_1_dawpr => x"84",
                  g_decoder_2_adem  => x"00000000",
                  g_decoder_2_amcap => x"00000000_00000000",

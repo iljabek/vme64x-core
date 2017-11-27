@@ -167,10 +167,10 @@ package vme64x_pkg is
 
   constant c_vme64x_decoders_default : t_vme64x_decoder_arr := (
     0 => (adem  => x"ff000000",
-          amcap => x"00000000_0000bb00",
+          amcap => x"00000000_0000ff00",
           dawpr => x"84"),
     1 => (adem  => x"fff80000",
-          amcap => x"bb000000_00000000",
+          amcap => x"ff000000_00000000",
           dawpr => x"84"),
     others => c_vme64x_decoder_disabled);
 
