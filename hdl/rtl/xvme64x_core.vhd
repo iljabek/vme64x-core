@@ -431,7 +431,7 @@ begin
     )
     port map (
       clk_i           => clk_i,
-      reset_n_i       => s_reset_n,                 -- asserted when low
+      rst_n_i         => s_reset_n,                 -- asserted when low
       INT_Level_i     => s_irq_level,
       INT_Req_i       => wb_i.int,
       irq_pending_o   => s_irq_pending,

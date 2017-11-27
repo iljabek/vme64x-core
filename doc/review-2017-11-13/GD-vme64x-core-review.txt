@@ -118,4 +118,4 @@
 ----------------------------
 - general-cores submodule in wrong location. Move it from hdl/sim to
   ip_cores/general-cores like we have for all the other repos.
-  Cf Maciej.
+  Done. Cf Maciej.

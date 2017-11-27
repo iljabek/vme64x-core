@@ -133,7 +133,7 @@ entity vme_irq_controller is
   );
   port (
     clk_i           : in  std_logic;
-    reset_n_i       : in  std_logic;
+    rst_n_i         : in  std_logic;
     INT_Level_i     : in  std_logic_vector (2 downto 0);
     INT_Req_i       : in  std_logic;
     irq_pending_o   : out std_logic;
@@ -159,7 +159,7 @@ begin
   p_retry_fsm : process (clk_i)
   begin
     if rising_edge(clk_i) then
-      if reset_n_i = '0' then
+      if rst_n_i = '0' then
         retry_mask  <= '1';
         retry_state <= WAIT_IRQ;
       else
@@ -190,7 +190,7 @@ begin
   p_main_fsm : process (clk_i)
   begin
     if rising_edge(clk_i) then
-      if reset_n_i = '0' then
+      if rst_n_i = '0' then
         VME_IRQ_n_o     <= (others => '1');
         s_irq_pending   <= '0';
       else
