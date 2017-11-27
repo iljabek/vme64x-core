@@ -196,7 +196,6 @@ end xvme64x_core;
 
 architecture rtl of xvme64x_core is
 
-  signal s_reset                : std_logic;
   signal s_reset_n              : std_logic;
 
   signal s_VME_IRQ_n_o          : std_logic_vector( 7 downto 1);
@@ -333,7 +332,7 @@ begin
     )
     port map (
       clk_i           => clk_i,
-      rst_i           => s_reset,
+      rst_n_i         => s_reset_n,
 
       -- VME
       VME_AS_n_i      => s_VME_AS_n,
@@ -393,9 +392,8 @@ begin
       irq_ack_o       => s_irq_ack
     );
 
-  s_reset    <= (not rst_n_i) or (not s_VME_RST_n);
-  s_reset_n  <= not s_reset;
-  rst_n_o    <= not (s_reset or s_module_reset);
+  s_reset_n  <= rst_n_i and s_VME_RST_n;
+  rst_n_o    <= s_reset_n and (not s_module_reset);
 
   vme_o.berr_n <= s_vme_berr_n;
 

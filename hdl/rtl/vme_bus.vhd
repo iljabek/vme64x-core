@@ -73,7 +73,7 @@ entity vme_bus is
   );
   port (
     clk_i           : in  std_logic;
-    rst_i           : in  std_logic;
+    rst_n_i         : in  std_logic;
 
     -- VME signals
     VME_AS_n_i      : in  std_logic;
@@ -295,7 +295,7 @@ begin
     variable addr_word_incr : natural range 0 to 7;
   begin
     if rising_edge(clk_i) then
-      if rst_i = '1' or VME_AS_n_i = '1' then
+      if rst_n_i = '0' or VME_AS_n_i = '1' then
         -- FSM resetted after power up,
         -- software reset, manually reset,
         -- on rising edge of AS.

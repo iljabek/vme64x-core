@@ -50,7 +50,7 @@
   Done.
 - if you make VME_bus.vhd with reset active low, then you don't need s_reset
   signal anymore (see also comment in VME_bus.vhd).
-  OK.
+  Done.
 
 ------------------------
 --    VME_bus.vhd     --
@@ -61,7 +61,7 @@
   else than 32-bit to g_WB_ADDR_WIDTH will result in synthesis/simulation error
   Done.
 - why reset is active high (rst_i) and not active low like in all other modules?
-  OK.
+  Done.
 - constant num_latchDS misses "c_" prefix
   OK.
 - line 431: 3 nested if-s. How about simplifying to:
