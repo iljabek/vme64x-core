@@ -1,7 +1,7 @@
 - top VME64x core entity is called "VME64xCore_Top" while
   svec/hdl/top/vmecore_test/ instantiates vme64xcore_top. Make it the same (all
   lower-case?) for easier grepping.
-  OK.
+  Done.
 - check comments in all the files, some of them are not complete or out of date
   OK.
 - shall we have some reference design in the VME64x core repo? With necessary
@@ -9,7 +9,7 @@
   svec vmecore_test)
   Points to the svec repo.
 - vme64x_pack.vhd -> we usually call these things *_pkg.vhd
-  OK
+  Done.
 - from files headers remove _last changes_ and _TODO_ sections, anyway, they are
   empty.
   OK.
