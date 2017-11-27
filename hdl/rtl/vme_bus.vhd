@@ -452,7 +452,9 @@ begin
               -- VITAL-1 Table 4-1
               -- For interrupts ack, the handler MUST NOT drive WRITE* low
               s_WRITElatched_n <= VME_WRITE_n_i;
-              s_DS_latch_count <= s_DS_latch_count - 1;
+              if s_DS_latch_count /= 0 then
+                s_DS_latch_count <= s_DS_latch_count - 1;
+              end if;
               s_mainFSMstate <= LATCH_DS;
             else
               s_mainFSMstate <= WAIT_FOR_DS;

@@ -78,7 +78,7 @@
   if for whatever reason you stay longer in DECODE_ACCESS waiting for
   decode_done_i='1' you might end up going to WAIT_FOR_DS when your counter is
   already 0, then after your decrement your counter rolls over
-  OK.
+  Done.
 
 --------------------------
 -- VME_CR_CSR_Space.vhd --
