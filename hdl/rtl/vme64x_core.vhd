@@ -27,7 +27,6 @@ entity vme64x_core is
     g_end_user_csr    : std_logic_vector(23 downto 0);
     g_beg_sn          : std_logic_vector(23 downto 0);
     g_end_sn          : std_logic_vector(23 downto 0);
-    g_nbr_decoders    : natural range 1 to 8;
     g_decoder_0_adem  : std_logic_vector(31 downto 0);
     g_decoder_0_amcap : std_logic_vector(63 downto 0);
     g_decoder_0_dawpr : std_logic_vector(7 downto 0);
@@ -124,7 +123,6 @@ begin
       g_end_user_csr     => g_end_user_csr,
       g_beg_sn           => g_beg_sn,
       g_end_sn           => g_end_sn,
-      g_nbr_decoders     => g_nbr_decoders,
       g_decoder(0).adem  => g_decoder_0_adem,
       g_decoder(0).amcap => g_decoder_0_amcap,
       g_decoder(0).dawpr => g_decoder_0_dawpr,

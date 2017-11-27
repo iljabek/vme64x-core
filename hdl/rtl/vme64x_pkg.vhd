@@ -206,7 +206,6 @@ package vme64x_pkg is
       g_BEG_SN          : std_logic_vector(23 downto 0)  := x"000000";
       g_END_SN          : std_logic_vector(23 downto 0)  := x"000000";
 
-      g_NBR_DECODERS    : natural range 1 to 8 := 2;
       g_DECODER         : t_vme64x_decoder_arr := c_vme64x_decoders_default);
     port (
       clk_i           : in  std_logic;

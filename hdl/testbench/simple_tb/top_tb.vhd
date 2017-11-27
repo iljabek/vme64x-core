@@ -280,7 +280,6 @@ begin
                  g_BEG_SN        => x"000000",
                  g_END_SN        => x"000000",
 
-                 g_NBR_DECODERS    => 2,
                  g_decoder_0_adem  => x"ff000000",
                  g_decoder_0_amcap => x"00000000_0000ff00",
                  g_decoder_0_dawpr => x"84",

@@ -156,8 +156,7 @@ entity xvme64x_core is
     g_BEG_SN          : std_logic_vector(23 downto 0)  := x"000000";
     g_END_SN          : std_logic_vector(23 downto 0)  := x"000000";
 
-    -- Number of function decoder implemented and decoder parameters.
-    g_NBR_DECODERS    : natural range 1 to 8 := 2;
+    -- Function decoder parameters.
     g_DECODER         : t_vme64x_decoder_arr := c_vme64x_decoders_default);
   port (
     -- Main clock and reset.
