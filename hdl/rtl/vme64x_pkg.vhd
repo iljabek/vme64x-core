@@ -117,14 +117,8 @@ package vme64x_pkg is
 
   -- CR/CSR parameter arrays
   subtype t_vme_func_index is natural range 0 to 7;
-  type t_adem_array  is
-    array (t_vme_func_index range <>) of std_logic_vector(31 downto 0);
   type t_ader_array  is
     array (t_vme_func_index range <>) of std_logic_vector(31 downto 0);
-  type t_amcap_array is
-    array (t_vme_func_index range <>) of std_logic_vector(63 downto 0);
-  type t_dawpr_array is
-    array (t_vme_func_index range <>) of std_logic_vector( 7 downto 0);
 
   type t_vme64x_in is record
     as_n     : std_logic;

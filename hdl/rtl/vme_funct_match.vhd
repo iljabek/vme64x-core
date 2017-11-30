@@ -38,8 +38,7 @@ use work.vme64x_pkg.all;
 
 entity vme_funct_match is
   generic (
-    g_ADEM      : t_adem_array(0 to 7);
-    g_AMCAP     : t_amcap_array(0 to 7);
+    g_DECODER   : t_vme64x_decoder_arr;
     g_DECODE_AM : boolean
   );
   port (
@@ -78,14 +77,14 @@ begin
   gen_match_loop : for i in ader_i'range generate
     -- True in case of match
     s_function(i) <=
-      '1' when (((addr_i(t_ADEM_M) and g_ADEM(i)(t_ADEM_M))
+      '1' when (((addr_i(t_ADEM_M) and g_decoder(i).adem(t_ADEM_M))
                  = ader_i(i)(t_ADEM_M))
                 and ((am_i = ader_i(i)(t_ADER_AM))
                      or not g_DECODE_AM))
       else '0';
     -- True if the AM part of ADER is enabled by AMCAP
     s_ader_am_valid(i) <=
-      g_AMCAP(i)(to_integer(unsigned(ader_i(i)(t_ADER_AM))));
+      g_decoder(i).amcap(to_integer(unsigned(ader_i(i)(t_ADER_AM))));
   end generate;
 
   ------------------------------------------------------------------------------
@@ -128,7 +127,7 @@ begin
 
         if s_function_sel_valid = '1' then
           mask := (others => '0');
-          mask(t_ADEM_M) := g_ADEM(s_function_sel)(t_ADEM_M);
+          mask(t_ADEM_M) := g_decoder(s_function_sel).adem(t_ADEM_M);
           addr_o <= addr_i and not mask;
           decode_sel_o <= '1';
         else

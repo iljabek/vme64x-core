@@ -244,30 +244,11 @@ architecture rtl of xvme64x_core is
   signal s_VME_IACK_n           : std_logic;
   signal s_VME_IACKIN_n         : std_logic;
 
-  -- CR/CSR parameter arrays
-  constant c_ADEM : t_adem_array(0 to 7) := (
-    g_decoder(0).adem, g_decoder(1).adem,
-    g_decoder(2).adem, g_decoder(3).adem,
-    g_decoder(4).adem, g_decoder(5).adem,
-    g_decoder(6).adem, g_decoder(7).adem);
-  constant c_AMCAP : t_amcap_array(0 to 7) := (
-    g_decoder(0).amcap, g_decoder(1).amcap,
-    g_decoder(2).amcap, g_decoder(3).amcap,
-    g_decoder(4).amcap, g_decoder(5).amcap,
-    g_decoder(6).amcap, g_decoder(7).amcap);
-  constant c_DAWPR : t_dawpr_array(0 to 7) := (
-    g_decoder(0).dawpr, g_decoder(1).dawpr,
-    g_decoder(2).dawpr, g_decoder(3).dawpr,
-    g_decoder(4).dawpr, g_decoder(5).dawpr,
-    g_decoder(6).dawpr, g_decoder(7).dawpr);
-
   -- List of supported AM.
   constant c_AMCAP_ALLOWED : std_logic_vector(63 downto 0) :=
-    (16#3c# to 16#3f# => '1', --  A24
-     16#38# to 16#3b# => '1',
+    (16#38# to 16#3f# => '1', --  A24
      16#2d# | 16#29#  => '1', --  A16
-     16#0c# to 16#0f# => '1', --  A32
-     16#08# to 16#0b# => '1',
+     16#08# to 16#0f# => '1', --  A32
      others => '0');
 begin
   assert g_CLOCK_PERIOD > 0 report "g_CLOCK_PERIOD generic must be set"
@@ -419,8 +400,7 @@ begin
 
   inst_vme_funct_match : entity work.vme_funct_match
     generic map (
-      g_ADEM      => c_ADEM,
-      g_AMCAP     => c_AMCAP,
+      g_decoder   => g_decoder,
       g_DECODE_AM => g_DECODE_AM
     )
     port map (
@@ -476,9 +456,7 @@ begin
       g_END_USER_CSR     => g_END_USER_CSR,
       g_BEG_SN           => g_BEG_SN,
       g_END_SN           => g_END_SN,
-      g_ADEM             => c_ADEM,
-      g_AMCAP            => c_AMCAP,
-      g_DAWPR            => c_DAWPR
+      g_decoder          => g_decoder
     )
     port map (
       clk_i               => clk_i,

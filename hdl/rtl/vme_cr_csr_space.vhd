@@ -122,10 +122,7 @@ entity vme_cr_csr_space is
     g_END_USER_CSR    : std_logic_vector(23 downto 0);
     g_BEG_SN          : std_logic_vector(23 downto 0);
     g_END_SN          : std_logic_vector(23 downto 0);
-    g_ADEM            : t_adem_array(0 to 7);
-    g_AMCAP           : t_amcap_array(0 to 7);
-    g_DAWPR           : t_dawpr_array(0 to 7)
-  );
+    g_DECODER         : t_vme64x_decoder_arr);
   port (
     clk_i               : in  std_logic;
     rst_n_i             : in  std_logic;
@@ -149,8 +146,7 @@ entity vme_cr_csr_space is
     user_cr_addr_o      : out std_logic_vector(18 downto 2);
     user_cr_data_i      : in  std_logic_vector( 7 downto 0);
 
-    ader_o              : out t_ader_array
-  );
+    ader_o              : out t_ader_array);
 end vme_cr_csr_space;
 
 architecture rtl of vme_cr_csr_space is
@@ -275,9 +271,9 @@ architecture rtl of vme_cr_csr_space is
     cr(16#03d#)             := x"0e";                       -- Interrupt cap
     cr(16#03f#)             := x"81";                       -- CRAM DAW
     for i in 0 to 7 loop
-      cr(16#040# + i)                     := g_DAWPR(i);             -- DAWPR
-      cr(16#048# + i*8  to 16#04f# + i*8) := f_cr_vec(g_AMCAP(i));   -- AMCAP
-      cr(16#188# + i*4  to 16#18b# + i*4) := f_cr_vec(g_ADEM(i));    -- ADEM
+      cr(16#040# + i)                     := g_decoder(i).dawpr;
+      cr(16#048# + i*8  to 16#04f# + i*8) := f_cr_vec(g_decoder(i).amcap);
+      cr(16#188# + i*4  to 16#18b# + i*4) := f_cr_vec(g_decoder(i).adem);
     end loop;
     for i in cr'range loop
       crc := crc + unsigned(cr(i));
@@ -438,9 +434,11 @@ begin
   module_enable_o   <= s_reg_bit_reg(c_ENABLE_BIT);
   module_reset_o    <= s_reg_bit_reg(c_RESET_BIT);
 
+  -- Only keep ADER bits that are used for comparison.  Save a little bit of
+  -- resources.
   gen_ader_o: for i in s_reg_ader'range generate
     ader_o (i) <=
-      s_reg_ader (i) and ((g_ADEM(i) and c_ADEM_MASK) or c_ADER_MASK);
+      s_reg_ader (i) and ((g_decoder(i).adem and c_ADEM_MASK) or c_ADER_MASK);
   end generate;
 
   -- Read
@@ -453,7 +451,7 @@ begin
       if idx <= ader_o'high then
         v_byte  := 3 - to_integer(s_addr(3 downto 2));
         ader := s_reg_ader(idx)
-                and ((g_ADEM(idx) and c_ADEM_MASK) or c_ADER_MASK);
+                and ((g_decoder(idx).adem and c_ADEM_MASK) or c_ADER_MASK);
         s_csr_data <= ader(8*v_byte + 7 downto 8*v_byte);
       end if;
     end Get_ADER;
