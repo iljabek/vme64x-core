@@ -264,7 +264,9 @@ specification for details about these values:
   specification for details.  Note that the WB `rty` (retry) signal cannot
   be used, as the VME BLT transactions can only be retried during the address
   phase and this restriction is not exposed to the WB side. The WB err signal
-  is forwarded to the VME bus as BERR.
+  is forwarded to the VME bus as BERR. The address on the WB bus corresponds
+  to the lower bits of the address on the VME bus (bits used to decode the
+  address are cleared on the WB bus).
 
 * `irq_ack_o` signal is asserted during one cycle when the VME64x Core
   acknowledge the interrupt on the VME bus. This signal could be used by the
@@ -342,10 +344,62 @@ A24 MBLT DMA
 
 ## Internals
 
+### xvme64x_core.vhd
+
 The top module `xvme64x_core` instantiates the sub-modules, and also
 synchronize the asynchronous VME signals (that need to be) to avoid
-metastability problems. This module also handles the `g_USER_CSR_EXT`
-generic.
+metastability problems.
+
+This module also handles the `g_USER_CSR_EXT` generic and instantiate
+a default user CSR if the generic is set to false.
+
+### vme_bus.vhd
+
+This is the main module. It implements an FSM to handle the VME protocol,
+and acts as the interface between the VME bus and either the WB bus or the
+CR/CSR memory.
+
+The module also handles the interrupt acknowledge. If IACK is asserted on
+a falling edge of AS, the cycle is considered as a acknowledge cycle. The FSM
+then waits until IACKIN is asserted (or until AS is deasserted).  If an
+interrupt was pending at the right level when IACKIN is asserted, the VME64x
+Core responds to the acknowledge cycle with the interrupt vector; otherwise
+it asserts IACKOUT.
+
+### vme_cr_csr_space.vhd
+
+This module implements the CR and CSR spaces. It builds (during elaboration)
+the CR memory from the generics value, handle accesses from the VME bus to
+these memories, interfaces with CRAM (if present), user CR (if present)
+and user CSR (if present).
+
+### vme_func_match.vhd
+
+This module checks if the VME address+AM has to be handled by this VME
+slave according to ADER and decoder values.  Gives back the
+corresponding WB address.
+
+### vme_user_csr.vhd
+
+This module implements a default user CSR with the irq_level and irq_vector
+registers.
+
+### vme_irq_controller.vhd
+
+This module implements the interrupt controller.  The interrupt cycle is:
+
+1. The wishbone slave generates an pulse on the `int` line when it has to
+   interrupts the master
+
+2. If no interrupt is pending and the retry mechanism is not started, this
+   module asserts (to 0) the corresponding VME IRQ line (as defined by
+   `irq_level`).
+
+3. When ack'ed, the interrupt is marked as not pending anymore.
+
+4. If the interrupt request stays active for more than 1 cycle (therefore it
+   isn't a pulse), a retry mechanism is started.  The interrupt will be
+   re-sent on the VME bus every 1ms as long as it is active.
 
 ## VME64 VITA-1 rules compliance
 

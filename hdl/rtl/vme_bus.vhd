@@ -4,45 +4,12 @@
 -- http://www.ohwr.org/projects/vme64x-core
 --------------------------------------------------------------------------------
 --
--- unit name:     VME_bus (VME_bus.vhd)
---
--- author:        Pablo Alvarez Sanchez <pablo.alvarez.sanchez@cern.ch>
---                Davide Pedretti       <davide.pedretti@cern.ch>
+-- unit name:     VME_bus
 --
 -- description:
 --
 --   This block acts as interface between the VMEbus and the CR/CSR space or
---   WBbus.
---
---                      _________VME_bus__________
---                     |  __________________      |
---                     | |                  |  ___|
---                     | |                  | |   |
---                     | |      MAIN        | | W |
---                   V | |                  | | B | W
---                   M | |      FSM         | |   | B
---                   E | |                  | | M |
---                     | |                  | | A | B
---                   B | |__________________| | S | U
---                   U |  __________________  | T | S
---                   S | |                  | | E |
---                     | |   OTHER DATA &   | | R |
---                     | |   ADDR PROCESS   | |___|
---                     | |__________________|     |
---                     |__________________________|
---
---   The Access decode component decodes the address to check if the board is
---   the responding Slave. This component is of fundamental importance, indeed
---   only one Slave can answer to the Master!
---   In the right side you can see the WB Master who implements the Wb Pipelined
---   single read/write protocol.
---   Each VME board plugged in a slot acts as a VME slave module and it has only
---   one CR/CSR space (conforming with the specification) so only one FPGA at
---   time must drive the output lines on the VME bus; only one FPGA at time can
---   carry the vme64x core or other similar VME slave core.
---   Inside each component is possible read a more detailed description.
---
--- dependencies:
+--   WB bus.
 --
 --------------------------------------------------------------------------------
 -- GNU LESSER GENERAL PUBLIC LICENSE
@@ -56,10 +23,6 @@
 -- See the GNU Lesser General Public License for more details. You should have
 -- received a copy of the GNU Lesser General Public License along with this
 -- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html
---------------------------------------------------------------------------------
--- last changes: see log.
---------------------------------------------------------------------------------
--- TODO: -
 --------------------------------------------------------------------------------
 
 library ieee;
@@ -412,9 +375,9 @@ begin
             end if;
 
           when DECODE_ACCESS =>
-            -- check if this slave board is addressed.
+            -- Check if this slave board is addressed.
 
-            --  Wait for DS in parallel.
+            -- Wait for DS in parallel.
             if VME_DS_n_i /= "11" then
               s_WRITElatched_n <= VME_WRITE_n_i;
               if s_DS_latch_count /= 0 then

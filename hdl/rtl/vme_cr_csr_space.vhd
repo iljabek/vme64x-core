@@ -82,8 +82,6 @@
 --   The Master can clear these bits by writing '1' in the corresponding bits
 --   to the Bit Clr Register (location 0x7fff7).
 --
--- dependencies:
---
 --------------------------------------------------------------------------------
 -- GNU LESSER GENERAL PUBLIC LICENSE
 --------------------------------------------------------------------------------
@@ -96,10 +94,6 @@
 -- See the GNU Lesser General Public License for more details. You should have
 -- received a copy of the GNU Lesser General Public License along with this
 -- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html
---------------------------------------------------------------------------------
--- last changes: see log.
---------------------------------------------------------------------------------
--- TODO: -
 --------------------------------------------------------------------------------
 
 library ieee;

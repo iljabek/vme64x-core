@@ -6,12 +6,11 @@
 --
 -- unit name:     vme_funct_match
 --
--- author:        Pablo Alvarez Sanchez <pablo.alvarez.sanchez@cern.ch>
---                Davide Pedretti       <davide.pedretti@cern.ch>
---
 -- description:
 --
--- dependencies:
+--   VME function decoder.  Check if the VME address+AM has to be handled by
+--   this VME slave according to ADER and decoder values.  Gives back the
+--   corresponding WB address.
 --
 --------------------------------------------------------------------------------
 -- GNU LESSER GENERAL PUBLIC LICENSE
@@ -25,10 +24,6 @@
 -- See the GNU Lesser General Public License for more details. You should have
 -- received a copy of the GNU Lesser General Public License along with this
 -- source; if not, download it from http://www.gnu.org/licenses/lgpl-2.1.html
---------------------------------------------------------------------------------
--- last changes: see log.
---------------------------------------------------------------------------------
--- TODO: -
 --------------------------------------------------------------------------------
 
 library ieee;
