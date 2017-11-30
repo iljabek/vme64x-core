@@ -34,14 +34,6 @@
 --     |     |________________| |________| |___________________| |
 --     |_________________________________________________________|
 --
---   This core complies with the VME64x specifications and allows "plug and
---   play" configuration of VME crates.
---   The base address is setted by the Geographical lines.
---   The base address can't be setted by hand with the switches on the board.
---   If the core is used in an old VME system without GA lines, the core should
---   be provided with a logic that detects if GA = "11111" and if it is the base
---   address of the module, this logic should derive the GA from the switches on
---   the board.
 --   All the VMEbus's asynchronous signals must be sampled 2 or 3 times to avoid
 --   metastability problem.
 --   All the output signals on the WB bus are registered.
@@ -181,7 +173,7 @@ entity xvme64x_core is
     -- User CSR
     -- The following signals are used when g_USER_CSR_EXT = true
     -- otherwise they are connected to the internal user CSR.
-    irq_level_i     : in  std_logic_vector( 7 downto 0) := (others => '0');
+    irq_level_i     : in  std_logic_vector( 2 downto 0) := (others => '0');
     irq_vector_i    : in  std_logic_vector( 7 downto 0) := (others => '0');
     user_csr_addr_o : out std_logic_vector(18 downto 2);
     user_csr_data_i : in  std_logic_vector( 7 downto 0) := (others => '0');
@@ -446,7 +438,7 @@ begin
     )
     port map (
       clk_i           => clk_i,
-      rst_n_i         => s_reset_n,                 -- asserted when low
+      rst_n_i         => s_reset_n,
       INT_Level_i     => s_irq_level,
       INT_Req_i       => wb_i.int,
       irq_pending_o   => s_irq_pending,

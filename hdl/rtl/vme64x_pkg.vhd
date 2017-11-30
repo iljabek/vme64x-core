@@ -222,7 +222,7 @@ package vme64x_pkg is
 
       irq_ack_o       : out std_logic;
 
-      irq_level_i     : in  std_logic_vector( 7 downto 0) := (others => '0');
+      irq_level_i     : in  std_logic_vector( 2 downto 0) := (others => '0');
       irq_vector_i    : in  std_logic_vector( 7 downto 0) := (others => '0');
       user_csr_addr_o : out std_logic_vector(18 downto 2);
       user_csr_data_i : in  std_logic_vector( 7 downto 0) := (others => '0');

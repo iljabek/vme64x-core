@@ -93,7 +93,7 @@ entity vme64x_core is
     wb_we_o         : out std_logic;
     wb_dat_o        : out t_wishbone_data;
     irq_ack_o       : out std_logic;
-    irq_level_i     : std_logic_vector(7 downto 0);
+    irq_level_i     : std_logic_vector(2 downto 0);
     irq_vector_i    : std_logic_vector(7 downto 0);
     user_csr_addr_o : out std_logic_vector(18 downto 2);
     user_csr_data_i : std_logic_vector(7 downto 0);

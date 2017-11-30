@@ -317,9 +317,9 @@ begin
         s_mainFSMstate   <= IDLE;
 
         -- WB
-        wb_sel_o            <= "0000";
-        wb_cyc_o            <= '0';
-        wb_stb_o            <= '0';
+        wb_sel_o         <= "0000";
+        wb_cyc_o         <= '0';
+        wb_stb_o         <= '0';
         s_err            <= '0';
 
         s_ADDRlatched    <= (others => '0');
