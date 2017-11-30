@@ -275,13 +275,16 @@ begin
 
   --  Check for invalid bits in ADEM/AMCAP
   gen_gchecks: for i in 7 downto 0 generate
-    assert c_ADEM(i)(c_ADEM_FAF) = '0' report "FAF bit set in ADEM"
+    constant adem : std_logic_vector(31 downto 0) := g_decoder(i).adem;
+    constant amcap : std_logic_vector(63 downto 0) := g_decoder(i).amcap;
+  begin
+    assert adem(c_ADEM_FAF) = '0' report "FAF bit set in ADEM"
       severity failure;
-    assert c_ADEM(i)(c_ADEM_DFS) = '0' report "DFS bit set in ADEM"
+    assert adem(c_ADEM_DFS) = '0' report "DFS bit set in ADEM"
       severity failure;
-    assert c_ADEM(i)(c_ADEM_EFM) = '0' report "EFM bit set in ADEM"
+    assert adem(c_ADEM_EFM) = '0' report "EFM bit set in ADEM"
       severity failure;
-    assert (c_AMCAP(i) and c_AMCAP_ALLOWED) = c_AMCAP(i)
+    assert (amcap and c_AMCAP_ALLOWED) = amcap
       report "bit set in AMCAP for not supported AM"
       severity failure;
   end generate;
