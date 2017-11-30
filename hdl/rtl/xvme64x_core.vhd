@@ -312,12 +312,21 @@ begin
               rst_n_a_i => rst_n_i,
               d_i(0) => vme_i.write_n,
               q_o(0) => s_vme_write_n);
-  inst_vme_ds_resync: entity work.gc_sync_register
-    generic map (g_width => 2)
+  -- The two bits of DS are synchronized by the vme_bus FSM. Instantiate two
+  -- synchronizer to make clear that they should be considered as independant
+  -- signals until they are handled by the FSM.
+  inst_vme_ds0_resync: entity work.gc_sync_register
+    generic map (g_width => 1)
     port map (clk_i => clk_i,
               rst_n_a_i => rst_n_i,
-              d_i => vme_i.ds_n,
-              q_o => s_vme_ds_n);
+              d_i(0) => vme_i.ds_n(0),
+              q_o(0) => s_vme_ds_n(0));
+  inst_vme_ds1_resync: entity work.gc_sync_register
+    generic map (g_width => 1)
+    port map (clk_i => clk_i,
+              rst_n_a_i => rst_n_i,
+              d_i(0) => vme_i.ds_n(1),
+              q_o(0) => s_vme_ds_n(1));
   inst_vme_iack_resync: entity work.gc_sync_register
     generic map (g_width => 1)
     port map (clk_i => clk_i,
