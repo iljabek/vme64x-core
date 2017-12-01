@@ -293,6 +293,12 @@ The following signals are used when a user CR area is defined:
 * `user_cr_addr_o`, `user_cr_data_i` define an interface to an external ROM
   containing the user CR values. Data must be stable on the next cycle.
 
+Note that the `vme` ports are designed to be connected to VME bus transceivers
+like SN74VMEH2250. In the particular case of the CERN SVEC card, the signals
+`berr` and `irq` are inverted by the transceivers, so a `not` gate must be
+inserted in the FPGA. You can refer to the `svec_vmecore_test_top.vhd` file
+in the svec repository for an example.
+
 ## Programing the VME64x Core
 
 After power-up or reset, the VME core is disabled (as the
@@ -321,17 +327,26 @@ clears itself during the next CSR write access.
 
 ## Performances
 
-A24 SCT DMA 0x3d
-* Read Rate: 10.270429 MB/sec
-* Write Rate: 10.765994 MB/sec
+The performances were measured with the `test_vme` program, available in
+the svec repository. In these measures, the master is the A20 board.
 
-A24 BLT DMA
-* Read  Rate: 8.782308 MB/sec
-* Write Rate: 9.176580 MB/sec
+A24 SCT DMA:
 
-A24 MBLT DMA
-* Read  Rate: 15.769639 MB/sec
-* Write Rate: 17.178069 MB/sec
+* Read Rate: 15.761240 MB/sec
+* Write Rate: 17.172745 MB/sec
+
+A24 BLT DMA:
+
+* Read Rate: 12.472540 MB/sec
+* Write Rate: 12.932751 MB/sec
+
+A24 MBLT DMA:
+
+* Read Rate: 25.906049 MB/sec
+* Write Rate: 26.259754 MB/sec
+
+According to the simulation, the bad performances of BLT transfer is due to
+the master.
 
 ## Changes in V2 (compared to previous version)
 
