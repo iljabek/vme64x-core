@@ -328,7 +328,8 @@ clears itself during the next CSR write access.
 ## Performances
 
 The performances were measured with the `test_vme` program, available in
-the svec repository. In these measures, the master is the A20 board.
+the svec repository. In these measures, the master is the A20 board and
+VME64x Core frequency is 125Mhz.
 
 A24 SCT DMA:
 
