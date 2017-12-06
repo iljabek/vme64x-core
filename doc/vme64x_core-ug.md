@@ -3,29 +3,31 @@
 This core implements a VME64x slave - WB master bridge.
 
 The vme64x core conform to the standards defined by ANSI/VITA VME64
-and VME64x Standards.  In particular this core has been provided of
-the "plug and play" capability; it means that in the vme64x core you
+and VME64x Standards.  In particular this core is provided with a
+the "plug and play" capability. It means that in the vme64x core you
 can find a CR/CSR space whose base address is setted automatically
-with the geographical address lines and has not to be set by jumpers
-or switches on the board. Indeed this operation is error prone.
-Software must map the module memory in the address space by writing
-the CSR space as explained later.
+with the geographical address lines and does not need to be set by 
+jumpers or switches on the board. Manual configuration is error prone
+and is thus avoided. Software must map the module memory in the address 
+space by writing the CSR space as explained later.
 
 The core supports SINGLE, BLT (D32), MBLT (D64) transfers in A16, A24,
 and A32 address modes and D08 (OE), D16, D32 data transfers. The core
 can be configured via the CR/CSR configuration space. A ROACK type IRQ
 controller with one interrupt input and a programmable interrupt level
-and Status/ID register can also be provided (option at instantiation).
+and Status/ID register are provided optionly and can be enabled at 
+instantiation.
 
 Since the vme64x core acts as a WB master in the WB side, the WB
-pipelined single read/write transfer has been provided to the
+pipelined single read/write transfer is provided by the
 core. This functionality conform the Wishbone B4 standard.
 
 ## Features
 
 ### VME interface
 
-This section lists the VME features supported by the core.
+This section lists which VME features are supported and which are not
+supported by the core.
 
 #### Supported:
 * D08(EO), D16, D32
@@ -77,11 +79,11 @@ This section corresponds to the datasheet required by the WB specification.
 
 ### CR/CSR space
 
-To provide a “plug and play” capability CR/CSR space is implemented as
+To provide a “plug and play” capability, CR/CSR space is implemented as
 defined by ANSI/VITA Standards for VME64 Extensions [2].
 
 A dedicated “Configuration ROM / Control & Status Register” (CR/CSR)
-address space has been introduced. It consists of ROM and RAM regions
+address space is provided by the core. It consists of ROM and RAM regions
 with a set of well defined registers. It is addressed with the address
 modifier 0x2F in the A24 address space.
 
@@ -97,9 +99,9 @@ condition. An odd parity is used.
 
 If the board is plugged into an old crate that doesn't provide the GA
 lines, all the GA lines are asserted to '1' by the pull-up resistors
-on the boards and the BAR register is set to 0x00; it is not set by
-hand with some switches on the board so in this condition the CR/CSR
-space can't be accessed.
+on the boards and the BAR register is set to 0x00. The value of the
+address bits cannot be set by hand (e.g. with DIP switches). Therefore,
+if GA lines are not supported, the CR/CSR space cannot be accessed.
 
 The CR/CSR space can be accessed with the data width D08(EO), D16
 byte(2-3) and D32. Please note that in compliance with the CR/CSR
@@ -109,7 +111,7 @@ effect and if the master reads the byte(0) or byte(1) or byte(2)
 locations the value returned is 0.
 
 As you can see in the table below, not all this space of memory is
-defined yet, and the digital designer can add additional CR and CSR
+defined yet, and the designer can add additional CR and CSR
 spaces called User Csr and User CR which are not implemented in the
 vme64x core.
 
@@ -163,7 +165,7 @@ released.
 There are seven VME IRQ lines but only one interrupt request
 input. For the purpose of configuring which of the seven IRQ lines the
 VME64x core will drive (in response to a rising edge on the IRQ
-input), an IRQ Level register has been implemented in the user CSR
+input), an IRQ Level register is available in the user CSR
 space. The value of this register corresponds to the number of the IRQ
 line on the VME bus that is to be used (note that on the VME master
 side priorities are taken into account, IRQ7 having the highest
@@ -173,8 +175,8 @@ configuration the interrupts are disabled.
 
 There is a non-standard mechanism to retrigger unhandled interrupts.
 Once an interrupt is asserted by the WB slave, the interrupt is marked
-as pending and the interrupt request is relayed on the VME bus. The OS
-and the driver has to acknowledge the interrupt and to act on the
+as pending and the interrupt request that it is relayed on the VME bus.
+The OS and the driver has to acknowledge the interrupt and to act on the
 hardware so that the WB slave doesn't request anymore OS attention.
 If the OS acknowledge the interrupt but doesn't quiet the request, the
 VME64x Core will relay again the interrupt on the VME bus after 1ms.
@@ -190,47 +192,50 @@ The specifications used for this core are:
 
 ## VME64x Core Instantiation
 
-There are two top-level entities. The `xvme64x_core` is the main one,
-where records are used for the `g_DECODER` generic, VME and WB buses
-in order to simplify the connections. The `vme64x_core` has exactely
-the same features but all generics and ports are unwrapper to allow
-interfacing with verilog code.
+There are two top-level entities:
+* The `xvme64x_core` that is the main top-level entity. It uses records 
+for the `g_DECODER` generic, VME and WB buses in order to simplify the 
+connections. 
+
+* The `vme64x_core` that is a wrapper of `xvme64x_core` which allows 
+interfacing with verilog code. 
 
 ### Generics
 
-The first generic `g_CLOCK_PERIOD` defines the clock in ns. This generic must
-be set by user and is used for synchronization of the VME DS signal.
+Generic `g_CLOCK_PERIOD` defines the clock priod in ns. This generic 
+must be set by user and is used for synchronization of the VME DS signal.
 
-Generic `g_DECODE_AM` can be set to false for compatibility with the
-previous version of this core. When false, the AM field of ADER is not
-used when decoding address, so the core will recognize any access
-allowed by the corresponding AMCAP.
+Generic `g_DECODE_AM` enables/disables AM field of ADER when decoding
+address. When it is set to false, behavior of this core is consistent 
+with its previous versions. In particlular, when false, the AM field 
+of ADER is not used when decoding address, so the core will recognize 
+any access allowed by the corresponding AMCAP.
 
-Generic `g_USER_CSR_EXT` can be set to true if a user defined CSR is
-provided.  The interface with the user CSR is a very simple
-synchronous SRAM (signals `user_csr_addr_o`, `user_csr_data_i`,
-`user_csr_data_o` and `user_csr_we_o`).  In addition, the ports
-`irq_level_i` and `irq_vector_i` are used by the interrupt controller
-to define the irq level and vector (otherwise they are read from the
-default user CSR registers).
+Generic `g_USER_CSR_EXT` enables/disables user-defined CSR. The 
+interface with the user CSR is a very simple synchronous SRAM (signals 
+`user_csr_addr_o`, `user_csr_data_i`, `user_csr_data_o` and 
+`user_csr_we_o`).  In addition, if user-defined CSR is enabled, the 
+input port `irq_level_i` and `irq_vector_i` are used by the interrupt 
+controller to define the irq level and vector (otherwise they are read 
+from the default user CSR registers).
 
 The other generics define values in the CSR. The package `vme64x_pkg`
-defines some constants for these values, and you can refer to VME64x
-specification for details about these values:
+defines default constants for these values, see VME64x specification for 
+details about these values:
 
-* `g_MANUFACTURER_ID` for the manufacturer ID,
-* `g_BOARD_ID` for the board ID,
-* `g_REVISION_ID` for the revision ID,
-* `g_PROGRAM_ID` for the type of code in CR,
-* `g_ASCII_PTR` for the pointer to the user defined ASCII string in CR,
-* `g_BEG_USER_CR` and `g_END_USER_CR` for the range of the user defined CR
+* `g_MANUFACTURER_ID` provides the manufacturer ID,
+* `g_BOARD_ID` provides the board ID,
+* `g_REVISION_ID` provides the revision ID,
+* `g_PROGRAM_ID` provides the type of code in CR,
+* `g_ASCII_PTR` provides the pointer to the user defined ASCII string in CR,
+* `g_BEG_USER_CR` and `g_END_USER_CR` provides the range of the user defined CR
   area. If the range is not null, ports `user_cr_addr_o` and `user_cr_data_i`
   must be connected to a ROM.
-* `g_BEG_CRAM` and `g_END_CRAM` for the range of user CRAM. If the range is
+* `g_BEG_CRAM` and `g_END_CRAM` provide the range of user CRAM. If the range is
   not null, the core instantiates an SRAM.
-* `g_BEG_USER_CSR` and `g_END_USER_CSR` for the range of the user defined
+* `g_BEG_USER_CSR` and `g_END_USER_CSR` provide the range of the user defined
   CSR.  See above the description of `g_USER_CSR_EXT`.
-* `g_BEG_SN` and `g_END_SN` for the area in CR of the serial number.
+* `g_BEG_SN` and `g_END_SN` provides the area in CR of the serial number.
 * `g_DECODER` describes the 8 function decoder.  Each decoder is described by
   the following bits (see VME64x specification for details):
   * `adem` bits 8 to 31: address mask
@@ -246,7 +251,7 @@ specification for details about these values:
 * `clk_i` is the clock signal, and the clock of the WB bus. Note that
   the `g_CLOCK_PERIOD` generic must be set according to the `clk_i`
   frequency to get correct timing for the VME `DS` signals. The VME `DTACK`
-  and `BERR` signals are supposed to be released at most 30ns once `DS` is
+  and `BERR` signals are supposed to be released at most 30ns after `DS` is
   released; as the design needs 4 closk to release them (due to synchronizer),
   this means the minimal frequency is supposed to be 133Mhz. In practice, VME
   masters are much more tolerant.
@@ -316,20 +321,20 @@ If the master needs to access to the slave using different address space (e.g.
 both A32 and A24), or different transaction (e.g. both single and BLT),
 several function decoders must be used.
 
-The base address is of the CR/CSR space is setd by the geographical lines.
+The base address is of the CR/CSR space is set by the geographical lines.
 If the core is used in an old VME system without GA lines, the core should
 be provided with a logic that detects if GA = "11111", which is invalid.
 
 It is possible to reset the card in software by setting the `reset` bit in
 the Bit Set Register.  Contrary to the VME64 specification (and for backward
 compatibility with drivers and previous versions of the core), this bit
-clears itself during the next CSR write access.
+is automatically cleared during the next CSR write access.
 
-## Performances
+## Performance
 
-The performances were measured with the `test_vme` program, available in
-the svec repository. In these measures, the master is the A20 board and
-VME64x Core frequency is 125Mhz.
+The performance was measured with the `test_vme` program, available in
+the svec repository. In the measurement setup, the master was the A20 
+board and VME64x Core frequency was 125Mhz.
 
 A24 SCT DMA:
 
@@ -363,11 +368,11 @@ the master.
 ### xvme64x_core.vhd
 
 The top module `xvme64x_core` instantiates the sub-modules, and also
-synchronize the asynchronous VME signals (that need to be) to avoid
+synchronizes the asynchronous VME signals (that need to be) to avoid
 metastability problems.
 
-This module also handles the `g_USER_CSR_EXT` generic and instantiate
-a default user CSR if the generic is set to false.
+This module also handles the `g_USER_CSR_EXT` generic and instantiates
+as default user CSR if the generic is set to false.
 
 ### vme_bus.vhd
 
