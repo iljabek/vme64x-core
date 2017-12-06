@@ -259,7 +259,7 @@ begin
   begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' or VME_AS_n_i = '1' then
-        -- FSM resetted after power up,
+        -- FSM reset after power up,
         -- software reset, manually reset,
         -- on rising edge of AS.
         s_conf_req       <= '0';
@@ -309,25 +309,22 @@ begin
         case s_mainFSMstate is
 
           when IDLE =>
-            if VME_AS_n_i = '0' then
-              -- if AS falling edge --> start access
+            -- Can only be here if VME_AS_n_i has fallen to 0, which starts a
+            -- cycle.
+            assert VME_AS_n_i = '0';
 
-              -- Store ADDR, AM and LWORD
-              s_ADDRlatched    <= VME_ADDR_i;
-              s_LWORDlatched_n <= VME_LWORD_n_i;
-              s_AMlatched      <= VME_AM_i;
+            -- Store ADDR, AM and LWORD
+            s_ADDRlatched    <= VME_ADDR_i;
+            s_LWORDlatched_n <= VME_LWORD_n_i;
+            s_AMlatched      <= VME_AM_i;
 
-              if VME_IACK_n_i = '1' then
-                -- VITA-1 Rule 2.11
-                -- Slaves MUST NOT respond to DTB cycles when IACK* is low.
-                s_mainFSMstate <= REFORMAT_ADDRESS;
-              else
-                -- IACK cycle.
-                s_mainFSMstate <= IRQ_CHECK;
-              end if;
-
+            if VME_IACK_n_i = '1' then
+              -- VITA-1 Rule 2.11
+              -- Slaves MUST NOT respond to DTB cycles when IACK* is low.
+              s_mainFSMstate <= REFORMAT_ADDRESS;
             else
-              s_mainFSMstate <= IDLE;
+              -- IACK cycle.
+              s_mainFSMstate <= IRQ_CHECK;
             end if;
 
           when REFORMAT_ADDRESS =>
@@ -701,7 +698,8 @@ begin
             s_mainFSMstate <= WAIT_END;
 
           when others =>
-            s_mainFSMstate <= IDLE;
+            -- No-op, wait until AS is released.
+            s_mainFSMstate <= WAIT_END;
 
         end case;
       end if;

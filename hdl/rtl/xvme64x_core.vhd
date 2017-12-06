@@ -6,8 +6,6 @@
 --
 -- unit name:     xvme64x_core (xvme64x_core.vhd)
 --
--- author:        Tomasz Wlostowski <tomasz.wlostowski@cern.ch>
---
 -- description:
 --
 --   This core implements an interface to transfer data between the VMEbus and
@@ -121,7 +119,7 @@ entity xvme64x_core is
     rst_n_o         : out std_logic;
 
     -- VME slave interface.
-    vme_i           : in t_vme64x_in;
+    vme_i           : in  t_vme64x_in;
     vme_o           : out t_vme64x_out;
 
     -- Wishbone interface.
@@ -259,7 +257,7 @@ begin
               d_i(0) => vme_i.write_n,
               q_o(0) => s_vme_write_n);
   -- The two bits of DS are synchronized by the vme_bus FSM. Instantiate two
-  -- synchronizer to make clear that they should be considered as independant
+  -- synchronizers to make clear that they should be considered as independant
   -- signals until they are handled by the FSM.
   inst_vme_ds0_resync: entity work.gc_sync_register
     generic map (g_width => 1)

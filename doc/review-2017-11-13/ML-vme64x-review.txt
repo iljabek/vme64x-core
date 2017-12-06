@@ -106,14 +106,17 @@ Done.
 0.12. In the description of all files, there exists section "dependencies", It
       does not seem to be appropriately filled in. Remove it from all files or
       fill in appropriately.I recommend the former.
+      Done: Removed.
 0.13.  git blame shows that there is not much left from the original code of
       Pablo and Davide, add the other contributors as authors to appropriate
       files (possibly all)
+      Done (Authors removed).
 0.14. The descriptions in the files (which is currently the only documentation)
-      is written in poorly English that is hard to understand. It seems to be
+      is written in poor English that is hard to understand. It seems to be
       out-of-date. It should be thoroughly reviewed. In comments to particular
       files I point out unclear text. I also included some corrections in
       commits
+      Updated.
 
 --------------------------------------------------------------------------------
 xvme64x_core_pkg.vhd and vme64x_pack.vhd:
@@ -131,6 +134,7 @@ VME64xCore_Top.vhd
     --   The Input signals from the WB bus aren't registered indeed the WB is a
     --   synchronous protocol and some registers in the WB side will introduce a
     --   delay that make impossible reproduce the WB PIPELINED protocol.
+    TBC: in the UG.
 
     b) why do you say about FIFO if it is not implemented?????
     --   The WB protocol is more faster than the VME protocol so to make independent
@@ -141,20 +145,25 @@ VME64xCore_Top.vhd
     --   solution is better than the solution with FIFO.
     --   In this base version of the core the FIFO is not implemented indeed the 2e
     --   access modes aren't supported yet.
+    Done (Removed).
 
     c) could you elaborate on this:
     --   To access the CR/CSR space: AM = 0x2f --> this is A24 addressing type,
     --   SINGLE transfer type. Base Address = Slot Number.
+    In the UG.
 2.2 [L:101]the document says "-- last changes: see log." -> what log??? you mean
     git? (it is similar in many files)
+    Log removed.
 2.3 [L:367]use new private library for internal components, do not refer directly
     to "work.VME_Funct_Match" etc
 Why ?
+    No components.
 2.4 [L:367-397] There is a dedicated module that is used in many projects for
     synchronizing input asynchronous signals. It seems to include the same
     functionality as the module used here gc_sync_register. My suggestion is
     to use the same module as the other projects and think about removing
     gc_sync_register from general cores.
+    Less warnings than gc_sync_ffs.
 
 --------------------------------------------------------------------------------
 VME_bus.vhd
@@ -165,13 +174,16 @@ VME_bus.vhd
        --   The Access decode component decodes the address to check if the board is
        --   the responding Slave. This component is of fundamental importance, indeed
        --   only one Slave can answer to the Master!
+    Removed.
     b) in the top file, it is written that WR Pipelined is not possible, here
        you say it is, I do not understand
         --   In the right side you can see the WB Master who implements the Wb Pipelined
         --   single read/write protocol.
+    Removed.
     c) I do not understand this:
         --   [...]; only one FPGA at time can
         --   carry the vme64x core or other similar VME slave core.
+    Removed.
 3.2 the description of behavior concerning VME_AS_n_i is inconsistent with
     the code [L:304 and 355]. In particular, the description says about
     acting upon rising/falling edge, while the condition is not detecting edge.
@@ -179,16 +191,19 @@ VME_bus.vhd
     re-entered when VME_AS_n_i is kept LOW all the time. I do not know which
     behavior is correct (possibly, the description is wrong and the
     implementation OK)
+    Done.
 3.3 [L:497] the input signal VME_DS_n_i is already synchronized with the
     clock domain. There should be no metastability problem. And if there was
     metastability problem, such a metastability would affect also VME_IACKIN_n_i
     and VME_IACK_n_i that go through the same synchronization chain and are
     used directly in the FSM. I would remove the comment.
+    Explained: DS is 2 signals.
 
 --------------------------------------------------------------------------------
 VME_Funct_Match:
 --------------------------------------------------------------------------------
 4.1 [L: 13] missing description, at least one sentence, please :)
+    Done.
 4.2 [L:94-114]: the code optimization in this process deteriorates code
     readability. I would recommend to rewrite the code a bit to make it clear
     what happens,i.e.:
@@ -235,11 +250,14 @@ VME_IRQ_Controller.vhd
     --  The interrupter wait the IACKIN falling edge in the IRQ state, so if the
     --  interrupter don't have interrupt pending for sure it will not respond
     --  because it is in IDLE.
+    Done. Doc in UG.
 5.2 [L:156-158] I do not understand the second part of this sentence
     -- Interrupts are automatically masked for g_RETRY_TIMEOUT (i.e. 1 ms) once
     -- they are acknowledge by the interrupt handler until they are deasserted
     -- by the interrupter.
+    TODO: rephrase.
 5.3 [L:159-225] It seems to me that these two process should be a single FSM
+    Works both ways.
 5.4 [L:190] either remove "fsm" from the process name, or make it a real FSM.
 Done.
 
@@ -249,6 +267,7 @@ VME_User_CSR.vhd
 6.1 The information in this description should be also in the top module
     and/or in any other documentation that will be created. A developer who
     takes a top module should not be forced to go here to read this info
+    Doc in UG.
 
 
 --------------------------------------------------------------------------------

@@ -61,7 +61,7 @@ begin
   irq_pending_o <= s_irq_pending;
 
   -- Interrupts are automatically masked for g_RETRY_TIMEOUT (i.e. 1 ms) once
-  -- they are acknowledge by the interrupt handler until they are deasserted
+  -- they are acknowledged by the interrupt handler until they are deasserted
   -- by the interrupter.
   p_retry_fsm : process (clk_i)
   begin
