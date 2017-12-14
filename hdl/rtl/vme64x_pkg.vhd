@@ -182,9 +182,10 @@ package vme64x_pkg is
   --  Refer to the entity declaration (xvme64x_core.vhd) for comments.
   component xvme64x_core
     generic (
-      g_CLOCK_PERIOD    : integer := -1;
+      g_CLOCK_PERIOD    : natural;
       g_DECODE_AM       : boolean := true;
       g_USER_CSR_EXT    : boolean := false;
+      g_WB_GRANULARITY  : t_wishbone_address_granularity;
 
       g_MANUFACTURER_ID : std_logic_vector(23 downto 0);
       g_BOARD_ID        : std_logic_vector(31 downto 0);

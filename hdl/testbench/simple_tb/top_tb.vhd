@@ -37,8 +37,10 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.std_logic_textio.all;
-use work.vme64x_pkg.all;
 use std.textio.all;
+
+use work.vme64x_pkg.all;
+use work.wishbone_pkg.all;
 
 architecture behaviour of top_tb is
   subtype cfg_addr_t is std_logic_vector (19 downto 0);
@@ -263,6 +265,7 @@ begin
   vme64xcore: entity work.vme64x_core
     generic map (g_CLOCK_PERIOD => g_CLOCK_PERIOD,
                  g_DECODE_AM => (g_SCENARIO /= 9),
+                 g_WB_GRANULARITY => WORD,
                  g_USER_CSR_EXT   => false,
 
                  g_MANUFACTURER_ID => c_CERN_ID,

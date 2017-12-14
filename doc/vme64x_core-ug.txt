@@ -1,7 +1,7 @@
 VME64x to WB core User Guide
 ============================
 :Author: Tristan Gingold
-:Date: 2017-12-12
+:Date: 2017-12-14
 :Revision: 2.0
 
 Introduction
@@ -240,13 +240,11 @@ must be set by the user and is used for synchronization of the VME DS
 signal.
 
 Generic `g_DECODE_AM` enables/disables the AM field of ADER when
-decoding
-address. When it is set to false, behavior of this core is consistent
-with its previous versions. In particlular, when false, the AM field
-of ADER is not used when decoding address, so the core will recognize
-any access allowed by the corresponding AMCAP. New designs should set
-this
-generic to true.
+decoding address. When it is set to false, behavior of this core is
+consistent with its previous versions. In particlular, when false, the
+AM field of ADER is not used when decoding address, so the core will
+recognize any access allowed by the corresponding AMCAP. New designs
+should set this generic to true.
 
 Generic `g_USER_CSR_EXT` enables/disables user-defined CSR. The
 interface with the user CSR is a very simple synchronous SRAM (signals
@@ -256,10 +254,17 @@ input port `irq_level_i` and `irq_vector_i` are used by the interrupt
 controller to define the irq level and vector (otherwise they are read
 from the default user CSR registers).
 
+Generic `g_WB_GRANULARITY` specifies the address granularity of the
+wishbone bus. The value is one of:
+
+* `WORD`: addresses represent words, so VME address 4, 5, 6 and 7 are
+  translated to WB address 1.
+* `BYTE`: addresses represents bytes, so VME addresses 4, 5, 6 and 7 are
+  translated to WB address 4.  The two LSB of WB address are always 0.
+
 The other generics define values in the CSR. The package `vme64x_pkg`
-defines default constants for these values, see the VME64x specification
-for
-details about these values:
+defines default constants for these values, see the VME64x
+specification for details about these values:
 
 * `g_MANUFACTURER_ID` provides the manufacturer ID,
 * `g_BOARD_ID` provides the board ID,

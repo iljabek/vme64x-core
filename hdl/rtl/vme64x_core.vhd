@@ -11,9 +11,10 @@ use work.vme64x_pkg.all;
 
 entity vme64x_core is
   generic (
-    g_clock_period    : integer;
+    g_clock_period    : natural;
     g_decode_am       : boolean;
     g_user_csr_ext    : boolean;
+    g_wb_granularity  : t_wishbone_address_granularity;
     g_manufacturer_id : std_logic_vector(23 downto 0);
     g_board_id        : std_logic_vector(31 downto 0);
     g_revision_id     : std_logic_vector(31 downto 0);
@@ -110,6 +111,7 @@ begin
       g_clock_period     => g_clock_period,
       g_decode_am        => g_decode_am,
       g_user_csr_ext     => g_user_csr_ext,
+      g_wb_granularity   => g_wb_granularity,
       g_manufacturer_id  => g_manufacturer_id,
       g_board_id         => g_board_id,
       g_revision_id      => g_revision_id,

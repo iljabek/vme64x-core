@@ -29,10 +29,12 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.vme64x_pkg.all;
+use work.wishbone_pkg.all;
 
 entity vme_bus is
   generic (
-    g_CLOCK_PERIOD  : integer
+    g_CLOCK_PERIOD  : integer;
+    g_WB_GRANULARITY  : t_wishbone_address_granularity
   );
   port (
     clk_i           : in  std_logic;
@@ -711,7 +713,9 @@ begin
   VME_RETRY_OE_o <= '0';
 
   -- WB Master
-  wb_adr_o <= "00" & s_vme_addr_reg(31 downto 2);
+  with g_WB_GRANULARITY select
+    wb_adr_o <= "00" & s_vme_addr_reg(31 downto 2) when WORD,
+                 s_vme_addr_reg(31 downto 2) & "00" when BYTE;
   wb_we_o <= not s_WRITElatched_n;
   wb_dat_o <= s_locDataIn(31 downto 0);
 

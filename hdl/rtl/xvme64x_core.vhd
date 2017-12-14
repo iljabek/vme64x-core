@@ -11,27 +11,6 @@
 --   This core implements an interface to transfer data between the VMEbus and
 --   the WBbus. This core is a Slave in the VME side and Master in the WB side.
 --
---   The main blocks:
---
---      _______________________vme64x_core_______________________
---     |      ________________   ________   ___________________  |
---     |___  |                | |        | |                   | |
---     |   | |    VME Bus     | | Funct  | |                   | |
---     |   | |                | | Match  | |  VME to WB FIFO   | |
---     | S | |       |        | |        | | (not implemented) | |
---   V | A | |  VME  |   WB   | |________| |                   | | W
---   M | M | | slave | master |  ________  |                   | | B
---   E | P | |       |        | |        | |                   | |
---     | L | |       |        | | CR/CSR | |                   | | B
---   B | I | |       |        | | Space  | |___________________| | U
---   U | N | |                | |________|  ___________________  | S
---   S | G | |                |  ________  |                   | |
---     |   | |                | |        | |  IRQ Controller   | |
---     |___| |                | |  User  | |                   | |
---     |     |                | |  CSR   | |                   | |
---     |     |________________| |________| |___________________| |
---     |_________________________________________________________|
---
 --   All the output signals on the WB bus are registered.
 --   The Input signals from the WB bus aren't registered indeed the WB is a
 --   synchronous protocol and some registers in the WB side will introduce a
@@ -61,9 +40,8 @@ use work.vme64x_pkg.all;
 
 entity xvme64x_core is
   generic (
-    -- Clock period (ns). Used for DS synchronization. The default value
-    -- will genrate an assertion failure.
-    g_CLOCK_PERIOD    : integer := -1;
+    -- Clock period (ns). Used for DS synchronization. A value is required.
+    g_CLOCK_PERIOD    : natural;
 
     -- Consider AM field of ADER to decode addresses. This is what the VME64x
     -- standard says. However, for compatibility with previous implementations
@@ -73,6 +51,13 @@ entity xvme64x_core is
 
     -- Use external user CSR
     g_USER_CSR_EXT    : boolean := false;
+
+    -- Address granularity on the WB bus. Value can be:
+    -- WORD: VME address bits 31:2 are translated to WB address bits 29:0,
+    --       the WB data represents bytes for VME address bits 1:0.
+    -- BYTE: VME address bits 31:2 are translated to WB address bits 31:2,
+    --       WB address bits 1:0 are always 0.
+    g_WB_GRANULARITY  : t_wishbone_address_granularity;
 
     -- Manufacturer ID: IEEE OUID
     --                  e.g. CERN is 0x080030
@@ -289,8 +274,8 @@ begin
   ------------------------------------------------------------------------------
   inst_vme_bus : entity work.vme_bus
     generic map (
-      g_CLOCK_PERIOD  => g_CLOCK_PERIOD
-    )
+      g_CLOCK_PERIOD   => g_CLOCK_PERIOD,
+      g_WB_GRANULARITY => g_WB_GRANULARITY)
     port map (
       clk_i           => clk_i,
       rst_n_i         => s_reset_n,
@@ -350,8 +335,7 @@ begin
       INT_Level_i     => s_irq_level,
       INT_Vector_i    => s_irq_vector,
       irq_pending_i   => s_irq_pending,
-      irq_ack_o       => s_irq_ack
-    );
+      irq_ack_o       => s_irq_ack);
 
   s_reset_n  <= rst_n_i and s_VME_RST_n;
   rst_n_o    <= s_reset_n and (not s_module_reset);
