@@ -21,22 +21,25 @@ $(TB_DIRS):
 
 	@echo "Run vsim"
 	cd "$@" ;\
-	./run_all.sh | tee transcript."$@".txt; \
+	d="$@";\
+	d=$${d////_}; \
+	./run_all.sh | tee transcript."$$d".txt; \
 	echo "vsim returned $$?"
 
 summary: $(TB_DIRS)
 	@echo "-------------------------------------------------------------------"
 	@echo "Summary:"
 	@for d in $(TB_DIRS); do \
-		if [ -f $$d/transcript."$$d".txt ]; then \
+		d_=$${d////_}; \
+		if [ -f $$d/transcript."$$d_".txt ]; then \
 			echo "Warnings for $$d:"; \
-			cat $$d/transcript."$$d".txt | grep Warning; \
+			cat $$d/transcript."$$d_".txt | grep Warning; \
 			if [ $$? -eq 1 ]; then echo "None"; fi ;\
 			echo "Errors for $$d:"; \
-			cat $$d/transcript."$$d".txt | grep Error; \
+			cat $$d/transcript."$$d_".txt | grep Error; \
 			if [ $$? -eq 1 ]; then echo "None"; fi ;\
 			echo "Fatals for $$d:"; \
-			cat $$d/transcript."$$d".txt | grep Fatal; \
+			cat $$d/transcript."$$d_".txt | grep Fatal; \
 			if [ $$? -eq 1 ]; then echo "None"; fi ;\
 		else \
 			echo "No transcript file for $$d"; \
@@ -53,13 +56,14 @@ summary_total: summary summary_xml
 	@echo "+---------------------------------------------------+----------+----------+----------+"
 	@is_error=0;\
 	for d in $(TB_DIRS); do \
-		if [ -f $$d/transcript."$$d".txt ]; then \
+		d_=$${d////_}; \
+		if [ -f $$d/transcript."$$d_".txt ]; then \
 			printf "| %-50s" $$d; \
-			printf "| %8d " `cat $$d/transcript."$$d".txt | grep Warning | wc -l`; \
-			error_n=`cat $$d/transcript."$$d".txt | grep Error | wc -l`; \
+			printf "| %8d " `cat $$d/transcript."$$d_".txt | grep Warning | wc -l`; \
+			error_n=`cat $$d/transcript."$$d_".txt | grep Error | wc -l`; \
 			printf "| %8d " $$error_n;\
 			if [ $$error_n -gt 0 ]; then is_error=1; fi ;\
-			fatal_n=`cat $$d/transcript."$$d".txt | grep Fatal | wc -l`; \
+			fatal_n=`cat $$d/transcript."$$d_".txt | grep Fatal | wc -l`; \
 			printf "| %8d |\n" $$fatal_n;\
 			if [ $$fatal_n -gt 0 ]; then is_error=1; fi ;\
 		else \
@@ -74,13 +78,14 @@ summary_xml: summary
 	@echo '<?xml version="1.0" encoding="UTF-8"?>' > $(test_results_xml)
 	@echo '<testsuites tests="0" failures="0" disabled="0" errors="0" time="0" name="AllTests">' >> $(test_results_xml)
 	@for d in $(TB_DIRS); do \
+		d_=$${d////_}; \
 		is_test_error=0;\
 		error_n=0;\
 		fatal_n=0;\
 		echo -n "  <testsuite name=\""$$d"\" tests=\"1\" failures=\"" >> $(test_results_xml) ;\
-		if [ -f $$d/transcript."$$d".txt ]; then \
-			error_n=`cat $$d/transcript."$$d".txt | grep Error | wc -l`; \
-			fatal_n=`cat $$d/transcript."$$d".txt | grep Fatal | wc -l`; \
+		if [ -f $$d/transcript."$$d_".txt ]; then \
+			error_n=`cat $$d/transcript."$$d_".txt | grep Error | wc -l`; \
+			fatal_n=`cat $$d/transcript."$$d_".txt | grep Fatal | wc -l`; \
 			if [ $$error_n -gt 0 ] || [ $$fatal_n -gt 0 ]; then is_test_error=1; fi ;\
 			echo -n $$is_test_error >> $(test_results_xml);\
 		else \
@@ -92,12 +97,12 @@ summary_xml: summary
 		if [ $$is_test_error -eq 1 ]; then \
 			if [ $$error_n -gt 0 ]; then \
 				echo "      <failure message=\"Errors\" type=\"\"><![CDATA[" >> $(test_results_xml) ;\
-				cat $$d/transcript."$$d".txt | grep Error >> $(test_results_xml);\
+				cat $$d/transcript."$$d_".txt | grep Error >> $(test_results_xml);\
 				echo "      ]]></failure>" >> $(test_results_xml) ;\
 			fi;\
 			if [ $$fatal_n -gt 0 ]; then \
 				echo "      <failure message=\"Fatals\" type=\"\"><![CDATA[" >> $(test_results_xml) ;\
-				cat $$d/transcript."$$d".txt | grep Fatal >> $(test_results_xml);\
+				cat $$d/transcript."$$d_".txt | grep Fatal >> $(test_results_xml);\
 				echo "      ]]></failure>" >> $(test_results_xml) ;\
 			fi;\
 		fi ;\
