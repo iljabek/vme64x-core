@@ -3,8 +3,7 @@
 #
 # Author: Adam Wujek, CERN 2017
 
-TB_DIRS=spec_ref_design-demo
-TB_DIRS+=spec_ref_design-verification
+TB_DIRS=simple_tb/modelsim
 
 test_results_xml=test_results.xml
 .PHONY: $(TB_DIRS)
@@ -22,7 +21,7 @@ $(TB_DIRS):
 
 	@echo "Run vsim"
 	cd "$@" ;\
-	vsim -c -do "run_ci.do" -l transcript."$@".txt;\
+	./run_all.sh | tee transcript."$@".txt; \
 	echo "vsim returned $$?"
 
 summary: $(TB_DIRS)
