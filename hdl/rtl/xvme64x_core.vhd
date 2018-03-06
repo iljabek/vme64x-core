@@ -111,6 +111,11 @@ entity xvme64x_core is
     wb_i            : in  t_wishbone_master_in;
     wb_o            : out t_wishbone_master_out;
 
+    -- Interrupt input from the master side.
+    -- Previously it was part of the wishbone interface, but is now separate
+    -- as interrupt is not defined by wishbone.
+    int_i           : in std_logic;
+
     -- When the IRQ controller acknowledges the Interrupt cycle it sends a
     -- pulse to the IRQ Generator.
     irq_ack_o       : out std_logic;
@@ -376,7 +381,7 @@ begin
       clk_i           => clk_i,
       rst_n_i         => s_reset_n,
       INT_Level_i     => s_irq_level,
-      INT_Req_i       => wb_i.int,
+      INT_Req_i       => int_i,
       irq_pending_o   => s_irq_pending,
       irq_ack_i       => s_irq_ack,
       VME_IRQ_n_o     => vme_o.irq_n

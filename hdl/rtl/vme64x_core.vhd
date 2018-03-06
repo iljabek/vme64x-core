@@ -93,6 +93,7 @@ entity vme64x_core is
     wb_sel_o        : out t_wishbone_byte_select;
     wb_we_o         : out std_logic;
     wb_dat_o        : out t_wishbone_data;
+    int_i           : std_logic;
     irq_ack_o       : out std_logic;
     irq_level_i     : std_logic_vector(2 downto 0);
     irq_vector_i    : std_logic_vector(7 downto 0);
@@ -190,6 +191,7 @@ begin
       wb_o.sel        => wb_sel_o,
       wb_o.we         => wb_we_o,
       wb_o.dat        => wb_dat_o,
+      int_i           => int_i,
       irq_ack_o       => irq_ack_o,
       irq_level_i     => irq_level_i,
       irq_vector_i    => irq_vector_i,
