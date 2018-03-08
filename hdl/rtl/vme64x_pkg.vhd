@@ -215,6 +215,8 @@ package vme64x_pkg is
       wb_i            : in  t_wishbone_master_in;
       wb_o            : out t_wishbone_master_out;
 
+      int_i           : in std_logic;
+
       irq_ack_o       : out std_logic;
 
       irq_level_i     : in  std_logic_vector( 2 downto 0) := (others => '0');
