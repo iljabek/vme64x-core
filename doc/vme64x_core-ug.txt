@@ -426,6 +426,8 @@ Changes in V2 (compared to V1)
 * WB data bus is 32 bit
 * Internal component declarations removed.
 * Async inputs registered with gc_sync_register.
+* VME outputs `berr` and `irq` now follow the VME convention (they aren't
+  anymore inverted by the core).
 
 [[appendix-implementation-of-the-core]]
 Appendix: Implementation of the core
