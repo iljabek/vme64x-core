@@ -114,7 +114,7 @@ entity xvme64x_core is
     -- Interrupt input from the master side.
     -- Previously it was part of the wishbone interface, but is now separate
     -- as interrupt is not defined by wishbone.
-    int_i           : in std_logic;
+    int_i           : in std_logic := '0';
 
     -- When the IRQ controller acknowledges the Interrupt cycle it sends a
     -- pulse to the IRQ Generator.

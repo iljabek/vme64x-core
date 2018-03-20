@@ -85,7 +85,6 @@ entity vme64x_core is
     wb_err_i        : std_logic;
     wb_rty_i        : std_logic;
     wb_stall_i      : std_logic;
-    wb_int_i        : std_logic;
     wb_dat_i        : t_wishbone_data;
     wb_cyc_o        : out std_logic;
     wb_stb_o        : out std_logic;
@@ -183,7 +182,6 @@ begin
       wb_i.err        => wb_err_i,
       wb_i.rty        => wb_rty_i,
       wb_i.stall      => wb_stall_i,
-      wb_i.int        => wb_int_i,
       wb_i.dat        => wb_dat_i,
       wb_o.cyc        => wb_cyc_o,
       wb_o.stb        => wb_stb_o,
