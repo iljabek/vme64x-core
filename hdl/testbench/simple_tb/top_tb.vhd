@@ -347,7 +347,6 @@ begin
         wb_WE_o         => WE_o,
         wb_STALL_i      => STALL_i,
         wb_rty_i        => rty_i,
-        wb_int_i        => '0',
         int_i           => irq_i,
         irq_level_i     => irq_level_i,
         irq_vector_i    => irq_vector_i,
