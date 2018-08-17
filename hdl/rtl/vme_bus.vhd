@@ -584,9 +584,16 @@ begin
             end if;
 
           when MEMORY_PAUSE =>
-            -- Do not wait until ACK is 0, as ACK can be always 1.
-            wb_stb_o <= '1';
-            s_mainFSMstate <= MEMORY_REQ;
+            -- Wait until ACK is 0. Strictly speaking, this is not needed
+            -- according to WB specs.
+            wb_stb_o <= '0';
+
+            if wb_ack_i = '0' then
+              wb_stb_o <= '1';
+              s_mainFSMstate <= MEMORY_REQ;
+            else
+              s_mainFSMstate <= MEMORY_PAUSE;
+            end if;
 
           when DATA_TO_BUS =>
             VME_DTACK_OE_o   <= '1';
