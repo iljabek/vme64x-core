@@ -164,8 +164,8 @@ architecture rtl of vme_bus is
     -- Wait for WB reply
     MEMORY_REQ,
 
-    -- Wait for WB negated ack (between half MBLT transactions)
-    MEMORY_WAIT_ACK,
+    -- Negate STB between half MBLT transactions
+    MEMORY_PAUSE,
 
     -- For read cycle, put data on the bus
     DATA_TO_BUS,
@@ -546,9 +546,8 @@ begin
 
                   s_locDataIn(31 downto 0) <= s_locDataIn(63 downto 32);
 
-                  wb_stb_o <= '0';
-
-                  s_mainFSMstate <= MEMORY_WAIT_ACK;
+                  -- STB is 0, wait one cycle before the 2nd xfer.
+                  s_mainFSMstate <= MEMORY_PAUSE;
                 else
                   s_mainFSMstate <= DTACK_LOW;
                 end if;
@@ -574,9 +573,8 @@ begin
                   s_dataPhase <= '0';
                   s_vme_addr_reg(2) <= '1';
 
-                  wb_stb_o <= '0';
-
-                  s_mainFSMstate <= MEMORY_WAIT_ACK;
+                  -- STB is 0, wait one cycle before the 2nd xfer.
+                  s_mainFSMstate <= MEMORY_PAUSE;
                 else
                   s_mainFSMstate <= DATA_TO_BUS;
                 end if;
@@ -585,15 +583,10 @@ begin
               s_mainFSMstate <= MEMORY_REQ;
             end if;
 
-          when MEMORY_WAIT_ACK =>
-            wb_stb_o <= '0';
-
-            if wb_ack_i = '0' then
-              wb_stb_o <= s_card_sel and wb_stall_i;
-              s_mainFSMstate <= MEMORY_REQ;
-            else
-              s_mainFSMstate <= MEMORY_WAIT_ACK;
-            end if;
+          when MEMORY_PAUSE =>
+            -- Do not wait until ACK is 0, as ACK can be always 1.
+            wb_stb_o <= '1';
+            s_mainFSMstate <= MEMORY_REQ;
 
           when DATA_TO_BUS =>
             VME_DTACK_OE_o   <= '1';
