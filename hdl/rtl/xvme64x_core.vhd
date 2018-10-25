@@ -35,6 +35,7 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 use work.wishbone_pkg.all;
 use work.vme64x_pkg.all;
 
@@ -48,6 +49,9 @@ entity xvme64x_core is
     -- (or to reduce resources), it is possible for a decoder to allow all AM
     -- declared in the AMCAP.
     g_DECODE_AM       : boolean := true;
+
+    -- Enable CR/CSR space
+    g_ENABLE_CR_CSR   : boolean := true;
 
     -- Use external user CSR
     g_USER_CSR_EXT    : boolean := false;
@@ -153,6 +157,30 @@ architecture rtl of xvme64x_core is
   end compute_last_ader;
 
   constant c_last_ader          : natural := compute_last_ader (g_DECODER);
+
+  -- Calculate the least set bit in a vector
+  function least_set_bit (v : std_logic_vector) return natural is
+  begin
+    for i in 0 to v'length-1 loop
+        if v(i) = '1' then
+            return i;
+        end if;
+    end loop;
+  end least_set_bit;
+
+  -- Compute the ADER for each function if CR/CSR is not used. For example:
+  --   ADEM=FF000000, GA=05 => ADER=05000000
+  --   ADEM=FFE00000, GA=05 => ADER=00A00000
+  function compute_static_ader (ga : std_logic_vector(4 downto 0)) return t_ader_array is
+    variable a : t_ader_array(0 to c_last_ader) := (others => x"0000_0000");
+  begin
+    for i in 0 to a'length-1 loop
+      if g_DECODER(i).adem /= x"0000_0000" then
+        a(i) := std_logic_vector(resize(unsigned(ga), 32) sll least_set_bit(g_DECODER(i).adem));
+      end if;
+    end loop;
+    return a;
+  end compute_static_ader;
 
   signal s_reset_n              : std_logic;
 
@@ -350,7 +378,7 @@ begin
   inst_vme_funct_match : entity work.vme_funct_match
     generic map (
       g_DECODER   => g_DECODER,
-      g_DECODE_AM => g_DECODE_AM
+      g_DECODE_AM => g_DECODE_AM and g_ENABLE_CR_CSR
     )
     port map (
       clk_i          => clk_i,
@@ -390,67 +418,83 @@ begin
   ------------------------------------------------------------------------------
   -- CR/CSR space
   ------------------------------------------------------------------------------
-  inst_vme_cr_csr_space : entity work.vme_cr_csr_space
-    generic map (
-      g_MANUFACTURER_ID  => g_MANUFACTURER_ID,
-      g_BOARD_ID         => g_BOARD_ID,
-      g_REVISION_ID      => g_REVISION_ID,
-      g_PROGRAM_ID       => g_PROGRAM_ID,
-      g_ASCII_PTR        => g_ASCII_PTR,
-      g_BEG_USER_CR      => g_BEG_USER_CR,
-      g_END_USER_CR      => g_END_USER_CR,
-      g_BEG_CRAM         => g_BEG_CRAM,
-      g_END_CRAM         => g_END_CRAM,
-      g_BEG_USER_CSR     => g_BEG_USER_CSR,
-      g_END_USER_CSR     => g_END_USER_CSR,
-      g_BEG_SN           => g_BEG_SN,
-      g_END_SN           => g_END_SN,
-      g_DECODER          => g_DECODER
-    )
-    port map (
-      clk_i               => clk_i,
-      rst_n_i             => s_reset_n,
-
-      vme_ga_i            => vme_i.ga,
-      vme_berr_n_i        => s_vme_berr_n,
-      bar_o               => s_bar,
-      module_enable_o     => s_module_enable,
-      module_reset_o      => s_module_reset,
-
-      addr_i              => s_cr_csr_addr,
-      data_i              => s_cr_csr_data_i,
-      data_o              => s_cr_csr_data_o,
-      we_i                => s_cr_csr_we,
-
-      user_csr_addr_o     => s_user_csr_addr,
-      user_csr_data_i     => s_user_csr_data_i,
-      user_csr_data_o     => s_user_csr_data_o,
-      user_csr_we_o       => s_user_csr_we,
-
-      user_cr_addr_o      => user_cr_addr_o,
-      user_cr_data_i      => user_cr_data_i,
-
-      ader_o              => s_ader
-    );
-
-  -- User CSR space
-  gen_int_user_csr : if g_USER_CSR_EXT = false generate
-    inst_vme_user_csr : entity work.vme_user_csr
+  gen_enable_cr_csr : if g_ENABLE_CR_CSR = true generate
+    inst_vme_cr_csr_space : entity work.vme_cr_csr_space
+      generic map (
+        g_MANUFACTURER_ID  => g_MANUFACTURER_ID,
+        g_BOARD_ID         => g_BOARD_ID,
+        g_REVISION_ID      => g_REVISION_ID,
+        g_PROGRAM_ID       => g_PROGRAM_ID,
+        g_ASCII_PTR        => g_ASCII_PTR,
+        g_BEG_USER_CR      => g_BEG_USER_CR,
+        g_END_USER_CR      => g_END_USER_CR,
+        g_BEG_CRAM         => g_BEG_CRAM,
+        g_END_CRAM         => g_END_CRAM,
+        g_BEG_USER_CSR     => g_BEG_USER_CSR,
+        g_END_USER_CSR     => g_END_USER_CSR,
+        g_BEG_SN           => g_BEG_SN,
+        g_END_SN           => g_END_SN,
+        g_DECODER          => g_DECODER
+      )
       port map (
-        clk_i        => clk_i,
-        rst_n_i      => s_reset_n,
-        addr_i       => s_user_csr_addr,
-        data_i       => s_user_csr_data_o,
-        data_o       => s_user_csr_data_i,
-        we_i         => s_user_csr_we,
-        irq_vector_o => s_irq_vector,
-        irq_level_o  => s_irq_level
+        clk_i               => clk_i,
+        rst_n_i             => s_reset_n,
+
+        vme_ga_i            => vme_i.ga,
+        vme_berr_n_i        => s_vme_berr_n,
+        bar_o               => s_bar,
+        module_enable_o     => s_module_enable,
+        module_reset_o      => s_module_reset,
+
+        addr_i              => s_cr_csr_addr,
+        data_i              => s_cr_csr_data_i,
+        data_o              => s_cr_csr_data_o,
+        we_i                => s_cr_csr_we,
+
+        user_csr_addr_o     => s_user_csr_addr,
+        user_csr_data_i     => s_user_csr_data_i,
+        user_csr_data_o     => s_user_csr_data_o,
+        user_csr_we_o       => s_user_csr_we,
+
+        user_cr_addr_o      => user_cr_addr_o,
+        user_cr_data_i      => user_cr_data_i,
+
+        ader_o              => s_ader
       );
+
+    -- User CSR space
+    gen_int_user_csr : if g_USER_CSR_EXT = false generate
+      inst_vme_user_csr : entity work.vme_user_csr
+        port map (
+          clk_i        => clk_i,
+          rst_n_i      => s_reset_n,
+          addr_i       => s_user_csr_addr,
+          data_i       => s_user_csr_data_o,
+          data_o       => s_user_csr_data_i,
+          we_i         => s_user_csr_we,
+          irq_vector_o => s_irq_vector,
+          irq_level_o  => s_irq_level
+        );
+    end generate;
+    gen_ext_user_csr : if g_USER_CSR_EXT = true generate
+      s_user_csr_data_i <= user_csr_data_i;
+      s_irq_vector      <= irq_vector_i;
+      s_irq_level       <= irq_level_i(2 downto 0);
+    end generate;
   end generate;
-  gen_ext_user_csr : if g_USER_CSR_EXT = true generate
+  gen_disable_cr_csr : if g_ENABLE_CR_CSR = false generate
     s_user_csr_data_i <= user_csr_data_i;
+    s_cr_csr_data_o   <= s_user_csr_data_i;
     s_irq_vector      <= irq_vector_i;
     s_irq_level       <= irq_level_i(2 downto 0);
+    s_user_csr_addr   <= s_cr_csr_addr;
+    s_user_csr_data_o <= s_cr_csr_data_i;
+    s_user_csr_we     <= s_cr_csr_we;
+    user_cr_addr_o    <= (others => '0');
+    s_module_enable   <= '1';
+    s_module_reset    <= '0';
+    s_bar             <= (others => '0');
+    s_ader            <= compute_static_ader(not vme_i.ga(4 downto 0));
   end generate;
 
   user_csr_addr_o <= s_user_csr_addr;

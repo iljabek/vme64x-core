@@ -13,6 +13,7 @@ entity vme64x_core is
   generic (
     g_CLOCK_PERIOD    : natural;
     g_DECODE_AM       : boolean := true;
+    g_ENABLE_CR_CSR   : boolean := true;
     g_USER_CSR_EXT    : boolean := false;
     g_WB_GRANULARITY  : t_wishbone_address_granularity;
     g_MANUFACTURER_ID : std_logic_vector(23 downto 0);
@@ -110,6 +111,7 @@ begin
     generic map (
       g_CLOCK_PERIOD     => g_CLOCK_PERIOD,
       g_DECODE_AM        => g_DECODE_AM,
+      g_ENABLE_CR_CSR    => g_ENABLE_CR_CSR,
       g_USER_CSR_EXT     => g_USER_CSR_EXT,
       g_WB_GRANULARITY   => g_WB_GRANULARITY,
       g_MANUFACTURER_ID  => g_MANUFACTURER_ID,

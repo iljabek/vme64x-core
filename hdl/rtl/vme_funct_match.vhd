@@ -77,9 +77,9 @@ begin
                 and ((am_i = ader_i(i)(t_ADER_AM))
                      or not g_DECODE_AM))
       else '0';
-    -- True if the AM part of ADER is enabled by AMCAP
+    -- True if the AM is enabled by AMCAP
     s_ader_am_valid(i) <=
-      g_DECODER(i).amcap(to_integer(unsigned(ader_i(i)(t_ADER_AM))));
+      g_DECODER(i).amcap(to_integer(unsigned(am_i)));
   end generate;
 
   ------------------------------------------------------------------------------
