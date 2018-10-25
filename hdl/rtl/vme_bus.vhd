@@ -41,28 +41,28 @@ entity vme_bus is
     rst_n_i         : in  std_logic;
 
     -- VME signals
-    VME_AS_n_i      : in  std_logic;
-    VME_LWORD_n_o   : out std_logic := '0';
-    VME_LWORD_n_i   : in  std_logic;
-    VME_RETRY_n_o   : out std_logic;
-    VME_RETRY_OE_o  : out std_logic;
-    VME_WRITE_n_i   : in  std_logic;
-    VME_DS_n_i      : in  std_logic_vector(1 downto 0);
-    VME_DTACK_n_o   : out std_logic;
-    VME_DTACK_OE_o  : out std_logic;
-    VME_BERR_n_o    : out std_logic;
-    VME_ADDR_i      : in  std_logic_vector(31 downto 1);
-    VME_ADDR_o      : out std_logic_vector(31 downto 1) := (others => '0');
-    VME_ADDR_DIR_o  : out std_logic;
-    VME_ADDR_OE_N_o : out std_logic;
-    VME_DATA_i      : in  std_logic_vector(31 downto 0);
-    VME_DATA_o      : out std_logic_vector(31 downto 0) := (others => '0');
-    VME_DATA_DIR_o  : out std_logic;
-    VME_DATA_OE_N_o : out std_logic;
-    VME_AM_i        : in  std_logic_vector(5 downto 0);
-    VME_IACKIN_n_i  : in  std_logic;
-    VME_IACK_n_i    : in  std_logic;
-    VME_IACKOUT_n_o : out std_logic;
+    vme_as_n_i      : in  std_logic;
+    vme_lword_n_o   : out std_logic := '0';
+    vme_lword_n_i   : in  std_logic;
+    vme_retry_n_o   : out std_logic;
+    vme_retry_oe_o  : out std_logic;
+    vme_write_n_i   : in  std_logic;
+    vme_ds_n_i      : in  std_logic_vector(1 downto 0);
+    vme_dtack_n_o   : out std_logic;
+    vme_dtack_oe_o  : out std_logic;
+    vme_berr_n_o    : out std_logic;
+    vme_addr_i      : in  std_logic_vector(31 downto 1);
+    vme_addr_o      : out std_logic_vector(31 downto 1) := (others => '0');
+    vme_addr_dir_o  : out std_logic;
+    vme_addr_oe_n_o : out std_logic;
+    vme_data_i      : in  std_logic_vector(31 downto 0);
+    vme_data_o      : out std_logic_vector(31 downto 0) := (others => '0');
+    vme_data_dir_o  : out std_logic;
+    vme_data_oe_n_o : out std_logic;
+    vme_am_i        : in  std_logic_vector(5 downto 0);
+    vme_iackin_n_i  : in  std_logic;
+    vme_iack_n_i    : in  std_logic;
+    vme_iackout_n_o : out std_logic;
 
     -- WB signals
     wb_stb_o        : out std_logic;
@@ -93,8 +93,8 @@ entity vme_bus is
     bar_i           : in  std_logic_vector( 4 downto 0);
 
     -- Interrupts
-    INT_Level_i     : in  std_logic_vector( 2 downto 0);
-    INT_Vector_i    : in  std_logic_vector( 7 downto 0);
+    int_level_i     : in  std_logic_vector( 2 downto 0);
+    int_vector_i    : in  std_logic_vector( 7 downto 0);
     irq_pending_i   : in  std_logic;
     irq_ack_o       : out std_logic
   );
@@ -138,7 +138,7 @@ architecture rtl of vme_bus is
     TFR_ERROR
   );
 
-  -- Addressing type (depending on VME_AM_i)
+  -- Addressing type (depending on vme_am_i)
   signal s_addressingType           : t_addressingType;
   signal s_transferType             : t_transferType;
 
@@ -215,8 +215,8 @@ begin
   --    L  |  L  | B to A                   L    |     L     |   B to Y
   --                                        H    |     L     |A to B, B to Y |
 
-  VME_DATA_OE_N_o <= '0'; -- Driven IFF DIR = 1
-  VME_ADDR_OE_N_o <= '0'; -- Driven IFF DIR = 1
+  vme_data_oe_n_o <= '0'; -- Driven IFF DIR = 1
+  vme_addr_oe_n_o <= '0'; -- Driven IFF DIR = 1
 
   ------------------------------------------------------------------------------
   -- Access Mode Decoders
@@ -263,7 +263,7 @@ begin
     variable addr_word_incr : natural range 0 to 7;
   begin
     if rising_edge(clk_i) then
-      if rst_n_i = '0' or VME_AS_n_i = '1' then
+      if rst_n_i = '0' or vme_as_n_i = '1' then
         -- FSM reset after power up,
         -- software reset, manually reset,
         -- on rising edge of AS.
@@ -271,15 +271,15 @@ begin
         decode_start_o   <= '0';
 
         -- VME
-        VME_DTACK_OE_o   <= '0';
-        VME_DTACK_n_o    <= '1';
-        VME_DATA_DIR_o   <= '0';
-        VME_ADDR_DIR_o   <= '0';
-        VME_BERR_n_o     <= '1';
-        VME_ADDR_o       <= (others => '0');
-        VME_LWORD_n_o    <= '1';
-        VME_DATA_o       <= (others => '0');
-        VME_IACKOUT_n_o  <= '1';
+        vme_dtack_oe_o   <= '0';
+        vme_dtack_n_o    <= '1';
+        vme_data_dir_o   <= '0';
+        vme_addr_dir_o   <= '0';
+        vme_berr_n_o     <= '1';
+        vme_addr_o       <= (others => '0');
+        vme_lword_n_o    <= '1';
+        vme_data_o       <= (others => '0');
+        vme_iackout_n_o  <= '1';
         s_dataPhase      <= '0';
         s_MBLT_Data      <= '0';
         s_mainFSMstate   <= IDLE;
@@ -303,27 +303,27 @@ begin
       else
         s_conf_req       <= '0';
         decode_start_o   <= '0';
-        VME_DTACK_OE_o   <= '0';
-        VME_DTACK_n_o    <= '1';
-        VME_DATA_DIR_o   <= '0';
-        VME_ADDR_DIR_o   <= '0';
-        VME_BERR_n_o     <= '1';
-        VME_IACKOUT_n_o  <= '1';
+        vme_dtack_oe_o   <= '0';
+        vme_dtack_n_o    <= '1';
+        vme_data_dir_o   <= '0';
+        vme_addr_dir_o   <= '0';
+        vme_berr_n_o     <= '1';
+        vme_iackout_n_o  <= '1';
         irq_ack_o        <= '0';
 
         case s_mainFSMstate is
 
           when IDLE =>
-            -- Can only be here if VME_AS_n_i has fallen to 0, which starts a
+            -- Can only be here if vme_as_n_i has fallen to 0, which starts a
             -- cycle.
-            assert VME_AS_n_i = '0';
+            assert vme_as_n_i = '0';
 
             -- Store ADDR, AM and LWORD
-            s_ADDRlatched    <= VME_ADDR_i;
-            s_LWORDlatched_n <= VME_LWORD_n_i;
-            s_AMlatched      <= VME_AM_i;
+            s_ADDRlatched    <= vme_addr_i;
+            s_LWORDlatched_n <= vme_lword_n_i;
+            s_AMlatched      <= vme_am_i;
 
-            if VME_IACK_n_i = '1' then
+            if vme_iack_n_i = '1' then
               -- VITA-1 Rule 2.11
               -- Slaves MUST NOT respond to DTB cycles when IACK* is low.
               s_mainFSMstate <= REFORMAT_ADDRESS;
@@ -380,8 +380,8 @@ begin
             -- Check if this slave board is addressed.
 
             -- Wait for DS in parallel.
-            if VME_DS_n_i /= "11" then
-              s_WRITElatched_n <= VME_WRITE_n_i;
+            if vme_ds_n_i /= "11" then
+              s_WRITElatched_n <= vme_write_n_i;
               if s_DS_latch_count /= 0 then
                 s_DS_latch_count <= s_DS_latch_count - 1;
               end if;
@@ -394,14 +394,14 @@ begin
                 -- Keep only the local part of the address.
                 s_vme_addr_reg <= addr_decoder_i;
 
-                if VME_DS_n_i = "11" then
+                if vme_ds_n_i = "11" then
                   s_mainFSMstate <= WAIT_FOR_DS;
                 else
                   s_mainFSMstate <= LATCH_DS;
                 end if;
               else
                 -- Another board will answer; wait here the rising edge on
-                -- VME_AS_i (done by top if).
+                -- vme_as_i (done by top if).
                 s_mainFSMstate <= WAIT_END;
               end if;
             else
@@ -413,10 +413,10 @@ begin
             -- wait until DS /= "11"
             -- Note: before entering this state, s_DS_latch_count must be set.
 
-            if VME_DS_n_i /= "11" then
+            if vme_ds_n_i /= "11" then
               -- VITAL-1 Table 4-1
               -- For interrupts ack, the handler MUST NOT drive WRITE* low
-              s_WRITElatched_n <= VME_WRITE_n_i;
+              s_WRITElatched_n <= vme_write_n_i;
               if s_DS_latch_count /= 0 then
                 s_DS_latch_count <= s_DS_latch_count - 1;
               end if;
@@ -432,8 +432,8 @@ begin
             -- VITA-1 Rule 2.53a
             -- During all read cycles [...], the responding slave MUST NOT
             -- drive the D[] lines until DSA* goes low.
-            VME_DATA_DIR_o   <= s_WRITElatched_n;
-            VME_ADDR_DIR_o   <= '0';
+            vme_data_dir_o   <= s_WRITElatched_n;
+            vme_addr_dir_o   <= '0';
 
             if s_transferType = MBLT then
               s_dataPhase <= '1';
@@ -456,23 +456,23 @@ begin
               end if;
 
               -- Read DS (which is delayed to avoid metastability).
-              s_DSlatched_n  <= VME_DS_n_i;
+              s_DSlatched_n  <= vme_ds_n_i;
 
               -- Read DATA (which are stable)
-              s_locDataIn(63 downto 33) <= VME_ADDR_i;
-              s_LWORDlatched_n          <= VME_LWORD_n_i;
-              s_vme_data_reg            <= VME_DATA_i;
+              s_locDataIn(63 downto 33) <= vme_addr_i;
+              s_LWORDlatched_n          <= vme_lword_n_i;
+              s_vme_data_reg            <= vme_data_i;
             else
               s_mainFSMstate   <= LATCH_DS;
               s_DS_latch_count <= s_DS_latch_count - 1;
             end if;
 
           when CHECK_TRANSFER_TYPE =>
-            VME_DATA_DIR_o   <= s_WRITElatched_n;
-            VME_ADDR_DIR_o   <= '0';
+            vme_data_dir_o   <= s_WRITElatched_n;
+            vme_addr_dir_o   <= '0';
             s_dataPhase      <= s_dataPhase;
 
-            --  VME_ADDR is an output during MBLT *read* data transfer.
+            --  vme_addr is an output during MBLT *read* data transfer.
             if s_transferType = MBLT and s_WRITElatched_n = '1' then
               s_vme_addr_dir  <= '1';
             else
@@ -521,9 +521,9 @@ begin
           when MEMORY_REQ =>
             -- To request the memory CR/CSR or WB memory it is sufficient to
             -- generate a pulse on s_conf_req signal
-            VME_DTACK_OE_o   <= '1';
-            VME_DATA_DIR_o   <= s_WRITElatched_n;
-            VME_ADDR_DIR_o   <= s_vme_addr_dir;
+            vme_dtack_oe_o   <= '1';
+            vme_data_dir_o   <= s_WRITElatched_n;
+            vme_addr_dir_o   <= s_vme_addr_dir;
 
             -- Assert STB if stall was asserted.
             wb_stb_o <= s_card_sel and wb_stall_i;
@@ -596,13 +596,13 @@ begin
             end if;
 
           when DATA_TO_BUS =>
-            VME_DTACK_OE_o   <= '1';
-            VME_DATA_DIR_o   <= s_WRITElatched_n;
-            VME_ADDR_DIR_o   <= s_vme_addr_dir;
+            vme_dtack_oe_o   <= '1';
+            vme_data_dir_o   <= s_WRITElatched_n;
+            vme_addr_dir_o   <= s_vme_addr_dir;
 
-            VME_ADDR_o    <= s_locDataOut(63 downto 33);
-            VME_LWORD_n_o <= s_locDataOut(32);
-            VME_DATA_o    <= s_locDataOut(31 downto 0);
+            vme_addr_o    <= s_locDataOut(63 downto 33);
+            vme_lword_n_o <= s_locDataOut(32);
+            vme_data_o    <= s_locDataOut(31 downto 0);
 
             -- VITA-1 Rule 2.54a
             -- During all read cycles, the responding Slave MUST NOT drive
@@ -610,27 +610,27 @@ begin
             s_mainFSMstate   <= DTACK_LOW;
 
           when DTACK_LOW =>
-            VME_DTACK_OE_o   <= '1';
-            VME_DATA_DIR_o   <= s_WRITElatched_n;
-            VME_ADDR_DIR_o   <= s_vme_addr_dir;
+            vme_dtack_oe_o   <= '1';
+            vme_data_dir_o   <= s_WRITElatched_n;
+            vme_addr_dir_o   <= s_vme_addr_dir;
 
             --  Set DTACK (or retry or berr)
             if s_card_sel = '1' and s_err = '1' then
-              VME_BERR_n_o  <= '0';
+              vme_berr_n_o  <= '0';
             else
-              VME_DTACK_n_o <= '0';
+              vme_dtack_n_o <= '0';
             end if;
 
             -- VITA-1 Rule 2.57
             -- Once the responding Slave has driven DTACK* or BERR* low, it
             -- MUST NOT release them or drive DTACK* high until it detects
             -- both DS0* and DS1* high.
-            if VME_DS_n_i = "11" then
-              VME_DATA_DIR_o  <= '0';
-              VME_BERR_n_o    <= '1';
+            if vme_ds_n_i = "11" then
+              vme_data_dir_o  <= '0';
+              vme_berr_n_o    <= '1';
 
               -- Rescind DTACK.
-              VME_DTACK_n_o <= '1';
+              vme_dtack_n_o <= '1';
 
               --  DS latch counter
               s_DS_latch_count <= to_unsigned (c_num_latchDS, 3);
@@ -656,8 +656,8 @@ begin
             end if;
 
           when INCREMENT_ADDR =>
-            VME_DTACK_OE_o   <= '1';
-            VME_ADDR_DIR_o   <= s_vme_addr_dir;
+            vme_dtack_oe_o   <= '1';
+            vme_addr_dir_o   <= s_vme_addr_dir;
 
             if s_vme_lword_n_reg = '0' then
               if s_transferType = MBLT then
@@ -683,20 +683,20 @@ begin
             s_mainFSMstate   <= WAIT_FOR_DS;
 
           when IRQ_CHECK =>
-            if VME_IACKIN_n_i = '0' then
-              if s_ADDRlatched(3 downto 1) = INT_Level_i
+            if vme_iackin_n_i = '0' then
+              if s_ADDRlatched(3 downto 1) = int_level_i
                 and irq_pending_i = '1'
               then
                 -- That's for us
                 s_locDataOut <= (others => '0');
-                s_locDataOut (7 downto 0) <= INT_Vector_i;
+                s_locDataOut (7 downto 0) <= int_vector_i;
                 s_irq_sel <= '1';
                 irq_ack_o <= '1';
 
                 s_mainFSMstate <= WAIT_FOR_DS;
               else
                 -- Pass
-                VME_IACKOUT_n_o <= '0';
+                vme_iackout_n_o <= '0';
                 s_mainFSMstate <= IRQ_PASS;
               end if;
             else
@@ -705,7 +705,7 @@ begin
 
           when IRQ_PASS =>
             -- Will stay here until AS is released.
-            VME_IACKOUT_n_o <= '0';
+            vme_iackout_n_o <= '0';
             s_mainFSMstate <= IRQ_PASS;
 
           when WAIT_END =>
@@ -722,8 +722,8 @@ begin
   end process;
 
   -- Retry is not supported
-  VME_RETRY_n_o  <= '1';
-  VME_RETRY_OE_o <= '0';
+  vme_retry_n_o  <= '1';
+  vme_retry_oe_o <= '0';
 
   -- WB Master
   with g_WB_GRANULARITY select

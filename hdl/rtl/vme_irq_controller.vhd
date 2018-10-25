@@ -38,14 +38,14 @@ entity vme_irq_controller is
   port (
     clk_i           : in  std_logic;
     rst_n_i         : in  std_logic;
-    INT_Level_i     : in  std_logic_vector (2 downto 0);
-    INT_Req_i       : in  std_logic;
+    int_level_i     : in  std_logic_vector (2 downto 0);
+    int_req_i       : in  std_logic;
 
     -- Set when an irq is pending (not yet acknowledged).
     irq_pending_o   : out std_logic;
 
     irq_ack_i       : in  std_logic;
-    VME_IRQ_n_o     : out std_logic_vector (7 downto 1)
+    vme_irq_n_o     : out std_logic_vector (7 downto 1)
   );
 end vme_irq_controller;
 
@@ -72,7 +72,7 @@ begin
       else
         case retry_state is
           when WAIT_IRQ =>
-            if s_irq_pending = '1' and INT_Req_i = '1' then
+            if s_irq_pending = '1' and int_req_i = '1' then
               retry_state <= WAIT_RETRY;
               retry_count <= (others => '0');
               retry_mask  <= '0';
@@ -81,7 +81,7 @@ begin
             end if;
 
           when WAIT_RETRY =>
-            if INT_Req_i = '0' then
+            if int_req_i = '0' then
               retry_state <= WAIT_IRQ;
             else
               retry_count <= retry_count + 1;
@@ -98,27 +98,27 @@ begin
   begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
-        VME_IRQ_n_o     <= (others => '1');
+        vme_irq_n_o     <= (others => '1');
         s_irq_pending   <= '0';
       else
         if s_irq_pending = '0' then
-          VME_IRQ_n_o     <= (others => '1');
+          vme_irq_n_o     <= (others => '1');
 
-          if INT_Req_i = '1' and retry_mask = '1' then
+          if int_req_i = '1' and retry_mask = '1' then
             s_irq_pending <= '1';
 
             -- Explicit decoding
-            case INT_Level_i is
-              when "001" =>  VME_IRQ_n_o <= "1111110";
-              when "010" =>  VME_IRQ_n_o <= "1111101";
-              when "011" =>  VME_IRQ_n_o <= "1111011";
-              when "100" =>  VME_IRQ_n_o <= "1110111";
-              when "101" =>  VME_IRQ_n_o <= "1101111";
-              when "110" =>  VME_IRQ_n_o <= "1011111";
-              when "111" =>  VME_IRQ_n_o <= "0111111";
+            case int_level_i is
+              when "001" =>  vme_irq_n_o <= "1111110";
+              when "010" =>  vme_irq_n_o <= "1111101";
+              when "011" =>  vme_irq_n_o <= "1111011";
+              when "100" =>  vme_irq_n_o <= "1110111";
+              when "101" =>  vme_irq_n_o <= "1101111";
+              when "110" =>  vme_irq_n_o <= "1011111";
+              when "111" =>  vme_irq_n_o <= "0111111";
               when others =>
-                --  Incorrect value for INT_Level_i, ignore it.
-                VME_IRQ_n_o <= "1111111";
+                --  Incorrect value for int_level_i, ignore it.
+                vme_irq_n_o <= "1111111";
                 s_irq_pending <= '0';
             end case;
           end if;

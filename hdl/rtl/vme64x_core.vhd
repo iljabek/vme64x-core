@@ -11,47 +11,47 @@ use work.vme64x_pkg.all;
 
 entity vme64x_core is
   generic (
-    g_clock_period    : natural;
-    g_decode_am       : boolean := true;
-    g_user_csr_ext    : boolean := false;
-    g_wb_granularity  : t_wishbone_address_granularity;
-    g_manufacturer_id : std_logic_vector(23 downto 0);
-    g_board_id        : std_logic_vector(31 downto 0);
-    g_revision_id     : std_logic_vector(31 downto 0);
-    g_program_id      : std_logic_vector(7 downto 0);
-    g_ascii_ptr       : std_logic_vector(23 downto 0) := x"000000";
-    g_beg_user_cr     : std_logic_vector(23 downto 0) := x"000000";
-    g_end_user_cr     : std_logic_vector(23 downto 0) := x"000000";
-    g_beg_cram        : std_logic_vector(23 downto 0) := x"000000";
-    g_end_cram        : std_logic_vector(23 downto 0) := x"000000";
-    g_beg_user_csr    : std_logic_vector(23 downto 0) := x"07ff33";
-    g_end_user_csr    : std_logic_vector(23 downto 0) := x"07ff5f";
-    g_beg_sn          : std_logic_vector(23 downto 0) := x"000000";
-    g_end_sn          : std_logic_vector(23 downto 0) := x"000000";
-    g_decoder_0_adem  : std_logic_vector(31 downto 0) := x"ff000000";
-    g_decoder_0_amcap : std_logic_vector(63 downto 0) := x"00000000_0000ff00";
-    g_decoder_0_dawpr : std_logic_vector(7 downto 0)  := x"84";
-    g_decoder_1_adem  : std_logic_vector(31 downto 0) := x"fff80000";
-    g_decoder_1_amcap : std_logic_vector(63 downto 0) := x"ff000000_00000000";
-    g_decoder_1_dawpr : std_logic_vector(7 downto 0)  := x"84";
-    g_decoder_2_adem  : std_logic_vector(31 downto 0) := x"00000000";
-    g_decoder_2_amcap : std_logic_vector(63 downto 0) := x"00000000_00000000";
-    g_decoder_2_dawpr : std_logic_vector(7 downto 0)  := x"84";
-    g_decoder_3_adem  : std_logic_vector(31 downto 0) := x"00000000";
-    g_decoder_3_amcap : std_logic_vector(63 downto 0) := x"00000000_00000000";
-    g_decoder_3_dawpr : std_logic_vector(7 downto 0)  := x"84";
-    g_decoder_4_adem  : std_logic_vector(31 downto 0) := x"00000000";
-    g_decoder_4_amcap : std_logic_vector(63 downto 0) := x"00000000_00000000";
-    g_decoder_4_dawpr : std_logic_vector(7 downto 0)  := x"84";
-    g_decoder_5_adem  : std_logic_vector(31 downto 0) := x"00000000";
-    g_decoder_5_amcap : std_logic_vector(63 downto 0) := x"00000000_00000000";
-    g_decoder_5_dawpr : std_logic_vector(7 downto 0)  := x"84";
-    g_decoder_6_adem  : std_logic_vector(31 downto 0) := x"00000000";
-    g_decoder_6_amcap : std_logic_vector(63 downto 0) := x"00000000_00000000";
-    g_decoder_6_dawpr : std_logic_vector(7 downto 0)  := x"84";
-    g_decoder_7_adem  : std_logic_vector(31 downto 0) := x"00000000";
-    g_decoder_7_amcap : std_logic_vector(63 downto 0) := x"00000000_00000000";
-    g_decoder_7_dawpr : std_logic_vector(7 downto 0)  := x"84");
+    g_CLOCK_PERIOD    : natural;
+    g_DECODE_AM       : boolean := true;
+    g_USER_CSR_EXT    : boolean := false;
+    g_WB_GRANULARITY  : t_wishbone_address_granularity;
+    g_MANUFACTURER_ID : std_logic_vector(23 downto 0);
+    g_BOARD_ID        : std_logic_vector(31 downto 0);
+    g_REVISION_ID     : std_logic_vector(31 downto 0);
+    g_PROGRAM_ID      : std_logic_vector(7 downto 0);
+    g_ASCII_PTR       : std_logic_vector(23 downto 0) := x"000000";
+    g_BEG_USER_CR     : std_logic_vector(23 downto 0) := x"000000";
+    g_END_USER_CR     : std_logic_vector(23 downto 0) := x"000000";
+    g_BEG_CRAM        : std_logic_vector(23 downto 0) := x"000000";
+    g_END_CRAM        : std_logic_vector(23 downto 0) := x"000000";
+    g_BEG_USER_CSR    : std_logic_vector(23 downto 0) := x"07ff33";
+    g_END_USER_CSR    : std_logic_vector(23 downto 0) := x"07ff5f";
+    g_BEG_SN          : std_logic_vector(23 downto 0) := x"000000";
+    g_END_SN          : std_logic_vector(23 downto 0) := x"000000";
+    g_DECODER_0_ADEM  : std_logic_vector(31 downto 0) := x"ff000000";
+    g_DECODER_0_AMCAP : std_logic_vector(63 downto 0) := x"00000000_0000ff00";
+    g_DECODER_0_DAWPR : std_logic_vector(7 downto 0)  := x"84";
+    g_DECODER_1_ADEM  : std_logic_vector(31 downto 0) := x"fff80000";
+    g_DECODER_1_AMCAP : std_logic_vector(63 downto 0) := x"ff000000_00000000";
+    g_DECODER_1_DAWPR : std_logic_vector(7 downto 0)  := x"84";
+    g_DECODER_2_ADEM  : std_logic_vector(31 downto 0) := x"00000000";
+    g_DECODER_2_AMCAP : std_logic_vector(63 downto 0) := x"00000000_00000000";
+    g_DECODER_2_DAWPR : std_logic_vector(7 downto 0)  := x"84";
+    g_DECODER_3_ADEM  : std_logic_vector(31 downto 0) := x"00000000";
+    g_DECODER_3_AMCAP : std_logic_vector(63 downto 0) := x"00000000_00000000";
+    g_DECODER_3_DAWPR : std_logic_vector(7 downto 0)  := x"84";
+    g_DECODER_4_ADEM  : std_logic_vector(31 downto 0) := x"00000000";
+    g_DECODER_4_AMCAP : std_logic_vector(63 downto 0) := x"00000000_00000000";
+    g_DECODER_4_DAWPR : std_logic_vector(7 downto 0)  := x"84";
+    g_DECODER_5_ADEM  : std_logic_vector(31 downto 0) := x"00000000";
+    g_DECODER_5_AMCAP : std_logic_vector(63 downto 0) := x"00000000_00000000";
+    g_DECODER_5_DAWPR : std_logic_vector(7 downto 0)  := x"84";
+    g_DECODER_6_ADEM  : std_logic_vector(31 downto 0) := x"00000000";
+    g_DECODER_6_AMCAP : std_logic_vector(63 downto 0) := x"00000000_00000000";
+    g_DECODER_6_DAWPR : std_logic_vector(7 downto 0)  := x"84";
+    g_DECODER_7_ADEM  : std_logic_vector(31 downto 0) := x"00000000";
+    g_DECODER_7_AMCAP : std_logic_vector(63 downto 0) := x"00000000_00000000";
+    g_DECODER_7_DAWPR : std_logic_vector(7 downto 0)  := x"84");
   port (
     clk_i           : std_logic;
     rst_n_i         : std_logic;
@@ -108,47 +108,47 @@ architecture unwrap of vme64x_core is
 begin
   inst : entity work.xvme64x_core
     generic map (
-      g_clock_period     => g_clock_period,
-      g_decode_am        => g_decode_am,
-      g_user_csr_ext     => g_user_csr_ext,
-      g_wb_granularity   => g_wb_granularity,
-      g_manufacturer_id  => g_manufacturer_id,
-      g_board_id         => g_board_id,
-      g_revision_id      => g_revision_id,
-      g_program_id       => g_program_id,
-      g_ascii_ptr        => g_ascii_ptr,
-      g_beg_user_cr      => g_beg_user_cr,
-      g_end_user_cr      => g_end_user_cr,
-      g_beg_cram         => g_beg_cram,
-      g_end_cram         => g_end_cram,
-      g_beg_user_csr     => g_beg_user_csr,
-      g_end_user_csr     => g_end_user_csr,
-      g_beg_sn           => g_beg_sn,
-      g_end_sn           => g_end_sn,
-      g_decoder(0).adem  => g_decoder_0_adem,
-      g_decoder(0).amcap => g_decoder_0_amcap,
-      g_decoder(0).dawpr => g_decoder_0_dawpr,
-      g_decoder(1).adem  => g_decoder_1_adem,
-      g_decoder(1).amcap => g_decoder_1_amcap,
-      g_decoder(1).dawpr => g_decoder_1_dawpr,
-      g_decoder(2).adem  => g_decoder_2_adem,
-      g_decoder(2).amcap => g_decoder_2_amcap,
-      g_decoder(2).dawpr => g_decoder_2_dawpr,
-      g_decoder(3).adem  => g_decoder_3_adem,
-      g_decoder(3).amcap => g_decoder_3_amcap,
-      g_decoder(3).dawpr => g_decoder_3_dawpr,
-      g_decoder(4).adem  => g_decoder_4_adem,
-      g_decoder(4).amcap => g_decoder_4_amcap,
-      g_decoder(4).dawpr => g_decoder_4_dawpr,
-      g_decoder(5).adem  => g_decoder_5_adem,
-      g_decoder(5).amcap => g_decoder_5_amcap,
-      g_decoder(5).dawpr => g_decoder_5_dawpr,
-      g_decoder(6).adem  => g_decoder_6_adem,
-      g_decoder(6).amcap => g_decoder_6_amcap,
-      g_decoder(6).dawpr => g_decoder_6_dawpr,
-      g_decoder(7).adem  => g_decoder_7_adem,
-      g_decoder(7).amcap => g_decoder_7_amcap,
-      g_decoder(7).dawpr => g_decoder_7_dawpr)
+      g_CLOCK_PERIOD     => g_CLOCK_PERIOD,
+      g_DECODE_AM        => g_DECODE_AM,
+      g_USER_CSR_EXT     => g_USER_CSR_EXT,
+      g_WB_GRANULARITY   => g_WB_GRANULARITY,
+      g_MANUFACTURER_ID  => g_MANUFACTURER_ID,
+      g_BOARD_ID         => g_BOARD_ID,
+      g_REVISION_ID      => g_REVISION_ID,
+      g_PROGRAM_ID       => g_PROGRAM_ID,
+      g_ASCII_PTR        => g_ASCII_PTR,
+      g_BEG_USER_CR      => g_BEG_USER_CR,
+      g_END_USER_CR      => g_END_USER_CR,
+      g_BEG_CRAM         => g_BEG_CRAM,
+      g_END_CRAM         => g_END_CRAM,
+      g_BEG_USER_CSR     => g_BEG_USER_CSR,
+      g_END_USER_CSR     => g_END_USER_CSR,
+      g_BEG_SN           => g_BEG_SN,
+      g_END_SN           => g_END_SN,
+      g_DECODER(0).adem  => g_DECODER_0_ADEM,
+      g_DECODER(0).amcap => g_DECODER_0_AMCAP,
+      g_DECODER(0).dawpr => g_DECODER_0_DAWPR,
+      g_DECODER(1).adem  => g_DECODER_1_ADEM,
+      g_DECODER(1).amcap => g_DECODER_1_AMCAP,
+      g_DECODER(1).dawpr => g_DECODER_1_DAWPR,
+      g_DECODER(2).adem  => g_DECODER_2_ADEM,
+      g_DECODER(2).amcap => g_DECODER_2_AMCAP,
+      g_DECODER(2).dawpr => g_DECODER_2_DAWPR,
+      g_DECODER(3).adem  => g_DECODER_3_ADEM,
+      g_DECODER(3).amcap => g_DECODER_3_AMCAP,
+      g_DECODER(3).dawpr => g_DECODER_3_DAWPR,
+      g_DECODER(4).adem  => g_DECODER_4_ADEM,
+      g_DECODER(4).amcap => g_DECODER_4_AMCAP,
+      g_DECODER(4).dawpr => g_DECODER_4_DAWPR,
+      g_DECODER(5).adem  => g_DECODER_5_ADEM,
+      g_DECODER(5).amcap => g_DECODER_5_AMCAP,
+      g_DECODER(5).dawpr => g_DECODER_5_DAWPR,
+      g_DECODER(6).adem  => g_DECODER_6_ADEM,
+      g_DECODER(6).amcap => g_DECODER_6_AMCAP,
+      g_DECODER(6).dawpr => g_DECODER_6_DAWPR,
+      g_DECODER(7).adem  => g_DECODER_7_ADEM,
+      g_DECODER(7).amcap => g_DECODER_7_AMCAP,
+      g_DECODER(7).dawpr => g_DECODER_7_DAWPR)
     port map (
       clk_i           => clk_i,
       rst_n_i         => rst_n_i,

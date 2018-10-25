@@ -43,9 +43,9 @@ entity vme_user_csr is
     irq_vector_o        : out std_logic_vector( 7 downto 0);
     irq_level_o         : out std_logic_vector( 2 downto 0)
   );
-end VME_User_CSR;
+end vme_user_csr;
 
-architecture rtl of VME_User_CSR is
+architecture rtl of vme_user_csr is
 
   signal s_irq_vector   : std_logic_vector(7 downto 0);
   signal s_irq_level    : std_logic_vector(2 downto 0);

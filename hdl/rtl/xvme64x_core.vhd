@@ -156,7 +156,7 @@ architecture rtl of xvme64x_core is
 
   signal s_reset_n              : std_logic;
 
-  signal s_VME_IRQ_n_o          : std_logic_vector( 7 downto 1);
+  signal s_vme_irq_n_o          : std_logic_vector( 7 downto 1);
   signal s_irq_ack              : std_logic;
   signal s_irq_pending          : std_logic;
 
@@ -187,12 +187,12 @@ architecture rtl of xvme64x_core is
   signal s_am                   : std_logic_vector( 5 downto 0);
 
   -- Oversampled input signals
-  signal s_VME_RST_n            : std_logic;
-  signal s_VME_AS_n             : std_logic;
-  signal s_VME_WRITE_n          : std_logic;
-  signal s_VME_DS_n             : std_logic_vector(1 downto 0);
-  signal s_VME_IACK_n           : std_logic;
-  signal s_VME_IACKIN_n         : std_logic;
+  signal s_vme_rst_n            : std_logic;
+  signal s_vme_as_n             : std_logic;
+  signal s_vme_write_n          : std_logic;
+  signal s_vme_ds_n             : std_logic_vector(1 downto 0);
+  signal s_vme_iack_n           : std_logic;
+  signal s_vme_iackin_n         : std_logic;
 
   -- List of supported AM.
   constant c_AMCAP_ALLOWED : std_logic_vector(63 downto 0) :=
@@ -206,8 +206,8 @@ begin
 
   --  Check for invalid bits in ADEM/AMCAP
   gen_gchecks: for i in 7 downto 0 generate
-    constant adem : std_logic_vector(31 downto 0) := g_decoder(i).adem;
-    constant amcap : std_logic_vector(63 downto 0) := g_decoder(i).amcap;
+    constant adem  : std_logic_vector(31 downto 0) := g_DECODER(i).adem;
+    constant amcap : std_logic_vector(63 downto 0) := g_DECODER(i).amcap;
   begin
     assert adem(c_ADEM_FAF) = '0' report "FAF bit set in ADEM"
       severity failure;
@@ -227,7 +227,7 @@ begin
   -- necessary to avoid metastability problems, but of course the transfer rate
   -- will be slow down a little.
   -- NOTE: the reset value is '0', which means that all signals are active
-  -- at reset. But not for a long time and so is s_VME_RST_n.
+  -- at reset. But not for a long time and so is s_vme_rst_n.
   inst_vme_rst_resync: entity work.gc_sync_register
     generic map (g_width => 1)
     port map (clk_i => clk_i,
@@ -272,7 +272,7 @@ begin
     port map (clk_i => clk_i,
               rst_n_a_i => rst_n_i,
               d_i(0) => vme_i.iackin_n,
-              q_o(0) => s_VME_IACKIN_n);
+              q_o(0) => s_vme_iackin_n);
 
   ------------------------------------------------------------------------------
   -- VME Bus
@@ -286,28 +286,28 @@ begin
       rst_n_i         => s_reset_n,
 
       -- VME
-      VME_AS_n_i      => s_VME_AS_n,
-      VME_LWORD_n_o   => vme_o.lword_n,
-      VME_LWORD_n_i   => vme_i.lword_n,
-      VME_RETRY_n_o   => vme_o.retry_n,
-      VME_RETRY_OE_o  => vme_o.retry_oe,
-      VME_WRITE_n_i   => s_VME_WRITE_n,
-      VME_DS_n_i      => s_VME_DS_n,
-      VME_DTACK_n_o   => vme_o.dtack_n,
-      VME_DTACK_OE_o  => vme_o.dtack_oe,
-      VME_BERR_n_o    => s_vme_berr_n,
-      VME_ADDR_i      => vme_i.addr,
-      VME_ADDR_o      => vme_o.addr,
-      VME_ADDR_DIR_o  => vme_o.addr_dir,
-      VME_ADDR_OE_N_o => vme_o.addr_oe_n,
-      VME_DATA_i      => vme_i.data,
-      VME_DATA_o      => vme_o.data,
-      VME_DATA_DIR_o  => vme_o.data_dir,
-      VME_DATA_OE_N_o => vme_o.data_oe_n,
-      VME_AM_i        => vme_i.am,
-      VME_IACKIN_n_i  => s_VME_IACKIN_n,
-      VME_IACK_n_i    => s_VME_IACK_n,
-      VME_IACKOUT_n_o => vme_o.iackout_n,
+      vme_as_n_i      => s_vme_as_n,
+      vme_lword_n_o   => vme_o.lword_n,
+      vme_lword_n_i   => vme_i.lword_n,
+      vme_retry_n_o   => vme_o.retry_n,
+      vme_retry_oe_o  => vme_o.retry_oe,
+      vme_write_n_i   => s_vme_write_n,
+      vme_ds_n_i      => s_vme_ds_n,
+      vme_dtack_n_o   => vme_o.dtack_n,
+      vme_dtack_oe_o  => vme_o.dtack_oe,
+      vme_berr_n_o    => s_vme_berr_n,
+      vme_addr_i      => vme_i.addr,
+      vme_addr_o      => vme_o.addr,
+      vme_addr_dir_o  => vme_o.addr_dir,
+      vme_addr_oe_n_o => vme_o.addr_oe_n,
+      vme_data_i      => vme_i.data,
+      vme_data_o      => vme_o.data,
+      vme_data_dir_o  => vme_o.data_dir,
+      vme_data_oe_n_o => vme_o.data_oe_n,
+      vme_am_i        => vme_i.am,
+      vme_iackin_n_i  => s_vme_iackin_n,
+      vme_iack_n_i    => s_vme_iack_n,
+      vme_iackout_n_o => vme_o.iackout_n,
 
       -- WB signals
       wb_stb_o        => wb_o.stb,
@@ -337,19 +337,19 @@ begin
       module_enable_i => s_module_enable,
       bar_i           => s_bar,
 
-      INT_Level_i     => s_irq_level,
-      INT_Vector_i    => s_irq_vector,
+      int_level_i     => s_irq_level,
+      int_vector_i    => s_irq_vector,
       irq_pending_i   => s_irq_pending,
       irq_ack_o       => s_irq_ack);
 
-  s_reset_n  <= rst_n_i and s_VME_RST_n;
+  s_reset_n  <= rst_n_i and s_vme_rst_n;
   rst_n_o    <= s_reset_n and (not s_module_reset);
 
   vme_o.berr_n <= s_vme_berr_n;
 
   inst_vme_funct_match : entity work.vme_funct_match
     generic map (
-      g_decoder   => g_decoder,
+      g_DECODER   => g_DECODER,
       g_DECODE_AM => g_DECODE_AM
     )
     port map (
@@ -380,11 +380,11 @@ begin
     port map (
       clk_i           => clk_i,
       rst_n_i         => s_reset_n,
-      INT_Level_i     => s_irq_level,
-      INT_Req_i       => int_i,
+      int_level_i     => s_irq_level,
+      int_req_i       => int_i,
       irq_pending_o   => s_irq_pending,
       irq_ack_i       => s_irq_ack,
-      VME_IRQ_n_o     => vme_o.irq_n
+      vme_irq_n_o     => vme_o.irq_n
     );
 
   ------------------------------------------------------------------------------
@@ -405,7 +405,7 @@ begin
       g_END_USER_CSR     => g_END_USER_CSR,
       g_BEG_SN           => g_BEG_SN,
       g_END_SN           => g_END_SN,
-      g_decoder          => g_decoder
+      g_DECODER          => g_DECODER
     )
     port map (
       clk_i               => clk_i,
