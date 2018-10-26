@@ -324,7 +324,7 @@ begin
             s_AMlatched      <= vme_am_i;
 
             if vme_iack_n_i = '1' then
-              -- VITA-1 Rule 2.11
+              -- ANSI/VITA 1-1994 Rule 2.11
               -- Slaves MUST NOT respond to DTB cycles when IACK* is low.
               s_mainFSMstate <= REFORMAT_ADDRESS;
             else
@@ -356,7 +356,7 @@ begin
             --  DS latch counter
             s_DS_latch_count <= to_unsigned (c_num_latchDS, 3);
 
-            --  VITA-1 Rule 2.6
+            --  ANSI/VITA 1-1994 Rule 2.6
             --  A Slave MUST NOT respond with a falling edge on DTACK* during
             --  an unaligned transfer cycle, if it does not have UAT
             --  capability.
@@ -414,7 +414,7 @@ begin
             -- Note: before entering this state, s_DS_latch_count must be set.
 
             if vme_ds_n_i /= "11" then
-              -- VITAL-1 Table 4-1
+              -- ANSI/VITA 1-1994 Table 4-1
               -- For interrupts ack, the handler MUST NOT drive WRITE* low
               s_WRITElatched_n <= vme_write_n_i;
               if s_DS_latch_count /= 0 then
@@ -429,7 +429,7 @@ begin
             -- This state is necessary indeed the VME master can assert the
             -- DS lines not at the same time.
 
-            -- VITA-1 Rule 2.53a
+            -- ANSI/VITA 1-1994 Rule 2.53a
             -- During all read cycles [...], the responding slave MUST NOT
             -- drive the D[] lines until DSA* goes low.
             vme_data_dir_o   <= s_WRITElatched_n;
@@ -501,7 +501,7 @@ begin
               end case;
             end if;
 
-            --  VITA-1 Rule 2.6
+            --  ANSI/VITA 1-1994 Rule 2.6
             --  A Slave MUST NOT respond with a falling edge on DTACK* during
             --  an unaligned transfer cycle, if it does not have UAT
             --  capability.
@@ -604,7 +604,7 @@ begin
             vme_lword_n_o <= s_locDataOut(32);
             vme_data_o    <= s_locDataOut(31 downto 0);
 
-            -- VITA-1 Rule 2.54a
+            -- ANSI/VITA 1-1994 Rule 2.54a
             -- During all read cycles, the responding Slave MUST NOT drive
             -- DTACK* low before it drives D[].
             s_mainFSMstate   <= DTACK_LOW;
@@ -621,7 +621,7 @@ begin
               vme_dtack_n_o <= '0';
             end if;
 
-            -- VITA-1 Rule 2.57
+            -- ANSI/VITA 1-1994 Rule 2.57
             -- Once the responding Slave has driven DTACK* or BERR* low, it
             -- MUST NOT release them or drive DTACK* high until it detects
             -- both DS0* and DS1* high.

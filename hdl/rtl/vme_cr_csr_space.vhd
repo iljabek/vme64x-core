@@ -316,8 +316,8 @@ begin
 
   -- Write
   process (clk_i)
-    -- Write to ADER bytes, if implemented. Take advantage of VITAL-1-1 Rule
-    -- 10.19
+    -- Write to ADER bytes, if implemented. Take advantage of
+    -- ANSI/VITA 1.1-1997 Rule 10.19
     procedure Set_ADER (idx : natural range 0 to 7) is
       variable v_byte  : integer;
     begin
@@ -360,7 +360,7 @@ begin
                   s_reg_bit_reg <= s_reg_bit_reg or data_i;
                 when "01" => -- Bit Clr
                   s_reg_bit_reg <= s_reg_bit_reg and not data_i;
-                  --  VITAL-1-1 Rule 10.27
+                  --  ANSI/VITA 1.1-1997 Rule 10.27
                   --  4) Ownership shall be released by writing any value with
                   --     bit 2 set (eg 0x04) to the CSR Bit Clear Register
                   --     located at 0x7fff7. This clears the CRAM_OWNER
@@ -370,7 +370,7 @@ begin
                     s_reg_cram_owner <= x"00";
                   end if;
                 when "00" => -- CRAM_OWNER
-                  --  VITAL-1-1 Rule 10.27
+                  --  ANSI/VITA 1.1-1997 Rule 10.27
                   --  2) Writing to CRAM_OWNER register when it contains a non-
                   --     zero value shall not change the value of the
                   --     CRAM_OWNER. That allows the first master that writes
@@ -457,7 +457,7 @@ begin
       if rst_n_i = '0' then
         s_csr_data <= x"00";
       else
-        -- VITAL-1-1 Rule 10.14
+        -- ANSI/VITA 1.1-1997 Rule 10.14
         -- All unimplemented locations in the Defined CSR Area shall read as
         -- 0x00
         s_csr_data <= x"00";
