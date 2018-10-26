@@ -121,7 +121,7 @@ entity vme_cr_csr_space is
     clk_i               : in  std_logic;
     rst_n_i             : in  std_logic;
 
-    vme_ga_i            : in  std_logic_vector(5 downto 0);
+    vme_ga_i            : in  std_logic_vector(4 downto 0);
     vme_berr_n_i        : in  std_logic;
     bar_o               : out std_logic_vector(4 downto 0);
     module_enable_o     : out std_logic;
@@ -146,7 +146,6 @@ end vme_cr_csr_space;
 architecture rtl of vme_cr_csr_space is
 
   signal s_addr             : unsigned(18 downto 2);
-  signal s_ga_parity        : std_logic;
   signal s_reg_bar          : std_logic_vector(7 downto 0);
   signal s_reg_bit_reg      : std_logic_vector(7 downto 0);
   signal s_reg_cram_owner   : std_logic_vector(7 downto 0);
@@ -309,11 +308,6 @@ begin
                            s_addr <= c_END_CSR
                       else '0';
 
-  -- If the crate is not driving the GA lines or the parity is even the BAR
-  -- register is set to 0x00 and the board will not answer CR/CSR accesses.
-  s_ga_parity  <= vme_ga_i(5) xor vme_ga_i(4) xor vme_ga_i(3) xor
-                  vme_ga_i(2) xor vme_ga_i(1) xor vme_ga_i(0);
-
   -- Write
   process (clk_i)
     -- Write to ADER bytes, if implemented. Take advantage of
@@ -332,11 +326,7 @@ begin
   begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
-        if s_ga_parity = '1' then
-          s_reg_bar       <= (not vme_ga_i(4 downto 0)) & "000";
-        else
-          s_reg_bar       <= x"00";
-        end if;
+        s_reg_bar         <= vme_ga_i & "000";
         s_reg_bit_reg     <= x"00";
         s_reg_cram_owner  <= x"00";
         s_reg_usr_bit_reg <= x"00";

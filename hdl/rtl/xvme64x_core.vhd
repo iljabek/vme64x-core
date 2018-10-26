@@ -187,6 +187,8 @@ architecture rtl of xvme64x_core is
   signal s_vme_irq_n_o          : std_logic_vector( 7 downto 1);
   signal s_irq_ack              : std_logic;
   signal s_irq_pending          : std_logic;
+  signal s_ga                   : std_logic_vector( 4 downto 0);
+  signal s_ga_parity            : std_logic;
 
   -- CR/CSR
   signal s_cr_csr_addr          : std_logic_vector(18 downto 2);
@@ -416,6 +418,16 @@ begin
     );
 
   ------------------------------------------------------------------------------
+  -- Geographical address
+  ------------------------------------------------------------------------------
+  s_ga_parity <= vme_i.ga(5) xor vme_i.ga(4) xor vme_i.ga(3) xor
+                 vme_i.ga(2) xor vme_i.ga(1) xor vme_i.ga(0);
+
+  -- ANSI/VITA 1.1-1997 Recommendation 3.8: set the "amnesia address"
+  -- of 0x1E if bad parity.
+  s_ga <= not vme_i.ga(4 downto 0) when s_ga_parity = '1' else '1' & x"e";
+
+  ------------------------------------------------------------------------------
   -- CR/CSR space
   ------------------------------------------------------------------------------
   gen_enable_cr_csr : if g_ENABLE_CR_CSR = true generate
@@ -440,7 +452,7 @@ begin
         clk_i               => clk_i,
         rst_n_i             => s_reset_n,
 
-        vme_ga_i            => vme_i.ga,
+        vme_ga_i            => s_ga,
         vme_berr_n_i        => s_vme_berr_n,
         bar_o               => s_bar,
         module_enable_o     => s_module_enable,
@@ -493,8 +505,8 @@ begin
     user_cr_addr_o    <= (others => '0');
     s_module_enable   <= '1';
     s_module_reset    <= '0';
-    s_bar             <= (others => '0');
-    s_ader            <= compute_static_ader(not vme_i.ga(4 downto 0));
+    s_bar             <= s_ga;
+    s_ader            <= compute_static_ader(s_ga);
   end generate;
 
   user_csr_addr_o <= s_user_csr_addr;
