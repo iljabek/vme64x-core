@@ -106,7 +106,7 @@ entity vme_cr_csr_space is
     g_MANUFACTURER_ID : std_logic_vector(23 downto 0);
     g_BOARD_ID        : std_logic_vector(31 downto 0);
     g_REVISION_ID     : std_logic_vector(31 downto 0);
-    g_PROGRAM_ID      : std_logic_vector(7 downto 0);
+    g_PROGRAM_ID      : std_logic_vector( 7 downto 0);
     g_ASCII_PTR       : std_logic_vector(23 downto 0);
     g_BEG_USER_CR     : std_logic_vector(23 downto 0);
     g_END_USER_CR     : std_logic_vector(23 downto 0);
@@ -184,9 +184,9 @@ architecture rtl of vme_cr_csr_space is
 
   -- ADER bits to be stored, in addition to the corresponding ADEM ones.
   -- (ie AM + XAM).
-  constant c_ADER_MASK : std_logic_vector(31 downto 0) := x"0000_00fd";
+  constant c_ADER_MASK      : std_logic_vector(31 downto 0) := x"0000_00fd";
   -- Corresponding ADEM bits.
-  constant c_ADEM_MASK : std_logic_vector(31 downto 0) := x"ffff_ff00";
+  constant c_ADEM_MASK      : std_logic_vector(31 downto 0) := x"ffff_ff00";
 
   -- CRAM
   type t_cram is array (c_CRAM_SIZE-1 downto 0) of std_logic_vector(7 downto 0);
@@ -199,16 +199,16 @@ architecture rtl of vme_cr_csr_space is
 
   -- Addresses
   subtype crcsr_addr is unsigned(18 downto 2);
-  constant c_BEG_CR       : crcsr_addr := to_unsigned(16#00000# / 4, 17);
-  constant c_END_CR       : crcsr_addr := to_unsigned(16#00fff# / 4, 17);
-  constant c_BEG_CSR      : crcsr_addr := to_unsigned(16#7ff60# / 4, 17);
-  constant c_END_CSR      : crcsr_addr := to_unsigned(16#7ffff# / 4, 17);
-  constant c_BEG_USER_CR  : crcsr_addr := unsigned(g_BEG_USER_CR(18 downto 2));
-  constant c_END_USER_CR  : crcsr_addr := unsigned(g_END_USER_CR(18 downto 2));
-  constant c_BEG_USER_CSR : crcsr_addr := unsigned(g_BEG_USER_CSR(18 downto 2));
-  constant c_END_USER_CSR : crcsr_addr := unsigned(g_END_USER_CSR(18 downto 2));
-  constant c_BEG_CRAM     : crcsr_addr := unsigned(g_BEG_CRAM(18 downto 2));
-  constant c_END_CRAM     : crcsr_addr := unsigned(g_END_CRAM(18 downto 2));
+  constant c_BEG_CR         : crcsr_addr := to_unsigned(16#00000# / 4, 17);
+  constant c_END_CR         : crcsr_addr := to_unsigned(16#00fff# / 4, 17);
+  constant c_BEG_CSR        : crcsr_addr := to_unsigned(16#7ff60# / 4, 17);
+  constant c_END_CSR        : crcsr_addr := to_unsigned(16#7ffff# / 4, 17);
+  constant c_BEG_USER_CR    : crcsr_addr := unsigned(g_BEG_USER_CR(18 downto 2));
+  constant c_END_USER_CR    : crcsr_addr := unsigned(g_END_USER_CR(18 downto 2));
+  constant c_BEG_USER_CSR   : crcsr_addr := unsigned(g_BEG_USER_CSR(18 downto 2));
+  constant c_END_USER_CSR   : crcsr_addr := unsigned(g_END_USER_CSR(18 downto 2));
+  constant c_BEG_CRAM       : crcsr_addr := unsigned(g_BEG_CRAM(18 downto 2));
+  constant c_END_CRAM       : crcsr_addr := unsigned(g_END_CRAM(18 downto 2));
 
   -- Indexes in bit set/clr register
   constant c_RESET_BIT      : integer := 7;
@@ -327,7 +327,7 @@ begin
       end if;
     end Set_ADER;
 
-    variable csr_idx   : unsigned(7 downto 4);
+    variable csr_idx  : unsigned(7 downto 4);
     variable csr_boff : unsigned(3 downto 2);
   begin
     if rising_edge(clk_i) then
