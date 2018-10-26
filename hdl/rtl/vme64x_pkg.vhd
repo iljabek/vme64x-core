@@ -184,6 +184,7 @@ package vme64x_pkg is
     generic (
       g_CLOCK_PERIOD    : natural;
       g_DECODE_AM       : boolean := true;
+      g_ENABLE_CR_CSR   : boolean := true;
       g_USER_CSR_EXT    : boolean := false;
       g_WB_GRANULARITY  : t_wishbone_address_granularity;
 
