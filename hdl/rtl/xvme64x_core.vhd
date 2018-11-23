@@ -513,5 +513,5 @@ begin
   user_csr_data_o <= s_user_csr_data_o;
   user_csr_we_o   <= s_user_csr_we;
 
-  assert wb_i.rty = '0' report "rty not supported";
+  assert wb_i.rty /= '1' report "rty not supported";
 end rtl;
